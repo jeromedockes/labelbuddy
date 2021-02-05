@@ -1,0 +1,20 @@
+<?xml version='1.0' ?>
+<document_set>
+  <document title="good book" doi="4567">first xml document:
+
+  first document,
+  containing this
+  and
+
+
+
+  that
+  </document>
+  <document doi="789">
+
+    this
+is
+
+    another docu; ment
+  </document>
+</document_set>

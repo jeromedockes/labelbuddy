@@ -1,0 +1,4 @@
+[
+    ["ONE JSON a json document, ", {"doi": "json123"}],
+    ["TWO JSON other doc", {"doi": "json 456"}]
+]

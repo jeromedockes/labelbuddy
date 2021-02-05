@@ -1,0 +1,6 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+  <file>data/LB.png</file>
+  <file>data/VERSION.txt</file>
+</qresource>
+</RCC>
