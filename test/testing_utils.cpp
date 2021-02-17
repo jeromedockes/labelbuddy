@@ -11,8 +11,8 @@ QString prepare_db(QTemporaryDir& tmp_dir) {
   auto file_path = tmp_dir.filePath("db.sqlite");
   DatabaseCatalog catalog{};
   catalog.open_database(file_path);
-  catalog.import_documents(":test/data/documents.txt");
-  catalog.import_labels(":test/data/labels.json");
+  catalog.import_documents(":test/data/test_documents.json");
+  catalog.import_labels(":test/data/test_labels.json");
   return file_path;
 }
 

@@ -90,6 +90,38 @@ bool XmlDocsReader::read_next() {
   return true;
 }
 
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument& json) {
+  if (json.isArray()) {
+    return json_to_doc_record(json.array());
+  } else {
+    return json_to_doc_record(json.object());
+  }
+}
+
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonValue& json) {
+  if (json.isArray()) {
+    return json_to_doc_record(json.toArray());
+  } else {
+    return json_to_doc_record(json.toObject());
+  }
+}
+
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject& json) {
+  std::unique_ptr<DocRecord> record(new DocRecord);
+  record->content = json["text"].toString();
+  record->extra_data =
+      QJsonDocument(json["meta"].toObject()).toJson(QJsonDocument::Compact);
+  return record;
+}
+
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonArray& json) {
+  std::unique_ptr<DocRecord> record(new DocRecord);
+  record->content = json[0].toString();
+  record->extra_data =
+      QJsonDocument(json[1].toObject()).toJson(QJsonDocument::Compact);
+  return record;
+}
+
 JsonDocsReader::JsonDocsReader(const QString& file_path)
     : DocsReader(file_path) {
   if (!is_open()) {
@@ -107,11 +139,7 @@ bool JsonDocsReader::read_next() {
   if (total_n_docs == 0 || current_doc == all_docs.constEnd()) {
     return false;
   }
-  std::unique_ptr<DocRecord> new_record(new DocRecord);
-  new_record->content = current_doc->toArray()[0].toString();
-  new_record->extra_data = QJsonDocument(current_doc->toArray()[1].toObject())
-                               .toJson(QJsonDocument::Compact);
-  set_current_record(std::move(new_record));
+  set_current_record(json_to_doc_record(*current_doc));
   ++current_doc;
   ++n_seen;
   return true;
@@ -131,11 +159,8 @@ bool JsonLinesDocsReader::read_next() {
     return false;
   }
   std::unique_ptr<DocRecord> new_record(new DocRecord);
-  auto json_doc = QJsonDocument::fromJson(stream.readLine().toUtf8()).array();
-  new_record->content = json_doc[0].toString();
-  new_record->extra_data =
-      QJsonDocument(json_doc[1].toObject()).toJson(QJsonDocument::Compact);
-  set_current_record(std::move(new_record));
+  auto json_doc = QJsonDocument::fromJson(stream.readLine().toUtf8());
+  set_current_record(json_to_doc_record(json_doc));
   return true;
 }
 
@@ -183,7 +208,7 @@ void AnnotationsJsonLinesWriter::add_document(
   if (content != QVariant()) {
     doc_json.insert("text", content.toString());
   }
-  doc_json.insert("extra_data", extra_data);
+  doc_json.insert("meta", extra_data);
   if (user_name != QString()) {
     doc_json.insert("annotation_approver", user_name);
   }
@@ -252,16 +277,16 @@ void AnnotationsXmlWriter::add_document(const QString& md5,
                                         const QString& user_name) {
 
   xml.writeStartElement("annotated_document");
+  xml.writeTextElement("document_md5_checksum", md5);
+  xml.writeStartElement(content != QVariant() ? "document" : "meta");
   for (auto key_val = extra_data.constBegin(); key_val != extra_data.constEnd();
        ++key_val) {
-    xml.writeAttribute(key_val.key(), key_val.value().toString());
+    xml.writeAttribute(key_val.key(), key_val.value().toVariant().toString());
   }
-  xml.writeTextElement("document_md5_checksum", md5);
   if (content != QVariant()) {
-    xml.writeStartElement("document");
     xml.writeCharacters(content.toString());
-    xml.writeEndElement();
   }
+  xml.writeEndElement();
   if (user_name != QString()) {
     xml.writeTextElement("annotation_approver", user_name);
   }
@@ -282,6 +307,18 @@ void AnnotationsXmlWriter::add_annotations(
     xml.writeEndElement();
   }
   xml.writeEndElement();
+}
+
+LabelRecord json_to_label_record(const QJsonValue& json) {
+  LabelRecord record;
+  if (json.isObject()) {
+    record.name = json.toObject()["text"].toString();
+    record.color = json.toObject()["background_color"].toString();
+  } else {
+    record.name = json.toArray()[0].toString();
+    record.color = json.toArray()[1].toString();
+  }
+  return record;
 }
 
 QString DatabaseCatalog::get_default_database_path() {
@@ -406,24 +443,44 @@ int DatabaseCatalog::import_documents(const QString& file_path,
   return n_after - n_before;
 }
 
+QJsonArray read_json_array(const QString& file_path) {
+  QFile file(file_path);
+  auto suffix = QFileInfo(file).suffix();
+  if (suffix == "json") {
+    if (!file.open(QIODevice::ReadOnly)) {
+      return QJsonArray{};
+    }
+    return QJsonDocument::fromJson(file.readAll()).array();
+  }
+  QJsonArray result{};
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    return result;
+  }
+  QTextStream stream(&file);
+  while (!stream.atEnd()) {
+    result << QJsonArray{QJsonValue(stream.readLine())};
+  }
+  return result;
+}
+
 int DatabaseCatalog::import_labels(const QString& file_path) {
   QSqlQuery query(QSqlDatabase::database(current_database));
   query.exec("select count(*) from label;");
   query.next();
   auto n_before = query.value(0).toInt();
-  QFile file(file_path);
-  if (!file.open(QIODevice::ReadOnly)) {
-    return 0;
-  }
-  auto json_array = QJsonDocument::fromJson(file.readAll()).array();
+  auto json_array = read_json_array(file_path);
+  QStringList colors{"#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
+                     "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"};
+  int color_index{};
   for (auto label_info : json_array) {
-    auto json_object = label_info.toObject();
-    query.prepare("insert into label (name, color) values (:text, :color)");
-    query.bindValue(":text", json_object.take("text"));
-    QString color = json_object.contains("background_color")
-                        ? json_object.take("background_color").toString()
-                        : QString("#FFA000");
-    query.bindValue(":color", color);
+    auto label_record = json_to_label_record(label_info);
+    if (!QColor::isValidColor(label_record.color)) {
+      label_record.color = colors[color_index % colors.length()];
+      ++color_index;
+    }
+    query.prepare("insert into label (name, color) values (:name, :color)");
+    query.bindValue(":name", label_record.name);
+    query.bindValue(":color", label_record.color);
     query.exec();
   }
   query.exec("select count(*) from label;");

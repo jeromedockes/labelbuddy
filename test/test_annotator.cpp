@@ -1,7 +1,7 @@
+#include <QItemSelectionModel>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTemporaryDir>
-#include <QItemSelectionModel>
 
 #include "annotations_model.h"
 #include "annotator.h"
@@ -22,14 +22,14 @@ void TestAnnotator::test_annotator() {
   annotator.set_label_list_model(&labels_model);
   annotations_model.visit_next();
   auto text = annotator.findChild<SearchableText*>();
-  QCOMPARE(text->get_text_edit()->toPlainText(),
-           QString("TWO this is another, different document"));
+  QVERIFY(
+      text->get_text_edit()->toPlainText().startsWith(QString("document 1")));
   auto nav = annotator.findChild<AnnotationsNavButtons*>();
   auto labels = annotator.findChild<LabelChoices*>();
   auto search = text->findChild<QLineEdit*>();
   auto lv = labels->findChild<QListView*>();
   QVERIFY(!lv->isEnabled());
-  search->setText(", different");
+  search->setText("Friday 17 December 1999");
   text->search_forward();
   QVERIFY(lv->isEnabled());
   auto del = labels->findChild<QPushButton*>();
@@ -46,7 +46,7 @@ void TestAnnotator::test_annotator() {
   QCOMPARE(annotations_model.get_annotations_info().size(), 0);
   nav->findChildren<QPushButton*>()[4]->click();
   QCOMPARE(annotations_model.current_doc_position(), 2);
-  search->setText("THREE");
+  search->setText("document 2");
   text->search_forward();
   lv->selectionModel()->select(labels_model.index(1, 0),
                                QItemSelectionModel::SelectCurrent);

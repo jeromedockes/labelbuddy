@@ -37,7 +37,6 @@ private slots:
 
   void open_database();
   void open_new_database();
-  void store_notebook_page(int new_index);
   void show_about_info();
   void open_documentation_url();
 
@@ -45,6 +44,7 @@ private:
   QTabWidget* notebook;
   DatabaseCatalog database_catalog;
 
+  void store_notebook_page();
   void add_menubar();
   void set_geometry();
 };

@@ -53,8 +53,6 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path)
   add_menubar();
   set_geometry();
 
-  QObject::connect(notebook, &QTabWidget::currentChanged, this,
-                   &LabelBuddy::store_notebook_page);
   QObject::connect(dataset_menu, &DatasetMenu::visit_doc_requested,
                    annotations_model, &AnnotationsModel::visit_doc);
   QObject::connect(dataset_menu, &DatasetMenu::visit_doc_requested, this,
@@ -130,15 +128,12 @@ void LabelBuddy::add_menubar() {
 void LabelBuddy::open_database() {
   auto file_path = QFileDialog::getOpenFileName(
       this, "Documents file", database_catalog.get_current_directory(),
-      "SQLite databses (*.sql *.sqlite3);; All files (*)");
+      "SQLite databses (*.sql *.sqlite *.sqlite3);; All files (*)");
   if (file_path == QString()) {
     return;
   }
-  database_catalog.set_app_state_extra("notebook_page",
-                                       notebook->currentIndex());
+  store_notebook_page();
   database_catalog.open_database(file_path);
-  notebook->setCurrentIndex(
-      database_catalog.get_app_state_extra("notebook_page", 2).toInt());
   emit database_changed(file_path);
 }
 
@@ -150,15 +145,18 @@ void LabelBuddy::open_new_database() {
   if (file_path == QString()) {
     return;
   }
+  store_notebook_page();
   database_catalog.open_database(file_path);
   emit database_changed(file_path);
 }
 
-void LabelBuddy::store_notebook_page(int new_index) {
-  database_catalog.set_app_state_extra("notebook_page", new_index);
+void LabelBuddy::store_notebook_page() {
+  database_catalog.set_app_state_extra("notebook_page",
+                                       notebook->currentIndex());
 }
 
 void LabelBuddy::closeEvent(QCloseEvent* event) {
+  store_notebook_page();
   QSettings settings("labelbuddy", "labelbuddy");
   settings.setValue("LabelBuddy/geometry", saveGeometry());
   settings.setValue("last_opened_database",

@@ -1,9 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-  <file>test/data/documents.txt</file>
-  <file>test/data/documents.xml</file>
-  <file>test/data/documents.json</file>
-  <file>test/data/documents.jsonl</file>
-  <file>test/data/labels.json</file>
+  <file>test/data/test_documents.json</file>
+  <file>test/data/test_labels.json</file>
 </qresource>
 </RCC>

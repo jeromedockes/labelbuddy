@@ -63,6 +63,11 @@ private:
   bool found_error{};
 };
 
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument&);
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonValue&);
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject&);
+std::unique_ptr<DocRecord> json_to_doc_record(const QJsonArray&);
+
 class JsonDocsReader : public DocsReader {
 
 public:
@@ -159,6 +164,14 @@ private:
 
   void add_annotations(const QList<Annotation> annotations);
 };
+
+struct LabelRecord {
+  QString name;
+  QString color;
+};
+
+LabelRecord json_to_label_record(const QJsonValue& json);
+QJsonArray read_json_array(const QString& file_path);
 
 class DatabaseCatalog : public QWidget {
 

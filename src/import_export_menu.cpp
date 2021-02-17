@@ -145,9 +145,9 @@ void ImportExportMenu::import_documents() {
   auto start_dir = suggest_dir(DirRole::import_docs);
   auto file_path = QFileDialog::getOpenFileName(
       this, "Documents file", start_dir,
-      "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files: *.txt "
-      "(*.txt);; JSON files: *.json (*.json);; JSON Lines files: *.jsonl "
-      "(*.jsonl);; XML files: *.xml (*.xml);; All files (*)");
+      "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files "
+      "(*.txt);; JSON files (*.json);; JSON Lines files (*.jsonl);; XML files "
+      "(*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -165,7 +165,8 @@ void ImportExportMenu::import_labels() {
   auto start_dir = suggest_dir(DirRole::import_labels);
   auto file_path = QFileDialog::getOpenFileName(
       this, "Labels file", start_dir,
-      "JSON files: *.json (*.json);; All files (*)");
+      "labelbuddy labels (*.txt *.json);; JSON files (*.json);; Text files "
+      "(*.txt);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -182,8 +183,8 @@ void ImportExportMenu::export_annotations() {
   auto start_dir = suggest_dir(DirRole::export_annotations);
   auto file_path = QFileDialog::getSaveFileName(
       this, "Annotations file", start_dir,
-      "JSON files: *.json (*.json);; JSON Lines files: *.jsonl (*.jsonl);; XML "
-      "files: *.xml (*.xml);; All files (*)");
+      "JSON files (*.json);; JSON Lines files (*.jsonl);; XML files (*.xml);; "
+      "All files (*)");
   if (file_path == QString()) {
     return;
   }

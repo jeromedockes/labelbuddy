@@ -14,10 +14,10 @@ void TestDocListModel::test_delete_docs() {
   auto db_name = prepare_db(tmp_dir);
   DocListModel model{};
   model.set_database(db_name);
-  QCOMPARE(model.rowCount(), 4);
+  QCOMPARE(model.rowCount(), 6);
   QList<QModelIndex> indices{model.index(1, 0), model.index(2, 0)};
   model.delete_docs(indices);
-  QCOMPARE(model.rowCount(), 2);
+  QCOMPARE(model.rowCount(), 4);
   QSqlQuery query(QSqlDatabase::database(db_name));
   query.exec("select id from document order by id;");
   query.next();
@@ -36,11 +36,11 @@ void TestDocListModel::test_filters() {
   QCOMPARE(model.rowCount(), 1);
   QCOMPARE(model.data(model.index(0, 0), Roles::RowIdRole).toInt(), 1);
   model.adjust_query(DocListModel::DocFilter::unlabelled);
-  QCOMPARE(model.rowCount(), 3);
+  QCOMPARE(model.rowCount(), 5);
   QCOMPARE(model.data(model.index(0, 0), Roles::RowIdRole).toInt(), 2);
   QCOMPARE(model.data(model.index(1, 0), Roles::RowIdRole).toInt(), 3);
   model.adjust_query(DocListModel::DocFilter::all);
-  QCOMPARE(model.rowCount(), 4);
+  QCOMPARE(model.rowCount(), 6);
   QCOMPARE(model.data(model.index(3, 0), Roles::RowIdRole).toInt(), 4);
 }
 

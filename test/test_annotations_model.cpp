@@ -28,7 +28,7 @@ void TestAnnotationsModel::test_add_and_delete_annotations() {
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
   auto labels_info = model.get_labels_info();
-  QCOMPARE(labels_info[3].color, QString("#00FF00"));
+  QCOMPARE(labels_info[3].color, QString("#98df8a"));
   auto annotations = model.get_annotations_info();
   QCOMPARE(annotations[3].end_char, 12);
 }
@@ -43,10 +43,14 @@ void TestAnnotationsModel::test_navigation() {
   model.add_annotation(2, 3, 5);
   model.visit_next_unlabelled();
   QCOMPARE(model.current_doc_position(), 2);
-  QVERIFY(model.get_content().startsWith("THREE"));
+  QVERIFY(model.get_content().startsWith("document 2"));
   model.visit_next();
   model.visit_next_unlabelled();
-  QCOMPARE(model.current_doc_position(), 3);
+  QCOMPARE(model.current_doc_position(), 4);
+  for (int i = 0; i != 20; ++i) {
+    model.visit_next_unlabelled();
+  }
+  QCOMPARE(model.current_doc_position(), 5);
   QCOMPARE(model.get_annotations_info().size(), 0);
   model.visit_prev_labelled();
   QCOMPARE(model.current_doc_position(), 1);
