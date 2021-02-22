@@ -10,8 +10,8 @@
 
 #include "annotations_model.h"
 #include "label_list_model.h"
-#include "searchable_text.h"
 #include "no_deselect_all_view.h"
+#include "searchable_text.h"
 
 namespace labelbuddy {
 
@@ -91,6 +91,7 @@ public:
   void set_label_list_model(LabelListModel*);
   int annotation_at_pos(int) const;
   int active_annotation_label() const;
+  bool is_monospace() const;
 
 signals:
 
@@ -106,6 +107,7 @@ public slots:
   void update_annotations();
   void update_nav_buttons();
   void store_state();
+  void set_monospace_font(bool monospace = true);
 
 private:
   void fetch_labels_info();
@@ -126,6 +128,7 @@ private:
   AnnotationsModel* annotations_model = nullptr;
   AnnotationsNavButtons* nav_buttons;
   int default_weight;
+  bool monospace_font{};
 };
 
 } // namespace labelbuddy

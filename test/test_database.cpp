@@ -22,6 +22,22 @@ void TestDatabase::test_open_database() {
   QCOMPARE(db.tables(), expected);
   QCOMPARE(catalog.get_current_database(), file_path);
   QCOMPARE(catalog.get_current_directory(), tmp_dir.filePath(""));
+
+  catalog.open_temp_database();
+  QCOMPARE(catalog.get_last_opened_directory(), tmp_dir.filePath(""));
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 5);
+  query.exec("select count(*) from label where name = 'pronoun';");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 1);
+  catalog.open_database(file_path);
+  QCOMPARE(catalog.get_current_database(), file_path);
+  QSqlQuery new_query(QSqlDatabase::database(catalog.get_current_database()));
+  new_query.exec("select count(*) from label where name = 'pronoun';");
+  new_query.next();
+  QCOMPARE(new_query.value(0).toInt(), 0);
 }
 
 void TestDatabase::test_import_export_docs_data() {
@@ -36,7 +52,7 @@ void TestDatabase::test_import_export_docs_data() {
   QList<QString> export_formats{"json", "jsonl", "xml"};
   QList<bool> false_true{false, true};
   int i{};
-  for (auto export_format : export_formats) {
+  for (const auto& export_format : export_formats) {
     for (auto with_content : false_true) {
       for (auto export_all : false_true) {
         QTest::newRow(QString("row %0").arg(i).toUtf8().data())
@@ -48,7 +64,7 @@ void TestDatabase::test_import_export_docs_data() {
               << "xml" << false << with_meta << export_format << with_content
               << export_all;
           ++i;
-          for (auto import_format : json_import_formats) {
+          for (const auto& import_format : json_import_formats) {
             for (auto as_objects : false_true) {
               QTest::newRow(QString("row %0").arg(i).toUtf8().data())
                   << import_format << as_objects << with_meta << export_format
@@ -85,11 +101,103 @@ void TestDatabase::test_import_export_docs() {
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
+  auto export_file = check_exported_docs(catalog, tmp_dir);
+  check_import_back(catalog, export_file);
+}
+
+void TestDatabase::check_import_back(DatabaseCatalog& catalog,
+                                     const QString& export_file) {
+  QFETCH(QString, export_format);
+
+  if (export_format == "xml") {
+    // import annotations from xml not supported yet
+    return;
+  }
+
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 3);
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 6);
+
+  catalog.import_documents(export_file);
+
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 3);
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 6);
+
+  query.exec("delete from annotation;");
+
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 0);
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 6);
+
+  catalog.import_documents(export_file);
+
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 3);
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 6);
+
+  query.exec(
+      "select doc_id, label_id, start_char from annotation order by rowid;");
+
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 2);
+  QCOMPARE(query.value(1).toInt(), 1);
+  QCOMPARE(query.value(2).toInt(), 3);
+
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 2);
+  QCOMPARE(query.value(1).toInt(), 2);
+  QCOMPARE(query.value(2).toInt(), 5);
+
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 3);
+  QCOMPARE(query.value(1).toInt(), 1);
+  QCOMPARE(query.value(2).toInt(), 3);
+
+  QFETCH(bool, export_with_content);
+  if (!export_with_content) {
+    return;
+  }
+  query.exec("delete from document;");
+
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 0);
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 0);
+
+  catalog.import_documents(export_file);
+
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 3);
+
+  QFETCH(bool, export_all);
+
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), (export_all ? 6 : 2));
+
+  QTemporaryDir tmp_dir{};
   check_exported_docs(catalog, tmp_dir);
 }
 
-void TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
-                                       QTemporaryDir& tmp_dir) {
+QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
+                                          QTemporaryDir& tmp_dir) {
   QFETCH(QString, export_format);
   QFETCH(bool, export_with_content);
   QFETCH(bool, export_all);
@@ -111,6 +219,7 @@ void TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
   } else {
     check_exported_docs_json(out_file, docs);
   }
+  return out_file;
 }
 
 void TestDatabase::check_exported_docs_xml(const QString& file_path,
@@ -125,7 +234,7 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
   xml.readNextStartElement();
   QCOMPARE(xml.name().toString(), QString("annotated_document_set"));
 
-  for (auto doc : docs) {
+  for (const auto& doc : docs) {
     auto json_data = doc.toArray();
     auto meta = json_data[1].toObject();
     while (!xml.readNextStartElement()) {
@@ -229,7 +338,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
   }
 
   int i{};
-  for (auto doc : docs) {
+  for (const auto& doc : docs) {
     auto json_data = doc.toArray();
     auto meta = json_data[1].toObject();
     auto output_json = output_json_data[i].toObject();
@@ -241,9 +350,8 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
       QCOMPARE(
           output_json.value("meta").toObject().value("original_md5").toString(),
           meta.value("original_md5").toString());
-      QCOMPARE(
-          output_json.value("meta").toObject().value("title").toString(),
-          meta.value("title").toString());
+      QCOMPARE(output_json.value("meta").toObject().value("title").toString(),
+               meta.value("title").toString());
     }
     if (export_with_content) {
       if (import_format != "txt") {
@@ -260,8 +368,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
       auto annotation = output_json.value("labels").toArray()[0].toArray();
       QCOMPARE(annotation[0].toInt(), 3);
       QCOMPARE(annotation[1].toInt(), 4);
-      QCOMPARE(annotation[2].toString(),
-               QString("label: Reinício da sessão"));
+      QCOMPARE(annotation[2].toString(), QString("label: Reinício da sessão"));
 
       annotation = output_json.value("labels").toArray()[1].toArray();
       QCOMPARE(annotation[0].toInt(), 5);
@@ -273,8 +380,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
       auto annotation = output_json.value("labels").toArray()[0].toArray();
       QCOMPARE(annotation[0].toInt(), 3);
       QCOMPARE(annotation[1].toInt(), 4);
-      QCOMPARE(annotation[2].toString(),
-               QString("label: Reinício da sessão"));
+      QCOMPARE(annotation[2].toString(), QString("label: Reinício da sessão"));
     }
     ++i;
   }
@@ -302,7 +408,7 @@ void TestDatabase::create_documents_file_txt(const QString& file_path,
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream out(&file);
   out.setCodec("UTF-8");
-  for (auto doc : docs) {
+  for (const auto& doc : docs) {
     out << doc.toArray()[0].toString().replace("\n", "\t") << "\n";
   }
 }
@@ -316,7 +422,7 @@ void TestDatabase::create_documents_file_xml(const QString& file_path,
   xml.setAutoFormatting(true);
   xml.writeStartDocument();
   xml.writeStartElement("document_set");
-  for (auto doc : docs) {
+  for (const auto& doc : docs) {
     auto doc_array = doc.toArray();
     xml.writeStartElement("document");
     if (import_with_meta) {
@@ -347,7 +453,7 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
     out << "[\n";
   }
   int i{};
-  for (auto doc : docs) {
+  for (const auto& doc : docs) {
     if (i) {
       if (!jsonl) {
         out << ",";

@@ -1,5 +1,5 @@
-#include <QSqlDatabase>
 #include <QColor>
+#include <QSqlDatabase>
 
 #include "label_list_model.h"
 #include "user_roles.h"
@@ -20,6 +20,9 @@ QSqlQuery LabelListModel::get_query() const {
 
 QVariant LabelListModel::data(const QModelIndex& index, int role) const {
   if (role == Roles::RowIdRole) {
+    if (index.column() != 0) {
+      return QVariant{};
+    }
     return QSqlQueryModel::data(index.sibling(index.row(), 1), Qt::DisplayRole);
   }
   if (role == Qt::BackgroundRole) {
@@ -35,8 +38,16 @@ QVariant LabelListModel::data(const QModelIndex& index, int role) const {
   return QSqlQueryModel::data(index, role);
 }
 
+Qt::ItemFlags LabelListModel::flags(const QModelIndex& index) const {
+  auto default_flags = QSqlQueryModel::flags(index);
+  if (index.column() == 0) {
+    return default_flags;
+  }
+  return default_flags & (~Qt::ItemIsSelectable);
+}
+
 QModelIndex LabelListModel::label_id_to_model_index(int label_id) const {
-  auto start = index(0, 1);
+  auto start = index(0, 0);
   auto matches =
       match(start, Roles::RowIdRole, QVariant(label_id), 1, Qt::MatchExactly);
   if (matches.length() == 0) {
@@ -54,13 +65,19 @@ int LabelListModel::total_n_labels() const {
 
 int LabelListModel::delete_labels(const QModelIndexList& indices) {
   auto query = get_query();
+  query.exec("begin transaction;");
   query.prepare("delete from label where id = ?");
   QVariantList ids;
+  QVariant rowid;
   for (const QModelIndex& index : indices) {
-    ids << data(index, Roles::RowIdRole).toInt();
+    rowid = data(index, Roles::RowIdRole);
+    if (rowid != QVariant()) {
+      ids << rowid;
+    }
   }
   query.addBindValue(ids);
   query.execBatch();
+  query.exec("commit transaction;");
   refresh_current_query();
   emit labels_deleted();
   emit labels_changed();

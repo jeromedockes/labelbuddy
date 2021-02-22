@@ -1,0 +1,34 @@
+THIS IS A TEMPORARY DATABASE.
+
+It will disappear when you close the application. This database contains a few documents and labels to allow trying out labelbuddy. You can create annotations, import more documents and labels and export annotations, but the database itself will be removed when labelbuddy exits.
+
+If you decide to start a real project you want to keep, from the File menu select "New" and choose a location on your filesystem to create a persistent database. You can also close labelbuddy and open it again and by default it will open a database in your home directory: ~/labelbuddy_data.sqlite3.
+
+Time to start annotating documents! Select some text with the mouse and click on one of the labels on the left to annotate it.
+
+Once you have made annotations you can select any of them by clicking it. It becomes underlined and bold and you can then change its label or remove it.
+
+If you create a new annotation that overlaps with a previously existing one, the existing one is automatically removed.
+
+Annotations are inserted in the database as you create them so there is no need for a "Save" button.
+
+Here is a summary of the keybindings available in this page:
+
+<Ctrl> and scroll the mouse: zoom or de-zoom the text
+<Ctrl>-F: search
+<Enter>: next search match
+<Shift>-<Enter>: previous search match
+<Ctrl>-J, <Ctrl>-N, <Down>: scroll down one line
+<Ctrl>-K, <Ctrl>-P, <Up>: scroll up one line
+<Ctrl>-D: scroll down one page
+<Ctrl>-U: scroll up one page
+
+If you prefer to read these documents with a fixed width font, select in the menu bar "Preferences" > "monospace font".
+
+Once you are done annotating this document, you can click "Next" above to move on to another one.
+
+The next document is the labelbuddy documentation, and then a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help" > "Documentation".
+
+To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Dataset" tab.
+
+To export your annotations or import more documents or labels, go to the "Import / Export" tab.

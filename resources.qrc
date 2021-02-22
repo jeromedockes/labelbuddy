@@ -2,5 +2,7 @@
 <qresource>
   <file>data/LB.png</file>
   <file>data/VERSION.txt</file>
+  <file>docs/example_data/example_documents.json</file>
+  <file>docs/example_data/example_labels.txt</file>
 </qresource>
 </RCC>

@@ -6,7 +6,6 @@
 #include <QSettings>
 #include <QSize>
 #include <QTabWidget>
-#include <QUrl>
 
 #include "annotations_model.h"
 #include "database.h"
@@ -26,7 +25,7 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path)
   notebook = new QTabWidget();
   setCentralWidget(notebook);
 
-  Annotator* annotator = new Annotator();
+  annotator = new Annotator();
   notebook->addTab(annotator, "Annotate");
 
   DatasetMenu* dataset_menu = new DatasetMenu();
@@ -77,6 +76,8 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path)
                    doc_model, &DocListModel::refresh_current_query);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
                    annotations_model, &AnnotationsModel::check_current_doc);
+  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
+                   annotator, &Annotator::update_annotations);
 
   QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
                    label_model, &LabelListModel::refresh_current_query);
@@ -106,13 +107,28 @@ void LabelBuddy::add_menubar() {
   file_menu->addAction(open_db_action);
   auto open_new_db_action = new QAction("New", this);
   file_menu->addAction(open_new_db_action);
+  auto temp_db_action = new QAction("Demo", this);
+  file_menu->addAction(temp_db_action);
   auto quit_action = new QAction("Quit", this);
   file_menu->addAction(quit_action);
   QObject::connect(open_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_database);
   QObject::connect(open_new_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_new_database);
+  QObject::connect(temp_db_action, &QAction::triggered, this,
+                   &LabelBuddy::open_temp_database);
   QObject::connect(quit_action, &QAction::triggered, this, &LabelBuddy::close);
+
+  auto preferences_menu = menuBar()->addMenu("Preferences");
+  auto set_monospace_action = new QAction("Monospace font", this);
+  set_monospace_action->setCheckable(true);
+  QSettings settings("labelbuddy", "labelbuddy");
+  set_monospace_action->setChecked(
+      settings.value("Labelbuddy/monospace_font").toInt());
+  preferences_menu->addAction(set_monospace_action);
+  annotator->set_monospace_font(set_monospace_action->isChecked());
+  QObject::connect(set_monospace_action, &QAction::triggered, annotator,
+                   &Annotator::set_monospace_font);
 
   auto help_menu = menuBar()->addMenu("Help");
   auto show_about_action = new QAction("About", this);
@@ -127,7 +143,7 @@ void LabelBuddy::add_menubar() {
 
 void LabelBuddy::open_database() {
   auto file_path = QFileDialog::getOpenFileName(
-      this, "Documents file", database_catalog.get_current_directory(),
+      this, "Documents file", database_catalog.get_last_opened_directory(),
       "SQLite databses (*.sql *.sqlite *.sqlite3);; All files (*)");
   if (file_path == QString()) {
     return;
@@ -139,7 +155,7 @@ void LabelBuddy::open_database() {
 
 void LabelBuddy::open_new_database() {
   auto file_path = QFileDialog::getSaveFileName(
-      this, "Documents file", database_catalog.get_current_directory(),
+      this, "Documents file", database_catalog.get_last_opened_directory(),
       "SQLite databses (*.sql *.sqlite *.sqlite3);; All files (*)", nullptr,
       QFileDialog::DontConfirmOverwrite);
   if (file_path == QString()) {
@@ -148,6 +164,12 @@ void LabelBuddy::open_new_database() {
   store_notebook_page();
   database_catalog.open_database(file_path);
   emit database_changed(file_path);
+}
+
+void LabelBuddy::open_temp_database() {
+  store_notebook_page();
+  auto db_path = database_catalog.open_temp_database();
+  emit database_changed(db_path);
 }
 
 void LabelBuddy::store_notebook_page() {
@@ -159,8 +181,8 @@ void LabelBuddy::closeEvent(QCloseEvent* event) {
   store_notebook_page();
   QSettings settings("labelbuddy", "labelbuddy");
   settings.setValue("LabelBuddy/geometry", saveGeometry());
-  settings.setValue("last_opened_database",
-                    database_catalog.get_current_database());
+  settings.setValue("Labelbuddy/monospace_font",
+                    int(annotator->is_monospace()));
   emit about_to_close();
   QMainWindow::closeEvent(event);
 }
@@ -183,6 +205,6 @@ void LabelBuddy::show_about_info() {
 }
 
 void LabelBuddy::open_documentation_url() {
-  QDesktopServices::openUrl(QUrl("https://github.com/jeromedockes/labelbuddy"));
+  QDesktopServices::openUrl(get_doc_url());
 }
 } // namespace labelbuddy

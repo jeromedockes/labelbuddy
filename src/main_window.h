@@ -37,11 +37,13 @@ private slots:
 
   void open_database();
   void open_new_database();
+  void open_temp_database();
   void show_about_info();
   void open_documentation_url();
 
 private:
   QTabWidget* notebook;
+  Annotator* annotator;
   DatabaseCatalog database_catalog;
 
   void store_notebook_page();

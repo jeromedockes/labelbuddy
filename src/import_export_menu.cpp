@@ -59,7 +59,7 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
         QList<QString>{"export_annotations", "import_labels", "import_docs"};
     break;
   }
-  for (auto opt : options) {
+  for (const auto& opt : options) {
     auto setting_name = QString("ImportExportMenu/directory_%0").arg(opt);
     auto setting_value =
         database_catalog->get_app_state_extra(setting_name, QString())
@@ -68,7 +68,7 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
       return setting_value;
     }
   }
-  return database_catalog->get_current_directory();
+  return database_catalog->get_last_opened_directory();
 }
 
 void ImportExportMenu::update_database_info() {
@@ -89,7 +89,7 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   auto export_layout = new QGridLayout();
   export_frame->setLayout(export_layout);
 
-  auto import_docs_button = new QPushButton("Import documents");
+  auto import_docs_button = new QPushButton("Import docs && annotations");
   import_layout->addWidget(import_docs_button, Qt::AlignLeft);
   import_docs_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   auto import_labels_button = new QPushButton("Import labels");
@@ -125,9 +125,10 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   db_path_frame->setLayout(db_path_layout);
   auto db_path_label = new QLabel("Current database path:");
   db_path_layout->addWidget(db_path_label);
-  db_path_line = new QLineEdit();
+  db_path_line = new QLabel();
   db_path_layout->addWidget(db_path_line);
-  db_path_line->setReadOnly(true);
+  db_path_line->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  db_path_layout->addStretch(1);
 
   layout->addStretch(1);
 
@@ -154,11 +155,15 @@ void ImportExportMenu::import_documents() {
   store_parent_dir(file_path, DirRole::import_docs);
   auto n_added = database_catalog->import_documents(file_path, this);
   emit documents_added();
-  QMessageBox::information(this, "labelbuddy",
-                           QString("Added %0 new document%1")
-                               .arg(n_added)
-                               .arg(n_added != 1 ? "s" : ""),
-                           QMessageBox::Ok);
+  emit labels_added();
+  QMessageBox::information(
+      this, "labelbuddy",
+      QString("Added %0 new document%1 and %2 new annotation%3")
+          .arg(n_added[0])
+          .arg(n_added[0] != 1 ? "s" : "")
+          .arg(n_added[1])
+          .arg(n_added[1] != 1 ? "s" : ""),
+      QMessageBox::Ok);
 }
 
 void ImportExportMenu::import_labels() {
@@ -193,15 +198,17 @@ void ImportExportMenu::export_annotations() {
                                         annotator_name_edit->text());
   auto n_exported = database_catalog->export_annotations(
       file_path, labelled_only_checkbox->isChecked(),
-      include_docs_checkbox->isChecked(), annotator_name_edit->text());
+      include_docs_checkbox->isChecked(), annotator_name_edit->text(), this);
   database_catalog->set_app_state_extra("export_labelled_only",
                                         labelled_only_checkbox->isChecked());
   database_catalog->set_app_state_extra("export_include_doc_text",
                                         include_docs_checkbox->isChecked());
   QMessageBox::information(this, "labelbuddy",
-                           QString("Exported %0 annotations for %1 documents")
+                           QString("Exported %0 annotation%1 for %2 document%3")
                                .arg(n_exported[1])
-                               .arg(n_exported[0]),
+                               .arg(n_exported[1] == 1 ? "" : "s")
+                               .arg(n_exported[0])
+                               .arg(n_exported[0] == 1 ? "" : "s"),
                            QMessageBox::Ok);
 }
 

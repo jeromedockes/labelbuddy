@@ -14,6 +14,7 @@ public:
   LabelListModel(QObject* parent = nullptr);
 
   QVariant data(const QModelIndex& index, int role) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   QModelIndex label_id_to_model_index(int label_id) const;
 

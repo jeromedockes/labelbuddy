@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QIcon>
@@ -22,8 +24,8 @@ int main(int argc, char* argv[]) {
   const QStringList args = parser.positionalArguments();
 
   QString db_path = (args.length() == 0) ? QString() : args[0];
-  labelbuddy::LabelBuddy* label_buddy =
-      new labelbuddy::LabelBuddy(nullptr, db_path);
+  std::unique_ptr<labelbuddy::LabelBuddy> label_buddy(
+      new labelbuddy::LabelBuddy(nullptr, db_path));
   app.setWindowIcon(QIcon(":/data/LB.png"));
   label_buddy->show();
   return app.exec();

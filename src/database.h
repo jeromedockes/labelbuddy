@@ -10,6 +10,7 @@
 #include <QSet>
 #include <QSqlQuery>
 #include <QString>
+#include <QTemporaryFile>
 #include <QTextStream>
 #include <QVariant>
 #include <QWidget>
@@ -21,6 +22,9 @@ namespace labelbuddy {
 struct DocRecord {
   QString content;
   QByteArray extra_data;
+  QString declared_md5;
+  QJsonArray annotations;
+  bool valid_content = true;
 };
 
 class DocsReader {
@@ -178,16 +182,21 @@ class DatabaseCatalog : public QWidget {
   Q_OBJECT
 
 public:
-  void open_database(const QString& database_path = QString());
-  int import_documents(const QString& file_path, QWidget* parent = nullptr);
+  void open_database(const QString& database_path = QString(),
+                     bool remember = true);
+  QString open_temp_database();
+  QList<int> import_documents(const QString& file_path,
+                              QWidget* parent = nullptr);
   int import_labels(const QString& file_path);
   QList<int> export_annotations(const QString& file_path,
                                 bool labelled_docs_only = true,
                                 bool include_documents = true,
-                                const QString& user_name = "");
+                                const QString& user_name = "",
+                                QWidget* parent = nullptr);
 
   QString get_current_database() const;
   QString get_current_directory() const;
+  QString get_last_opened_directory() const;
   QString parent_directory(const QString& file_path) const;
   QVariant get_app_state_extra(const QString& key,
                                const QVariant& default_value) const;
@@ -196,12 +205,21 @@ public:
 private:
   QSet<QString> databases{};
   QString current_database;
+  std::unique_ptr<QTemporaryFile> temp_database = nullptr;
 
   void create_tables();
   QString get_default_database_path();
+  int insert_doc_record(const DocRecord& record, QSqlQuery& query);
+  void insert_label(QSqlQuery& query, const QString& label_name,
+                    const QString& color = QString());
   int write_doc_and_annotations(AnnotationsWriter& writer, int doc_id,
                                 bool include_document,
                                 const QString& user_name);
+
+  const QStringList label_colors{"#aec7e8", "#ffbb78", "#98df8a", "#ff9896",
+                                 "#c5b0d5", "#c49c94", "#f7b6d2", "#c7c7c7",
+                                 "#dbdb8d", "#9edae5"};
+  int color_index{};
 };
 
 } // namespace labelbuddy

@@ -4,6 +4,7 @@
 #include <QCheckBox>
 #include <QLineEdit>
 #include <QWidget>
+#include <QLabel>
 
 #include "database.h"
 
@@ -38,7 +39,7 @@ private:
   QLineEdit* annotator_name_edit;
   QCheckBox* labelled_only_checkbox;
   QCheckBox* include_docs_checkbox;
-  QLineEdit* db_path_line;
+  QLabel* db_path_line;
 };
 } // namespace labelbuddy
 

@@ -3,6 +3,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QString>
@@ -241,7 +242,7 @@ DocList::DocList(QWidget* parent) : QFrame(parent) {
                    &DocList::delete_all_docs);
 
   QObject::connect(buttons_frame, &DocListButtons::visit_doc, this,
-                   [=](){this->visit_doc();});
+                   [=]() { this->visit_doc(); });
 
   QObject::connect(doc_view, &QListView::doubleClicked, this,
                    &DocList::visit_doc);
@@ -270,13 +271,15 @@ void DocList::delete_all_docs() {
   if (resp != QMessageBox::Ok) {
     return;
   }
-  int n_before = model->total_n_docs(DocListModel::DocFilter::all);
-  model->delete_all_docs();
+  QProgressDialog progress("Deleting documents...", "Stop", 0, 0, this);
+  progress.setWindowModality(Qt::WindowModal);
+  progress.setMinimumDuration(2000);
+  auto n_deleted = model->delete_all_docs(&progress);
   doc_view->reset();
   QMessageBox::information(this, "labelbuddy",
                            QString("Deleted %0 document%1")
-                               .arg(n_before)
-                               .arg(n_before > 1 ? "s" : ""),
+                               .arg(n_deleted)
+                               .arg(n_deleted > 1 ? "s" : ""),
                            QMessageBox::Ok);
 }
 
@@ -310,17 +313,17 @@ void DocList::visit_doc(const QModelIndex& index) {
   if (model == nullptr) {
     return;
   }
-  QModelIndex selected_index;
-  if (index.isValid()) {
-    selected_index = index;
-  } else {
-    auto selected = doc_view->selectionModel()->selectedIndexes();
-    if (selected.length() == 0) {
-      return;
-    }
-    selected_index = selected[0];
+  if (index.isValid() && index.column() == 0) {
+    auto doc_id = model->data(index, Roles::RowIdRole).toInt();
+    emit visit_doc_requested(doc_id);
+    return;
   }
-  auto doc_id = model->data(selected_index, Roles::RowIdRole).toInt();
+  auto selected = doc_view->selectionModel()->selectedIndexes();
+  auto found = find_first_in_col_0(selected);
+  if (found == selected.constEnd()) {
+    return;
+  }
+  auto doc_id = model->data(*found, Roles::RowIdRole).toInt();
   emit visit_doc_requested(doc_id);
 }
 
@@ -329,7 +332,13 @@ void DocList::update_select_delete_buttons() {
     return;
   }
   auto selected = doc_view->selectionModel()->selectedIndexes();
-  buttons_frame->update_top_row_buttons(selected.length(), model->rowCount(),
+  int n_rows{};
+  for (const auto& sel : selected) {
+    if (sel.column() == 0) {
+      ++n_rows;
+    }
+  }
+  buttons_frame->update_top_row_buttons(n_rows, model->rowCount(),
                                         model->total_n_docs());
 }
 } // namespace labelbuddy

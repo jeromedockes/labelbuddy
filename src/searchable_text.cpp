@@ -9,6 +9,7 @@
 #include <QPoint>
 #include <QPushButton>
 #include <QScrollBar>
+#include <QStyle>
 #include <QTextDocument>
 #include <QTextEdit>
 #include <QVBoxLayout>
@@ -37,10 +38,12 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   search_box = new QLineEdit();
   search_bar_layout->addWidget(search_box);
   search_box->installEventFilter(this);
-  find_prev_button = new QPushButton("Prev");
+  find_prev_button = new QPushButton();
   search_bar_layout->addWidget(find_prev_button);
-  find_next_button = new QPushButton("Next");
+  find_prev_button->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
+  find_next_button = new QPushButton();
   search_bar_layout->addWidget(find_next_button);
+  find_next_button->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
 
   QAction* search_action = new QAction(this);
   search_action->setShortcuts(
@@ -52,17 +55,24 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
                    &SearchableText::search_forward);
   QObject::connect(find_prev_button, &QPushButton::clicked, this,
                    &SearchableText::search_backward);
-  // QObject::connect(search_box, &QLineEdit::textChanged, this,
-  //                  &SearchableText::continue_search);
+  QObject::connect(search_box, &QLineEdit::textChanged, this,
+                   &SearchableText::update_search_button_states);
 
   QObject::connect(text_edit, &QTextEdit::selectionChanged, this,
                    &SearchableText::set_cursor_position);
+  update_search_button_states();
 }
 
 void SearchableText::fill(const QString& content) {
   text_edit->setText(content);
   text_edit->setProperty("readOnly", true);
   text_edit->setFocus();
+}
+
+void SearchableText::update_search_button_states() {
+  auto has_pattern = search_box->text() != QString();
+  find_next_button->setEnabled(has_pattern);
+  find_prev_button->setEnabled(has_pattern);
 }
 
 void SearchableText::search_forward() { search(); }

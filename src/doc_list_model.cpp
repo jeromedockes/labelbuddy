@@ -26,6 +26,14 @@ QVariant DocListModel::data(const QModelIndex& index, int role) const {
   return QSqlQueryModel::data(index, role);
 }
 
+Qt::ItemFlags DocListModel::flags(const QModelIndex& index) const {
+  auto default_flags = QSqlQueryModel::flags(index);
+  if (index.column() == 0) {
+    return default_flags;
+  }
+  return default_flags & (~Qt::ItemIsSelectable);
+}
+
 void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
                                 int new_offset) {
   limit = new_limit;
@@ -81,24 +89,49 @@ int DocListModel::total_n_docs(DocFilter doc_filter) {
 
 int DocListModel::delete_docs(const QModelIndexList& indices) {
   auto query = get_query();
+  query.exec("begin transaction;");
   query.prepare("delete from document where id = ?");
   QVariantList ids;
+  QVariant rowid;
   for (const QModelIndex& index : indices) {
-    ids << data(index, Roles::RowIdRole).toInt();
+    rowid = data(index, Roles::RowIdRole);
+    if (rowid != QVariant()) {
+      ids << rowid;
+    }
   }
   query.addBindValue(ids);
   query.execBatch();
+  query.exec("commit transaction;");
   refresh_current_query();
   emit docs_deleted();
   return query.numRowsAffected();
 }
 
-int DocListModel::delete_all_docs() {
+int DocListModel::delete_all_docs(QProgressDialog* progress) {
   auto query = get_query();
-  query.exec("delete from document;");
+  int n_deleted{};
+  auto total = total_n_docs(DocListModel::DocFilter::all) + 1;
+  if (progress != nullptr) {
+    progress->setMaximum(total);
+  }
+  query.exec("begin transaction;");
+  do {
+    if (progress != nullptr) {
+      progress->setValue(n_deleted);
+      if (progress->wasCanceled()) {
+        break;
+      }
+    }
+    query.exec("delete from document limit 1000;");
+    n_deleted += query.numRowsAffected();
+  } while (query.numRowsAffected());
+  query.exec("commit transaction;");
+  if (progress != nullptr) {
+    progress->setValue(total);
+  }
   refresh_current_query();
   emit docs_deleted();
-  return query.numRowsAffected();
+  return n_deleted;
 }
 
 void DocListModel::refresh_current_query() {

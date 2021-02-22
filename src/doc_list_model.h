@@ -3,6 +3,8 @@
 
 #include <QSqlQuery>
 #include <QSqlQueryModel>
+#include <QWidget>
+#include <QProgressDialog>
 
 namespace labelbuddy {
 
@@ -18,10 +20,11 @@ public:
   int total_n_docs(DocFilter doc_filter = DocFilter::all);
 
   QVariant data(const QModelIndex& index, int role) const override;
+  Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   int delete_docs(const QModelIndexList& indices);
 
-  int delete_all_docs();
+  int delete_all_docs(QProgressDialog* progress=nullptr);
 
 public slots:
 

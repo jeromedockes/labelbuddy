@@ -8,6 +8,7 @@
 #include <QSize>
 #include <QStyle>
 
+#include "utils.h"
 #include "label_list.h"
 #include "label_list_model.h"
 
@@ -152,23 +153,29 @@ void LabelList::update_button_states() {
     return;
   }
   auto selected = labels_view->selectionModel()->selectedIndexes();
-  buttons_frame->update_button_states(selected.length(),
-                                      model->total_n_labels());
+  int n_rows{};
+  for (const auto& sel : selected) {
+    if (sel.column() == 0) {
+      ++n_rows;
+    }
+  }
+  buttons_frame->update_button_states(n_rows, model->total_n_labels());
 }
 
 void LabelList::set_label_color() {
-  auto selected = labels_view->selectionModel()->selectedIndexes();
-  if (selected.length() != 1) {
+  auto all_selected = labels_view->selectionModel()->selectedIndexes();
+  auto selected = find_first_in_col_0(all_selected);
+  if (selected == all_selected.constEnd()) {
     return;
   }
-  auto label_name = model->data(selected[0], Qt::DisplayRole).toString();
+  auto label_name = model->data(*selected, Qt::DisplayRole).toString();
   auto current_color =
-      model->data(selected[0], Qt::BackgroundRole).value<QColor>();
+      model->data(*selected, Qt::BackgroundRole).value<QColor>();
   auto color = QColorDialog::getColor(
       current_color, this, QString("Set color for '%0'").arg(label_name));
   if (!color.isValid()) {
     return;
   }
-  model->set_label_color(selected[0], color.name());
+  model->set_label_color(*selected, color.name());
 }
 } // namespace labelbuddy

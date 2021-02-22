@@ -31,6 +31,7 @@ public slots:
   void search_backward();
   void continue_search();
   void set_cursor_position();
+  void update_search_button_states();
 
 protected:
   bool eventFilter(QObject* object, QEvent* event) override;

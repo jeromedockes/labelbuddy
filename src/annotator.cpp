@@ -13,6 +13,7 @@
 #include "label_list.h"
 #include "searchable_text.h"
 #include "user_roles.h"
+#include "utils.h"
 
 namespace labelbuddy {
 
@@ -53,11 +54,12 @@ int LabelChoices::selected_label_id() const {
   }
   QModelIndexList selected_indexes =
       labels_view->selectionModel()->selectedIndexes();
-  if (selected_indexes.length() == 0) {
+  auto selected = find_first_in_col_0(selected_indexes);
+  if (selected == selected_indexes.constEnd()) {
     return -1;
   }
   int label_id =
-      label_list_model->data(selected_indexes[0], Roles::RowIdRole).toInt();
+      label_list_model->data(*selected, Roles::RowIdRole).toInt();
   return label_id;
 }
 
@@ -120,6 +122,15 @@ void Annotator::store_state() {
   settings.setValue("Annotator/state", saveState());
 }
 
+bool Annotator::is_monospace() const { return monospace_font; }
+
+void Annotator::set_monospace_font(bool monospace) {
+  monospace_font = monospace;
+  QFont new_font(monospace ? QFont("monospace") : QFont());
+  new_font.setStyleHint(monospace ? QFont::TypeWriter : QFont::AnyStyle);
+  text->get_text_edit()->setFont(new_font);
+}
+
 void Annotator::set_annotations_model(AnnotationsModel* new_model) {
   annotations_model = new_model;
   nav_buttons->setModel(new_model);
@@ -177,7 +188,7 @@ void Annotator::update_label_choices_button_states() {
 }
 
 int Annotator::annotation_at_pos(int char_pos) const {
-  for (auto anno : annotations) {
+  for (const auto& anno : annotations) {
     if (anno.start_char <= char_pos && anno.end_char > char_pos) {
       return anno.id;
     }
@@ -245,7 +256,7 @@ void Annotator::delete_annotation(int annotation_id) {
 
 void Annotator::delete_overlapping_annotations(int start_char, int end_char) {
   QList<int> to_delete{};
-  for (auto anno : annotations) {
+  for (const auto& anno : annotations) {
     if (start_char < anno.end_char && anno.start_char < end_char) {
       to_delete << anno.id;
     }
@@ -336,7 +347,7 @@ void Annotator::fetch_annotations_info() {
 
 void Annotator::paint_annotations() {
   QList<QTextEdit::ExtraSelection> new_selections{};
-  for (auto anno : annotations) {
+  for (auto& anno : annotations) {
     QTextCharFormat format(anno.cursor.charFormat());
     QColor color(labels.value(anno.label_id).color);
     format.setBackground(color);
