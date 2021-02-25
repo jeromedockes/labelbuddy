@@ -64,7 +64,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
 }
 
 void SearchableText::fill(const QString& content) {
-  text_edit->setText(content);
+  text_edit->setPlainText(content);
   text_edit->setProperty("readOnly", true);
   text_edit->setFocus();
 }
@@ -114,12 +114,38 @@ void SearchableText::set_cursor_position() {
   last_match = text_edit->textCursor();
 }
 
+void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
+  auto pos = cursor.position();
+  auto anchor = cursor.anchor();
+  cursor.setPosition(pos);
+  cursor.setPosition(anchor, QTextCursor::KeepAnchor);
+}
+
+void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
+                                      SearchableText::Side side) {
+  auto cursor = text_edit->textCursor();
+  bool swapped{};
+  auto anchor = cursor.anchor();
+  auto pos = cursor.position();
+  if ((anchor > pos && side == Side::Right) ||
+      (anchor < pos && side == Side::Left)) {
+    swap_pos_anchor(cursor);
+    swapped = true;
+  }
+  cursor.movePosition(move_op, QTextCursor::KeepAnchor);
+  if (swapped) {
+    swap_pos_anchor(cursor);
+  }
+  text_edit->setTextCursor(cursor);
+}
+
 bool SearchableText::eventFilter(QObject* object, QEvent* event) {
   if (object == search_box) {
     if (event->type() == QEvent::KeyPress) {
       auto key_event = static_cast<QKeyEvent*>(event);
-      if ((key_event->modifiers() & Qt::ControlModifier) &&
-          (nav_keys.contains(key_event->key()))) {
+      if ((nav_keys_nomodif.contains(key_event->key())) ||
+          ((key_event->modifiers() & Qt::ControlModifier) &&
+           (nav_keys.contains(key_event->key())))) {
         handle_nav_event(key_event);
         return true;
       }
@@ -157,6 +183,44 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
       (event->modifiers() & Qt::ControlModifier)) {
     text_edit->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderPageStepSub);
+    return;
+  }
+
+  if ((event->key() == Qt::Key_BracketRight) &&
+      (event->modifiers() & Qt::ControlModifier)) {
+    extend_selection(QTextCursor::NextCharacter, Side::Right);
+    return;
+  }
+  if ((event->key() == Qt::Key_BracketLeft) &&
+      (event->modifiers() & Qt::ControlModifier)) {
+    extend_selection(QTextCursor::PreviousCharacter, Side::Right);
+    return;
+  }
+  if ((event->key() == Qt::Key_BraceRight) &&
+      (event->modifiers() & Qt::ControlModifier)) {
+    extend_selection(QTextCursor::NextCharacter, Side::Left);
+    return;
+  }
+  if ((event->key() == Qt::Key_BraceLeft) &&
+      (event->modifiers() & Qt::ControlModifier)) {
+    extend_selection(QTextCursor::PreviousCharacter, Side::Left);
+    return;
+  }
+
+  if ((event->key() == Qt::Key_BracketRight)) {
+    extend_selection(QTextCursor::NextWord, Side::Right);
+    return;
+  }
+  if ((event->key() == Qt::Key_BracketLeft)) {
+    extend_selection(QTextCursor::PreviousWord, Side::Right);
+    return;
+  }
+  if ((event->key() == Qt::Key_BraceRight)) {
+    extend_selection(QTextCursor::NextWord, Side::Left);
+    return;
+  }
+  if ((event->key() == Qt::Key_BraceLeft)) {
+    extend_selection(QTextCursor::PreviousWord, Side::Left);
     return;
   }
   QWidget::keyPressEvent(event);

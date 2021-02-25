@@ -1,0 +1,99 @@
+.TH labelbuddy 1 "2021-02-23" "version 0.0.1"
+.SH NAME
+labelbuddy \- application for annotating text documents
+.SH SYNOPSIS
+.B labelbuddy
+[
+.I OPTIONS
+]...
+[
+.I FILE
+]
+.SH DESCRIPTION
+Without any options, the
+.B labelbuddy
+command will start the
+.B labelbuddy
+GUI to annotate documents in the database
+.IR FILE .
+If neither
+.I FILE
+nor
+.B \-\-demo
+is used,
+.B labelbuddy
+will open the last database that was opened, or if it is used for the first time,
+~/labelbuddy_data.sqlite3.
+With the option
+.BR \-\-demo ,
+.B labelbuddy
+will open a temporary database pre-loaded with some example documents and labels.
+.PP
+.TP
+.B \-h, \-\-help
+Output a usage message and exit.
+.TP
+.B \-v, \-\-version
+Display the
+.B labelbuddy
+version and exit.
+.TP
+.B \-\-demo
+Open a temporary database pre-loaded with some example documents and labels.
+
+.PP
+The options below allow executing batch operations on the database without opening the
+GUI. These actions will only be executed if the database
+.I FILE
+is specified explicitly.
+.TP
+.BI \-\-import\-labels " labelsfile"
+Import labels contained in the (.json or .txt) file
+.I labelsfile
+into the database. Can be used several times.
+.TP
+.BI \-\-import\-docs " docsfile"
+Import documents and annotations contained in the (.json, .jsonl, .xml or .txt) file
+.I docsfile
+into the database. Can be used several times.
+.TP
+.BI \-\-export\-labels " labelsfile"
+Export labels in the database to the .json file
+.IR labelsfile .
+.TP
+.BI \-\-export\-annotations " docsfile"
+Export documents and annotations in the database to the (.json, .jsonl or .xml) file
+.IR docsfile .
+Some options described below control what is exported.
+.TP
+.B \-\-labelled\-only
+When using the
+.B \-\-export\-annotations
+option, only export documents that contain at least one annotation.
+.TP
+.B \-\-include\-text
+When using the
+.B \-\-export\-annotations
+option, include the document's text in the output. By default, it is not included
+(and the documents can be identified from the MD5 checksum found in the output,
+or from any user metadata that was imported with the documents).
+.TP
+.BI \-\-approver " name"
+Use
+.I name
+as the annotation_approver.
+If not specified, the output will not contain an annotation_approver.
+.TP
+.B \-\-vacuum
+Repack the database so that it occupies a minimal amount of disk space (the
+database can contain some empty pages if data has been deleted from it, that it
+normally keeps and re-uses when new data is inserted). See SQlite3 documentation
+for details. If this option is used, the other options (except
+.B \-v
+and
+.BR \-h )
+are ignored,
+.B labelbuddy
+vacuums the database and exits without doing anything else.
+.SH AUTHOR
+Jerome Dockes <jerome@dockes.org>

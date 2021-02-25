@@ -14,6 +14,7 @@ private slots:
   void test_open_database();
   void test_import_export_docs();
   void test_import_export_docs_data();
+  void test_import_export_labels();
 
 private:
   QString create_documents_file(QTemporaryDir& tmp_dir);
@@ -29,6 +30,7 @@ private:
   void check_exported_docs_json(const QString& file_path,
                                 const QJsonArray& docs);
   void check_import_back(DatabaseCatalog& catalog, const QString& export_file);
+  void check_db_labels(QSqlQuery& query);
 };
 } // namespace labelbuddy
 #endif

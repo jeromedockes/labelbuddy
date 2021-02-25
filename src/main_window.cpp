@@ -17,10 +17,15 @@
 
 namespace labelbuddy {
 
-LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path)
+LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
+                       bool start_from_temp_db)
     : QMainWindow(parent), database_catalog{} {
 
-  database_catalog.open_database(database_path);
+  if (start_from_temp_db) {
+    database_catalog.open_temp_database();
+  } else {
+    database_catalog.open_database(database_path);
+  }
 
   notebook = new QTabWidget();
   setCentralWidget(notebook);
@@ -36,7 +41,9 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path)
   notebook->addTab(import_export_menu, "Import / Export");
 
   notebook->setCurrentIndex(
-      database_catalog.get_app_state_extra("notebook_page", 2).toInt());
+      start_from_temp_db
+          ? 0
+          : database_catalog.get_app_state_extra("notebook_page", 2).toInt());
 
   DocListModel* doc_model = new DocListModel(this);
   doc_model->set_database(database_catalog.get_current_database());
@@ -130,6 +137,15 @@ void LabelBuddy::add_menubar() {
   QObject::connect(set_monospace_action, &QAction::triggered, annotator,
                    &Annotator::set_monospace_font);
 
+  auto set_use_bold_action = new QAction("Bold selected region", this);
+  set_use_bold_action->setCheckable(true);
+  set_use_bold_action->setChecked(
+      settings.value("Labelbuddy/selected_annotation_bold", 1).toInt());
+  preferences_menu->addAction(set_use_bold_action);
+  annotator->set_use_bold_font(set_use_bold_action->isChecked());
+  QObject::connect(set_use_bold_action, &QAction::triggered, annotator,
+                   &Annotator::set_use_bold_font);
+
   auto help_menu = menuBar()->addMenu("Help");
   auto show_about_action = new QAction("About", this);
   help_menu->addAction(show_about_action);
@@ -183,6 +199,9 @@ void LabelBuddy::closeEvent(QCloseEvent* event) {
   settings.setValue("LabelBuddy/geometry", saveGeometry());
   settings.setValue("Labelbuddy/monospace_font",
                     int(annotator->is_monospace()));
+  settings.setValue("Labelbuddy/selected_annotation_bold",
+                    int(annotator->is_using_bold()));
+
   emit about_to_close();
   QMainWindow::closeEvent(event);
 }
@@ -199,7 +218,7 @@ void LabelBuddy::set_geometry() {
 void LabelBuddy::show_about_info() {
   auto message =
       QString(
-          "labelbuddy version %0\nhttps://github.com/jeromedockes/labelbuddy")
+          "labelbuddy version %0\nhttps://jeromedockes.github.io/labelbuddy/")
           .arg(get_version());
   QMessageBox::information(this, "labelbuddy", message, QMessageBox::Ok);
 }

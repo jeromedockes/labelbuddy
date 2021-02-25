@@ -45,9 +45,17 @@ private:
   QTextCursor last_match;
   QTextDocument::FindFlags current_search_flags;
 
+  void swap_pos_anchor(QTextCursor& cursor) const;
   void handle_nav_event(QKeyEvent* event);
   const QList<int> nav_keys{Qt::Key_K, Qt::Key_J, Qt::Key_N,
                             Qt::Key_P, Qt::Key_U, Qt::Key_D};
+  const QList<int> nav_keys_nomodif{Qt::Key_BracketLeft, Qt::Key_BracketRight,
+                                    Qt::Key_BraceLeft, Qt::Key_BraceRight};
+  enum class Side { Right, Left };
+
+private slots:
+
+  void extend_selection(QTextCursor::MoveOperation move_op, Side side);
 };
 } // namespace labelbuddy
 

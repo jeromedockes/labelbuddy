@@ -92,6 +92,7 @@ public:
   int annotation_at_pos(int) const;
   int active_annotation_label() const;
   bool is_monospace() const;
+  bool is_using_bold() const;
 
 signals:
 
@@ -108,6 +109,7 @@ public slots:
   void update_nav_buttons();
   void store_state();
   void set_monospace_font(bool monospace = true);
+  void set_use_bold_font(bool use_bold = true);
 
 private:
   void fetch_labels_info();
@@ -123,12 +125,14 @@ private:
   QMap<int, AnnotationCursor> annotations{};
   QMap<int, LabelInfo> labels{};
 
+  QLabel* title_label;
   SearchableText* text;
   LabelChoices* label_choices;
   AnnotationsModel* annotations_model = nullptr;
   AnnotationsNavButtons* nav_buttons;
   int default_weight;
   bool monospace_font{};
+  bool use_bold_font{true};
 };
 
 } // namespace labelbuddy

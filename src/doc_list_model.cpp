@@ -44,20 +44,21 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
   switch (new_doc_filter) {
 
   case DocFilter::all:
-    query.prepare(
-        "select replace(substr(content, 1, 160), char(10), ' ') as head, id "
-        "from document order by id limit :lim offset :off;");
+    query.prepare("select replace(substr(coalesce(long_title, title, content), "
+                  "1, 160), char(10), ' ') as head, id "
+                  "from document order by id limit :lim offset :off;");
     break;
 
   case DocFilter::labelled:
-    query.prepare(
-        "select replace(substr(content, 1, 160), char(10), ' ') as head, id "
-        "from labelled_document order by id limit :lim offset :off;");
+    query.prepare("select replace(substr(coalesce(long_title, title, content), "
+                  "1, 160), char(10), ' ') as head, id "
+                  "from labelled_document order by id limit :lim offset :off;");
     break;
 
   case DocFilter::unlabelled:
     query.prepare(
-        "select replace(substr(content, 1, 160), char(10), ' ') as head, id "
+        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "char(10), ' ') as head, id "
         "from unlabelled_document order by id limit :lim offset :off;");
     break;
   }

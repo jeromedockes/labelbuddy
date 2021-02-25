@@ -1,21 +1,29 @@
-.PHONY: all clean
+html := $(patsubst %.adoc,%.html,$(wildcard *.adoc))
+html := $(subst README.html,documentation.html,$(html))
+webhtml := $(patsubst %,gh-pages-site/%,$(html))
+examples := $(wildcard example_data/*.txt)
 
-all: documentation.html README.rst example_data/example_documents.json
+.PHONY: all clean html
 
-documentation.html: documentation.md
-	pandoc $< -s --toc -N -o $@
+all: $(html) $(webhtml) example_data/example_documents.json
 
-README.rst: documentation.md
-	pandoc documentation.md -t rst --toc -s | \
-	  sed 's/:Author:/..\n    Author: /;/\.\. raw/,/ *<\/style>/d' > $@
+%.html: %.adoc
+	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $<
+
+gh-pages-site/%.html: %.html
+	mkdir -p gh-pages-site
+	xsltproc add_nav.xsl $< > $@
+
+documentation.html: README.adoc
+	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
 example_data/documentation.txt: documentation.html
-	lynx -dump -nolist -nonumbers -width=70 $< | \
-    sed '/jerome@dockes.org/s/$$/\n/;1,/^ *1 Intro/{s/^\( *\)[*+o]/\1 /}'  > $@
+	lynx -dump -nolist -nonumbers -width=79 $< | \
+    sed 's/\xe2\x80\x8b//g;/^ *Last updated[-: 0-9]*$$/d'  > $@
 
-example_data/example_documents.json: example_data/documentation.txt example_data/make_example_docs.py example_data/hello_annotations.txt
+example_data/example_documents.json: $(examples) example_data/documentation.txt example_data/make_example_docs.py
 	python3 example_data/make_example_docs.py
 
 clean:
-	rm -f documentation.html README.rst \
+	rm -f *.html \
     example_data/documentation.txt example_data/example_documents.json

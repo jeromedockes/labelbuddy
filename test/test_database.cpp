@@ -17,8 +17,8 @@ void TestDatabase::test_open_database() {
   auto file_path = tmp_dir.filePath("db.sqlite");
   catalog.open_database(file_path);
   auto db = QSqlDatabase::database(file_path);
-  QStringList expected{"document", "label", "annotation", "app_state",
-                       "app_state_extra"};
+  QStringList expected{"document",  "label",           "annotation",
+                       "app_state", "app_state_extra", "database_info"};
   QCOMPARE(db.tables(), expected);
   QCOMPARE(catalog.get_current_database(), file_path);
   QCOMPARE(catalog.get_current_directory(), tmp_dir.filePath(""));
@@ -105,14 +105,41 @@ void TestDatabase::test_import_export_docs() {
   check_import_back(catalog, export_file);
 }
 
+void TestDatabase::test_import_export_labels() {
+  QTemporaryDir tmp_dir{};
+  DatabaseCatalog catalog{};
+  auto file_path = tmp_dir.filePath("db.sqlite");
+  catalog.open_database(file_path);
+  catalog.import_labels(":test/data/test_labels.json");
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+
+  check_db_labels(query);
+  auto labels_file_path = tmp_dir.filePath("labels.json");
+  catalog.export_labels(labels_file_path);
+  query.exec("delete from label;");
+  query.exec("select count(*) from label;");
+  QCOMPARE(query.value(0).toInt(), 0);
+  catalog.import_labels(labels_file_path);
+  check_db_labels(query);
+}
+
+void TestDatabase::check_db_labels(QSqlQuery& query) {
+  query.exec("select name, color from label;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("label: Reinício da sessão"));
+  QCOMPARE(query.value(1).toString(), QString("#aec7e8"));
+  query.next();
+  QCOMPARE(query.value(0).toString(),
+           QString("label: Resumption of the session"));
+  QCOMPARE(query.value(1).toString(), QString("#ffbb78"));
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("label: Επαvάληψη της συvσδoυ"));
+  QCOMPARE(query.value(1).toString(), QString("#98df8a"));
+}
+
 void TestDatabase::check_import_back(DatabaseCatalog& catalog,
                                      const QString& export_file) {
   QFETCH(QString, export_format);
-
-  if (export_format == "xml") {
-    // import annotations from xml not supported yet
-    return;
-  }
 
   QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
   query.exec("select count(*) from annotation;");
@@ -232,14 +259,24 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
   QXmlStreamReader xml(&xml_file);
 
   xml.readNextStartElement();
-  QCOMPARE(xml.name().toString(), QString("annotated_document_set"));
+  QCOMPARE(xml.name().toString(), QString("document_set"));
 
   for (const auto& doc : docs) {
     auto json_data = doc.toArray();
     auto meta = json_data[1].toObject();
     while (!xml.readNextStartElement()) {
     }
-    QCOMPARE(xml.name().toString(), QString("annotated_document"));
+    QCOMPARE(xml.name().toString(), QString("document"));
+    if (export_with_content) {
+      xml.readNextStartElement();
+      QCOMPARE(xml.name().toString(), QString("text"));
+      auto text = xml.readElementText();
+      if (import_format != "txt") {
+        QCOMPARE(text, json_data[0].toString());
+      } else {
+        QCOMPARE(text, json_data[0].toString().replace("\n", "\t"));
+      }
+    }
     xml.readNextStartElement();
     QCOMPARE(xml.name().toString(), QString("document_md5_checksum"));
     auto output_md5 = xml.readElementText();
@@ -247,31 +284,22 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
       QCOMPARE(output_md5, meta.value("original_md5").toString());
     }
     xml.readNextStartElement();
+    QCOMPARE(xml.name().toString(), QString("meta"));
     if (import_with_meta) {
       QCOMPARE(xml.attributes().value("original_md5").toString(),
                meta.value("original_md5").toString());
       QCOMPARE(xml.attributes().value("title").toString(),
                meta.value("title").toString());
-    }
-    if (export_with_content) {
-      QCOMPARE(xml.name().toString(), QString("document"));
-      auto text = xml.readElementText();
-      if (import_format != "txt") {
-        QCOMPARE(text, json_data[0].toString());
-      } else {
-        QCOMPARE(text, json_data[0].toString().replace("\n", "\t"));
-      }
-    } else {
-      QCOMPARE(xml.name().toString(), QString("meta"));
       QCOMPARE(xml.readElementText(), QString());
     }
+    xml.readElementText();
 
     xml.readNextStartElement();
     QCOMPARE(xml.name().toString(), QString("annotation_approver"));
     QCOMPARE(xml.readElementText(), QString("some_user"));
 
     xml.readNextStartElement();
-    QCOMPARE(xml.name().toString(), QString("annotation_set"));
+    QCOMPARE(xml.name().toString(), QString("labels"));
     if (meta.value("title").toString() == "document 1") {
       xml.readNextStartElement();
       QCOMPARE(xml.name().toString(), QString("annotation"));
@@ -422,20 +450,24 @@ void TestDatabase::create_documents_file_xml(const QString& file_path,
   xml.setAutoFormatting(true);
   xml.writeStartDocument();
   xml.writeStartElement("document_set");
+
   for (const auto& doc : docs) {
     auto doc_array = doc.toArray();
     xml.writeStartElement("document");
     if (import_with_meta) {
+      xml.writeStartElement("meta");
       auto extra_data = doc_array[1].toObject();
       for (auto key_val = extra_data.constBegin();
            key_val != extra_data.constEnd(); ++key_val) {
         xml.writeAttribute(key_val.key(),
                            key_val.value().toVariant().toString());
       }
+      xml.writeEndElement();
     }
-    xml.writeCharacters(doc_array[0].toString());
+    xml.writeTextElement("text", doc_array[0].toString());
     xml.writeEndElement();
   }
+
   xml.writeEndElement();
   xml.writeEndDocument();
 }

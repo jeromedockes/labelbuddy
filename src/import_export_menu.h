@@ -2,9 +2,9 @@
 #define LABELBUDDY_IMPORT_EXPORT_MENU_H
 
 #include <QCheckBox>
+#include <QLabel>
 #include <QLineEdit>
 #include <QWidget>
-#include <QLabel>
 
 #include "database.h"
 
@@ -22,6 +22,7 @@ public slots:
   void import_documents();
   void import_labels();
   void export_annotations();
+  void export_labels();
   void update_database_info();
 
 signals:
@@ -30,7 +31,12 @@ signals:
   void labels_added();
 
 private:
-  enum class DirRole { import_docs, import_labels, export_annotations };
+  enum class DirRole {
+    import_docs,
+    import_labels,
+    export_annotations,
+    export_labels
+  };
   QString default_user_name();
   QString suggest_dir(DirRole role) const;
   void store_parent_dir(const QString& file_path, DirRole role);

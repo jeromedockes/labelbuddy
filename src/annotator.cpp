@@ -1,5 +1,6 @@
 #include <QColor>
 #include <QFont>
+#include <QFontMetrics>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QPushButton>
@@ -58,8 +59,7 @@ int LabelChoices::selected_label_id() const {
   if (selected == selected_indexes.constEnd()) {
     return -1;
   }
-  int label_id =
-      label_list_model->data(*selected, Roles::RowIdRole).toInt();
+  int label_id = label_list_model->data(*selected, Roles::RowIdRole).toInt();
   return label_id;
 }
 
@@ -92,6 +92,12 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   text_frame->setLayout(text_layout);
   nav_buttons = new AnnotationsNavButtons();
   text_layout->addWidget(nav_buttons);
+  title_label = new QLabel();
+  text_layout->addWidget(title_label);
+  title_label->setAlignment(Qt::AlignHCenter);
+  title_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+  title_label->setOpenExternalLinks(true);
+  title_label->setWordWrap(true);
   text = new SearchableText();
   text_layout->addWidget(text);
   default_weight = text->get_text_edit()->fontWeight();
@@ -123,12 +129,18 @@ void Annotator::store_state() {
 }
 
 bool Annotator::is_monospace() const { return monospace_font; }
+bool Annotator::is_using_bold() const { return use_bold_font; }
 
 void Annotator::set_monospace_font(bool monospace) {
   monospace_font = monospace;
   QFont new_font(monospace ? QFont("monospace") : QFont());
   new_font.setStyleHint(monospace ? QFont::TypeWriter : QFont::AnyStyle);
   text->get_text_edit()->setFont(new_font);
+}
+
+void Annotator::set_use_bold_font(bool bold_font) {
+  use_bold_font = bold_font;
+  paint_annotations();
 }
 
 void Annotator::set_annotations_model(AnnotationsModel* new_model) {
@@ -157,6 +169,7 @@ void Annotator::set_annotations_model(AnnotationsModel* new_model) {
 void Annotator::reset_document() {
   deactivate_active_annotation();
   text->fill(annotations_model->get_content());
+  title_label->setText(annotations_model->get_title());
   update_annotations();
 }
 
@@ -354,7 +367,7 @@ void Annotator::paint_annotations() {
     if (anno.id == active_annotation) {
       format.setFontUnderline(true);
       auto fmt = anno.cursor.charFormat();
-      fmt.setFontWeight(QFont::DemiBold);
+      fmt.setFontWeight(use_bold_font ? QFont::DemiBold : default_weight);
       anno.cursor.setCharFormat(fmt);
     }
     new_selections << QTextEdit::ExtraSelection{anno.cursor, format};

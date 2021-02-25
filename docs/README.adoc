@@ -1,0 +1,486 @@
+= labelbuddy documentation
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:toc: left
+:lang: en
+:webfonts!:
+:sectnums:
+:idprefix:
+:idseparator: -
+:toclevels: 2
+:prewrap!:
+:source-highlighter: pygments
+:pygments-style: lovelace
+:homepage: https://jeromedockes.github.io/labelbuddy/
+:downloadspage: https://jeromedockes.github.io/labelbuddy/installation.html
+:lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
+:lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
+:ghreleases: https://github.com/jeromedockes/labelbuddy/releases
+:ghrepo: https://github.com/jeromedockes/labelbuddy/
+:lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
+:sqlitehome: https://www.sqlite.org/
+:lb: pass:q[*labelbuddy*]
+:doca: pass:q[*doccano*]
+:ietab: pass:q[*"`Import / Export`"* tab]
+:annotab: pass:q[*"`Annotate`"* tab]
+:dstab: pass:q[*"`Dataset`"* tab]
+
+ifndef::env-github[]
+ifdef::lbversion[]
+This document describes {homepage}[{lb}] version *{lbversion}*.
+endif::[]
+endif::[]
+
+== Introduction
+
+{lb} is an {lblicense}[open-source] desktop GUI application for annotating documents.
+It can be used for example for Part Of Speech tagging, Named Entity Recognition, sentiment analysis and document classification ...
+
+It aims to be easy to install and use, and can efficiently handle many documents, labels and annotations.
+
+=== labelbuddy vs other annotation tools
+
+There exist several tools for annotating documents.
+Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio] are meant to run on a web server and be used online.
+If you are crowdsourcing annotations and want many users to contribute annotations to a central database without installing anything on their machine you should turn to one of these tools.
+
+However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents.
+In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
+
+{lb} supports the input and output formats of {doca} so it is <<copying-annotations-to-and-from-doccano,possible>> to switch from one to the other or to combine the work of annotators that use either.
+
+=== Quick start
+
+Start by {downloadspage}[installing] {lb}.
+Then to give it a try, you can start {lb} and open a (temporary) demo database by invoking it as:
+
+....
+labelbuddy --demo
+....
+
+(You can also start {lb} without any options and then select menu:File[Demo] in the GUI.)
+You can play around with {lb}’s features in this temporary project.
+If you decide to start creating annotations that you want to keep, open a new database and import your <<importing-documents,documents>> and <<importing-labels,labels>>.
+
+NOTE: a <<managing-projects,labelbuddy database>> is actually just a regular file on your disk (an {sqlitehome}[SQLite] database).
+
+== Using labelbuddy
+
+Documents and labels can be imported into a {lb} database from various formats.
+Once this is done, you can annotate the documents and finally export your annotations.
+It is also possible to import annotations exported from {lb} or {doca}.
+
+Documents and labels that are already in the database are skipped if you try to import them again.
+
+=== Importing documents
+
+In the {ietab}, click btn:[Import docs & annotations] and select a file.
+
+When importing a new document into {lb}, several attributes can be specified (exactly how will depend on the format used as described in the following sections):
+
+[horizontal]
+`text`:: the content of the document – mandatory.
+
+All other attributes are optional:
+
+[horizontal]
+`meta`:: a mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author... This data is not used by {lb}. It is stored and bundled with the document when you export it.
+`short_title`:: displayed in the {annotab} when annotating the document.
+`long_title`:: displayed in the document list in the {dstab}
+`title`::
+* displayed in the {annotab} if `short_title` is missing (if both are missing nothing is displayed).
+* displayed in the {dstab} if `long_title` is missing (if both are missing the beginning of `text` is displayed).
+
+TIP: You can use the `short_title` to display essential metadata or short instructions specific to a document.
+It can contain links by using an html `<a>` tag.
+
+This information can be provided in several plain text formats. The format is deduced from the filename extension.
+
+==== From `.txt`
+
+The simplest format you can use is a `.txt`.
+In this case, the file must contain the text of one document per line.
+The newlines that separate documents are not considered part of the document and are discarded.
+
+While convenient, this format has some limitations: you cannot specify any other document attributes than the text, and the documents cannot contain newlines.
+Moreover, the file’s encoding will be interpreted based on your locale settings.
+The other import formats share none of these limitations.
+
+==== From `.json`
+
+The file must be a JSON file containing one JSON array.
+Each element of the array represents one document.
+These elements are JSON objects containing at least the key `text`, and any of the optional attributes.
+If provided, `meta` must be a JSON object containing user data about the document.
+
+Therefore an imported JSON file might look like:
+
+[source,json]
+----
+[
+{"text": "text of first doc", "meta": {"author": "me", "DOI": "123"}},
+{"text": "text of second doc", "short_title": "doc456"}
+]
+----
+
+Moreover, it is also possible to <<importing-annotations,import annotations>> together with a new document, or for a document already in the database.
+
+[NOTE]
+--
+Besides of the object format above, {lb} also accepts another format, providing one JSON array per document.
+In this case the first (mandatory) element of the array is the text, and the second (optional) one is `meta`.
+Other attributes cannot be specified.
+[source,json]
+----
+[
+["text of first doc", {"title": "doc 1", "DOI": "123"}],
+["text of second doc"]
+]
+----
+--
+
+==== From `.jsonl`
+
+When importing a `.json` file the whole file is read into memory before inserting the documents in the database.
+To read documents one by one and reduce memory usage, you can use https://jsonlines.org/[JSON Lines].
+It is almost the same as the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
+For example:
+[source,json]
+----
+{"text": "text of first doc", "meta": {"author": "me", "DOI": "123"}}
+{"text": "text of second doc", "short_title": "doc456"}
+----
+(Note the outer brackets are removed and the documents are not separated by commas.)
+
+As for `.json`, `.jsonl` also allows <<importing-annotations,importing annotations>>.
+
+==== From `.xml`
+
+You can also use a simple XML format.
+In this case as well, the documents are read one by one.
+The root element must be `document_set` and contain any number of `document` elements.
+Each `document` contains the text and any additional information.
+User metadata is provided in the attributes of an element named `meta`.
+A `document`’s children can appear in any order.
+
+For example:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<document_set>
+  <document>
+    <text>text of first doc</text>
+    <meta DOI="123" author="me"/>
+  </document>
+  <document>
+    <text>text of second doc</text>
+    <short_title>doc456</short_title>
+  </document>
+</document_set>
+----
+
+The same format can be used to <<importing-annotations,import annotations>>.
+
+=== Importing labels
+
+To import labels, click btn:[Import labels] in the {ietab}.
+Labels have two attributes: a mandatory `text` (label name), and an optional `color`.
+For compatibility with {doca}, `color` can also be specified as `background_color`.
+As for documents, the format is deduced from the filename extension when importing labels.
+The label color can be changed from within the GUI application .
+
+==== From `.txt`
+
+The text file contains one label per line. For example:
+
+....
+Noun
+Verb
+Adjective
+....
+
+You can specify a color for each label (or labels that contain newlines) by using the `.json` format.
+
+==== From `.json`
+
+The file must contain a JSON array containing one JSON object per label.
+
+Each label's object must have the key `text` and optionally `color` or the synonym `background_color`.
+(If both `color` and `background_color` are provided `color` is used.)
+
+For example:
+
+[source,json]
+----
+[
+{"text": "Noun", "color": "#ff0000"},
+{"text": "Verb", "color": "yellow"},
+{"text": "Adjective"}
+]
+----
+
+[NOTE]
+--
+Besides of the object format above, {lb} also accepts another format, providing one JSON array per label.
+In this case the first (mandatory) element of the array is the text (label name), and the second (optional) one is the color.
+[source,json]
+----
+[
+["Noun", "#ff0000"],
+["Verb", "yellow"],
+["Adjective"]
+]
+----
+--
+
+=== Annotating documents
+
+Once you have imported labels and documents you can see them in the {dstab}.
+You can delete labels or documents and change the color associated with each label.
+You then go to the {annotab}.
+(If you double-click a document it will be opened in the {annotab}.)
+
+To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
+
+Once you have created annotations, you can select any of them by clicking it.
+It becomes bold and underlined and you can change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+
+TIP: If showing the selection in bold is annoying (depending on the font it can slightly change its size) you can disable it in menu:Preferences[Bold selected region].
+
+If you create a new annotation that overlaps with a previously existing one, the previously existing one is automatically removed.
+
+==== Summary of key bindings in the {annotab}
+
+* kbd:[Ctrl] and scroll the mouse: zoom or dezoom the text
+* kbd:[Ctrl+F]: search
+* kbd:[Enter]: next search match
+* kbd:[Shift+Enter]: previous search match
+* kbd:[Ctrl+J], kbd:[Ctrl+N], kbd:[Down]: scroll down one line
+* kbd:[Ctrl+K], kbd:[Ctrl+P], kbd:[Up]: scroll up one line
+* kbd:[Ctrl+D]: scroll down one page
+* kbd:[Ctrl+U]: scroll up one page
+* kbd:[\]]: move the *end* of the selection by one *word* to the *right*
+* kbd:[[]: move the *end* of the selection by one *word* to the *left*
+* kbd:[}]: move the *beginning* of the selection by one *word* to the *right*
+* kbd:[{]: move the *beginning* of the selection by one *word* to the *left*
+* kbd:[Ctrl+\]]: move the *end* of the selection by one *character* to the *right*
+* kbd:[Ctrl+[]: move the *end* of the selection by one *character* to the *left*
+* kbd:[Ctrl+}]: move the *beginning* of the selection by one *character* to the *right*
+* kbd:[Ctrl+{]: move the *beginning* of the selection by one *character* to the *left*
+
+
+=== Exporting annotations
+
+Once you are satisfied with your annotations you can export them to an `.json`, `.jsonl` or `.xml` file to share them or use them in other applications.
+
+Back in the {ietab}, click btn:[Export docs & annotations].
+You can choose to export all documents or only those that have annotations.
+You can choose to export the text of the documents or not.
+If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the MD5 checksum of the text that is always exported.
+You can also provide an "`annotation approver`" (user name), that will be exported as the `annotation_approver` (used by {doca}).
+
+When clicking btn:[Export docs & annotations] you are asked to select a file and the resulting format will depend on the filename extension.
+The export format is the same as the import format.
+Exported documents and annotations can thus be imported back into a {lb} database.
+
+However for exported documents:
+
+* `text` is optional (you can choose not to export it to save space, in this case documents can be identified from their MD5 checksum or from the user metadata).
+* `document_md5_checksum` (containing the hex representation of the MD5 checksum of the text) and `labels` (containing the document’s annotations) are added.
+The optional attribute `annotation_approver` can also be added.
+
+`labels` is a list of annotations, each represented by a triplet of:
+
+[horizontal]
+`start_char`:: the position of the first character (starting from 0 at the begining of the text)
+`end_char`:: the position of one past the last character
+`label`:: the label name.
+
+For example if the text starts with "`hello`" and you highlighted exactly that word, and labelled it with `label_1`, the associated annotation will be `[0, 5, "label_1"]`.
+
+==== Exporting to `.json`
+
+JSON exported annotations might look like:
+
+[source,json]
+----
+[
+{"annotation_approver":"jerome","document_md5_checksum":"f5a42de39848dbdadf79aade46135b7a","labels":[[0,4,"Noun"]],"meta":{"DOI":"123","author":"me"},"text":"text of first doc"},
+{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
+]
+----
+
+Each document will always be on one separate line.
+
+==== Exporting to `.jsonl`
+
+If you choose to export to a https://jsonlines.org/[JSON lines] file, the content will be almost the same as the JSON one, but with just one JSON object per line and not one JSON array containing all the documents:
+
+[source,json]
+----
+{"annotation_approver":"jerome","document_md5_checksum":"f5a42de39848dbdadf79aade46135b7a","labels":[[0,4,"Noun"]],"meta":{"DOI":"123","author":"me"},"text":"text of first doc"}
+{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
+----
+
+==== Exporting to `.xml`
+
+If you choose a `.xml` file the result is a UTF-8 encoded XML document.
+Again the format is the same as for importing with some additional elements (and possibly no text).
+
+So it may look like:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<document_set>
+    <document>
+        <text>text of first doc</text>
+        <document_md5_checksum>f5a42de39848dbdadf79aade46135b7a</document_md5_checksum>
+        <meta DOI="123" author="me"/>
+        <annotation_approver>jerome</annotation_approver>
+        <labels>
+            <annotation>
+                <start_char>0</start_char>
+                <end_char>4</end_char>
+                <label>Noun</label>
+            </annotation>
+        </labels>
+    </document>
+    <document>
+        <text>text of second doc</text>
+        <document_md5_checksum>d5c080bd4c6033f977182e757a0059b1</document_md5_checksum>
+        <meta/>
+        <annotation_approver>jerome</annotation_approver>
+        <short_title>doc456</short_title>
+        <labels>
+            <annotation>
+                <start_char>0</start_char>
+                <end_char>4</end_char>
+                <label>Verb</label>
+            </annotation>
+            <annotation>
+                <start_char>8</start_char>
+                <end_char>14</end_char>
+                <label>Adjective</label>
+            </annotation>
+        </labels>
+    </document>
+</document_set>
+----
+
+=== Exporting labels
+
+You can also export labels by clicking "`Export labels`" and selecting a JSON file.
+
+=== Importing annotations
+
+Exported annotations can be imported back into the same or another {lb} database.
+Simply use the btn:[Import docs & annotations] button and select the exported file.
+Labels used in the annotations that are not in the database will be added (with an arbitrary color that can be
+changed in the application).
+
+For documents already in the database, annotations will be imported whether the document’s text was exported together with the annotations or not.
+If the text is not present in the exported file, the MD5 checksum will be used to associate the annotations with the correct document.
+
+To avoid mixing annotations from different sources, if the document already contains annotations in the database, the new annotations will not be added.
+
+For documents that are not in the database, their text must have been exported together with the annotations and in this case both the document and the annotations will be added to the database.
+
+==== Copying annotations to and from doccano
+
+Documents and annotations exported from {doca} can also be imported into a {lb} database.
+To do so, when exporting from {doca} select the format "`jsonl (text label)`".
+Make sure to save them in a file with the `.jsonl` extension (not `.json`) otherwise {lb} will try to parse it as JSON and JSON Lines is not valid JSON.
+
+CAUTION: {doca} strips leading and trailing whitespace from documents when importing them.
+Therefore if you import the result into a {lb} database that already contains the original documents, it may not be recognized as being the same ({lb} doesn’t modify the imported documents) and you might end up with (near) duplicate documents in the database.
+
+Annotations exported from {lb} in the `.jsonl` format together with the document’s text can also be imported into {doca} (selecting the "`jsonl`" import format).
+
+CAUTION: if the original document contained leading whitespace, {lb} annotations will appear shifted when {doca} removes the whitespace.
+Moreover, {doca} allows duplicate documents so if the documents were already in the {doca} database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
+
+=== Managing projects
+
+Each {lb} project (a set of documents, labels and annotations) is an {sqlitehome}[SQLite] database.
+That is a single binary file on your disk that you can copy, backup, or share, like any other file.
+
+TIP: Advanced users can also open a connection directly to the database to query it or even modify it.
+Back it up before and set `PRAGMA foreign_keys = ON`
+
+When you first start {lb} it creates a new database in `~/labelbuddy_data.sqlite3`.
+You can switch to a different one by selecting menu:File[Open] or menu:File[New].
+The path to the current database is displayed in the {ietab}.
+
+The next time you start {lb}, it will open the last database that you opened.
+
+The database to open can also be specified when invoking {lb} from the command line:
+
+....
+labelbuddy /path/to/my_project.sqlite3
+....
+
+If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
+
+As it is easy to create and delete databases (an empty {lb} database is just 48K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+In particular, it is possible to work with several databases rather than a monolithic one – as an example we could create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.
+
+=== Command-line interface
+
+{lb} can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
+See the `labelbuddy(1)` *man* page, or `labelbuddy -h` for a short list of options reproduced here:
+
+....
+Usage: ./labelbuddy [options] database
+Annotate documents.
+
+Options:
+  -h, --help                                 Displays this help.
+  -v, --version                              Displays version information.
+  --demo                                     Open a temporary demo database
+                                             with pre-loaded docs
+  --import-labels <labels file>              Labels file to import in database.
+  --import-docs <docs file>                  Docs & annotations file to import
+                                             in database.
+  --export-labels <exported labels file>     Labels file to export to.
+  --export-annotations <exported docs file>  Docs & annotations file to export
+                                             to.
+  --labelled-only                            Export only labelled documents
+  --include-text                             Include doc text with exported
+                                             annotations
+  --approver <name>                          User or 'annotations approver'
+                                             name
+  --vacuum                                   Repack database into minimal
+                                             amount of disk space.
+
+Arguments:
+  database                                   Database to open.
+....
+
+If any of the `import-` or `export-` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
+It is possible to specify these options several times.
+To use these options, the database path must be provided explicitly.
+
+Regarding `vacuum`: when data is deleted from an `sqlite3` database, the file doesn’t shrink.
+The freed up space is not lost; it is kept and reused when new data is added to the database.
+To shrink the database to occupy a minimal amount of disk space, we can use:
+
+....
+labelbuddy --vacuum /path/to/db.sqlite3
+....
+
+or equivalently:
+
+....
+sqlite3 /path/to/db.sqlite3 'VACUUM;'
+....
+
+See more details https://sqlite.org/lang_vacuum.html[here].
+When the `vacuum` option is used, other options are ignored and {lb} shrinks the database then exits without starting the GUI.
+
+== Conclusion
+
+{lb} was created using C++, https://www.qt.io/[Qt], {sqlitehome}[SQLite], tools from the https://www.gnu.org/[GNU project], and more.
+
+If you find a bug, kindly open an issue on the {ghrepo}[labelbuddy GitHub repository].

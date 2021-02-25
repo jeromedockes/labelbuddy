@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <QByteArray>
+#include <QObject>
 #include <QFile>
 #include <QJsonArray>
 #include <QProgressDialog>
@@ -13,7 +14,6 @@
 #include <QTemporaryFile>
 #include <QTextStream>
 #include <QVariant>
-#include <QWidget>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -25,6 +25,9 @@ struct DocRecord {
   QString declared_md5;
   QJsonArray annotations;
   bool valid_content = true;
+  QString title{};
+  QString short_title{};
+  QString long_title{};
 };
 
 class DocsReader {
@@ -65,6 +68,16 @@ public:
 private:
   QXmlStreamReader xml;
   bool found_error{};
+  void read_document();
+  void read_document_text();
+  void read_md5();
+  void read_meta();
+  void read_annotation_set();
+  void read_annotation();
+  void read_title();
+  void read_short_title();
+  void read_long_title();
+  std::unique_ptr<DocRecord> new_record{};
 };
 
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument&);
@@ -110,7 +123,9 @@ public:
   virtual void add_document(const QString& md5, const QVariant& content,
                             const QJsonObject& extra_data,
                             const QList<Annotation> annotations,
-                            const QString& user_name);
+                            const QString& user_name, const QString& title,
+                            const QString& short_title,
+                            const QString& long_title);
   virtual void write_prefix();
   virtual void write_suffix();
 
@@ -127,9 +142,9 @@ public:
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
                     const QList<Annotation> annotations,
-                    const QString& user_name
-
-                    ) override;
+                    const QString& user_name, const QString& title,
+                    const QString& short_title,
+                    const QString& long_title) override;
 
   void write_suffix() override;
 
@@ -148,7 +163,9 @@ public:
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
                     const QList<Annotation> annotations,
-                    const QString& user_name) override;
+                    const QString& user_name, const QString& title,
+                    const QString& short_title,
+                    const QString& long_title) override;
   void write_prefix() override;
   void write_suffix() override;
 };
@@ -159,7 +176,9 @@ public:
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
                     const QList<Annotation> annotations,
-                    const QString& user_name) override;
+                    const QString& user_name, const QString& title,
+                    const QString& short_title,
+                    const QString& long_title) override;
   void write_prefix() override;
   void write_suffix() override;
 
@@ -177,7 +196,7 @@ struct LabelRecord {
 LabelRecord json_to_label_record(const QJsonValue& json);
 QJsonArray read_json_array(const QString& file_path);
 
-class DatabaseCatalog : public QWidget {
+class DatabaseCatalog : public QObject {
 
   Q_OBJECT
 
@@ -186,14 +205,14 @@ public:
                      bool remember = true);
   QString open_temp_database();
   QList<int> import_documents(const QString& file_path,
-                              QWidget* parent = nullptr);
+                              QProgressDialog* progress = nullptr);
   int import_labels(const QString& file_path);
   QList<int> export_annotations(const QString& file_path,
                                 bool labelled_docs_only = true,
                                 bool include_documents = true,
                                 const QString& user_name = "",
-                                QWidget* parent = nullptr);
-
+                                QProgressDialog* progress = nullptr);
+  int export_labels(const QString& file_path);
   QString get_current_database() const;
   QString get_current_directory() const;
   QString get_last_opened_directory() const;
@@ -201,6 +220,7 @@ public:
   QVariant get_app_state_extra(const QString& key,
                                const QVariant& default_value) const;
   void set_app_state_extra(const QString& key, const QVariant& value);
+  void vacuum_db();
 
 private:
   QSet<QString> databases{};
@@ -221,6 +241,14 @@ private:
                                  "#dbdb8d", "#9edae5"};
   int color_index{};
 };
+
+void batch_import_export(const QString& db_path,
+                         const QList<QString>& labels_files,
+                         const QList<QString>& docs_files,
+                         const QString& export_labels_file,
+                         const QString& export_docs_file,
+                         bool labelled_docs_only, bool include_documents,
+                         const QString& user_name, bool vacuum);
 
 } // namespace labelbuddy
 

@@ -96,26 +96,26 @@ install(TARGETS labelbuddy
   RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}")
 
 file(WRITE "${CMAKE_BINARY_DIR}/copyright"
-  "Copyright (C) 2010-2013 ${CPACK_DEBIAN_PACKAGE_MAINTAINER}
+  "Copyright (C) 2021 ${CPACK_DEBIAN_PACKAGE_MAINTAINER}
 
-   This software may be licensed under the terms of the
-   GNU Lesser General Public License Version 3 (the ``LGPL''),
-   or (at your option) any later version.
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
 
-   Software distributed under the License is distributed
-   on an ``AS IS'' basis, WITHOUT WARRANTY OF ANY KIND, either
-   express or implied. See the LGPL for the specific language
-   governing rights and limitations.
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
 
-   You should have received a copy of the LGPL along with this
-   program. If not, go to http://www.gnu.org/licenses/lgpl.html
-   or write to the Free Software Foundation, Inc.,
-   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
-On Debian systems, the complete text of the GNU Lesser General Public
-License can be found in `/usr/share/common-licenses/LGPL-3'.")
+ On Debian systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-3'.")
 
-execute_process(COMMAND gzip -9 -c ${CMAKE_SOURCE_DIR}/docs/changelog
+execute_process(COMMAND gzip -9 -c -n ${CMAKE_SOURCE_DIR}/docs/changelog
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   OUTPUT_FILE "${CMAKE_BINARY_DIR}/changelog.Debian.gz")
 
@@ -123,6 +123,13 @@ install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz"
   "${CMAKE_BINARY_DIR}/copyright"
   "${CMAKE_SOURCE_DIR}/docs/documentation.html"
   DESTINATION "${CMAKE_INSTALL_DOCDIR}"
-)
+  )
+
+execute_process(COMMAND gzip -9 -c -n ${CMAKE_SOURCE_DIR}/docs/man/labelbuddy.1
+  WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+  OUTPUT_FILE "${CMAKE_BINARY_DIR}/labelbuddy.1.gz")
+
+install(FILES "${CMAKE_BINARY_DIR}/labelbuddy.1.gz"
+  DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 
 include(CPack)

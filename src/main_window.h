@@ -21,7 +21,8 @@ class LabelBuddy : public QMainWindow {
 
 public:
   LabelBuddy(QWidget* parent = nullptr,
-             const QString& database_path = QString());
+             const QString& database_path = QString(),
+             bool start_from_temp_db = false);
   void closeEvent(QCloseEvent* event);
 
 signals:

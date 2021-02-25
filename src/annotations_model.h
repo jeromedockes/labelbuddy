@@ -27,6 +27,7 @@ class AnnotationsModel : public QObject {
 public:
   AnnotationsModel(QObject* parent = nullptr);
   QString get_content() const;
+  QString get_title() const;
   int add_annotation(int label_id, int start_char, int end_char);
   void delete_annotations(QList<int>);
   QMap<int, LabelInfo> get_labels_info() const;

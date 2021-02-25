@@ -1,0 +1,24 @@
+= labelbuddy
+Jérôme Dockès <jerome@dockes.org>
+:homepage: https://jeromedockes.github.io/labelbuddy/
+:lang: en
+:webfonts!:
+:nofooter:
+:idprefix:
+:idseparator: -
+:prewrap!:
+:source-highlighter: pygments
+:lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
+:lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
+:ghreleases: https://github.com/jeromedockes/labelbuddy/releases
+:ghrepo: https://github.com/jeromedockes/labelbuddy/
+:lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
+:lb: pass:q[*labelbuddy*]
+:doca: pass:q[*doccano*]
+
+
+{lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or Part Of Speech tagging.
+
+To get started, <<installation.adoc#,install>> {lb}, and have a look at the <<documentation.adoc#,documentation>>.
+
+It is {lblicense}[open-source], and the source code is hosted on {ghrepo}[GitHub].

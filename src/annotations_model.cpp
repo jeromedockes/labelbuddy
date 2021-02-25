@@ -34,6 +34,19 @@ void AnnotationsModel::set_database(const QString& new_database_name) {
   }
 }
 
+QString AnnotationsModel::get_title() const {
+  auto query = get_query();
+  query.prepare("select coalesce(short_title, title, '') "
+                "as title from document where id = :docid ;");
+  query.bindValue(":docid", current_doc_id);
+  query.exec();
+  if (query.next()) {
+    return query.value(0).toString();
+  } else {
+    return QString("");
+  }
+}
+
 QString AnnotationsModel::get_content() const {
   auto query = get_query();
   query.prepare("select content from document where id = :docid ;");
@@ -82,7 +95,7 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   query.bindValue(":label", label_id);
   query.bindValue(":start", start_char);
   query.bindValue(":end", end_char);
-  if (!query.exec()){
+  if (!query.exec()) {
     return -1;
   }
   auto new_annotation_id = query.lastInsertId().toInt();

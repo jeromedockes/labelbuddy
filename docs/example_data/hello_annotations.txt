@@ -1,3 +1,4 @@
+Welcome to labelbuddy demo!
 THIS IS A TEMPORARY DATABASE.
 
 It will disappear when you close the application. This database contains a few documents and labels to allow trying out labelbuddy. You can create annotations, import more documents and labels and export annotations, but the database itself will be removed when labelbuddy exits.
@@ -14,16 +15,24 @@ Annotations are inserted in the database as you create them so there is no need 
 
 Here is a summary of the keybindings available in this page:
 
-<Ctrl> and scroll the mouse: zoom or de-zoom the text
-<Ctrl>-F: search
-<Enter>: next search match
-<Shift>-<Enter>: previous search match
-<Ctrl>-J, <Ctrl>-N, <Down>: scroll down one line
-<Ctrl>-K, <Ctrl>-P, <Up>: scroll up one line
-<Ctrl>-D: scroll down one page
-<Ctrl>-U: scroll up one page
+Ctrl and scroll the mouse  :   (un-)zoom the text
+Ctrl+F  :   search
+Enter  :   next search match
+Shift+Enter  :   previous search match
+Ctrl+J, Ctrl+N, Down  :   scroll down one line
+Ctrl+K, Ctrl+P, Up  :   scroll up one line
+Ctrl+D  :   scroll down one page
+Ctrl+U  :   scroll up one page
+]  :   move the *end* of the selection by one *word* to the *right*
+[  :   move the *end* of the selection by one *word* to the *left*
+}  :   move the *beginning* of the selection by one *word* to the *right*
+{  :   move the *beginning* of the selection by one *word* to the *left*
+Ctrl+]  :   move the *end* of the selection by one *character* to the *right*
+Ctrl+[  :   move the *end* of the selection by one *character* to the *left*
+Ctrl+}  :   move the *beginning* of the selection by one *character* to the *right*
+Ctrl+{  :   move the *beginning* of the selection by one *character* to the *left*
 
-If you prefer to read these documents with a fixed width font, select in the menu bar "Preferences" > "monospace font".
+If you prefer to read these documents with a fixed width font, select in the menu bar "Preferences" > "monospace font". You can prevent the text becoming bold by deselecting "Preferences" > "Bold selected region".
 
 Once you are done annotating this document, you can click "Next" above to move on to another one.
 

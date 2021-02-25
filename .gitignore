@@ -1,4 +1,5 @@
-docs/documentation.html
+docs/*.html
+docs/gh-pages-site/
 
 cmake_build/
 qmake_build/
