@@ -3,6 +3,7 @@ Jérôme Dockès <jerome@dockes.org>
 :experimental:
 :toc: left
 :homepage: https://jeromedockes.github.io/labelbuddy/
+:downloadspage: https://jeromedockes.github.io/labelbuddy/installation.html
 :lang: en
 :sectnums:
 :idprefix:
@@ -10,6 +11,7 @@ Jérôme Dockès <jerome@dockes.org>
 :toclevels: 2
 :prewrap!:
 :source-highlighter: pygments
+:pygments-style: lovelace
 :lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
 :lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
 :ghreleases: https://github.com/jeromedockes/labelbuddy/releases
@@ -20,6 +22,10 @@ Jérôme Dockès <jerome@dockes.org>
 :ietab: pass:q[*"`Import / Export`"* tab]
 :annotab: pass:q[*"`Annotate`"* tab]
 :dstab: pass:q[*"`Dataset`"* tab]
+
+
+This document describes {homepage}[{lb}] version *{lbversion}*.
+
 
 == Introduction
 
@@ -41,7 +47,7 @@ In this case, it may be easier to rely on a desktop application such as {lb}, wh
 
 === Quick start
 
-Start by <<installation.adoc#from-binary-copies,installing>> {lb}.
+Start by {downloadspage}[installing] {lb}.
 Then to give it a try, you can start {lb} and open a (temporary) demo database by invoking it as:
 
 ....

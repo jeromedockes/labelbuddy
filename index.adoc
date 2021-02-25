@@ -18,6 +18,6 @@ Jérôme Dockès <jerome@dockes.org>
 
 {lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or Part Of Speech tagging.
 
-It is easy <<installation.adoc#,install>> and use, and has a comprehensive <<documentation.adoc#,documentation>>.
+To get started, <<installation.adoc#,install>> {lb}, and have a look at the <<documentation.adoc#,documentation>>.
 
 It is {lblicense}[open-source], and the source code is hosted on {ghrepo}[GitHub].

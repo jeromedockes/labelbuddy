@@ -5,7 +5,7 @@ html := $(patsubst %.adoc,%.html,$(wildcard *.adoc))
 all: $(html)
 
 %.html: %.adoc
-	asciidoctor $<
+	asciidoctor -a lbversion="$$(cat VERSION.txt)" $<
 
 clean:
 	rm -f *.html

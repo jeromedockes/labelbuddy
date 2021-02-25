@@ -19,6 +19,8 @@ Jérôme Dockès <jerome@dockes.org>
 :dstab: pass:q["`Dataset`" tab]
 
 
+This document describes how to install <<index#,{lb}>>.
+
 
 == Installing a binary copy
 
