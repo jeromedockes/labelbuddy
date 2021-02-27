@@ -66,7 +66,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
 void SearchableText::fill(const QString& content) {
   text_edit->setPlainText(content);
   text_edit->setProperty("readOnly", true);
-  text_edit->setFocus();
+  this->setFocus();
 }
 
 void SearchableText::update_search_button_states() {
@@ -81,6 +81,7 @@ void SearchableText::search_backward() { search(QTextDocument::FindBackward); }
 void SearchableText::continue_search() { search(current_search_flags); }
 
 void SearchableText::search(QTextDocument::FindFlags flags) {
+  this->setFocus();
   auto pattern = search_box->text();
   if (pattern.isEmpty()) {
     return;
@@ -154,6 +155,47 @@ bool SearchableText::eventFilter(QObject* object, QEvent* event) {
   return QWidget::eventFilter(object, event);
 }
 
+void SearchableText::cycle_cursor_height() {
+  auto top = text_edit->cursorRect().top();
+  for (int i = 0; i < 3; ++i) {
+    cycle_cursor_height_once();
+    if (text_edit->cursorRect().top() != top) {
+      return;
+    }
+  }
+}
+
+void SearchableText::cycle_cursor_height_once() {
+  auto pos = text_edit->textCursor().position();
+  auto crect = text_edit->cursorRect();
+  auto bottom = text_edit->rect().bottom();
+  auto top = text_edit->rect().top();
+  auto center = (bottom + top) / 2;
+  auto sb = text_edit->verticalScrollBar();
+
+  CursorHeight target_height;
+  if (pos != last_cursor_pos) {
+    target_height = CursorHeight::Center;
+    last_cursor_pos = pos;
+  } else {
+    target_height = static_cast<CursorHeight>(
+        (static_cast<int>(last_cursor_height) + 1) % 3);
+  }
+
+  switch (target_height) {
+  case CursorHeight::Center:
+    sb->setValue(sb->value() + crect.bottom() - center);
+    break;
+  case CursorHeight::Top:
+    sb->setValue(sb->value() + crect.top() - top);
+    break;
+  case CursorHeight::Bottom:
+    sb->setValue(sb->value() + crect.bottom() - bottom);
+    break;
+  }
+  last_cursor_height = target_height;
+}
+
 void SearchableText::handle_nav_event(QKeyEvent* event) {
   if (((event->key() == Qt::Key_J) &&
        (event->modifiers() & Qt::ControlModifier)) ||
@@ -185,7 +227,11 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
         QAbstractSlider::SliderPageStepSub);
     return;
   }
-
+  if ((event->key() == Qt::Key_L) &&
+      (event->modifiers() & Qt::ControlModifier)) {
+    cycle_cursor_height();
+    return;
+  }
   if ((event->key() == Qt::Key_BracketRight) &&
       (event->modifiers() & Qt::ControlModifier)) {
     extend_selection(QTextCursor::NextCharacter, Side::Right);
@@ -227,7 +273,7 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
 }
 
 void SearchableText::keyPressEvent(QKeyEvent* event) {
-  if (event->matches(QKeySequence::Find)) {
+  if (event->matches(QKeySequence::Find) || event->key() == Qt::Key_Slash) {
     search_box->setFocus();
     search_box->selectAll();
     return;
@@ -247,6 +293,7 @@ QTextCursor SearchableText::textCursor() const {
   return text_edit->textCursor();
 }
 QTextEdit* SearchableText::get_text_edit() { return text_edit; }
+QLineEdit* SearchableText::get_search_box() { return search_box; }
 
 QList<int> SearchableText::current_selection() const {
   QTextCursor cursor = text_edit->textCursor();

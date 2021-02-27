@@ -1,3 +1,17 @@
+labelbuddy (0.0.3) unstable; urgency=medium
+
+  * minor packaging detail
+
+ -- jerome dockes <jerome@dockes.org>  Sun, 28 Feb 2021 13:05:21 -0500
+
+labelbuddy (0.0.2) unstable; urgency=medium
+
+  * Add label shortcuts and misc keybindings
+  * Improve CLI
+  * Improve documentation
+
+ -- jerome dockes <jerome@dockes.org>  Sat, 27 Feb 2021 17:37:28 -0500
+
 labelbuddy (0.0.1) unstable; urgency=low
 
   * Initial release.

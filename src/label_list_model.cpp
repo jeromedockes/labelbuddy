@@ -10,8 +10,7 @@ LabelListModel::LabelListModel(QObject* parent) : QSqlQueryModel(parent) {}
 
 void LabelListModel::set_database(const QString& new_database_name) {
   database_name = new_database_name;
-  setQuery("select name, id from label order by id;",
-           QSqlDatabase::database(database_name));
+  setQuery(select_query_text, QSqlDatabase::database(database_name));
 }
 
 QSqlQuery LabelListModel::get_query() const {
@@ -19,11 +18,28 @@ QSqlQuery LabelListModel::get_query() const {
 }
 
 QVariant LabelListModel::data(const QModelIndex& index, int role) const {
+  if (role == Qt::DisplayRole && index.column() == 0) {
+    auto name = QSqlQueryModel::data(index, role).toString();
+    auto key = data(index, Roles::ShortcutKeyRole).toString();
+    if (key != QString()) {
+      return QString("%0) %1").arg(key).arg(name);
+    }
+    return name;
+  }
   if (role == Roles::RowIdRole) {
     if (index.column() != 0) {
       return QVariant{};
     }
     return QSqlQueryModel::data(index.sibling(index.row(), 1), Qt::DisplayRole);
+  }
+  if (role == Roles::ShortcutKeyRole) {
+    auto label_id = data(index, Roles::RowIdRole).toInt();
+    auto query = get_query();
+    query.prepare("select shortcut_key from label where id = :labelid;");
+    query.bindValue(":labelid", label_id);
+    query.exec();
+    query.next();
+    return query.value(0).toString();
   }
   if (role == Qt::BackgroundRole) {
     auto label_id = data(index, Roles::RowIdRole).toInt();
@@ -85,21 +101,67 @@ int LabelListModel::delete_labels(const QModelIndexList& indices) {
 }
 
 void LabelListModel::refresh_current_query() {
-  setQuery("select name, id from label order by id;",
-           QSqlDatabase::database(database_name));
+  setQuery(select_query_text, QSqlDatabase::database(database_name));
 }
 
 void LabelListModel::set_label_color(const QModelIndex& index,
-                                     const QString& color) {
+                                     const QColor& color) {
+  if (!color.isValid()){
+    return;
+  }
   auto label_id = data(index, Roles::RowIdRole);
   if (label_id == QVariant()) {
     return;
   }
   auto query = get_query();
   query.prepare("update label set color = :col where id = :labelid;");
-  query.bindValue(":col", color);
+  query.bindValue(":col", color.name());
   query.bindValue(":labelid", label_id.toInt());
   query.exec();
+  emit dataChanged(index, index, {Qt::BackgroundRole});
+  emit labels_changed();
+}
+
+bool LabelListModel::is_valid_shortcut(const QString& shortcut,
+                                       const QModelIndex& index) {
+  auto label_id_variant = data(index, Roles::RowIdRole);
+  int label_id = label_id_variant != QVariant() ? label_id_variant.toInt() : -1;
+  return is_valid_shortcut(shortcut, label_id);
+}
+
+bool LabelListModel::is_valid_shortcut(const QString& shortcut, int label_id) {
+  if (!re.match(shortcut).hasMatch()) {
+    return false;
+  }
+  auto query = get_query();
+  query.prepare("select id from label where shortcut_key = :shortcut "
+                "and id != :labelid;");
+  query.bindValue(":shortcut", shortcut);
+  query.bindValue(":labelid", label_id);
+  query.exec();
+  if (query.next()) {
+    return false;
+  }
+  return true;
+}
+
+void LabelListModel::set_label_shortcut(const QModelIndex& index,
+                                        const QString& shortcut) {
+  auto label_id = data(index, Roles::RowIdRole);
+  if (label_id == QVariant()) {
+    return;
+  }
+  if (!re.match(shortcut).hasMatch()) {
+    return;
+  }
+  auto query = get_query();
+  query.prepare(
+      "update label set shortcut_key = :shortcut where id = :labelid;");
+  query.bindValue(":shortcut",
+                  shortcut != "" ? shortcut : QVariant(QVariant::String));
+  query.bindValue(":labelid", label_id.toInt());
+  query.exec();
+  emit dataChanged(index, index, {Qt::DisplayRole});
   emit labels_changed();
 }
 

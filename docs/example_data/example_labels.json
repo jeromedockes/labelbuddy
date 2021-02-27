@@ -1,0 +1,34 @@
+[
+ {
+  "text": "adjective",
+  "shortcut_key": "a"
+ },
+ {
+  "text": "adverb",
+  "shortcut_key": "b"
+ },
+ {
+  "text": "conjunction",
+  "shortcut_key": "c"
+ },
+ {
+  "text": "interjection",
+  "shortcut_key": "i"
+ },
+ {
+  "text": "noun",
+  "shortcut_key": "n"
+ },
+ {
+  "text": "preposition",
+  "shortcut_key": "p"
+ },
+ {
+  "text": "pronoun",
+  "shortcut_key": "q"
+ },
+ {
+  "text": "verb",
+  "shortcut_key": "v"
+ }
+]

@@ -54,7 +54,7 @@ void prepare_parser(QCommandLineParser& parser) {
                     "docs file"});
   parser.addOption(
       {"export-labels", "Labels file to export to.", "exported labels file"});
-  parser.addOption({"export-annotations",
+  parser.addOption({"export-docs",
                     "Docs & annotations file to export to.",
                     "exported docs file"});
   parser.addOption({"labelled-only", "Export only labelled documents"});
@@ -64,6 +64,10 @@ void prepare_parser(QCommandLineParser& parser) {
       {"approver", "User or 'annotations approver' name", "name", ""});
   parser.addOption(
       {"vacuum", "Repack database into minimal amount of disk space."});
+}
+
+QRegularExpression shortcut_key_pattern(bool accept_empty) {
+  return QRegularExpression{accept_empty ? "^[a-z]?$" : "^[a-z]$"};
 }
 
 } // namespace labelbuddy

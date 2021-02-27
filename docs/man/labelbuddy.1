@@ -1,4 +1,4 @@
-.TH labelbuddy 1 "2021-02-23" "version 0.0.1"
+.TH labelbuddy 1 "2021-02-27" "version 0.0.3"
 .SH NAME
 labelbuddy \- application for annotating text documents
 .SH SYNOPSIS
@@ -61,19 +61,19 @@ into the database. Can be used several times.
 Export labels in the database to the .json file
 .IR labelsfile .
 .TP
-.BI \-\-export\-annotations " docsfile"
+.BI \-\-export\-docs " docsfile"
 Export documents and annotations in the database to the (.json, .jsonl or .xml) file
 .IR docsfile .
 Some options described below control what is exported.
 .TP
 .B \-\-labelled\-only
 When using the
-.B \-\-export\-annotations
+.B \-\-export\-docs
 option, only export documents that contain at least one annotation.
 .TP
 .B \-\-include\-text
 When using the
-.B \-\-export\-annotations
+.B \-\-export\-docs
 option, include the document's text in the output. By default, it is not included
 (and the documents can be identified from the MD5 checksum found in the output,
 or from any user metadata that was imported with the documents).

@@ -34,13 +34,14 @@ void TestAnnotator::test_annotator() {
   QVERIFY(lv->isEnabled());
   auto del = labels->findChild<QPushButton*>();
   QVERIFY(!del->isEnabled());
+  // set label using label list button
   lv->selectionModel()->select(labels_model.index(1, 0),
                                QItemSelectionModel::SelectCurrent);
   QCOMPARE(annotator.active_annotation_label(), 2);
   QCOMPARE(annotations_model.get_annotations_info()[1].label_id, 2);
   QVERIFY(del->isEnabled());
-  lv->selectionModel()->select(labels_model.index(0, 0),
-                               QItemSelectionModel::SelectCurrent);
+  // set label using shortcut
+  QTest::keyClicks(&annotator, "p");
   QCOMPARE(annotations_model.get_annotations_info()[1].label_id, 1);
   del->click();
   QCOMPARE(annotations_model.get_annotations_info().size(), 0);
@@ -58,5 +59,8 @@ void TestAnnotator::test_annotator() {
   nav->findChildren<QPushButton*>()[5]->click();
   QCOMPARE(annotations_model.current_doc_position(), 2);
   QCOMPARE(annotations_model.get_annotations_info().size(), 1);
+  QCOMPARE(annotator.active_annotation_label(), -1);
+  annotator.select_next_annotation();
+  QCOMPARE(annotator.active_annotation_label(), 2);
 }
 } // namespace labelbuddy

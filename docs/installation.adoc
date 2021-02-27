@@ -40,17 +40,26 @@ Then the latest release of {lb} (and any future releases) can be installed with:
 sudo apt-get install labelbuddy
 ....
 
-If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt-get`.
-For example:
+If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt-get`:
 
 ....
-sudo apt install ./labelbuddy_0.0.1-1~groovy1_amd64.deb
+sudo apt install ./labelbuddy_<version>.deb
+....
+
+=== On Debian
+
+Binary packages can be downloaded from {ghreleases}[the releases page on GitHub].
+Once you have downloaded the package, you can install it with `apt-get`:
+....
+sudo apt install ./labelbuddy_<version>.deb
 ....
 
 === On Windows
 
-Select the latest release from {ghreleases}[the releases page on GitHub], and download and run `labelbuddy_windows_installer.exe` (ignore Windows’ security warnings).
-An alternative to the installer is to download `labelbuddy_windows.zip`, unzip it anywhere, then execute the file `labelbuddy.exe` that it contains to start {lb}.
+Select the latest release from {ghreleases}[here], and download and run `labelbuddy_<version>_windows_installer.exe` (ignore Windows’ security warnings).
+{lb} can be uninstalled from the Windows applications menu, or by running the `maintenancetool.exe` executable found in the {lb} installation folder.
+
+An alternative to using the installer is to download `labelbuddy_windows.zip`, unzip it anywhere, then execute the file `labelbuddy.exe` that it contains to start {lb}.
 
 
 == Building from source

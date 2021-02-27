@@ -2,15 +2,18 @@
 #include <QApplication>
 #include <QColorDialog>
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QMessageBox>
 #include <QPalette>
 #include <QPushButton>
 #include <QSize>
 #include <QStyle>
+#include <QVBoxLayout>
 
-#include "utils.h"
 #include "label_list.h"
 #include "label_list_model.h"
+#include "user_roles.h"
+#include "utils.h"
 
 namespace labelbuddy {
 
@@ -59,28 +62,63 @@ QSize LabelDelegate::sizeHint(const QStyleOptionViewItem& option,
 }
 
 LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
-  QHBoxLayout* layout = new QHBoxLayout();
-  setLayout(layout);
+  auto outer_layout = new QVBoxLayout();
+  setLayout(outer_layout);
+  auto top_layout = new QHBoxLayout();
+  outer_layout->addLayout(top_layout);
   select_all_button = new QPushButton("Select all");
-  layout->addWidget(select_all_button);
+  top_layout->addWidget(select_all_button);
   delete_button = new QPushButton("Delete");
-  layout->addWidget(delete_button);
+  top_layout->addWidget(delete_button);
+
+  auto bottom_layout = new QHBoxLayout();
+  outer_layout->addLayout(bottom_layout);
   set_color_button = new QPushButton("Set color");
-  layout->addWidget(set_color_button);
+  bottom_layout->addWidget(set_color_button);
+  shortcut_label = new QLabel("Shortcut key: ");
+  bottom_layout->addWidget(shortcut_label);
+  shortcut_edit = new QLineEdit();
+  bottom_layout->addWidget(shortcut_edit);
+  shortcut_edit->setMaxLength(1);
+  shortcut_edit->setValidator(&validator);
+  shortcut_edit->setFixedWidth(shortcut_edit->fontMetrics().maxWidth());
+  bottom_layout->addStretch(1);
+
   QObject::connect(select_all_button, &QPushButton::clicked, this,
                    &LabelListButtons::select_all);
-
   QObject::connect(set_color_button, &QPushButton::clicked, this,
                    &LabelListButtons::set_label_color);
-
   QObject::connect(delete_button, SIGNAL(clicked()), this,
                    SIGNAL(delete_selected_rows()));
+  QObject::connect(shortcut_edit, &QLineEdit::returnPressed, this,
+                   &LabelListButtons::shortcut_edit_pressed);
 }
 
-void LabelListButtons::update_button_states(int n_selected, int total) {
+void LabelListButtons::update_button_states(int n_selected, int total,
+                                            const QModelIndex& first_selected) {
   select_all_button->setEnabled(total > 0);
   delete_button->setEnabled(n_selected > 0);
   set_color_button->setEnabled(n_selected == 1);
+  shortcut_edit->setEnabled(n_selected == 1);
+  shortcut_label->setEnabled(n_selected == 1);
+  if (n_selected == 1 && first_selected.isValid()) {
+    shortcut_edit->setText(first_selected.model()
+                               ->data(first_selected, Roles::ShortcutKeyRole)
+                               .toString());
+  } else {
+    shortcut_edit->setText("");
+  }
+}
+
+void LabelListButtons::set_model(LabelListModel* new_model) {
+  validator.setModel(new_model);
+}
+void LabelListButtons::set_view(QListView* new_view) {
+  validator.setView(new_view);
+}
+
+void LabelListButtons::shortcut_edit_pressed() {
+  emit set_label_shortcut(shortcut_edit->text());
 }
 
 LabelList::LabelList(QWidget* parent) : QFrame(parent) {
@@ -96,6 +134,7 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
   labels_view->setSpacing(3);
   labels_view->setItemDelegate(new LabelDelegate);
   labels_view->setFocusPolicy(Qt::NoFocus);
+  buttons_frame->set_view(labels_view);
 
   labels_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -107,10 +146,14 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
 
   QObject::connect(buttons_frame, &LabelListButtons::set_label_color, this,
                    &LabelList::set_label_color);
+
+  QObject::connect(buttons_frame, &LabelListButtons::set_label_shortcut, this,
+                   &LabelList::set_label_shortcut);
 }
 
 void LabelList::setModel(LabelListModel* new_model) {
   labels_view->setModel(new_model);
+  buttons_frame->set_model(new_model);
   model = new_model;
   QObject::connect(model, &LabelListModel::modelReset, this,
                    &LabelList::update_button_states);
@@ -159,7 +202,13 @@ void LabelList::update_button_states() {
       ++n_rows;
     }
   }
-  buttons_frame->update_button_states(n_rows, model->total_n_labels());
+  auto first_selected = find_first_in_col_0(selected);
+  QModelIndex selected_index{};
+  if (first_selected != selected.constEnd()) {
+    selected_index = *first_selected;
+  }
+  buttons_frame->update_button_states(n_rows, model->total_n_labels(),
+                                      selected_index);
 }
 
 void LabelList::set_label_color() {
@@ -173,9 +222,39 @@ void LabelList::set_label_color() {
       model->data(*selected, Qt::BackgroundRole).value<QColor>();
   auto color = QColorDialog::getColor(
       current_color, this, QString("Set color for '%0'").arg(label_name));
-  if (!color.isValid()) {
+  model->set_label_color(*selected, color);
+}
+
+void LabelList::set_label_shortcut(const QString& new_shortcut) {
+  auto all_selected = labels_view->selectionModel()->selectedIndexes();
+  auto selected = find_first_in_col_0(all_selected);
+  if (selected == all_selected.constEnd()) {
     return;
   }
-  model->set_label_color(*selected, color.name());
+  model->set_label_shortcut(*selected, new_shortcut);
 }
+
+QValidator::State ShortcutValidator::validate(QString& input, int& pos) const {
+  (void) pos;
+  if (model == nullptr || view == nullptr) {
+    return State::Invalid;
+  }
+  if (input == QString("")) {
+    return State::Acceptable;
+  }
+  auto all_selected = view->selectionModel()->selectedIndexes();
+  QModelIndex selected{};
+  auto selected_it = find_first_in_col_0(all_selected);
+  if (selected_it != all_selected.constEnd()) {
+    selected = *selected_it;
+  }
+  if (!model->is_valid_shortcut(input, selected)) {
+    return State::Invalid;
+  }
+  return State::Acceptable;
+}
+void ShortcutValidator::setModel(LabelListModel* new_model) {
+  model = new_model;
+}
+void ShortcutValidator::setView(QListView* new_view) { view = new_view; }
 } // namespace labelbuddy

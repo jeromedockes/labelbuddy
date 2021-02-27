@@ -19,10 +19,11 @@ public:
   SearchableText(QWidget* parent = nullptr);
 
   void fill(const QString& content);
-  void keyPressEvent(QKeyEvent*);
+  void keyPressEvent(QKeyEvent*) override;
   QList<int> current_selection() const;
   QTextCursor textCursor() const;
   QTextEdit* get_text_edit();
+  QLineEdit* get_search_box();
 
 public slots:
 
@@ -47,11 +48,16 @@ private:
 
   void swap_pos_anchor(QTextCursor& cursor) const;
   void handle_nav_event(QKeyEvent* event);
+  void cycle_cursor_height();
+  void cycle_cursor_height_once();
   const QList<int> nav_keys{Qt::Key_K, Qt::Key_J, Qt::Key_N,
                             Qt::Key_P, Qt::Key_U, Qt::Key_D};
   const QList<int> nav_keys_nomodif{Qt::Key_BracketLeft, Qt::Key_BracketRight,
                                     Qt::Key_BraceLeft, Qt::Key_BraceRight};
   enum class Side { Right, Left };
+  enum class CursorHeight {Center, Top, Bottom};
+  CursorHeight last_cursor_height{};
+  int last_cursor_pos{};
 
 private slots:
 

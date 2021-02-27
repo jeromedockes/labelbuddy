@@ -25,7 +25,9 @@ for doc_name in [
             "documentation.html'>online version</a>"
         )
         long_title = "labelbuddy documentation"
-    body = "\n".join(lines[1:])
+        body = doc
+    else:
+        body = "\n".join(lines[1:])
     meta = {
         "title": doc_name,
         "md5": hashlib.md5(body.encode("utf-8")).hexdigest(),

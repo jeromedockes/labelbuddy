@@ -270,4 +270,14 @@ bool AnnotationsModel::has_prev_unlabelled() const {
   return (first != -1) && (current_doc_id > first);
 }
 
+int AnnotationsModel::shortcut_to_id(const QString& shortcut) const {
+  auto query = get_query();
+  query.prepare("select id from label where shortcut_key = :key;");
+  query.bindValue(":key", shortcut);
+  query.exec();
+  if (!query.next()) {
+    return -1;
+  }
+  return query.value(0).toInt();
+}
 } // namespace labelbuddy

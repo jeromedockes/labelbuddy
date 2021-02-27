@@ -82,6 +82,9 @@ void LabelChoices::enable_delete() { delete_button->setEnabled(true); }
 void LabelChoices::disable_delete() { delete_button->setDisabled(true); }
 void LabelChoices::enable_label_choice() { labels_view->setEnabled(true); }
 void LabelChoices::disable_label_choice() { labels_view->setDisabled(true); }
+bool LabelChoices::is_label_choice_enabled() const {
+  return labels_view->isEnabled();
+}
 
 Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   label_choices = new LabelChoices();
@@ -100,6 +103,7 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   title_label->setWordWrap(true);
   text = new SearchableText();
   text_layout->addWidget(text);
+  text->get_text_edit()->installEventFilter(this);
   default_weight = text->get_text_edit()->fontWeight();
   text->fill("");
   text->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -253,7 +257,8 @@ void Annotator::delete_annotations(QList<int> annotation_ids) {
     if (active_annotation == id) {
       deactivate_active_annotation();
     }
-    annotations.remove(id);
+    auto anno = annotations.take(id);
+    pos_to_anno.remove(anno.start_char);
     to_delete << id;
   }
   if (!to_delete.length()) {
@@ -320,6 +325,7 @@ void Annotator::add_annotation(int label_id, int start_char, int end_char) {
   annotation_cursor.setPosition(end_char, QTextCursor::KeepAnchor);
   annotations[annotation_id] = AnnotationCursor{
       annotation_id, label_id, start_char, end_char, annotation_cursor};
+  pos_to_anno[start_char] = annotation_id;
   auto new_cursor = text->get_text_edit()->textCursor();
   new_cursor.clearSelection();
   text->get_text_edit()->setTextCursor(new_cursor);
@@ -342,7 +348,8 @@ void Annotator::fetch_annotations_info() {
   int prev_active{active_annotation};
   deactivate_active_annotation();
   auto annotation_positions = annotations_model->get_annotations_info();
-  annotations = QMap<int, AnnotationCursor>{};
+  annotations.clear();
+  pos_to_anno.clear();
   for (auto i = annotation_positions.constBegin();
        i != annotation_positions.constEnd(); ++i) {
     auto start = i.value().start_char;
@@ -352,10 +359,56 @@ void Annotator::fetch_annotations_info() {
     cursor.setPosition(end, QTextCursor::KeepAnchor);
     annotations[i.value().id] =
         AnnotationCursor{i.value().id, i.value().label_id, start, end, cursor};
+    pos_to_anno[start] = i.value().id;
   }
   if (annotations.contains(prev_active)) {
     active_annotation = prev_active;
   }
+}
+
+int Annotator::find_next_annotation(int pos, bool forward) const {
+  if (annotations.size() == 0) {
+    return -1;
+  }
+  if (forward) {
+    QMap<int, int>::const_iterator i = pos_to_anno.lowerBound(pos);
+    if (i != pos_to_anno.constEnd()) {
+      return *i;
+    }
+    return *pos_to_anno.constBegin();
+  }
+  QMap<int, int>::const_iterator i = pos_to_anno.lowerBound(pos);
+  if (i == pos_to_anno.constEnd()) {
+    --i;
+  }
+  while (i != pos_to_anno.constBegin() - 1 && i.key() > pos) {
+    --i;
+  }
+  if (i != pos_to_anno.constBegin() - 1) {
+    return *i;
+  }
+  return *(pos_to_anno.constEnd() - 1);
+}
+
+void Annotator::select_next_annotation(bool forward) {
+  int pos{};
+  if (active_annotation != -1) {
+    int offset = forward ? 1 : -1;
+    pos = annotations[active_annotation].start_char + offset;
+  } else {
+    pos = text->get_text_edit()->textCursor().position();
+  }
+  auto next_anno = find_next_annotation(pos, forward);
+  if (next_anno == -1) {
+    return;
+  }
+  auto cursor = text->get_text_edit()->textCursor();
+  cursor.setPosition(annotations[next_anno].start_char);
+  text->get_text_edit()->setTextCursor(cursor);
+  text->get_text_edit()->ensureCursorVisible();
+  deactivate_active_annotation();
+  active_annotation = next_anno;
+  emit active_annotation_changed();
 }
 
 void Annotator::paint_annotations() {
@@ -373,6 +426,51 @@ void Annotator::paint_annotations() {
     new_selections << QTextEdit::ExtraSelection{anno.cursor, format};
   }
   text->get_text_edit()->setExtraSelections(new_selections);
+}
+
+bool Annotator::eventFilter(QObject* object, QEvent* event) {
+  if (object == text->get_text_edit()) {
+    if (event->type() == QEvent::KeyPress) {
+      auto key_event = static_cast<QKeyEvent*>(event);
+      if (key_event->key() == Qt::Key_Space) {
+        keyPressEvent(key_event);
+        return true;
+      }
+    }
+  }
+  return QWidget::eventFilter(object, event);
+}
+
+void Annotator::keyPressEvent(QKeyEvent* event) {
+  if (event->text() == ">") {
+    annotations_model->visit_next();
+    return;
+  }
+  if (event->text() == "<") {
+    annotations_model->visit_prev();
+    return;
+  }
+  if (event->key() == Qt::Key_Escape) {
+    deactivate_active_annotation();
+    emit active_annotation_changed();
+  }
+  if (event->key() == Qt::Key_Space) {
+    bool backward{event->modifiers() & Qt::ShiftModifier};
+    select_next_annotation(!backward);
+    return;
+  }
+  if (!label_choices->is_label_choice_enabled()) {
+    return;
+  }
+  auto id = annotations_model->shortcut_to_id(event->text());
+  if (id != -1) {
+    label_choices->set_selected_label_id(id);
+    return;
+  }
+  if (event->key() == Qt::Key_Backspace) {
+    delete_active_annotation();
+    return;
+  }
 }
 
 AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)

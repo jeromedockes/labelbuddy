@@ -1,5 +1,5 @@
 [
-    ["label: Reinício da sessão", "#aec7e8"],
+    {"text": "label: Reinício da sessão","color": "#aec7e8", "shortcut_key": "p"},
     ["label: Resumption of the session", "#ffbb78"],
     ["label: Επαvάληψη της συvσδoυ", "#98df8a"]
 ]

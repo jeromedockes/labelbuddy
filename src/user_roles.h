@@ -5,7 +5,7 @@
 
 namespace labelbuddy {
 
-    enum Roles { RowIdRole = Qt::UserRole};
+  enum Roles { RowIdRole = Qt::UserRole, ShortcutKeyRole};
 }
 
 #endif

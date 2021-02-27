@@ -59,7 +59,7 @@ labelbuddy --demo
 ....
 
 (You can also start {lb} without any options and then select menu:File[Demo] in the GUI.)
-You can play around with {lb}’s features in this temporary project.
+You can play around with {lb}’s features in this temporary database.
 If you decide to start creating annotations that you want to keep, open a new database and import your <<importing-documents,documents>> and <<importing-labels,labels>>.
 
 NOTE: a <<managing-projects,labelbuddy database>> is actually just a regular file on your disk (an {sqlitehome}[SQLite] database).
@@ -69,6 +69,7 @@ NOTE: a <<managing-projects,labelbuddy database>> is actually just a regular fil
 Documents and labels can be imported into a {lb} database from various formats.
 Once this is done, you can annotate the documents and finally export your annotations.
 It is also possible to import annotations exported from {lb} or {doca}.
+Importing and exporting data can be done from the graphical or the <<command-line-interface,command line>> interface.
 
 Documents and labels that are already in the database are skipped if you try to import them again.
 
@@ -143,14 +144,15 @@ Other attributes cannot be specified.
 
 When importing a `.json` file the whole file is read into memory before inserting the documents in the database.
 To read documents one by one and reduce memory usage, you can use https://jsonlines.org/[JSON Lines].
-It is almost the same as the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
+It is similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:
 [source,json]
 ----
 {"text": "text of first doc", "meta": {"author": "me", "DOI": "123"}}
 {"text": "text of second doc", "short_title": "doc456"}
 ----
-(Note the outer brackets are removed and the documents are not separated by commas.)
+Note the outer brackets are removed and the documents are not separated by commas.
+The object representing each document must occupy exactly one line, unlike in `.json` where whitespace is not important.
 
 As for `.json`, `.jsonl` also allows <<importing-annotations,importing annotations>>.
 
@@ -185,10 +187,13 @@ The same format can be used to <<importing-annotations,import annotations>>.
 === Importing labels
 
 To import labels, click btn:[Import labels] in the {ietab}.
-Labels have two attributes: a mandatory `text` (label name), and an optional `color`.
-For compatibility with {doca}, `color` can also be specified as `background_color`.
+Labels have three attributes: a mandatory `text` (label name), and an optional `color` and `shortcut_key`.
+The `shortcut_key` is a lower-case ASCII letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+
+For compatibility with {doca}, `color` can also be specified as `background_color` and `shortcut_key` can be specified as `suffix_key`.
+
 As for documents, the format is deduced from the filename extension when importing labels.
-The label color can be changed from within the GUI application .
+The label color and shortcut key can be changed from within the GUI application .
 
 ==== From `.txt`
 
@@ -200,14 +205,13 @@ Verb
 Adjective
 ....
 
-You can specify a color for each label (or labels that contain newlines) by using the `.json` format.
+To specify a color or shortcut key (or to use labels that contain newlines), use the `.json` format.
 
 ==== From `.json`
 
 The file must contain a JSON array containing one JSON object per label.
 
-Each label's object must have the key `text` and optionally `color` or the synonym `background_color`.
-(If both `color` and `background_color` are provided `color` is used.)
+Each label's object must have the key `text` and optionally `color` and `shortcut_key` (or their synonyms `background_color` and `suffix_key`, which have lower precedence).
 
 For example:
 
@@ -215,7 +219,7 @@ For example:
 ----
 [
 {"text": "Noun", "color": "#ff0000"},
-{"text": "Verb", "color": "yellow"},
+{"text": "Verb", "color": "yellow", "shortcut_key": "v"},
 {"text": "Adjective"}
 ]
 ----
@@ -237,37 +241,117 @@ In this case the first (mandatory) element of the array is the text (label name)
 === Annotating documents
 
 Once you have imported labels and documents you can see them in the {dstab}.
-You can delete labels or documents and change the color associated with each label.
+You can delete labels or documents and change the color and shortcut associated with each label.
 You then go to the {annotab}.
 (If you double-click a document it will be opened in the {annotab}.)
 
 To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
+It is also possible to do the same thing with the keyboard.
+Search for the term you want to annotate and the first match will be selected.
+The selection can be adusted with the keyboard using the bindings described <<summary-of-key-bindings-in-the-annotate-tab,below>>.
+Then press the shortcut key associated with the label you want to set.
 
 Once you have created annotations, you can select any of them by clicking it.
 It becomes bold and underlined and you can change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
-
-TIP: If showing the selection in bold is annoying (depending on the font it can slightly change its size) you can disable it in menu:Preferences[Bold selected region].
+You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
 If you create a new annotation that overlaps with a previously existing one, the previously existing one is automatically removed.
 
+TIP: If showing the selection in bold is annoying (depending on the font it can slightly change its size) you can disable it in menu:Preferences[Bold selected region].
+
 ==== Summary of key bindings in the {annotab}
 
-* kbd:[Ctrl] and scroll the mouse: zoom or dezoom the text
-* kbd:[Ctrl+F]: search
-* kbd:[Enter]: next search match
-* kbd:[Shift+Enter]: previous search match
-* kbd:[Ctrl+J], kbd:[Ctrl+N], kbd:[Down]: scroll down one line
-* kbd:[Ctrl+K], kbd:[Ctrl+P], kbd:[Up]: scroll up one line
-* kbd:[Ctrl+D]: scroll down one page
-* kbd:[Ctrl+U]: scroll up one page
-* kbd:[\]]: move the *end* of the selection by one *word* to the *right*
-* kbd:[[]: move the *end* of the selection by one *word* to the *left*
-* kbd:[}]: move the *beginning* of the selection by one *word* to the *right*
-* kbd:[{]: move the *beginning* of the selection by one *word* to the *left*
-* kbd:[Ctrl+\]]: move the *end* of the selection by one *character* to the *right*
-* kbd:[Ctrl+[]: move the *end* of the selection by one *character* to the *left*
-* kbd:[Ctrl+}]: move the *beginning* of the selection by one *character* to the *right*
-* kbd:[Ctrl+{]: move the *beginning* of the selection by one *character* to the *left*
+[cols="1,2"]
+|===
+2+| Searching and navigation
+
+| kbd:[Ctrl] and scroll the mouse
+| zoom or dezoom the text
+
+| kbd:[Ctrl+F], kbd:[/]
+| search
+
+| kbd:[Enter]
+| next search match
+
+| kbd:[Shift+Enter]
+| previous search match
+
+| kbd:[Ctrl+J], kbd:[Ctrl+N], kbd:[Down]
+| scroll down one line
+
+| kbd:[Ctrl+K], kbd:[Ctrl+P], kbd:[Up]
+| scroll up one line
+
+| kbd:[Ctrl+D]
+| scroll down one page
+
+| kbd:[Ctrl+U]
+| scroll up one page
+
+| kbd:[Ctrl+L]
+| cycle between placing the cursor at the center, top and bottom of the window
+|===
+
+[cols="1,2"]
+|===
+2+| Manipulating annotations
+
+| kbd:[a-z] (label's `shortcut_key`)
+| set corresponding label for the currently selected region or annotation
+
+| kbd:[Backspace]
+| remove selected annotation
+
+| kbd:[Space]
+| jump to next annotation and select it
+
+| kbd:[Shift+Space]
+| jump to previous annotation and select it
+
+| kbd:[Esc]
+| un-select selected annotation
+|===
+
+[cols="1,2"]
+|===
+2+| Manipulating the text selection
+
+| kbd:[\]]
+| move the *end* of the selection by one *word* to the *right*
+
+| kbd:[[]
+| move the *end* of the selection by one *word* to the *left*
+
+| kbd:[}]
+| move the *beginning* of the selection by one *word* to the *right*
+
+| kbd:[{]
+| move the *beginning* of the selection by one *word* to the *left*
+
+| kbd:[Ctrl+\]]
+| move the *end* of the selection by one *character* to the *right*
+
+| kbd:[Ctrl+[]
+| move the *end* of the selection by one *character* to the *left*
+
+| kbd:[Ctrl+}]
+| move the *beginning* of the selection by one *character* to the *right*
+
+| kbd:[Ctrl+{]
+| move the *beginning* of the selection by one *character* to the *left*
+|===
+
+[cols="1,2"]
+|===
+2+| Navigating documents
+
+| kbd:[>]
+| go to next document
+
+| kbd:[<]
+| go to previous document
+|===
 
 
 === Exporting annotations
@@ -284,7 +368,7 @@ When clicking btn:[Export docs & annotations] you are asked to select a file and
 The export format is the same as the import format.
 Exported documents and annotations can thus be imported back into a {lb} database.
 
-However for exported documents:
+Compared to previous description of the import format, in exported documents:
 
 * `text` is optional (you can choose not to export it to save space, in this case documents can be identified from their MD5 checksum or from the user metadata).
 * `document_md5_checksum` (containing the hex representation of the MD5 checksum of the text) and `labels` (containing the document’s annotations) are added.
@@ -299,6 +383,8 @@ The optional attribute `annotation_approver` can also be added.
 
 For example if the text starts with "`hello`" and you highlighted exactly that word, and labelled it with `label_1`, the associated annotation will be `[0, 5, "label_1"]`.
 
+NOTE: Documents are exported in the same order that they were imported.
+
 ==== Exporting to `.json`
 
 JSON exported annotations might look like:
@@ -311,7 +397,8 @@ JSON exported annotations might look like:
 ]
 ----
 
-Each document will always be on one separate line.
+Each document will always be on one separate line; this makes it easy to parse the file incrementally.
+Moreover as the documents are always in the same order, it gives line-oriented tools such as *diff* or *git* a better chance of producing useful output.
 
 ==== Exporting to `.jsonl`
 
@@ -372,6 +459,10 @@ So it may look like:
 === Exporting labels
 
 You can also export labels by clicking "`Export labels`" and selecting a JSON file.
+The resulting file will contain an array of json objects; the same format as the <<from-json,input format>>.
+Unlike documents each label is not on a single line.
+Both keys `color` and `background_color` are set to the label's colors.
+Both keys `shortcut_key` and `suffix_key` are set to the label's shortcut key if it has one.
 
 === Importing annotations
 
@@ -403,11 +494,11 @@ Moreover, {doca} allows duplicate documents so if the documents were already in 
 
 === Managing projects
 
-Each {lb} project (a set of documents, labels and annotations) is an {sqlitehome}[SQLite] database.
+Each {lb} database (containing documents, labels and annotations) is an {sqlitehome}[SQLite] database.
 That is a single binary file on your disk that you can copy, backup, or share, like any other file.
 
-TIP: Advanced users can also open a connection directly to the database to query it or even modify it.
-Back it up before and set `PRAGMA foreign_keys = ON`
+TIP: Using SQLite you can also open a connection directly to the database to query it or even modify it.
+If you do so, set `PRAGMA foreign_keys = ON`.
 
 When you first start {lb} it creates a new database in `~/labelbuddy_data.sqlite3`.
 You can switch to a different one by selecting menu:File[Open] or menu:File[New].
@@ -418,13 +509,15 @@ The next time you start {lb}, it will open the last database that you opened.
 The database to open can also be specified when invoking {lb} from the command line:
 
 ....
-labelbuddy /path/to/my_project.sqlite3
+labelbuddy /path/to/my_annotations.sqlite3
 ....
 
 If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
 
 As it is easy to create and delete databases (an empty {lb} database is just 48K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
-In particular, it is possible to work with several databases rather than a monolithic one – as an example we could create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.
+In particular, it is possible to work with several databases rather than a monolithic one.
+You can break down the annotations into several files to reflect the structure of your project.
+As an example you could also create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.
 
 === Command-line interface
 
@@ -444,7 +537,7 @@ Options:
   --import-docs <docs file>                  Docs & annotations file to import
                                              in database.
   --export-labels <exported labels file>     Labels file to export to.
-  --export-annotations <exported docs file>  Docs & annotations file to export
+  --export-docs <exported docs file>         Docs & annotations file to export
                                              to.
   --labelled-only                            Export only labelled documents
   --include-text                             Include doc text with exported
@@ -461,6 +554,13 @@ Arguments:
 If any of the `import-` or `export-` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.
+Labels are imported first, then documents, then export operations are performed.
+
+As an example, to convert a previously exported file `docs.xml` to JSON and strip the documents' text, you could run:
+
+....
+tmpdb=$(mktemp) && labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb
+....
 
 Regarding `vacuum`: when data is deleted from an `sqlite3` database, the file doesn’t shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.

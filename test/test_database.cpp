@@ -124,10 +124,11 @@ void TestDatabase::test_import_export_labels() {
 }
 
 void TestDatabase::check_db_labels(QSqlQuery& query) {
-  query.exec("select name, color from label;");
+  query.exec("select name, color, shortcut_key from label;");
   query.next();
   QCOMPARE(query.value(0).toString(), QString("label: Reinício da sessão"));
   QCOMPARE(query.value(1).toString(), QString("#aec7e8"));
+  QCOMPARE(query.value(2).toString(), QString("p"));
   query.next();
   QCOMPARE(query.value(0).toString(),
            QString("label: Resumption of the session"));

@@ -4,9 +4,9 @@
 #include <memory>
 
 #include <QByteArray>
-#include <QObject>
 #include <QFile>
 #include <QJsonArray>
+#include <QObject>
 #include <QProgressDialog>
 #include <QSet>
 #include <QSqlQuery>
@@ -191,6 +191,7 @@ private:
 struct LabelRecord {
   QString name;
   QString color;
+  QString shortcut_key{};
 };
 
 LabelRecord json_to_label_record(const QJsonValue& json);
@@ -231,7 +232,8 @@ private:
   QString get_default_database_path();
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   void insert_label(QSqlQuery& query, const QString& label_name,
-                    const QString& color = QString());
+                    const QString& color = QString(),
+                    const QString& shortcut_key = QString());
   int write_doc_and_annotations(AnnotationsWriter& writer, int doc_id,
                                 bool include_document,
                                 const QString& user_name);

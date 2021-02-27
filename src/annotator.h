@@ -36,6 +36,7 @@ public slots:
   void disable_delete();
   void enable_label_choice();
   void disable_label_choice();
+  bool is_label_choice_enabled() const;
 
 private:
   QPushButton* delete_button;
@@ -87,6 +88,7 @@ class Annotator : public QSplitter {
 
 public:
   Annotator(QWidget* parent = nullptr);
+  void keyPressEvent(QKeyEvent*) override;
   void set_annotations_model(AnnotationsModel*);
   void set_label_list_model(LabelListModel*);
   int annotation_at_pos(int) const;
@@ -110,6 +112,10 @@ public slots:
   void store_state();
   void set_monospace_font(bool monospace = true);
   void set_use_bold_font(bool use_bold = true);
+  void select_next_annotation(bool forward = true);
+
+protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
 
 private:
   void fetch_labels_info();
@@ -121,9 +127,11 @@ private:
   void delete_annotations(QList<int>);
   void delete_annotation(int);
   void deactivate_active_annotation();
+  int find_next_annotation(int pos, bool forward = true) const;
   int active_annotation = -1;
   QMap<int, AnnotationCursor> annotations{};
   QMap<int, LabelInfo> labels{};
+  QMap<int, int> pos_to_anno{};
 
   QLabel* title_label;
   SearchableText* text;

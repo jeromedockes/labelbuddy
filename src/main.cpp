@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
   const QStringList labels_files = parser.values("import-labels");
   const QStringList docs_files = parser.values("import-docs");
   const QString export_labels_file = parser.value("export-labels");
-  const QString export_docs_file = parser.value("export-annotations");
+  const QString export_docs_file = parser.value("export-docs");
   QString db_path = (args.length() == 0) ? QString() : args[0];
 
   if (labels_files.length() || docs_files.length() ||

@@ -3,6 +3,8 @@ THIS IS A TEMPORARY DATABASE.
 
 It will disappear when you close the application. This database contains a few documents and labels to allow trying out labelbuddy. You can create annotations, import more documents and labels and export annotations, but the database itself will be removed when labelbuddy exits.
 
+(You don't have to actually read this text, try annotating it instead!)
+
 If you decide to start a real project you want to keep, from the File menu select "New" and choose a location on your filesystem to create a persistent database. You can also close labelbuddy and open it again and by default it will open a database in your home directory: ~/labelbuddy_data.sqlite3.
 
 Time to start annotating documents! Select some text with the mouse and click on one of the labels on the left to annotate it.
@@ -13,27 +15,6 @@ If you create a new annotation that overlaps with a previously existing one, the
 
 Annotations are inserted in the database as you create them so there is no need for a "Save" button.
 
-Here is a summary of the keybindings available in this page:
-
-Ctrl and scroll the mouse  :   (un-)zoom the text
-Ctrl+F  :   search
-Enter  :   next search match
-Shift+Enter  :   previous search match
-Ctrl+J, Ctrl+N, Down  :   scroll down one line
-Ctrl+K, Ctrl+P, Up  :   scroll up one line
-Ctrl+D  :   scroll down one page
-Ctrl+U  :   scroll up one page
-]  :   move the *end* of the selection by one *word* to the *right*
-[  :   move the *end* of the selection by one *word* to the *left*
-}  :   move the *beginning* of the selection by one *word* to the *right*
-{  :   move the *beginning* of the selection by one *word* to the *left*
-Ctrl+]  :   move the *end* of the selection by one *character* to the *right*
-Ctrl+[  :   move the *end* of the selection by one *character* to the *left*
-Ctrl+}  :   move the *beginning* of the selection by one *character* to the *right*
-Ctrl+{  :   move the *beginning* of the selection by one *character* to the *left*
-
-If you prefer to read these documents with a fixed width font, select in the menu bar "Preferences" > "monospace font". You can prevent the text becoming bold by deselecting "Preferences" > "Bold selected region".
-
 Once you are done annotating this document, you can click "Next" above to move on to another one.
 
 The next document is the labelbuddy documentation, and then a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help" > "Documentation".
@@ -41,3 +22,31 @@ The next document is the labelbuddy documentation, and then a few extracts from 
 To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Dataset" tab.
 
 To export your annotations or import more documents or labels, go to the "Import / Export" tab.
+
+
+Here is a summary of the keybindings available in this page:
+
+Ctrl and scroll the mouse: zoom or dezoom the text
+Ctrl+F, /: search
+Enter: next search match
+Shift+Enter: previous search match
+Ctrl+J, Ctrl+N, Down: scroll down one line
+Ctrl+K, Ctrl+P, Up: scroll up one line
+Ctrl+D: scroll down one page
+Ctrl+U: scroll up one page
+Ctrl+L: cycle between placing the cursor at the center, top and bottom of the
+a-z (label’s shortcut_key): set corresponding label for the currently selected region or annotation
+Backspace: remove selected annotation
+Space: jump to next annotation and select it
+Shift+Space: jump to previous annotation and select it
+Esc: un-select selected annotation
+]: move the end of the selection by one word to the right
+[: move the end of the selection by one word to the left
+}: move the beginning of the selection by one word to the right
+{: move the beginning of the selection by one word to the left
+Ctrl+]: move the end of the selection by one character to the right
+Ctrl+[: move the end of the selection by one character to the left
+Ctrl+}: move the beginning of the selection by one character to the right
+Ctrl+{: move the beginning of the selection by one character to the left
+>: go to next document
+<: go to previous document

@@ -1,0 +1,6 @@
+GUI tool for annotating documents
+ This is an application for annotating parts of documents with labels.
+ labelbuddy can be used for Part Of Speech tagging,
+ Named Entity Recognition,
+ sentiment analysis and document classification, etc.
+ It depends on Qt5.

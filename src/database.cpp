@@ -442,6 +442,11 @@ LabelRecord json_to_label_record(const QJsonValue& json) {
     } else {
       record.color = json_obj["background_color"].toString();
     }
+    if (json_obj.contains("shortcut_key")) {
+      record.shortcut_key = json_obj["shortcut_key"].toString();
+    } else {
+      record.shortcut_key = json_obj["suffix_key"].toString();
+    }
   } else {
     record.name = json.toArray()[0].toString();
     record.color = json.toArray()[1].toString();
@@ -500,7 +505,7 @@ QString DatabaseCatalog::open_temp_database() {
   open_database(file_name, false);
   if (is_new) {
     import_documents(":docs/example_data/example_documents.json");
-    import_labels(":docs/example_data/example_labels.txt");
+    import_labels(":docs/example_data/example_labels.json");
   }
   return file_name;
 }
@@ -626,8 +631,20 @@ int DatabaseCatalog::insert_doc_record(const DocRecord& record,
 }
 
 void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
-                                   const QString& color) {
-  query.prepare("insert into label (name, color) values (:name, :color)");
+                                   const QString& color,
+                                   const QString& shortcut_key) {
+  auto re = shortcut_key_pattern();
+  bool valid_shortcut = re.match(shortcut_key).hasMatch();
+  if (valid_shortcut) {
+    query.prepare("select id from label where keyboard_shortcut = :shortcut;");
+    query.bindValue(":shortcut", shortcut_key);
+    query.exec();
+    if (query.next()) {
+      valid_shortcut = false;
+    }
+  }
+  query.prepare("insert into label (name, color, shortcut_key) values (:name, "
+                ":color, :shortcut)");
   query.bindValue(":name", label_name);
   if (QColor::isValidColor(color)) {
     query.bindValue(":color", QColor(color).name());
@@ -636,6 +653,8 @@ void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
                     label_colors[color_index % label_colors.length()]);
     ++color_index;
   }
+  query.bindValue(":shortcut",
+                  (valid_shortcut ? shortcut_key : QVariant(QVariant::String)));
   query.exec();
 }
 
@@ -715,7 +734,8 @@ int DatabaseCatalog::import_labels(const QString& file_path) {
   query.exec("begin transaction;");
   for (const auto& label_info : json_array) {
     auto label_record = json_to_label_record(label_info);
-    insert_label(query, label_record.name, label_record.color);
+    insert_label(query, label_record.name, label_record.color,
+                 label_record.shortcut_key);
   }
   query.exec("commit transaction;");
   query.exec("select count(*) from label;");
@@ -833,11 +853,17 @@ int DatabaseCatalog::write_doc_and_annotations(AnnotationsWriter& writer,
 int DatabaseCatalog::export_labels(const QString& file_path) {
   QJsonArray labels{};
   QSqlQuery query(QSqlDatabase::database(current_database));
-  query.exec("select name, color from label order by id;");
+  query.exec("select name, color, shortcut_key from label order by id;");
   while (query.next()) {
     QJsonObject label_info{};
     label_info["text"] = query.value(0).toString();
     label_info["color"] = QColor(query.value(1).toString()).name();
+    label_info["background_color"] = QColor(query.value(1).toString()).name();
+    auto key = query.value(2);
+    if (!key.isNull()) {
+      label_info["shortcut_key"] = key.toString();
+      label_info["suffix_key"] = key.toString();
+    }
     labels << label_info;
   }
   QFile file(file_path);
@@ -857,7 +883,7 @@ void batch_import_export(const QString& db_path,
                          const QString& user_name, bool vacuum) {
   DatabaseCatalog catalog{};
   catalog.open_database(db_path);
-  if (vacuum){
+  if (vacuum) {
     catalog.vacuum_db();
     return;
   }
@@ -890,7 +916,8 @@ void DatabaseCatalog::create_tables() {
              "long_title TEXT DEFAULT NULL, short_title TEXT DEFAULT NULL);");
 
   query.exec("CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
-             "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000'); ");
+             "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
+             "shortcut_key TEXT UNIQUE DEFAULT NULL); ");
 
   query.exec(" CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "
              "REFERENCES document(id) ON DELETE CASCADE, label_id NOT NULL "

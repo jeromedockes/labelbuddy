@@ -46,6 +46,7 @@ public:
   bool has_prev_labelled() const;
   bool has_next_unlabelled() const;
   bool has_prev_unlabelled() const;
+  int shortcut_to_id(const QString& shortcut) const;
 
 public slots:
 
