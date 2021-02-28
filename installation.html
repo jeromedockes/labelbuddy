@@ -451,6 +451,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#installing-a-binary-copy">Installing a binary copy</a>
 <ul class="sectlevel2">
 <li><a href="#on-ubuntu">On Ubuntu</a></li>
+<li><a href="#on-debian">On Debian</a></li>
 <li><a href="#on-windows">On Windows</a></li>
 </ul>
 </li>
@@ -490,20 +491,34 @@ sudo apt-get update</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>If you don’t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt-get</code>.
-For example:</p>
+<p>If you don’t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt-get</code>:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">sudo apt install ./labelbuddy_0.0.1-1~groovy1_amd64.deb</pre>
+<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-debian">On Debian</h3>
+<div class="paragraph">
+<p>Binary packages can be downloaded from <a href="https://github.com/jeromedockes/labelbuddy/releases">the releases page on GitHub</a>.
+Once you have downloaded the package, you can install it with <code>apt-get</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
 </div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="on-windows">On Windows</h3>
 <div class="paragraph">
-<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">the releases page on GitHub</a>, and download and run <code>labelbuddy_windows_installer.exe</code> (ignore Windows’ security warnings).
-An alternative to the installer is to download <code>labelbuddy_windows.zip</code>, unzip it anywhere, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
+<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download and run <code>labelbuddy_&lt;version&gt;_windows_installer.exe</code> (ignore Windows’ security warnings).
+<strong>labelbuddy</strong> can be uninstalled from the Windows applications menu, or by running the <code>maintenancetool.exe</code> executable found in the <strong>labelbuddy</strong> installation folder.</p>
+</div>
+<div class="paragraph">
+<p>An alternative to using the installer is to download <code>labelbuddy_windows.zip</code>, unzip it anywhere, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
 </div>
 </div>
 </div>
@@ -551,7 +566,7 @@ make</pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-24 21:08:30 -0500
+Last updated 2021-02-28 13:01:02 -0500
 </div>
 </div>
 </body>

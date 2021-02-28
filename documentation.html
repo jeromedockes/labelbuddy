@@ -546,7 +546,7 @@ pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This document describes <a href="https://jeromedockes.github.io/labelbuddy/"><strong>labelbuddy</strong></a> version <strong>0.0.1</strong>.</p>
+<p>This document describes <a href="https://jeromedockes.github.io/labelbuddy/"><strong>labelbuddy</strong></a> version <strong>0.0.3</strong>.</p>
 </div>
 </div>
 </div>
@@ -588,7 +588,7 @@ Then to give it a try, you can start <strong>labelbuddy</strong> and open a (tem
 </div>
 <div class="paragraph">
 <p>(You can also start <strong>labelbuddy</strong> without any options and then select <span class="menuseq"><b class="menu">File</b> <b class="caret">›</b> <b class="menuitem">Demo</b></span> in the GUI.)
-You can play around with <strong>labelbuddy</strong>’s features in this temporary project.
+You can play around with <strong>labelbuddy</strong>’s features in this temporary database.
 If you decide to start creating annotations that you want to keep, open a new database and import your <a href="#importing-documents">documents</a> and <a href="#importing-labels">labels</a>.</p>
 </div>
 <div class="admonitionblock note">
@@ -612,7 +612,8 @@ a <a href="#managing-projects">labelbuddy database</a> is actually just a regula
 <div class="paragraph">
 <p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from various formats.
 Once this is done, you can annotate the documents and finally export your annotations.
-It is also possible to import annotations exported from <strong>labelbuddy</strong> or <strong>doccano</strong>.</p>
+It is also possible to import annotations exported from <strong>labelbuddy</strong> or <strong>doccano</strong>.
+Importing and exporting data can be done from the graphical or the <a href="#command-line-interface">command line</a> interface.</p>
 </div>
 <div class="paragraph">
 <p>Documents and labels that are already in the database are skipped if you try to import them again.</p>
@@ -766,7 +767,7 @@ Other attributes cannot be specified.</p>
 <div class="paragraph">
 <p>When importing a <code>.json</code> file the whole file is read into memory before inserting the documents in the database.
 To read documents one by one and reduce memory usage, you can use <a href="https://jsonlines.org/">JSON Lines</a>.
-It is almost the same as the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
+It is similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:</p>
 </div>
 <div class="listingblock">
@@ -776,7 +777,8 @@ For example:</p>
 </div>
 </div>
 <div class="paragraph">
-<p>(Note the outer brackets are removed and the documents are not separated by commas.)</p>
+<p>Note the outer brackets are removed and the documents are not separated by commas.
+The object representing each document must occupy exactly one line, unlike in <code>.json</code> where whitespace is not important.</p>
 </div>
 <div class="paragraph">
 <p>As for <code>.json</code>, <code>.jsonl</code> also allows <a href="#importing-annotations">importing annotations</a>.</p>
@@ -819,10 +821,15 @@ A <code>document</code>’s children can appear in any order.</p>
 <h3 id="importing-labels">2.2. Importing labels</h3>
 <div class="paragraph">
 <p>To import labels, click <b class="button">Import labels</b> in the <strong>“Import / Export”</strong> tab.
-Labels have two attributes: a mandatory <code>text</code> (label name), and an optional <code>color</code>.
-For compatibility with <strong>doccano</strong>, <code>color</code> can also be specified as <code>background_color</code>.
-As for documents, the format is deduced from the filename extension when importing labels.
-The label color can be changed from within the GUI application .</p>
+Labels have three attributes: a mandatory <code>text</code> (label name), and an optional <code>color</code> and <code>shortcut_key</code>.
+The <code>shortcut_key</code> is a lower-case ASCII letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.</p>
+</div>
+<div class="paragraph">
+<p>For compatibility with <strong>doccano</strong>, <code>color</code> can also be specified as <code>background_color</code> and <code>shortcut_key</code> can be specified as <code>suffix_key</code>.</p>
+</div>
+<div class="paragraph">
+<p>As for documents, the format is deduced from the filename extension when importing labels.
+The label color and shortcut key can be changed from within the GUI application .</p>
 </div>
 <div class="sect3">
 <h4 id="from-txt-2">2.2.1. From <code>.txt</code></h4>
@@ -837,7 +844,7 @@ Adjective</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>You can specify a color for each label (or labels that contain newlines) by using the <code>.json</code> format.</p>
+<p>To specify a color or shortcut key (or to use labels that contain newlines), use the <code>.json</code> format.</p>
 </div>
 </div>
 <div class="sect3">
@@ -846,8 +853,7 @@ Adjective</pre>
 <p>The file must contain a JSON array containing one JSON object per label.</p>
 </div>
 <div class="paragraph">
-<p>Each label’s object must have the key <code>text</code> and optionally <code>color</code> or the synonym <code>background_color</code>.
-(If both <code>color</code> and <code>background_color</code> are provided <code>color</code> is used.)</p>
+<p>Each label’s object must have the key <code>text</code> and optionally <code>color</code> and <code>shortcut_key</code> (or their synonyms <code>background_color</code> and <code>suffix_key</code>, which have lower precedence).</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
@@ -856,7 +862,7 @@ Adjective</pre>
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span>
 <span class="tok-p">{</span><span class="tok-nt">"text"</span><span class="tok-p">:</span> <span class="tok-s2">"Noun"</span><span class="tok-p">,</span> <span class="tok-nt">"color"</span><span class="tok-p">:</span> <span class="tok-s2">"#ff0000"</span><span class="tok-p">},</span>
-<span class="tok-p">{</span><span class="tok-nt">"text"</span><span class="tok-p">:</span> <span class="tok-s2">"Verb"</span><span class="tok-p">,</span> <span class="tok-nt">"color"</span><span class="tok-p">:</span> <span class="tok-s2">"yellow"</span><span class="tok-p">},</span>
+<span class="tok-p">{</span><span class="tok-nt">"text"</span><span class="tok-p">:</span> <span class="tok-s2">"Verb"</span><span class="tok-p">,</span> <span class="tok-nt">"color"</span><span class="tok-p">:</span> <span class="tok-s2">"yellow"</span><span class="tok-p">,</span> <span class="tok-nt">"shortcut_key"</span><span class="tok-p">:</span> <span class="tok-s2">"v"</span><span class="tok-p">},</span>
 <span class="tok-p">{</span><span class="tok-nt">"text"</span><span class="tok-p">:</span> <span class="tok-s2">"Adjective"</span><span class="tok-p">}</span>
 <span class="tok-p">]</span></code></pre>
 </div>
@@ -891,16 +897,24 @@ In this case the first (mandatory) element of the array is the text (label name)
 <h3 id="annotating-documents">2.3. Annotating documents</h3>
 <div class="paragraph">
 <p>Once you have imported labels and documents you can see them in the <strong>“Dataset”</strong> tab.
-You can delete labels or documents and change the color associated with each label.
+You can delete labels or documents and change the color and shortcut associated with each label.
 You then go to the <strong>“Annotate”</strong> tab.
 (If you double-click a document it will be opened in the <strong>“Annotate”</strong> tab.)</p>
 </div>
 <div class="paragraph">
-<p>To annotate a document, select the region you want to label with the mouse and click on the appropriate label.</p>
+<p>To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
+It is also possible to do the same thing with the keyboard.
+Search for the term you want to annotate and the first match will be selected.
+The selection can be adusted with the keyboard using the bindings described <a href="#summary-of-key-bindings-in-the-annotate-tab">below</a>.
+Then press the shortcut key associated with the label you want to set.</p>
 </div>
 <div class="paragraph">
 <p>Once you have created annotations, you can select any of them by clicking it.
-It becomes bold and underlined and you can change its label by clicking on a different one or remove the annotation by clicking <b class="button">Remove</b>.</p>
+It becomes bold and underlined and you can change its label by clicking on a different one or remove the annotation by clicking <b class="button">Remove</b>.
+You can also do this with the keyboard: jump to the next annotation with the <kbd>Space</kbd> key and change its label with a label shortcut or remove it with <kbd>Backspace</kbd>.</p>
+</div>
+<div class="paragraph">
+<p>If you create a new annotation that overlaps with a previously existing one, the previously existing one is automatically removed.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -914,39 +928,156 @@ If showing the selection in bold is annoying (depending on the font it can sligh
 </tr>
 </table>
 </div>
-<div class="paragraph">
-<p>If you create a new annotation that overlaps with a previously existing one, the previously existing one is automatically removed.</p>
-</div>
 <div class="sect3">
 <h4 id="summary-of-key-bindings-in-the-annotate-tab">2.3.1. Summary of key bindings in the <strong>“Annotate”</strong> tab</h4>
-<div class="ulist">
-<ul>
-<li>
-<p><kbd>Ctrl</kbd> and scroll the mouse: zoom or dezoom the text</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>: search</p>
-</li>
-<li>
-<p><kbd>Enter</kbd>: next search match</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Shift</kbd>+<kbd>Enter</kbd></span>: previous search match</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>J</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>N</kbd></span>, <kbd>Down</kbd>: scroll down one line</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>K</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>P</kbd></span>, <kbd>Up</kbd>: scroll up one line</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>D</kbd></span>: scroll down one page</p>
-</li>
-<li>
-<p><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>U</kbd></span>: scroll up one page</p>
-</li>
-</ul>
-</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;"></col>
+<col style="width: 66.6667%;"></col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Searching and navigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Ctrl</kbd> and scroll the mouse</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zoom or dezoom the text</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>, <kbd>/</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">search</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Enter</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">next search match</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Enter</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">previous search match</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>J</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>N</kbd></span>, <kbd>Down</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll down one line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>K</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>P</kbd></span>, <kbd>Up</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll up one line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>D</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll down one page</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>U</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll up one page</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>L</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cycle between placing the cursor at the center, top and bottom of the window</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;"></col>
+<col style="width: 66.6667%;"></col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Manipulating annotations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>a-z</kbd> (label’s <code>shortcut_key</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">set corresponding label for the currently selected region or annotation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Backspace</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remove selected annotation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Space</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jump to next annotation and select it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Space</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jump to previous annotation and select it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Esc</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">un-select selected annotation</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;"></col>
+<col style="width: 66.6667%;"></col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Manipulating the text selection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>]</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>word</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>[</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>word</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>}</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>word</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>{</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>word</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>]</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>character</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>[</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>character</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>}</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>character</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>{</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>character</strong> to the <strong>left</strong></p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;"></col>
+<col style="width: 66.6667%;"></col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Navigating documents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>&gt;</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to next document</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>&lt;</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to previous document</p></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 <div class="sect2">
@@ -967,7 +1098,7 @@ The export format is the same as the import format.
 Exported documents and annotations can thus be imported back into a <strong>labelbuddy</strong> database.</p>
 </div>
 <div class="paragraph">
-<p>However for exported documents:</p>
+<p>Compared to previous description of the import format, in exported documents:</p>
 </div>
 <div class="ulist">
 <ul>
@@ -1014,6 +1145,18 @@ The optional attribute <code>annotation_approver</code> can also be added.</p>
 <div class="paragraph">
 <p>For example if the text starts with “hello” and you highlighted exactly that word, and labelled it with <code>label_1</code>, the associated annotation will be <code>[0, 5, "label_1"]</code>.</p>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+Documents are exported in the same order that they were imported.
+</td>
+</tr>
+</table>
+</div>
 <div class="sect3">
 <h4 id="exporting-to-json">2.4.1. Exporting to <code>.json</code></h4>
 <div class="paragraph">
@@ -1028,7 +1171,8 @@ The optional attribute <code>annotation_approver</code> can also be added.</p>
 </div>
 </div>
 <div class="paragraph">
-<p>Each document will always be on one separate line.</p>
+<p>Each document will always be on one separate line; this makes it easy to parse the file incrementally.
+Moreover as the documents are always in the same order, it gives line-oriented tools such as <strong>diff</strong> or <strong>git</strong> a better chance of producing useful output.</p>
 </div>
 </div>
 <div class="sect3">
@@ -1096,7 +1240,11 @@ Again the format is the same as for importing with some additional elements (and
 <div class="sect2">
 <h3 id="exporting-labels">2.5. Exporting labels</h3>
 <div class="paragraph">
-<p>You can also export labels by clicking “Export labels” and selecting a JSON file.</p>
+<p>You can also export labels by clicking “Export labels” and selecting a JSON file.
+The resulting file will contain an array of json objects; the same format as the <a href="#from-json">input format</a>.
+Unlike documents each label is not on a single line.
+Both keys <code>color</code> and <code>background_color</code> are set to the label’s colors.
+Both keys <code>shortcut_key</code> and <code>suffix_key</code> are set to the label’s shortcut key if it has one.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1158,7 +1306,7 @@ Moreover, <strong>doccano</strong> allows duplicate documents so if the document
 <div class="sect2">
 <h3 id="managing-projects">2.7. Managing projects</h3>
 <div class="paragraph">
-<p>Each <strong>labelbuddy</strong> project (a set of documents, labels and annotations) is an <a href="https://www.sqlite.org/">SQLite</a> database.
+<p>Each <strong>labelbuddy</strong> database (containing documents, labels and annotations) is an <a href="https://www.sqlite.org/">SQLite</a> database.
 That is a single binary file on your disk that you can copy, backup, or share, like any other file.</p>
 </div>
 <div class="admonitionblock tip">
@@ -1168,8 +1316,8 @@ That is a single binary file on your disk that you can copy, backup, or share, l
 <div class="title">Tip</div>
 </td>
 <td class="content">
-Advanced users can also open a connection directly to the database to query it or even modify it.
-Back it up before and set <code>PRAGMA foreign_keys = ON</code>
+Using SQLite you can also open a connection directly to the database to query it or even modify it.
+If you do so, set <code>PRAGMA foreign_keys = ON</code>.
 </td>
 </tr>
 </table>
@@ -1187,7 +1335,7 @@ The path to the current database is displayed in the <strong>“Import / Export�
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">labelbuddy /path/to/my_project.sqlite3</pre>
+<pre class="nowrap">labelbuddy /path/to/my_annotations.sqlite3</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1195,7 +1343,9 @@ The path to the current database is displayed in the <strong>“Import / Export�
 </div>
 <div class="paragraph">
 <p>As it is easy to create and delete databases (an empty <strong>labelbuddy</strong> database is just 48K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
-In particular, it is possible to work with several databases rather than a monolithic one – as an example we could create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.</p>
+In particular, it is possible to work with several databases rather than a monolithic one.
+You can break down the annotations into several files to reflect the structure of your project.
+As an example you could also create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.</p>
 </div>
 </div>
 <div class="sect2">
@@ -1218,7 +1368,7 @@ Options:
   --import-docs &lt;docs file&gt;                  Docs &amp; annotations file to import
                                              in database.
   --export-labels &lt;exported labels file&gt;     Labels file to export to.
-  --export-annotations &lt;exported docs file&gt;  Docs &amp; annotations file to export
+  --export-docs &lt;exported docs file&gt;         Docs &amp; annotations file to export
                                              to.
   --labelled-only                            Export only labelled documents
   --include-text                             Include doc text with exported
@@ -1235,7 +1385,16 @@ Arguments:
 <div class="paragraph">
 <p>If any of the <code>import-</code> or <code>export-</code> options are used, <strong>labelbuddy</strong> doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
-To use these options, the database path must be provided explicitly.</p>
+To use these options, the database path must be provided explicitly.
+Labels are imported first, then documents, then export operations are performed.</p>
+</div>
+<div class="paragraph">
+<p>As an example, to convert a previously exported file <code>docs.xml</code> to JSON and strip the documents' text, you could run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre class="nowrap">tmpdb=$(mktemp) &amp;&amp; labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb</pre>
+</div>
 </div>
 <div class="paragraph">
 <p>Regarding <code>vacuum</code>: when data is deleted from an <code>sqlite3</code> database, the file doesn’t shrink.
@@ -1276,7 +1435,7 @@ When the <code>vacuum</code> option is used, other options are ignored and <stro
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-25 08:47:01 -0500
+Last updated 2021-02-27 17:57:49 -0500
 </div>
 </div>
 </body>
