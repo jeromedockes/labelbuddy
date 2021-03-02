@@ -9,7 +9,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSettings>
-#include <QSqlDatabase>
+#include <QSqlError>
 #include <QSqlQuery>
 #include <QStandardPaths>
 #include <QString>
@@ -470,27 +470,58 @@ QString DatabaseCatalog::get_default_database_path() {
   return default_path;
 }
 
-void DatabaseCatalog::open_database(const QString& database_path,
+QString DatabaseCatalog::get_database_path(const QString& database_path) {
+  QString db_path{database_path};
+  if (db_path == QString()) {
+    db_path = get_default_database_path();
+  }
+  QFileInfo info(db_path);
+  if (info.exists()) {
+    if (info.isReadable() && info.isWritable()) {
+      return info.absoluteFilePath();
+    } else {
+      return QString();
+    }
+  }
+  QFile file(info.absoluteFilePath());
+  bool opened = file.open(QIODevice::ReadWrite);
+  if (opened) {
+    file.close();
+    return info.absoluteFilePath();
+  } else {
+    return QString();
+  }
+}
+
+bool DatabaseCatalog::open_database(const QString& database_path,
                                     bool remember) {
-  QString actual_database_path = (database_path == QString())
-                                     ? get_default_database_path()
-                                     : database_path;
+  QString actual_database_path{get_database_path(database_path)};
+  if (actual_database_path == QString()) {
+    return false;
+  }
   if (databases.contains(actual_database_path)) {
     current_database = actual_database_path;
-    return;
+    return true;
   }
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", actual_database_path);
   db.setDatabaseName(actual_database_path);
-  db.open();
+  if (!db.open()) {
+    return false;
+  }
   QSqlQuery query(db);
-  query.exec("PRAGMA foreign_keys = ON;");
+  if (!query.exec("PRAGMA foreign_keys = ON;")) {
+    return false;
+  }
+  if (!create_tables(db)) {
+    return false;
+  }
   current_database = actual_database_path;
   databases.insert(actual_database_path);
-  create_tables();
   if (remember) {
     QSettings settings("labelbuddy", "labelbuddy");
     settings.setValue("last_opened_database", current_database);
   }
+  return true;
 }
 
 QString DatabaseCatalog::open_temp_database() {
@@ -874,7 +905,7 @@ int DatabaseCatalog::export_labels(const QString& file_path) {
   return labels.size();
 }
 
-void batch_import_export(const QString& db_path,
+bool batch_import_export(const QString& db_path,
                          const QList<QString>& labels_files,
                          const QList<QString>& docs_files,
                          const QString& export_labels_file,
@@ -882,10 +913,14 @@ void batch_import_export(const QString& db_path,
                          bool labelled_docs_only, bool include_documents,
                          const QString& user_name, bool vacuum) {
   DatabaseCatalog catalog{};
-  catalog.open_database(db_path);
+  if (!catalog.open_database(db_path)) {
+    std::cerr << "Could not open database: " << db_path.toStdString()
+              << std::endl;
+    return false;
+  }
   if (vacuum) {
     catalog.vacuum_db();
-    return;
+    return true;
   }
   for (const auto& l_file : labels_files) {
     catalog.import_labels(l_file);
@@ -900,6 +935,7 @@ void batch_import_export(const QString& db_path,
     catalog.export_annotations(export_docs_file, labelled_docs_only,
                                include_documents, user_name);
   }
+  return true;
 }
 
 void DatabaseCatalog::vacuum_db() {
@@ -907,8 +943,8 @@ void DatabaseCatalog::vacuum_db() {
   query.exec("VACUUM;");
 }
 
-void DatabaseCatalog::create_tables() {
-  QSqlQuery query(QSqlDatabase::database(current_database));
+bool DatabaseCatalog::create_tables(QSqlDatabase& database) {
+  QSqlQuery query(database);
 
   query.exec(" CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
              "content_md5 BLOB UNIQUE NOT NULL, "
@@ -957,6 +993,10 @@ void DatabaseCatalog::create_tables() {
 
   query.exec("CREATE VIEW IF NOT EXISTS labelled_document AS SELECT distinct * "
              "FROM document WHERE id IN (SELECT doc_id FROM annotation); ");
+  if (query.lastError().type() != QSqlError::NoError) {
+    return false;
+  }
+  return true;
 }
 
 } // namespace labelbuddy

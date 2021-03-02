@@ -35,15 +35,18 @@ int main(int argc, char* argv[]) {
                 << "labels and documents or vacuum db" << std::endl;
       return 1;
     }
-    labelbuddy::batch_import_export(
+    bool success = labelbuddy::batch_import_export(
         db_path, labels_files, docs_files, export_labels_file, export_docs_file,
         parser.isSet("labelled-only"), parser.isSet("include-text"),
         parser.value("approver"), parser.isSet("vacuum"));
-    return 0;
+    return success ? 0 : 1;
   }
 
   std::unique_ptr<labelbuddy::LabelBuddy> label_buddy(
       new labelbuddy::LabelBuddy(nullptr, db_path, parser.isSet("demo")));
+  if (!label_buddy->is_valid()) {
+    return 1;
+  }
   app.setWindowIcon(QIcon(":/data/LB.png"));
   label_buddy->show();
   return app.exec();

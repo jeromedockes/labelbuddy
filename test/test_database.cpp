@@ -40,6 +40,33 @@ void TestDatabase::test_open_database() {
   QCOMPARE(new_query.value(0).toInt(), 0);
 }
 
+void TestDatabase::test_database_path_choice() {
+  QTemporaryDir tmp_dir{};
+  DatabaseCatalog catalog{};
+  auto file_path = tmp_dir.filePath("db.sqlite");
+  catalog.open_database();
+  auto db_path = catalog.get_current_database();
+  QCOMPARE(QFileInfo(db_path).fileName(), QString("labelbuddy_data.sqlite3"));
+  catalog.open_database(file_path);
+  db_path = catalog.get_current_database();
+  QCOMPARE(db_path, file_path);
+  auto bad_file_path = tmp_dir.filePath("bad.sql");
+  {
+    QFile file(bad_file_path);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream ostream(&file);
+    ostream << "hello\n";
+  }
+  bool opened = catalog.open_database(bad_file_path);
+  QVERIFY(!opened);
+  db_path = catalog.get_current_database();
+  QCOMPARE(db_path, file_path);
+  opened = catalog.open_database("/tmp/some/dir/does/notexist.sql");
+  QVERIFY(!opened);
+  db_path = catalog.get_current_database();
+  QCOMPARE(db_path, file_path);
+}
+
 void TestDatabase::test_import_export_docs_data() {
   QTest::addColumn<QString>("import_format");
   QTest::addColumn<bool>("as_json_objects");
@@ -118,6 +145,7 @@ void TestDatabase::test_import_export_labels() {
   catalog.export_labels(labels_file_path);
   query.exec("delete from label;");
   query.exec("select count(*) from label;");
+  query.next();
   QCOMPARE(query.value(0).toInt(), 0);
   catalog.import_labels(labels_file_path);
   check_db_labels(query);

@@ -24,6 +24,7 @@ public:
              const QString& database_path = QString(),
              bool start_from_temp_db = false);
   void closeEvent(QCloseEvent* event);
+  bool is_valid() const;
 
 signals:
 
@@ -50,6 +51,9 @@ private:
   void store_notebook_page();
   void add_menubar();
   void set_geometry();
+
+  void warn_failed_to_open_db(const QString& database_path);
+  bool valid_state{true};
 };
 } // namespace labelbuddy
 #endif

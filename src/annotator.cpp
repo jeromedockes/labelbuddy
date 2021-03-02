@@ -455,7 +455,7 @@ void Annotator::keyPressEvent(QKeyEvent* event) {
     emit active_annotation_changed();
   }
   if (event->key() == Qt::Key_Space) {
-    bool backward{event->modifiers() & Qt::ShiftModifier};
+    bool backward(event->modifiers() & Qt::ShiftModifier);
     select_next_annotation(!backward);
     return;
   }

@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QProgressDialog>
 #include <QSet>
+#include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QString>
 #include <QTemporaryFile>
@@ -202,7 +203,7 @@ class DatabaseCatalog : public QObject {
   Q_OBJECT
 
 public:
-  void open_database(const QString& database_path = QString(),
+  bool open_database(const QString& database_path = QString(),
                      bool remember = true);
   QString open_temp_database();
   QList<int> import_documents(const QString& file_path,
@@ -228,8 +229,9 @@ private:
   QString current_database;
   std::unique_ptr<QTemporaryFile> temp_database = nullptr;
 
-  void create_tables();
+  bool create_tables(QSqlDatabase& database);
   QString get_default_database_path();
+  QString get_database_path(const QString& database_path);
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   void insert_label(QSqlQuery& query, const QString& label_name,
                     const QString& color = QString(),
@@ -244,7 +246,7 @@ private:
   int color_index{};
 };
 
-void batch_import_export(const QString& db_path,
+bool batch_import_export(const QString& db_path,
                          const QList<QString>& labels_files,
                          const QList<QString>& docs_files,
                          const QString& export_labels_file,

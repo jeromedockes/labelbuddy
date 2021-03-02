@@ -1,4 +1,5 @@
 #include <QAction>
+#include <QApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMenuBar>
@@ -17,6 +18,14 @@
 
 namespace labelbuddy {
 
+void LabelBuddy::warn_failed_to_open_db(const QString& database_path) {
+  QString db_msg(
+      database_path != QString() ? QString(":\n%0").arg(database_path) : "");
+  QMessageBox::critical(this, "labelbuddy",
+                        QString("Could not open database%0").arg(db_msg),
+                        QMessageBox::Ok);
+}
+
 LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
                        bool start_from_temp_db)
     : QMainWindow(parent), database_catalog{} {
@@ -24,7 +33,12 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
   if (start_from_temp_db) {
     database_catalog.open_temp_database();
   } else {
-    database_catalog.open_database(database_path);
+    bool opened = database_catalog.open_database(database_path);
+    if (!opened) {
+      warn_failed_to_open_db(database_path);
+      valid_state = false;
+      return;
+    }
   }
 
   notebook = new QTabWidget();
@@ -106,6 +120,8 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
                    &Annotator::store_state, Qt::DirectConnection);
 }
 
+bool LabelBuddy::is_valid() const { return valid_state; }
+
 void LabelBuddy::go_to_annotations() { notebook->setCurrentIndex(0); }
 
 void LabelBuddy::add_menubar() {
@@ -165,8 +181,12 @@ void LabelBuddy::open_database() {
     return;
   }
   store_notebook_page();
-  database_catalog.open_database(file_path);
-  emit database_changed(file_path);
+  bool opened = database_catalog.open_database(file_path);
+  if (opened) {
+    emit database_changed(file_path);
+  } else {
+    warn_failed_to_open_db(file_path);
+  }
 }
 
 void LabelBuddy::open_new_database() {
@@ -178,8 +198,12 @@ void LabelBuddy::open_new_database() {
     return;
   }
   store_notebook_page();
-  database_catalog.open_database(file_path);
-  emit database_changed(file_path);
+  bool opened = database_catalog.open_database(file_path);
+  if (opened) {
+    emit database_changed(file_path);
+  } else {
+    warn_failed_to_open_db(file_path);
+  }
 }
 
 void LabelBuddy::open_temp_database() {
@@ -194,6 +218,10 @@ void LabelBuddy::store_notebook_page() {
 }
 
 void LabelBuddy::closeEvent(QCloseEvent* event) {
+  if(!valid_state){
+    QMainWindow::closeEvent(event);
+    return;
+  }
   store_notebook_page();
   QSettings settings("labelbuddy", "labelbuddy");
   settings.setValue("LabelBuddy/geometry", saveGeometry());
