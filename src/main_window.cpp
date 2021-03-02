@@ -7,6 +7,7 @@
 #include <QSettings>
 #include <QSize>
 #include <QTabWidget>
+#include <QKeySequence>
 
 #include "annotations_model.h"
 #include "database.h"
@@ -130,10 +131,12 @@ void LabelBuddy::add_menubar() {
   file_menu->addAction(open_db_action);
   auto open_new_db_action = new QAction("New", this);
   file_menu->addAction(open_new_db_action);
+  open_new_db_action->setShortcut(QKeySequence::Open);
   auto temp_db_action = new QAction("Demo", this);
   file_menu->addAction(temp_db_action);
   auto quit_action = new QAction("Quit", this);
   file_menu->addAction(quit_action);
+  quit_action->setShortcut(QKeySequence::Quit);
   QObject::connect(open_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_database);
   QObject::connect(open_new_db_action, &QAction::triggered, this,
@@ -167,6 +170,7 @@ void LabelBuddy::add_menubar() {
   help_menu->addAction(show_about_action);
   auto open_doc_action = new QAction("Documentation", this);
   help_menu->addAction(open_doc_action);
+  open_doc_action->setShortcut(QKeySequence::HelpContents);
   QObject::connect(show_about_action, &QAction::triggered, this,
                    &LabelBuddy::show_about_info);
   QObject::connect(open_doc_action, &QAction::triggered, this,
