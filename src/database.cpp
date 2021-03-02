@@ -470,7 +470,7 @@ QString DatabaseCatalog::get_default_database_path() {
   return default_path;
 }
 
-QString DatabaseCatalog::get_database_path(const QString& database_path) {
+QString DatabaseCatalog::check_database_path(const QString& database_path) {
   QString db_path{database_path};
   if (db_path == QString()) {
     db_path = get_default_database_path();
@@ -495,7 +495,7 @@ QString DatabaseCatalog::get_database_path(const QString& database_path) {
 
 bool DatabaseCatalog::open_database(const QString& database_path,
                                     bool remember) {
-  QString actual_database_path{get_database_path(database_path)};
+  QString actual_database_path{check_database_path(database_path)};
   if (actual_database_path == QString()) {
     return false;
   }

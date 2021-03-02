@@ -5,8 +5,15 @@
 #include <QItemSelectionModel>
 #include <QListView>
 
+/// \file
+/// A QListView that doesn't allow deselecting all items
+
 namespace labelbuddy {
 
+/// A QListView that doesn't allow deselecting all items
+
+/// Used for the labels list in the Annotate tab as each annotation has exactly
+/// one label.
 class NoDeselectAllView : public QListView {
   QItemSelectionModel::SelectionFlags
   selectionCommand(const QModelIndex& index,

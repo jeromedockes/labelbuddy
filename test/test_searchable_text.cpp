@@ -27,7 +27,7 @@ void TestSearchableText::test_search() {
   cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
   QCOMPARE(cursor.selectedText(), QString("1"));
 
-  text.continue_search();
+  text.search();
   cursor = te->textCursor();
   QCOMPARE(cursor.selectedText(), QString(u8"maçã"));
   cursor.clearSelection();

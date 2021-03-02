@@ -13,8 +13,12 @@
 #include "import_export_menu.h"
 #include "label_list_model.h"
 
+/// \file
+/// Main window, containing the menu bar and Annotate, Dataset, I/E tabs.
+
 namespace labelbuddy {
 
+/// Main window, containing the menu bar and Annotate, Dataset, I/E tabs.
 class LabelBuddy : public QMainWindow {
 
   Q_OBJECT
@@ -24,23 +28,55 @@ public:
              const QString& database_path = QString(),
              bool start_from_temp_db = false);
   void closeEvent(QCloseEvent* event);
+
+  /// `false` if database could not be opened when object was constructed.
+
+  /// There must always be a database opened.
+  ///
+  /// When constructing the object, if the specified database could not be
+  /// opened, or if the database was not specified and the default ones could
+  /// not be opened, the children widgets are not created and `is_valid` is set
+  /// to false.
+  /// In this case the application is closed.
+  ///
+  /// During application execution, if the user tries to open a database that
+  /// cannot be opened (eg not a sqlite3 file), it is not opened and the current
+  /// database remains, and `is_valid` remains `true`.
   bool is_valid() const;
 
 signals:
 
+  /// User selected a different database through "New", "Open" or "Demo"
   void database_changed(const QString& new_database_name);
   void about_to_close();
 
 public slots:
 
+  /// focus the Annotate tab
   void go_to_annotations();
 
 private slots:
 
+  /// Open a file dialog to select and open a database
   void open_database();
+
+  /// Open a file dialog to select and open a new database
+
+  /// The only difference with `open_database` is that the dialog allows
+  /// creating a new file; if the selected database already exists it is not
+  /// overwritten.
   void open_new_database();
+
+  /// Open the temporary demo database
   void open_temp_database();
+
+  /// show the "about" message box
   void show_about_info();
+
+  /// Open documentation in a web browser.
+
+  /// If it is found in /user/share/doc or in the executable's parent directory
+  /// the local file is opened, otherwise the online documentation
   void open_documentation_url();
 
 private:

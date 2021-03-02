@@ -10,7 +10,12 @@
 
 #include "doc_list_model.h"
 
+/// \file
+/// document list in the Dataset tab
+
 namespace labelbuddy {
+
+/// Set of buttons to navigate the doc list or delete documents
 class DocListButtons : public QFrame {
   Q_OBJECT
 
@@ -18,7 +23,23 @@ public:
   DocListButtons(QWidget* parent = nullptr);
   void setModel(DocListModel*);
 
-public slots:
+  /// Update the state of the "delete" and "annotate" buttons
+  /// \param n_selected number of docs selected in the doc list view
+  /// \param n_rows number of rows in the doc list view
+  /// \param total_n_docs total number of documents in the database
+  void update_top_row_buttons(int n_selected, int n_rows, int total_n_docs);
+
+signals:
+
+  void doc_filter_changed(DocListModel::DocFilter, int limit, int offset);
+  void select_all();
+  void delete_selected_rows();
+  void delete_all_docs();
+
+  /// User asked to see selected document in Annotate tab
+  void visit_doc();
+
+private slots:
 
   void filter_keep_labelled_docs(bool checked);
 
@@ -37,16 +58,6 @@ public slots:
   void go_to_prev_page();
 
   void go_to_first_page();
-
-  void update_top_row_buttons(int n_selected, int n_rows, int total_n_docs);
-
-signals:
-
-  void doc_filter_changed(DocListModel::DocFilter, int limit, int offset);
-  void select_all();
-  void delete_selected_rows();
-  void delete_all_docs();
-  void visit_doc();
 
 private:
   int offset = 0;
@@ -70,6 +81,7 @@ private:
   QRadioButton* unlabelled_docs_button = nullptr;
 };
 
+/// document list in the Dataset tab
 class DocList : public QFrame {
   Q_OBJECT
 public:
@@ -77,10 +89,13 @@ public:
 
   void setModel(DocListModel*);
 
-public slots:
+private slots:
 
+  /// ask for confirmation and tell the model to delete selected docs
   void delete_selected_rows();
+  /// ask for confirmation and tell the model to delete all docs
   void delete_all_docs();
+  /// get the doc's id and emit `visit_doc_requested`
   void visit_doc(const QModelIndex& = QModelIndex());
   void update_select_delete_buttons();
 

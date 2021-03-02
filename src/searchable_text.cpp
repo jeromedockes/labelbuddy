@@ -78,8 +78,6 @@ void SearchableText::update_search_button_states() {
 void SearchableText::search_forward() { search(); }
 void SearchableText::search_backward() { search(QTextDocument::FindBackward); }
 
-void SearchableText::continue_search() { search(current_search_flags); }
-
 void SearchableText::search(QTextDocument::FindFlags flags) {
   this->setFocus();
   auto pattern = search_box->text();

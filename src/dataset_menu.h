@@ -1,15 +1,20 @@
 #ifndef LABELBUDDY_DATASET_MENU_H
 #define LABELBUDDY_DATASET_MENU_H
 
-#include <QSplitter>
 #include <QCloseEvent>
+#include <QSplitter>
 
 #include "doc_list.h"
 #include "doc_list_model.h"
 #include "label_list.h"
 #include "label_list_model.h"
 
+/// \file
+/// Implementation of the Dataset tab
+
 namespace labelbuddy {
+
+/// Implementation of the Dataset tab
 class DatasetMenu : public QSplitter {
 
   Q_OBJECT
@@ -23,6 +28,7 @@ public slots:
   void store_state();
 
 signals:
+  /// User asked to annotate doc with `id` (in the db) `doc_id`
   void visit_doc_requested(int doc_id);
 
 private:
