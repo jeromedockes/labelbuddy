@@ -6,13 +6,14 @@
 #include <QRegularExpression>
 #include <QString>
 #include <QUrl>
+#include <QWidget>
 
 /// \file
 /// Misc. utilities
 
 namespace labelbuddy {
 
-/// The labelbuddy version eg '0.0.3'
+/// The labelbuddy version 'x.y.z'
 QString get_version();
 
 /// URL to the html documentation
@@ -41,6 +42,17 @@ find_first_in_col_0(const QModelIndexList& indices);
 
 /// Empty string can be acceptable to clear the label's shortcut in Dataset tab.
 QRegularExpression shortcut_key_pattern(bool accept_empty = false);
+
+/// Display string for the database name (path or helpful message if temp db)
+
+/// `database_name` is the Qt database name; if not temporary database it is the
+/// path to the sqlite file and is returned as is.
+QString database_name_display(const QString& database_name,
+                              bool short_version = false);
+
+enum class Side { Left, Right };
+
+void scale_margin(QWidget& widget, Side side, float scale = .5);
 
 } // namespace labelbuddy
 #endif

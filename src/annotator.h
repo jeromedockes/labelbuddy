@@ -1,6 +1,10 @@
 #ifndef LABELBUDDY_ANNOTATOR_H
 #define LABELBUDDY_ANNOTATOR_H
 
+#include <list>
+#include <memory>
+#include <set>
+
 #include <QLabel>
 #include <QMap>
 #include <QPushButton>
@@ -9,6 +13,7 @@
 #include <QWidget>
 
 #include "annotations_model.h"
+#include "label_list.h"
 #include "label_list_model.h"
 #include "no_deselect_all_view.h"
 #include "searchable_text.h"
@@ -30,6 +35,7 @@ public:
   int selected_label_id() const;
   /// Set the currently selected label based on its `id` in the db
   void set_selected_label_id(int label_id);
+  bool is_label_choice_enabled() const;
 
 signals:
   void selectionChanged();
@@ -40,7 +46,6 @@ public slots:
   void disable_delete();
   void enable_label_choice();
   void disable_label_choice();
-  bool is_label_choice_enabled() const;
 
 private slots:
   void on_selection_change();
@@ -50,6 +55,7 @@ private:
   QPushButton* delete_button;
   NoDeselectAllView* labels_view;
   LabelListModel* label_list_model = nullptr;
+  std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
 };
 
 /// Navigation buttons above the text: next, next labelled etc.
@@ -92,29 +98,55 @@ struct AnnotationCursor {
   QTextCursor cursor;
 };
 
-/// The widget that allows creating and manipulating annotations
+struct AnnotationIndex {
+  int start_char;
+  int id;
+};
 
-/// at the moment annotations are non-overlapping: if we create an annotation
-/// that overlaps with a previously existing one the previously existing one is
-/// removed.
+bool operator<(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+bool operator>(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+bool operator<=(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+bool operator>=(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+bool operator==(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+bool operator!=(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
+
+struct Cluster {
+  AnnotationIndex first_annotation;
+  AnnotationIndex last_annotation;
+  int start_char;
+  int end_char;
+};
+
+/// The widget that allows creating and manipulating annotations
 
 /// There can be several annotations for the document, highlighted with their
 /// label's color. Moreover, one of them can be "active"; it is the one whose
 /// label is changed if we use the label list, or that can be deleted, and its
 /// text is underlined and shown in bold font (by default).
 ///
+/// Groups of overlapping annotations form "clusters", that are shown in gray
+/// with white text except possibly for the active annotation.
 class Annotator : public QSplitter {
   Q_OBJECT
 
 public:
   Annotator(QWidget* parent = nullptr);
   void keyPressEvent(QKeyEvent*) override;
+
+  /// remember that mouse was pressed
+  void mousePressEvent(QMouseEvent*) override;
+
+  /// update annotations cursorPositionChanged signal hasn't happened since
+  /// the last mousePressEvent
+  ///
+  /// cursorPositionChanged can be due to mouse press but also to keyboard
+  /// actions. Moreover, a mouse click on the same position will not trigger a
+  /// cursorPositionChanged. Therefore when the mouse is pressed we set
+  /// `need_update_active_anno_` to true, and when it is released if it hasn't
+  /// been set to false we update the active annotation and repaint annotations.
+  void mouseReleaseEvent(QMouseEvent*) override;
   void set_annotations_model(AnnotationsModel*);
   void set_label_list_model(LabelListModel*);
-
-  /// return the `id` (in the db) of the annotation that contains the character
-  /// at position `pos`. if that character is not in an annotation return -1 .
-  int annotation_at_pos(int) const;
 
   /// If there is a currently active (selected) annotation return its label's
   /// `id`, otherwise return -1 .
@@ -126,9 +158,12 @@ public:
   /// Is the active annotation shown with bold text
   bool is_using_bold() const;
 
+  QString current_status_display() const;
+
 signals:
 
   void active_annotation_changed();
+  void current_status_display_changed();
 
 public slots:
 
@@ -154,35 +189,59 @@ protected:
 
 private slots:
   void delete_active_annotation();
-  void activate_annotation_at_cursor_pos();
+  void activate_cluster_at_cursor_pos();
   void set_label_for_selected_region();
   void update_label_choices_button_states();
   void reset_document();
 
 private:
+  void clear_annotations();
   void fetch_labels_info();
   void fetch_annotations_info();
+  QTextEdit::ExtraSelection
+  make_painted_region(int start_char, int end_char, const QString& color,
+                      const QString& text_color = "black",
+                      bool underline = false);
   void paint_annotations();
-  void add_annotation();
-  void add_annotation(int label_id, int start_char, int end_char);
-  void delete_overlapping_annotations(int start_char, int end_char);
-  void delete_annotations(QList<int>);
+  bool add_annotation();
+  bool add_annotation(int label_id, int start_char, int end_char);
   void delete_annotation(int);
   void deactivate_active_annotation();
-  int find_next_annotation(int pos, bool forward = true) const;
+  std::list<Cluster>::const_iterator cluster_at_pos(int pos) const;
+
+  /// pos: {start_char, id}
+  int find_next_annotation(AnnotationIndex pos, bool forward = true) const;
+
+  /// Update clusters with a new annotation.
+
+  /// Clusters that overlap with the new annotation are merged
+  void add_annotation_to_clusters(const AnnotationCursor& annotation,
+                                  std::list<Cluster>& clusters);
+
+  /// Remove an annotation and update the clusters
+  void remove_annotation_from_clusters(const AnnotationCursor& annotation,
+                                       std::list<Cluster>& clusters);
+
   int active_annotation = -1;
+  bool need_update_active_anno_{};
+  bool active_anno_format_is_set_{};
+
+  /// clusters of overlapping annotations
+  std::list<Cluster> clusters_{};
   QMap<int, AnnotationCursor> annotations{};
   QMap<int, LabelInfo> labels{};
-  QMap<int, int> pos_to_anno{};
+
+  /// Sorting annotations by {start_char, id}
+  std::set<AnnotationIndex> sorted_annotations_{};
 
   QLabel* title_label;
   SearchableText* text;
   LabelChoices* label_choices;
   AnnotationsModel* annotations_model = nullptr;
-  AnnotationsNavButtons* nav_buttons;
-  int default_weight;
+  AnnotationsNavButtons* nav_buttons = nullptr;
+  QTextCharFormat default_format;
   bool monospace_font{};
-  bool use_bold_font{true};
+  bool use_bold_font{};
 };
 
 } // namespace labelbuddy

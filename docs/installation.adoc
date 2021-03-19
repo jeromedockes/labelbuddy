@@ -61,6 +61,10 @@ Select the latest release from {ghreleases}[here], and download and run `labelbu
 
 An alternative to using the installer is to download `labelbuddy_windows.zip`, unzip it anywhere, then execute the file `labelbuddy.exe` that it contains to start {lb}.
 
+=== On MacOS
+
+Select the latest release from {ghreleases}[here], and download `labelbuddy_<version>.dmg`.
+Double-click the downloaded file, and from the window that opens drag `labelbuddy` into the `/Applications` folder in *Finder*.
 
 == Building from source
 
@@ -69,6 +73,11 @@ Download a source distribution from {ghreleases}[GitHub], the {lb} {lbppapackage
 {lb} uses https://www.qt.io/[Qt 5]. Qt can probably be installed with your package manager, for example:
 ....
 apt-get install qt5-default
+....
+or
+....
+yum install qt5-qtbase
+yum install qt5-qtbase-devel
 ....
 
 Otherwise you can get it from the https://www.qt.io/download-qt-installer[Qt downloads page].

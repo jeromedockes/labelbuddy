@@ -5,13 +5,11 @@ It will disappear when you close the application. This database contains a few d
 
 (You don't have to actually read this text, try annotating it instead!)
 
-If you decide to start a real project you want to keep, from the File menu select "New" and choose a location on your filesystem to create a persistent database. You can also close labelbuddy and open it again and by default it will open a database in your home directory: ~/labelbuddy_data.sqlite3.
+If you decide to start a real project you want to keep, from the "File" menu select "New" and choose a location on your filesystem to create a persistent database. You can also close labelbuddy and open it again and by default it will open a database in your home directory: ~/database.labelbuddy.
 
 Time to start annotating documents! Select some text with the mouse and click on one of the labels on the left to annotate it.
 
-Once you have made annotations you can select any of them by clicking it. It becomes underlined and bold and you can then change its label or remove it.
-
-If you create a new annotation that overlaps with a previously existing one, the existing one is automatically removed.
+Once you have made annotations you can select any of them by clicking it or cycle through them with the Space key. The selected annotation becomes underlined and you can then change its label or remove it. Groups of overlapping annotations are shown in gray with white text. If you click such a group several times, each of the annotations it contains is selected in turn. (You can make the selected annotation bold by checking a box in the "Preferences" menu.)
 
 Annotations are inserted in the database as you create them so there is no need for a "Save" button.
 

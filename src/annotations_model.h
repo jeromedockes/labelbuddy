@@ -15,6 +15,7 @@ namespace labelbuddy {
 struct LabelInfo {
   int id;
   QString color;
+  QString name;
 };
 
 struct AnnotationInfo {
@@ -52,10 +53,10 @@ public:
 
   /// Insert an annotation for the current doc.
 
-  /// (does not check for overlap with other annotations) If insertion fails (eg
-  /// due to db violation constraint) returns -1 Otherwise returns the new
-  /// annotation's `rowid`. If this is the document's first annotation, emits
-  /// `document_status_changed` (it changed from unlabelled to labelled)
+  /// If insertion fails (eg due to db violation constraint) returns -1
+  /// Otherwise returns the new annotation's `rowid`. If this is the document's
+  /// first annotation, emits `document_status_changed` (it changed from
+  /// unlabelled to labelled)
   int add_annotation(int label_id, int start_char, int end_char);
 
   /// Delete annotations provided their `rowid` in the database
@@ -71,6 +72,9 @@ public:
 
   /// Info for annotations on the current document.
   QMap<int, AnnotationInfo> get_annotations_info() const;
+
+  /// false when db is empty
+  bool is_positioned_on_valid_doc() const;
 
   /// Current doc's position in the list of all docs sorted by id
 
@@ -132,7 +136,6 @@ private:
   int first_labelled_doc_id() const;
   int last_unlabelled_doc_id() const;
   int first_unlabelled_doc_id() const;
-
 };
 } // namespace labelbuddy
 

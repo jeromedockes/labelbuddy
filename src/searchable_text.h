@@ -9,6 +9,8 @@
 #include <QTextEdit>
 #include <QWidget>
 
+#include "utils.h"
+
 /// \file
 /// read-only plain text display with a search bar and some custom key bindings.
 
@@ -90,7 +92,6 @@ private:
   /// search bar)
   const QList<int> nav_keys_nomodif{Qt::Key_BracketLeft, Qt::Key_BracketRight,
                                     Qt::Key_BraceLeft, Qt::Key_BraceRight};
-  enum class Side { Right, Left };
   enum class CursorHeight { Center, Top, Bottom };
   CursorHeight last_cursor_height{};
   int last_cursor_pos{};

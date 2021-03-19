@@ -1,0 +1,69 @@
+= labelbuddy(1)
+:doctype: manpage
+:manmanual: labelbuddy Manual
+:mansource: labelbuddy {version}
+:homepage: https://jeromedockes.github.io/labelbuddy/
+:ghrepo: https://github.com/jeromedockes/labelbuddy/
+
+== Name
+
+labelbuddy - application for annotating text documents
+
+== Synopsis
+
+*labelbuddy* [ _OPTIONS_ ]... [ _FILE_ ]
+
+== Description
+
+Without any options, the *labelbuddy* command will start the *labelbuddy* GUI to annotate documents in the database _FILE_.
+If neither _FILE_ nor *--demo* is used, *labelbuddy* will open the last database that was opened, or if it is used for the first time, `~/database.labelbuddy`.
+With the option *--demo*, *labelbuddy* will open a temporary database pre-loaded with some example documents and labels.
+
+== Options
+
+*-h, --help*::
+  Output a usage message and exit.
+*-v, --version*::
+  Display the *labelbuddy* version and exit.
+*--demo*::
+  Open a temporary database pre-loaded with some example documents and labels.
+
+The options below allow executing batch operations on the database without opening the GUI.
+These actions will only be executed if the database _FILE_ is specified explicitly.
+The import and export operations are executed in the order in which they appear here: import labels, import documents, export labels, export documents.
+This means that the same command can for example import a new document and then export it.
+
+*--import-labels* _labelsfile_::
+  Import labels contained in the (.json or .txt) file _labelsfile_ into the database.
+  Can be used several times.
+*--import-docs* _docsfile_::
+  Import documents and annotations contained in the (.json, .jsonl, .xml or .txt) file _docsfile_ into the database.
+  Can be used several times.
+*--export-labels* _labelsfile_::
+  Export labels in the database to the .json file _labelsfile_.
+*--export-docs* _docsfile_::
+  Export documents and annotations in the database to the (.json, .jsonl or .xml) file _docsfile_.
+  Some options described below control what is exported.
+*--labelled-only*::
+  When using the *--export-docs* option, only export documents that contain at least one annotation.
+*--no-text*::
+  When using the *--export-docs* option, do not include the document's text in the output.
+  When the text is not exported, the documents can be identified from the MD5 checksum found in the output, or from any user metadata that was imported with the documents.
+--*no-annotations*::
+  When using the *--export-docs* option, do not include annotations in the output.
+*--approver* _name_::
+  Use _name_ as the annotation_approver.
+  If not specified, the output will not contain an annotation_approver.
+*--vacuum*::
+  Repack the database so that it occupies a minimal amount of disk space (the database can contain some empty pages if data has been deleted from it, that it normally keeps and re-uses when new data is inserted).
+  See SQlite3 documentation for details.
+  If this option is used, *labelbuddy* vacuums the database and exits without doing anything else (and the options starting with *--import-* or *--export-* are ignored).
+
+== Resources
+
+*project website*:: {homepage}
+*git repository*:: {ghrepo}
+
+== Author
+
+Jerome Dockes <jerome@dockes.org>

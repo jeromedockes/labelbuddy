@@ -1,0 +1,15 @@
+= labelbuddy screenshots
+:figure-caption!:
+
+<<index.adoc#,Back to labelbuddy home>>
+
+.Annotating a document
+image::screenshots/annotate.png[Annotate tab]
+
+.Managing the documents and labels; choosing a document to annotate
+image::screenshots/dataset.png[Dataset tab]
+
+.Importing (exporting) documents and labels from (to) plain text files
+image::screenshots/import_export.png[Import / Export tab]
+
+<<index.adoc#,Back to labelbuddy home>>

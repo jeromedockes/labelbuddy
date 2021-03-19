@@ -33,14 +33,14 @@ signals:
 private slots:
   void import_documents();
   void import_labels();
-  void export_annotations();
+  void export_documents();
   void export_labels();
 
 private:
   enum class DirRole {
-    import_docs,
+    import_documents,
     import_labels,
-    export_annotations,
+    export_documents,
     export_labels
   };
   QString default_user_name();
@@ -57,7 +57,8 @@ private:
   DatabaseCatalog* database_catalog;
   QLineEdit* annotator_name_edit;
   QCheckBox* labelled_only_checkbox;
-  QCheckBox* include_docs_checkbox;
+  QCheckBox* include_text_checkbox;
+  QCheckBox* include_annotations_checkbox;
   QLabel* db_path_line;
 };
 } // namespace labelbuddy

@@ -1,0 +1,127 @@
+'\" t
+.\"     Title: labelbuddy
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.10
+.\"      Date: 2021-03-12
+.\"    Manual: labelbuddy Manual
+.\"    Source: labelbuddy 0.0.4
+.\"  Language: English
+.\"
+.TH "LABELBUDDY" "1" "2021-03-12" "labelbuddy 0.0.4" "labelbuddy Manual"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+labelbuddy \- application for annotating text documents
+.SH "SYNOPSIS"
+.sp
+\fBlabelbuddy\fP [ \fIOPTIONS\fP ]... [ \fIFILE\fP ]
+.SH "DESCRIPTION"
+.sp
+Without any options, the \fBlabelbuddy\fP command will start the \fBlabelbuddy\fP GUI to annotate documents in the database \fIFILE\fP.
+If neither \fIFILE\fP nor \fB\-\-demo\fP is used, \fBlabelbuddy\fP will open the last database that was opened, or if it is used for the first time, \f(CR~/database.labelbuddy\fP.
+With the option \fB\-\-demo\fP, \fBlabelbuddy\fP will open a temporary database pre\-loaded with some example documents and labels.
+.SH "OPTIONS"
+.sp
+\fB\-h, \-\-help\fP
+.RS 4
+Output a usage message and exit.
+.RE
+.sp
+\fB\-v, \-\-version\fP
+.RS 4
+Display the \fBlabelbuddy\fP version and exit.
+.RE
+.sp
+\fB\-\-demo\fP
+.RS 4
+Open a temporary database pre\-loaded with some example documents and labels.
+.RE
+.sp
+The options below allow executing batch operations on the database without opening the GUI.
+These actions will only be executed if the database \fIFILE\fP is specified explicitly.
+The import and export operations are executed in the order in which they appear here: import labels, import documents, export labels, export documents.
+This means that the same command can for example import a new document and then export it.
+.sp
+\fB\-\-import\-labels\fP \fIlabelsfile\fP
+.RS 4
+Import labels contained in the (.json or .txt) file \fIlabelsfile\fP into the database.
+Can be used several times.
+.RE
+.sp
+\fB\-\-import\-docs\fP \fIdocsfile\fP
+.RS 4
+Import documents and annotations contained in the (.json, .jsonl, .xml or .txt) file \fIdocsfile\fP into the database.
+Can be used several times.
+.RE
+.sp
+\fB\-\-export\-labels\fP \fIlabelsfile\fP
+.RS 4
+Export labels in the database to the .json file \fIlabelsfile\fP.
+.RE
+.sp
+\fB\-\-export\-docs\fP \fIdocsfile\fP
+.RS 4
+Export documents and annotations in the database to the (.json, .jsonl or .xml) file \fIdocsfile\fP.
+Some options described below control what is exported.
+.RE
+.sp
+\fB\-\-labelled\-only\fP
+.RS 4
+When using the \fB\-\-export\-docs\fP option, only export documents that contain at least one annotation.
+.RE
+.sp
+\fB\-\-no\-text\fP
+.RS 4
+When using the \fB\-\-export\-docs\fP option, do not include the document\(cqs text in the output.
+When the text is not exported, the documents can be identified from the MD5 checksum found in the output, or from any user metadata that was imported with the documents.
+.RE
+.sp
+\-\-\fBno\-annotations\fP
+.RS 4
+When using the \fB\-\-export\-docs\fP option, do not include annotations in the output.
+.RE
+.sp
+\fB\-\-approver\fP \fIname\fP
+.RS 4
+Use \fIname\fP as the annotation_approver.
+If not specified, the output will not contain an annotation_approver.
+.RE
+.sp
+\fB\-\-vacuum\fP
+.RS 4
+Repack the database so that it occupies a minimal amount of disk space (the database can contain some empty pages if data has been deleted from it, that it normally keeps and re\-uses when new data is inserted).
+See SQlite3 documentation for details.
+If this option is used, \fBlabelbuddy\fP vacuums the database and exits without doing anything else (and the options starting with \fB\-\-import\-\fP or \fB\-\-export\-\fP are ignored).
+.RE
+.SH "RESOURCES"
+.sp
+\fBproject website\fP
+.RS 4
+.URL "https://jeromedockes.github.io/labelbuddy/" "" ""
+.RE
+.sp
+\fBgit repository\fP
+.RS 4
+.URL "https://github.com/jeromedockes/labelbuddy/" "" ""
+.RE
+.SH "AUTHOR"
+.sp
+Jerome Dockes <\c
+.MTO "jerome\(atdockes.org" "" ">"

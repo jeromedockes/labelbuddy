@@ -116,6 +116,7 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
     progress->setMaximum(total);
   }
   query.exec("begin transaction;");
+  query.exec("delete from annotation;");
   do {
     if (progress != nullptr) {
       progress->setValue(n_deleted);

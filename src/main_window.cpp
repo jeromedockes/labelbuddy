@@ -2,12 +2,13 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
+#include <QKeySequence>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QSettings>
 #include <QSize>
+#include <QStatusBar>
 #include <QTabWidget>
-#include <QKeySequence>
 
 #include "annotations_model.h"
 #include "database.h"
@@ -48,11 +49,10 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
   annotator = new Annotator();
   notebook->addTab(annotator, "Annotate");
 
-  DatasetMenu* dataset_menu = new DatasetMenu();
+  dataset_menu = new DatasetMenu();
   notebook->addTab(dataset_menu, "Dataset");
 
-  ImportExportMenu* import_export_menu =
-      new ImportExportMenu(&database_catalog);
+  import_export_menu = new ImportExportMenu(&database_catalog);
   notebook->addTab(import_export_menu, "Import / Export");
 
   notebook->setCurrentIndex(
@@ -60,19 +60,34 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
           ? 0
           : database_catalog.get_app_state_extra("notebook_page", 2).toInt());
 
-  DocListModel* doc_model = new DocListModel(this);
+  doc_model = new DocListModel(this);
   doc_model->set_database(database_catalog.get_current_database());
-  LabelListModel* label_model = new LabelListModel(this);
+  label_model = new LabelListModel(this);
   label_model->set_database(database_catalog.get_current_database());
-  AnnotationsModel* annotations_model = new AnnotationsModel(this);
+  annotations_model = new AnnotationsModel(this);
   annotations_model->set_database(database_catalog.get_current_database());
   dataset_menu->set_doc_list_model(doc_model);
   dataset_menu->set_label_list_model(label_model);
   annotator->set_annotations_model(annotations_model);
   annotator->set_label_list_model(label_model);
 
+  statusBar()->setSizeGripEnabled(false);
+  statusBar()->setStyleSheet("QStatusBar::item {border: None;}");
+  db_name_label = new QLabel();
+  statusBar()->addWidget(db_name_label);
+  db_summary_label = new QLabel();
+  statusBar()->addWidget(db_summary_label);
+  current_doc_info_label = new QLabel();
+  statusBar()->addWidget(current_doc_info_label);
+  update_status_bar();
+
   add_menubar();
   set_geometry();
+
+  add_connections();
+}
+
+void LabelBuddy::add_connections() {
 
   QObject::connect(dataset_menu, &DatasetMenu::visit_doc_requested,
                    annotations_model, &AnnotationsModel::visit_doc);
@@ -119,6 +134,22 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
                    &DatasetMenu::store_state, Qt::DirectConnection);
   QObject::connect(this, &LabelBuddy::about_to_close, annotator,
                    &Annotator::store_state, Qt::DirectConnection);
+
+  QObject::connect(this, &LabelBuddy::database_changed, this,
+                   &LabelBuddy::update_status_bar);
+  QObject::connect(doc_model, &DocListModel::docs_deleted, this,
+                   &LabelBuddy::update_status_bar);
+  QObject::connect(label_model, &LabelListModel::labels_deleted, this,
+                   &LabelBuddy::update_status_bar);
+  QObject::connect(import_export_menu, &ImportExportMenu::documents_added, this,
+                   &LabelBuddy::update_status_bar);
+  QObject::connect(annotations_model,
+                   &AnnotationsModel::document_status_changed, this,
+                   &LabelBuddy::update_status_bar);
+  QObject::connect(notebook, &QTabWidget::currentChanged, this,
+                   &LabelBuddy::update_current_doc_info);
+  QObject::connect(annotator, &Annotator::current_status_display_changed, this,
+                   &LabelBuddy::update_current_doc_info);
 }
 
 bool LabelBuddy::is_valid() const { return valid_state; }
@@ -127,11 +158,9 @@ void LabelBuddy::go_to_annotations() { notebook->setCurrentIndex(0); }
 
 void LabelBuddy::add_menubar() {
   auto file_menu = menuBar()->addMenu("File");
-  auto open_db_action = new QAction("Open", this);
+  auto open_db_action = new QAction("Open...", this);
   file_menu->addAction(open_db_action);
-  auto open_new_db_action = new QAction("New", this);
-  file_menu->addAction(open_new_db_action);
-  open_new_db_action->setShortcut(QKeySequence::Open);
+  open_db_action->setShortcut(QKeySequence::Open);
   auto temp_db_action = new QAction("Demo", this);
   file_menu->addAction(temp_db_action);
   auto quit_action = new QAction("Quit", this);
@@ -139,8 +168,6 @@ void LabelBuddy::add_menubar() {
   quit_action->setShortcut(QKeySequence::Quit);
   QObject::connect(open_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_database);
-  QObject::connect(open_new_db_action, &QAction::triggered, this,
-                   &LabelBuddy::open_new_database);
   QObject::connect(temp_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_temp_database);
   QObject::connect(quit_action, &QAction::triggered, this, &LabelBuddy::close);
@@ -159,7 +186,7 @@ void LabelBuddy::add_menubar() {
   auto set_use_bold_action = new QAction("Bold selected region", this);
   set_use_bold_action->setCheckable(true);
   set_use_bold_action->setChecked(
-      settings.value("Labelbuddy/selected_annotation_bold", 1).toInt());
+      settings.value("Labelbuddy/selected_annotation_bold", 0).toInt());
   preferences_menu->addAction(set_use_bold_action);
   annotator->set_use_bold_font(set_use_bold_action->isChecked());
   QObject::connect(set_use_bold_action, &QAction::triggered, annotator,
@@ -177,27 +204,44 @@ void LabelBuddy::add_menubar() {
                    &LabelBuddy::open_documentation_url);
 }
 
-void LabelBuddy::open_database() {
-  auto file_path = QFileDialog::getOpenFileName(
-      this, "Documents file", database_catalog.get_last_opened_directory(),
-      "SQLite databses (*.sql *.sqlite *.sqlite3);; All files (*)");
-  if (file_path == QString()) {
-    return;
-  }
-  store_notebook_page();
-  bool opened = database_catalog.open_database(file_path);
-  if (opened) {
-    emit database_changed(file_path);
+void LabelBuddy::update_status_bar() {
+  auto db_name =
+      database_name_display(database_catalog.get_current_database(), true);
+  db_name_label->setText(QString(" %0").arg(db_name));
+  auto n_docs = doc_model->total_n_docs();
+  auto n_labelled = doc_model->total_n_docs(DocListModel::DocFilter::labelled);
+  db_summary_label->setText(QString(" |  %0 document%1 (%2 labelled)")
+                                .arg(n_docs)
+                                .arg(n_docs != 1 ? "s" : "")
+                                .arg(n_labelled));
+  update_current_doc_info();
+}
+
+void LabelBuddy::update_current_doc_info() {
+  if (notebook->currentIndex() != 0) {
+    current_doc_info_label->setText("");
   } else {
-    warn_failed_to_open_db(file_path);
+    current_doc_info_label->setText(
+        QString(" |  %0").arg(annotator->current_status_display()));
   }
 }
 
-void LabelBuddy::open_new_database() {
-  auto file_path = QFileDialog::getSaveFileName(
-      this, "Documents file", database_catalog.get_last_opened_directory(),
-      "SQLite databses (*.sql *.sqlite *.sqlite3);; All files (*)", nullptr,
-      QFileDialog::DontConfirmOverwrite);
+void LabelBuddy::open_database() {
+  QFileDialog dialog(this, "Open database");
+  dialog.setOption(QFileDialog::DontUseNativeDialog);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  dialog.setNameFilter("labelbuddy databases (*.labelbuddy *.sqlite3 *.sqlite "
+                       "*.db);; All files (*)");
+  dialog.setViewMode(QFileDialog::Detail);
+  dialog.setOption(QFileDialog::HideNameFilterDetails, false);
+  dialog.setOption(QFileDialog::DontUseCustomDirectoryIcons, true);
+  dialog.setOption(QFileDialog::DontConfirmOverwrite, true);
+  dialog.setDirectory(database_catalog.get_last_opened_directory());
+  dialog.setAcceptMode(QFileDialog::AcceptOpen);
+  if (!dialog.exec() || dialog.selectedFiles().isEmpty()) {
+    return;
+  }
+  auto file_path = dialog.selectedFiles()[0];
   if (file_path == QString()) {
     return;
   }
@@ -222,7 +266,7 @@ void LabelBuddy::store_notebook_page() {
 }
 
 void LabelBuddy::closeEvent(QCloseEvent* event) {
-  if(!valid_state){
+  if (!valid_state) {
     QMainWindow::closeEvent(event);
     return;
   }

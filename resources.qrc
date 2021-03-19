@@ -1,6 +1,8 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-  <file>data/LB.png</file>
+  <file>data/icons/LB.png</file>
+  <file>data/icons/go-up.png</file>
+  <file>data/icons/go-down.png</file>
   <file>data/VERSION.txt</file>
   <file>docs/example_data/example_documents.json</file>
   <file>docs/example_data/example_labels.json</file>

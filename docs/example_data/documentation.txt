@@ -1,5 +1,5 @@
 
-This doc is better read with a fixed width font: Preferences > monospace, or Help > documentation for html version
+This document is better read with a fixed width font: Preferences > monospace, or Help > documentation for html version
 
 labelbuddy documentation
 
@@ -15,14 +15,14 @@ Table of Contents
     -   2.1. Importing documents
     -   2.2. Importing labels
     -   2.3. Annotating documents
-    -   2.4. Exporting annotations
+    -   2.4. Exporting documents and annotations
     -   2.5. Exporting labels
     -   2.6. Importing annotations
     -   2.7. Managing projects
     -   2.8. Command-line interface
 -   3. Conclusion
 
-This document describes labelbuddy version 0.0.3.
+This document describes labelbuddy version 0.0.4.
 
 1. Introduction
 
@@ -67,20 +67,27 @@ labels.
 
 +-----------------------------------+-----------------------------------+
 | Note                              | a labelbuddy database is actually |
-|                                   | just a regular file on your disk  |
-|                                   | (an SQLite database).             |
+|                                   | just an ordinary file (an SQLite  |
+|                                   | database).                        |
 +-----------------------------------+-----------------------------------+
 
 2. Using labelbuddy
 
+The labelbuddy interface is organized around three tabs: the “Import /
+Export” tab for importing and exporting documents, labels and
+annotations, the “Dataset” tab to get an overview and manage documents
+and labels in the database, and the “Annotate” tab is where you annotate
+documents.
+
 Documents and labels can be imported into a labelbuddy database from
 various formats. Once this is done, you can annotate the documents and
 finally export your annotations. It is also possible to import
-annotations exported from labelbuddy or doccano. Importing and exporting
-data can be done from the graphical or the command line interface.
+annotations exported from labelbuddy or doccano. This section describes
+how to perform each of these operations.
 
-Documents and labels that are already in the database are skipped if you
-try to import them again.
+Importing and exporting data can be done from the graphical or the
+command line interface. Documents, labels and annotations that are
+already in the database are skipped if you try to import them again.
 
 2.1. Importing documents
 
@@ -133,8 +140,14 @@ All other attributes are optional:
 |                                   | using an html <a> tag.            |
 +-----------------------------------+-----------------------------------+
 
-This information can be provided in several plain text formats. The
-format is deduced from the filename extension.
+This information can be provided in several plain text formats described
+in the following sections. The format is deduced from the filename
+extension.
+
+Note that labelbuddy only deals with plain text documents. Other formats
+will need to converted them to plain text, for example using pdftotext
+if they are in PDF, or pandoc (specifying the target format as "plain")
+for many other formats.
 
 2.1.1. From .txt
 
@@ -166,23 +179,15 @@ Therefore an imported JSON file might look like:
 Moreover, it is also possible to import annotations together with a new
 document, or for a document already in the database.
 
-+-----------------------------------+-----------------------------------+
-| Note                              | Besides of the object format      |
-|                                   | above, labelbuddy also accepts    |
-|                                   | another format, providing one     |
-|                                   | JSON array per document. In this  |
-|                                   | case the first (mandatory)        |
-|                                   | element of the array is the text, |
-|                                   | and the second (optional) one is  |
-|                                   | meta. Other attributes cannot be  |
-|                                   | specified.                        |
-|                                   |                                   |
-|                                   |     [                             |
-|                                   |     ["text of first doc", {       |
-|                                   | "title": "doc 1", "DOI": "123"}], |
-|                                   |     ["text of second doc"]        |
-|                                   |     ]                             |
-+-----------------------------------+-----------------------------------+
+Detail: besides the object format above, labelbuddy also accepts another
+format, providing one JSON array per document. In this case the first
+(mandatory) element of the array is the text, and the second (optional)
+one is meta. Other attributes cannot be specified.
+
+    [
+    ["text of first doc", {"title": "doc 1", "DOI": "123"}],
+    ["text of second doc"]
+    ]
 
 2.1.3. From .jsonl
 
@@ -267,22 +272,16 @@ For example:
     {"text": "Adjective"}
     ]
 
-+-----------------------------------+-----------------------------------+
-| Note                              | Besides of the object format      |
-|                                   | above, labelbuddy also accepts    |
-|                                   | another format, providing one     |
-|                                   | JSON array per label. In this     |
-|                                   | case the first (mandatory)        |
-|                                   | element of the array is the text  |
-|                                   | (label name), and the second      |
-|                                   | (optional) one is the color.      |
-|                                   |                                   |
-|                                   |     [                             |
-|                                   |     ["Noun", "#ff0000"],          |
-|                                   |     ["Verb", "yellow"],           |
-|                                   |     ["Adjective"]                 |
-|                                   |     ]                             |
-+-----------------------------------+-----------------------------------+
+Detail: besides the object format above, labelbuddy also accepts another
+format, providing one JSON array per label. In this case the first
+(mandatory) element of the array is the text (label name), and the
+second (optional) one is the color.
+
+    [
+    ["Noun", "#ff0000"],
+    ["Verb", "yellow"],
+    ["Adjective"]
+    ]
 
 2.3. Annotating documents
 
@@ -300,25 +299,43 @@ the keyboard using the bindings described below. Then press the shortcut
 key associated with the label you want to set.
 
 Once you have created annotations, you can select any of them by
-clicking it. It becomes bold and underlined and you can change its label
-by clicking on a different one or remove the annotation by clicking
-Remove. You can also do this with the keyboard: jump to the next
-annotation with the Space key and change its label with a label shortcut
-or remove it with Backspace.
-
-If you create a new annotation that overlaps with a previously existing
-one, the previously existing one is automatically removed.
+clicking it. It becomes underlined and you can change its label by
+clicking on a different one or remove the annotation by clicking Remove.
+You can also do this with the keyboard: jump to the next annotation with
+the Space key and change its label with a label shortcut or remove it
+with Backspace.
 
 +-----------------------------------+-----------------------------------+
-| Tip                               | If showing the selection in bold  |
-|                                   | is annoying (depending on the     |
-|                                   | font it can slightly change its   |
-|                                   | size) you can disable it in       |
+| Tip                               | If the selected annotation is not |
+|                                   | visible enough you can also make  |
+|                                   | it bold by selecting              |
 |                                   | Preferences › Bold selected       |
 |                                   | region.                           |
 +-----------------------------------+-----------------------------------+
 
-2.3.1. Summary of key bindings in the “Annotate” tab
++-----------------------------------+-----------------------------------+
+| Tip                               | If you are doing document         |
+|                                   | classification and need global    |
+|                                   | labels for the documents, just    |
+|                                   | annotate any arbitrary portion of |
+|                                   | text. If you need to tag some     |
+|                                   | document status such as           |
+|                                   | "approved", "checked", etc., add  |
+|                                   | a label for that!                 |
++-----------------------------------+-----------------------------------+
+
+2.3.1. Overlapping annotations
+
+When two or more annotations overlap, the whole group is shown in white
+text on a gray background. As you click the gray region or press the
+Space key, each annotation is selected in turn and shown in its label’s
+color.
+
+The status bar on the bottom of the window shows a caret (“^”) next to
+the label name when the selected annotation is the first of its
+overlapping group (and “^^” when it is the first in the document).
+
+2.3.2. Summary of key bindings in the “Annotate” tab
 
 +----------------------+-----------------------------------------------+
 | Searching and        |                                               |
@@ -398,7 +415,7 @@ one, the previously existing one is automatically removed.
 | <                    | go to previous document                       |
 +----------------------+-----------------------------------------------+
 
-2.4. Exporting annotations
+2.4. Exporting documents and annotations
 
 Once you are satisfied with your annotations you can export them to an
 .json, .jsonl or .xml file to share them or use them in other
@@ -411,7 +428,8 @@ export the text, the documents can be identified from metadata you may
 have associated with them, or by the MD5 checksum of the text that is
 always exported. You can also provide an “annotation approver” (user
 name), that will be exported as the annotation_approver (used by
-doccano).
+doccano). You can also choose to only export the documents, without the
+annotations.
 
 When clicking Export docs & annotations you are asked to select a file
 and the resulting format will depend on the filename extension. The
@@ -515,6 +533,22 @@ So it may look like:
         </document>
     </document_set>
 
++-----------------------------------+-----------------------------------+
+| Caution                           | Invalid characters (for example   |
+|                                   | form feed, 0xC) will not be       |
+|                                   | written to the output. JSON can   |
+|                                   | represent all Unicode characters, |
+|                                   | including some characters that    |
+|                                   | are invalid in XML. Thus if you   |
+|                                   | imported documents from JSON or   |
+|                                   | JSONL and there is a chance that  |
+|                                   | they contain invalid XML          |
+|                                   | characters, it is safer to choose |
+|                                   | JSON or JSONL as the export       |
+|                                   | format so that no characters are  |
+|                                   | ommitted in the output.           |
++-----------------------------------+-----------------------------------+
+
 2.5. Exporting labels
 
 You can also export labels by clicking “Export labels” and selecting a
@@ -538,9 +572,9 @@ or not. If the text is not present in the exported file, the MD5
 checksum will be used to associate the annotations with the correct
 document.
 
-To avoid mixing annotations from different sources, if the document
-already contains annotations in the database, the new annotations will
-not be added.
+Annotations already in the database (same label at the same position in
+the same document) will not be inserted, so it is not a problem to
+import the same documents and annotations several times.
 
 For documents that are not in the database, their text must have been
 exported together with the annotations and in this case both the
@@ -579,7 +613,15 @@ the document’s text can also be imported into doccano (selecting the
 |                                   | labelbuddy annotations will       |
 |                                   | appear shifted when doccano       |
 |                                   | removes the whitespace. Moreover, |
-|                                   | doccano allows duplicate          |
+|                                   | labelbuddy can handle overlapping |
+|                                   | annotations whereas doccano       |
+|                                   | cannot. Therefore if you try to   |
+|                                   | import overlapping annotations    |
+|                                   | (created with labelbuddy) into    |
+|                                   | doccano the results will be       |
+|                                   | incorrect; annotated text will    |
+|                                   | appear duplicated and jumbled.    |
+|                                   | Finally, doccano allows duplicate |
 |                                   | documents so if the documents     |
 |                                   | were already in the doccano       |
 |                                   | database, they will appear as new |
@@ -591,7 +633,7 @@ the document’s text can also be imported into doccano (selecting the
 2.7. Managing projects
 
 Each labelbuddy database (containing documents, labels and annotations)
-is an SQLite database. That is a single binary file on your disk that
+is an SQLite database. That is a single regular file on your disk that
 you can copy, backup, or share, like any other file.
 
 +-----------------------------------+-----------------------------------+
@@ -603,9 +645,9 @@ you can copy, backup, or share, like any other file.
 +-----------------------------------+-----------------------------------+
 
 When you first start labelbuddy it creates a new database in
-~/labelbuddy_data.sqlite3. You can switch to a different one by
-selecting File › Open or File › New. The path to the current database is
-displayed in the “Import / Export” tab.
+~/database.labelbuddy. You can switch to a different one by selecting
+File › Open or File › New. The path to the current database is displayed
+in the “Import / Export” tab.
 
 The next time you start labelbuddy, it will open the last database that
 you opened.
@@ -640,26 +682,26 @@ of options reproduced here:
     Annotate documents.
 
     Options:
-      -h, --help                                 Displays this help.
-      -v, --version                              Displays version information.
-      --demo                                     Open a temporary demo database
-                                                 with pre-loaded docs
-      --import-labels <labels file>              Labels file to import in database.
-      --import-docs <docs file>                  Docs & annotations file to import
-                                                 in database.
-      --export-labels <exported labels file>     Labels file to export to.
-      --export-docs <exported docs file>         Docs & annotations file to export
-                                                 to.
-      --labelled-only                            Export only labelled documents
-      --include-text                             Include doc text with exported
-                                                 annotations
-      --approver <name>                          User or 'annotations approver'
-                                                 name
-      --vacuum                                   Repack database into minimal
-                                                 amount of disk space.
+      -h, --help                              Displays this help.
+      -v, --version                           Displays version information.
+      --demo                                  Open a temporary demo database with
+                                              pre-loaded docs
+      --import-labels <labels file>           Labels file to import in database.
+      --import-docs <docs file>               Docs & annotations file to import in
+                                              database.
+      --export-labels <exported labels file>  Labels file to export to.
+      --export-docs <exported docs file>      Docs & annotations file to export to.
+      --labelled-only                         Export only labelled documents
+      --no-text                               Do not include doc text when
+                                              exporting
+      --no-annotations                        Do not include annotations when
+                                              exporting
+      --approver <name>                       User or 'annotations approver' name
+      --vacuum                                Repack database into minimal amount
+                                              of disk space.
 
     Arguments:
-      database                                   Database to open.
+      database                                Database to open.
 
 If any of the import- or export- options are used, labelbuddy doesn’t
 start a GUI but performs the required import or export operations and
@@ -668,7 +710,7 @@ these options, the database path must be provided explicitly. Labels are
 imported first, then documents, then export operations are performed.
 
 As an example, to convert a previously exported file docs.xml to JSON
-and strip the documents' text, you could run:
+you could run:
 
     tmpdb=$(mktemp) && labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb
 

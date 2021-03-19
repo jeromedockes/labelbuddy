@@ -2,6 +2,7 @@
 #define LABELBUDDY_MAIN_WINDOW_H
 
 #include <QCloseEvent>
+#include <QLabel>
 #include <QMainWindow>
 #include <QString>
 #include <QTabWidget>
@@ -58,14 +59,9 @@ public slots:
 private slots:
 
   /// Open a file dialog to select and open a database
+
+  /// We don't use a native dialog to allow selecting an existing or a new file.
   void open_database();
-
-  /// Open a file dialog to select and open a new database
-
-  /// The only difference with `open_database` is that the dialog allows
-  /// creating a new file; if the selected database already exists it is not
-  /// overwritten.
-  void open_new_database();
 
   /// Open the temporary demo database
   void open_temp_database();
@@ -79,12 +75,24 @@ private slots:
   /// the local file is opened, otherwise the online documentation
   void open_documentation_url();
 
+  void update_status_bar();
+  void update_current_doc_info();
+
 private:
+  DocListModel* doc_model;
+  LabelListModel* label_model;
+  AnnotationsModel* annotations_model;
   QTabWidget* notebook;
   Annotator* annotator;
+  DatasetMenu* dataset_menu;
+  ImportExportMenu* import_export_menu;
   DatabaseCatalog database_catalog;
+  QLabel* db_name_label;
+  QLabel* db_summary_label;
+  QLabel* current_doc_info_label;
 
   void store_notebook_page();
+  void add_connections();
   void add_menubar();
   void set_geometry();
 

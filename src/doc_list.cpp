@@ -22,7 +22,7 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
 
   select_all_button = new QPushButton("Select all");
   delete_button = new QPushButton("Delete");
-  delete_all_button = new QPushButton("Delete ALL docs");
+  delete_all_button = new QPushButton("Delete all docs");
   annotate_button = new QPushButton("Annotate selected doc");
   buttons_layout->addWidget(select_all_button);
   buttons_layout->addWidget(delete_button);

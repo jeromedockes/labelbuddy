@@ -2,6 +2,7 @@
 #include <QAction>
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QIcon>
 #include <QKeySequence>
 #include <QLineEdit>
 #include <QList>
@@ -40,10 +41,12 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   search_box->installEventFilter(this);
   find_prev_button = new QPushButton();
   search_bar_layout->addWidget(find_prev_button);
-  find_prev_button->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
   find_next_button = new QPushButton();
   search_bar_layout->addWidget(find_next_button);
-  find_next_button->setIcon(style()->standardIcon(QStyle::SP_ArrowDown));
+  find_prev_button->setIcon(
+      QIcon::fromTheme("go-up", QIcon(":data/icons/go-up.png")));
+  find_next_button->setIcon(
+      QIcon::fromTheme("go-down", QIcon(":data/icons/go-down.png")));
 
   QAction* search_action = new QAction(this);
   search_action->setShortcuts(
@@ -121,7 +124,7 @@ void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
 }
 
 void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
-                                      SearchableText::Side side) {
+                                      Side side) {
   auto cursor = text_edit->textCursor();
   bool swapped{};
   auto anchor = cursor.anchor();

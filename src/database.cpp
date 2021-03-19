@@ -29,6 +29,8 @@ DocsReader::DocsReader(const QString& file_path) : file(file_path) {
   file.open(QIODevice::ReadOnly | QIODevice::Text);
 }
 
+DocsReader::~DocsReader() {}
+
 bool DocsReader::read_next() { return false; }
 
 bool DocsReader::is_open() const { return file.isOpen(); }
@@ -263,23 +265,25 @@ bool JsonLinesDocsReader::read_next() {
   return true;
 }
 
-AnnotationsWriter::AnnotationsWriter(const QString& file_path)
-    : file(file_path) {
+DocsWriter::DocsWriter(const QString& file_path) : file(file_path) {
   file.open(QIODevice::WriteOnly | QIODevice::Text);
 }
 
-void AnnotationsWriter::write_prefix() {}
-void AnnotationsWriter::write_suffix() {}
+DocsWriter::~DocsWriter() {}
 
-bool AnnotationsWriter::is_open() const { return file.isOpen(); }
+void DocsWriter::write_prefix() {}
+void DocsWriter::write_suffix() {}
 
-QFile* AnnotationsWriter::get_file() { return &file; }
+bool DocsWriter::is_open() const { return file.isOpen(); }
 
-void AnnotationsWriter::add_document(
-    const QString& md5, const QVariant& content, const QJsonObject& extra_data,
-    const QList<Annotation> annotations, const QString& user_name,
-    const QString& title, const QString& short_title,
-    const QString& long_title) {
+QFile* DocsWriter::get_file() { return &file; }
+
+void DocsWriter::add_document(const QString& md5, const QVariant& content,
+                              const QJsonObject& extra_data,
+                              const QList<Annotation>* annotations,
+                              const QString& user_name, const QString& title,
+                              const QString& short_title,
+                              const QString& long_title) {
   (void)md5;
   (void)content;
   (void)extra_data;
@@ -290,18 +294,18 @@ void AnnotationsWriter::add_document(
   (void)long_title;
 }
 
-AnnotationsJsonLinesWriter::AnnotationsJsonLinesWriter(const QString& file_path)
-    : AnnotationsWriter(file_path), stream(get_file()) {
+DocsJsonLinesWriter::DocsJsonLinesWriter(const QString& file_path)
+    : DocsWriter(file_path), stream(get_file()) {
   stream.setCodec("UTF-8");
 }
 
-int AnnotationsJsonLinesWriter::get_n_docs() const { return n_docs; }
+int DocsJsonLinesWriter::get_n_docs() const { return n_docs; }
 
-QTextStream& AnnotationsJsonLinesWriter::get_stream() { return stream; }
+QTextStream& DocsJsonLinesWriter::get_stream() { return stream; }
 
-void AnnotationsJsonLinesWriter::add_document(
+void DocsJsonLinesWriter::add_document(
     const QString& md5, const QVariant& content, const QJsonObject& extra_data,
-    const QList<Annotation> annotations, const QString& user_name,
+    const QList<Annotation>* annotations, const QString& user_name,
     const QString& title, const QString& short_title,
     const QString& long_title) {
   if (n_docs) {
@@ -325,70 +329,73 @@ void AnnotationsJsonLinesWriter::add_document(
   if (long_title != QString()) {
     doc_json.insert("long_title", long_title);
   }
-  QJsonArray all_annotations_json{};
-  for (const auto& annotation : annotations) {
-    QJsonArray annotation_json{};
-    annotation_json.append(annotation.start_char);
-    annotation_json.append(annotation.end_char);
-    annotation_json.append(annotation.label_name);
-    all_annotations_json.append(annotation_json);
+  if (annotations != nullptr) {
+    QJsonArray all_annotations_json{};
+    for (const auto& annotation : *annotations) {
+      QJsonArray annotation_json{};
+      annotation_json.append(annotation.start_char);
+      annotation_json.append(annotation.end_char);
+      annotation_json.append(annotation.label_name);
+      all_annotations_json.append(annotation_json);
+    }
+    doc_json.insert("labels", all_annotations_json);
   }
-  doc_json.insert("labels", all_annotations_json);
-
   stream << QString::fromUtf8(
       QJsonDocument(doc_json).toJson(QJsonDocument::Compact));
   ++n_docs;
 }
 
-void AnnotationsJsonLinesWriter::write_suffix() {
+void DocsJsonLinesWriter::write_suffix() {
   if (n_docs) {
     stream << "\n";
   }
 }
 
-AnnotationsJsonWriter::AnnotationsJsonWriter(const QString& file_path)
-    : AnnotationsJsonLinesWriter(file_path) {}
+DocsJsonWriter::DocsJsonWriter(const QString& file_path)
+    : DocsJsonLinesWriter(file_path) {}
 
-void AnnotationsJsonWriter::add_document(
-    const QString& md5, const QVariant& content, const QJsonObject& extra_data,
-    const QList<Annotation> annotations, const QString& user_name,
-    const QString& title, const QString& short_title,
-    const QString& long_title) {
+void DocsJsonWriter::add_document(const QString& md5, const QVariant& content,
+                                  const QJsonObject& extra_data,
+                                  const QList<Annotation>* annotations,
+                                  const QString& user_name,
+                                  const QString& title,
+                                  const QString& short_title,
+                                  const QString& long_title) {
   if (get_n_docs()) {
     get_stream() << ",";
   }
-  AnnotationsJsonLinesWriter::add_document(md5, content, extra_data,
-                                           annotations, user_name, title,
-                                           short_title, long_title);
+  DocsJsonLinesWriter::add_document(md5, content, extra_data, annotations,
+                                    user_name, title, short_title, long_title);
 }
 
-void AnnotationsJsonWriter::write_prefix() { get_stream() << "[\n"; }
+void DocsJsonWriter::write_prefix() { get_stream() << "[\n"; }
 
-void AnnotationsJsonWriter::write_suffix() {
+void DocsJsonWriter::write_suffix() {
   get_stream() << (get_n_docs() ? "\n" : "") << "]\n";
 }
 
-AnnotationsXmlWriter::AnnotationsXmlWriter(const QString& file_path)
-    : AnnotationsWriter(file_path), xml(get_file()) {
+DocsXmlWriter::DocsXmlWriter(const QString& file_path)
+    : DocsWriter(file_path), xml(get_file()) {
   xml.setCodec("UTF-8");
   xml.setAutoFormatting(true);
 }
 
-void AnnotationsXmlWriter::write_prefix() {
+void DocsXmlWriter::write_prefix() {
   xml.writeStartDocument();
   xml.writeStartElement("document_set");
 }
 
-void AnnotationsXmlWriter::write_suffix() {
+void DocsXmlWriter::write_suffix() {
   xml.writeEndElement();
   xml.writeEndDocument();
 }
 
-void AnnotationsXmlWriter::add_document(
-    const QString& md5, const QVariant& content, const QJsonObject& extra_data,
-    const QList<Annotation> annotations, const QString& user_name,
-    const QString& title, const QString& short_title,
-    const QString& long_title) {
+void DocsXmlWriter::add_document(const QString& md5, const QVariant& content,
+                                 const QJsonObject& extra_data,
+                                 const QList<Annotation>* annotations,
+                                 const QString& user_name, const QString& title,
+                                 const QString& short_title,
+                                 const QString& long_title) {
 
   xml.writeStartElement("document");
   if (content != QVariant()) {
@@ -417,11 +424,12 @@ void AnnotationsXmlWriter::add_document(
   xml.writeEndElement();
 }
 
-void AnnotationsXmlWriter::add_annotations(
-    const QList<Annotation> annotations) {
-
+void DocsXmlWriter::add_annotations(const QList<Annotation>* annotations) {
+  if (annotations == nullptr) {
+    return;
+  }
   xml.writeStartElement("labels");
-  for (const auto& annotation : annotations) {
+  for (const auto& annotation : *annotations) {
     xml.writeStartElement("annotation");
     xml.writeTextElement("start_char",
                          QString("%0").arg(annotation.start_char));
@@ -457,7 +465,7 @@ LabelRecord json_to_label_record(const QJsonValue& json) {
 QString DatabaseCatalog::get_default_database_path() {
   auto home_dir =
       QStandardPaths::standardLocations(QStandardPaths::HomeLocation)[0];
-  auto default_path = QDir(home_dir).filePath("labelbuddy_data.sqlite3");
+  auto default_path = QDir(home_dir).filePath("database.labelbuddy");
   QSettings settings("labelbuddy", "labelbuddy");
   if (!settings.contains("last_opened_database")) {
     return default_path;
@@ -471,6 +479,9 @@ QString DatabaseCatalog::get_default_database_path() {
 }
 
 QString DatabaseCatalog::check_database_path(const QString& database_path) {
+  if (database_path == tmp_db_name_) {
+    return database_path;
+  }
   QString db_path{database_path};
   if (db_path == QString()) {
     db_path = get_default_database_path();
@@ -478,6 +489,7 @@ QString DatabaseCatalog::check_database_path(const QString& database_path) {
   QFileInfo info(db_path);
   if (info.exists()) {
     if (info.isReadable() && info.isWritable()) {
+      // we don't use canonicalFilePath so that symlinks are not resolved
       return info.absoluteFilePath();
     } else {
       return QString();
@@ -493,8 +505,7 @@ QString DatabaseCatalog::check_database_path(const QString& database_path) {
   }
 }
 
-bool DatabaseCatalog::open_database(const QString& database_path,
-                                    bool remember) {
+bool DatabaseCatalog::open_database(const QString& database_path) {
   QString actual_database_path{check_database_path(database_path)};
   if (actual_database_path == QString()) {
     return false;
@@ -503,8 +514,15 @@ bool DatabaseCatalog::open_database(const QString& database_path,
     current_database = actual_database_path;
     return true;
   }
+  // Qt's "database name" the param for sqlite call
+  // it is the path to db file, or "" if temporary database.
+  // the argument to addDatabase is the connection name
+  // we choose the db file path for non-temporary and
+  // ":LABELBUDDY_TEMPORARY_DATABASE:" otherwise
+  auto db_name =
+      actual_database_path == tmp_db_name_ ? "" : actual_database_path;
   QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", actual_database_path);
-  db.setDatabaseName(actual_database_path);
+  db.setDatabaseName(db_name);
   if (!db.open()) {
     return false;
   }
@@ -517,7 +535,7 @@ bool DatabaseCatalog::open_database(const QString& database_path,
   }
   current_database = actual_database_path;
   databases.insert(actual_database_path);
-  if (remember) {
+  if (actual_database_path != tmp_db_name_) {
     QSettings settings("labelbuddy", "labelbuddy");
     settings.setValue("last_opened_database", current_database);
   }
@@ -525,20 +543,13 @@ bool DatabaseCatalog::open_database(const QString& database_path,
 }
 
 QString DatabaseCatalog::open_temp_database() {
-  bool is_new{};
-  if (temp_database == nullptr) {
-    temp_database.reset(new QTemporaryFile());
-    temp_database->open();
-    temp_database->close();
-    is_new = true;
-  }
-  auto file_name = temp_database->fileName();
-  open_database(file_name, false);
+  bool is_new = !databases.contains(tmp_db_name_);
+  open_database(tmp_db_name_);
   if (is_new) {
-    import_documents(":docs/example_data/example_documents.json");
     import_labels(":docs/example_data/example_labels.json");
+    import_documents(":docs/example_data/example_documents.json");
   }
-  return file_name;
+  return tmp_db_name_;
 }
 
 QString DatabaseCatalog::get_current_database() const {
@@ -549,10 +560,6 @@ QString DatabaseCatalog::parent_directory(const QString& file_path) const {
   auto dir = QDir(file_path);
   dir.cdUp();
   return dir.absolutePath();
-}
-
-QString DatabaseCatalog::get_current_directory() const {
-  return parent_directory(current_database);
 }
 
 QString DatabaseCatalog::get_last_opened_directory() const {
@@ -633,13 +640,6 @@ int DatabaseCatalog::insert_doc_record(const DocRecord& record,
     return 0;
   }
   auto doc_id = query.value(0).toInt();
-  query.prepare("select rowid from annotation where doc_id = :docid;");
-  query.bindValue(":docid", doc_id);
-  query.exec();
-  if (query.next()) {
-    // don't insert anything if doc already has annotations
-    return 0;
-  }
   int n_annotations{};
   for (const auto& annotation : record.annotations) {
     auto annotation_array = annotation.toArray();
@@ -655,8 +655,9 @@ int DatabaseCatalog::insert_doc_record(const DocRecord& record,
     query.bindValue(":labelid", label_id);
     query.bindValue(":schar", annotation_array[0].toInt());
     query.bindValue(":echar", annotation_array[1].toInt());
-    query.exec();
-    ++n_annotations;
+    if (query.exec()) {
+      ++n_annotations;
+    }
   }
   return n_annotations;
 }
@@ -677,16 +678,19 @@ void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
   query.prepare("insert into label (name, color, shortcut_key) values (:name, "
                 ":color, :shortcut)");
   query.bindValue(":name", label_name);
+  bool used_default_color{};
   if (QColor::isValidColor(color)) {
     query.bindValue(":color", QColor(color).name());
   } else {
     query.bindValue(":color",
                     label_colors[color_index % label_colors.length()]);
-    ++color_index;
+    used_default_color = true;
   }
   query.bindValue(":shortcut",
                   (valid_shortcut ? shortcut_key : QVariant(QVariant::String)));
-  query.exec();
+  if (query.exec() && used_default_color) {
+    ++color_index;
+  }
 }
 
 QList<int> DatabaseCatalog::import_documents(const QString& file_path,
@@ -714,12 +718,13 @@ QList<int> DatabaseCatalog::import_documents(const QString& file_path,
   query.exec("begin transaction;");
   int n_annotations{};
   int n_docs_read{};
+  std::cout << std::endl;
   while (reader->read_next()) {
     if (progress != nullptr && progress->wasCanceled()) {
       break;
     }
     ++n_docs_read;
-    std::cout << "Read " << n_docs_read << " documents\r";
+    std::cout << "Read " << n_docs_read << " documents\r" << std::flush;
     n_annotations += insert_doc_record(*(reader->get_current_record()), query);
     if (progress != nullptr) {
       progress->setValue(reader->current_progress());
@@ -775,20 +780,20 @@ int DatabaseCatalog::import_labels(const QString& file_path) {
   return n_after - n_before;
 }
 
-QList<int> DatabaseCatalog::export_annotations(const QString& file_path,
-                                               bool labelled_docs_only,
-                                               bool include_documents,
-                                               const QString& user_name,
-                                               QProgressDialog* progress) {
-
+QList<int> DatabaseCatalog::export_documents(const QString& file_path,
+                                             bool labelled_docs_only,
+                                             bool include_text,
+                                             bool include_annotations,
+                                             const QString& user_name,
+                                             QProgressDialog* progress) {
   auto suffix = QFileInfo(file_path).suffix();
-  std::unique_ptr<AnnotationsWriter> writer;
-  if (suffix == "json") {
-    writer.reset(new AnnotationsJsonWriter(file_path));
+  std::unique_ptr<DocsWriter> writer{nullptr};
+  if (suffix == "xml") {
+    writer.reset(new DocsXmlWriter(file_path));
   } else if (suffix == "jsonl") {
-    writer.reset(new AnnotationsJsonLinesWriter(file_path));
+    writer.reset(new DocsJsonLinesWriter(file_path));
   } else {
-    writer.reset(new AnnotationsXmlWriter(file_path));
+    writer.reset(new DocsJsonWriter(file_path));
   }
   if (!writer->is_open()) {
     return QList<int>{0, 0};
@@ -814,32 +819,31 @@ QList<int> DatabaseCatalog::export_annotations(const QString& file_path,
   int n_docs{};
   int n_annotations{};
   writer->write_prefix();
+  std::cout << std::endl;
   while (query.next()) {
     if (progress != nullptr && progress->wasCanceled()) {
       break;
     }
     ++n_docs;
     auto doc_id = query.value(0).toInt();
-    n_annotations += write_doc_and_annotations(*writer, doc_id,
-                                               include_documents, user_name);
+    n_annotations += write_doc(*writer, doc_id, include_text,
+                               include_annotations, user_name);
     if (progress != nullptr) {
       progress->setValue(n_docs);
     }
-    std::cout << "Exported " << n_docs << " documents.\r";
+    std::cout << "Exported " << n_docs << " documents.\r" << std::flush;
   }
   std::cout << std::endl;
   writer->write_suffix();
   return QList<int>{n_docs, n_annotations};
 }
 
-int DatabaseCatalog::write_doc_and_annotations(AnnotationsWriter& writer,
-                                               int doc_id,
-                                               bool include_document,
-                                               const QString& user_name) {
+int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
+                               bool include_text, bool include_annotations,
+                               const QString& user_name) {
   QSqlQuery doc_query(QSqlDatabase::database(current_database));
-  QSqlQuery annotations_query(QSqlDatabase::database(current_database));
 
-  if (include_document) {
+  if (include_text) {
     doc_query.prepare(
         "select lower(hex(content_md5)) as md5, content, extra_data, title, "
         "short_title, long_title from document where id = :doc;");
@@ -854,27 +858,29 @@ int DatabaseCatalog::write_doc_and_annotations(AnnotationsWriter& writer,
   auto extra_data =
       QJsonDocument::fromJson(doc_query.value("extra_data").toByteArray())
           .object();
-  annotations_query.prepare(
-      "select label.name as label_name, start_char, end_char from annotation "
-      "inner join label on annotation.label_id = label.id "
-      "where annotation.doc_id = :doc order by annotation.rowid;");
-  annotations_query.bindValue(":doc", doc_id);
-  annotations_query.exec();
-  QList<AnnotationsWriter::Annotation> annotations{};
   int n_annotations{};
-  while (annotations_query.next()) {
-    annotations << AnnotationsWriter::Annotation{
-        annotations_query.value("start_char").toInt(),
-        annotations_query.value("end_char").toInt(),
-        annotations_query.value("label_name").toString()};
-    ++n_annotations;
+  QList<DocsWriter::Annotation> annotations{};
+  if (include_annotations) {
+    QSqlQuery annotations_query(QSqlDatabase::database(current_database));
+    annotations_query.prepare(
+        "select label.name as label_name, start_char, end_char from annotation "
+        "inner join label on annotation.label_id = label.id "
+        "where annotation.doc_id = :doc order by annotation.rowid;");
+    annotations_query.bindValue(":doc", doc_id);
+    annotations_query.exec();
+    while (annotations_query.next()) {
+      annotations << DocsWriter::Annotation{
+          annotations_query.value("start_char").toInt(),
+          annotations_query.value("end_char").toInt(),
+          annotations_query.value("label_name").toString()};
+      ++n_annotations;
+    }
   }
-
   auto content = doc_query.value("content").isNull()
                      ? QVariant()
                      : doc_query.value("content");
   writer.add_document(doc_query.value("md5").toString(), content, extra_data,
-                      annotations, user_name,
+                      include_annotations ? &annotations : nullptr, user_name,
                       doc_query.value("title").toString(),
                       doc_query.value("short_title").toString(),
                       doc_query.value("long_title").toString());
@@ -905,13 +911,11 @@ int DatabaseCatalog::export_labels(const QString& file_path) {
   return labels.size();
 }
 
-bool batch_import_export(const QString& db_path,
-                         const QList<QString>& labels_files,
-                         const QList<QString>& docs_files,
-                         const QString& export_labels_file,
-                         const QString& export_docs_file,
-                         bool labelled_docs_only, bool include_documents,
-                         const QString& user_name, bool vacuum) {
+bool batch_import_export(
+    const QString& db_path, const QList<QString>& labels_files,
+    const QList<QString>& docs_files, const QString& export_labels_file,
+    const QString& export_docs_file, bool labelled_docs_only, bool include_text,
+    bool include_annotations, const QString& user_name, bool vacuum) {
   DatabaseCatalog catalog{};
   if (!catalog.open_database(db_path)) {
     std::cerr << "Could not open database: " << db_path.toStdString()
@@ -932,8 +936,8 @@ bool batch_import_export(const QString& db_path,
     catalog.export_labels(export_labels_file);
   }
   if (export_docs_file != QString()) {
-    catalog.export_annotations(export_docs_file, labelled_docs_only,
-                               include_documents, user_name);
+    catalog.export_documents(export_docs_file, labelled_docs_only, include_text,
+                             include_annotations, user_name);
   }
   return true;
 }
@@ -958,7 +962,8 @@ bool DatabaseCatalog::create_tables(QSqlDatabase& database) {
   query.exec(" CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "
              "REFERENCES document(id) ON DELETE CASCADE, label_id NOT NULL "
              "REFERENCES label(id) ON DELETE CASCADE, start_char INTEGER NOT "
-             "NULL, end_char INTEGER NOT NULL); ");
+             "NULL, end_char INTEGER NOT NULL, UNIQUE (doc_id, start_char, "
+             "end_char, label_id) CHECK (start_char < end_char)); ");
 
   query.exec(" CREATE INDEX IF NOT EXISTS annotation_doc_id_idx ON "
              "annotation(doc_id);");
@@ -988,6 +993,8 @@ bool DatabaseCatalog::create_tables(QSqlDatabase& database) {
   query.bindValue(":lbv", get_version());
   query.exec();
 
+  // In experiments with many documents the nested select below seemed much
+  // faster than an outer join.
   query.exec("CREATE VIEW IF NOT EXISTS unlabelled_document AS SELECT * FROM "
              "document WHERE id NOT IN (SELECT doc_id FROM annotation); ");
 

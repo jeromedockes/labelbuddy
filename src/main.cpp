@@ -37,8 +37,9 @@ int main(int argc, char* argv[]) {
     }
     bool success = labelbuddy::batch_import_export(
         db_path, labels_files, docs_files, export_labels_file, export_docs_file,
-        parser.isSet("labelled-only"), parser.isSet("include-text"),
-        parser.value("approver"), parser.isSet("vacuum"));
+        parser.isSet("labelled-only"), !parser.isSet("no-text"),
+        !parser.isSet("no-annotations"), parser.value("approver"),
+        parser.isSet("vacuum"));
     return success ? 0 : 1;
   }
 
@@ -47,7 +48,7 @@ int main(int argc, char* argv[]) {
   if (!label_buddy->is_valid()) {
     return 1;
   }
-  app.setWindowIcon(QIcon(":/data/LB.png"));
+  app.setWindowIcon(QIcon(":/data/icons/LB.png"));
   label_buddy->show();
   return app.exec();
 }

@@ -61,12 +61,13 @@ QString AnnotationsModel::get_content() const {
 
 QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
   auto query = get_query();
-  query.prepare("select id, color from label order by id;");
+  query.prepare("select id, color, name from label order by id;");
   query.exec();
   QMap<int, LabelInfo> result{};
   while (query.next()) {
     result[query.value(0).toInt()] =
-        LabelInfo{query.value(0).toInt(), query.value(1).toString()};
+        LabelInfo{query.value(0).toInt(), query.value(1).toString(),
+                  query.value(2).toString()};
   }
   return result;
 }
@@ -204,6 +205,10 @@ int AnnotationsModel::get_query_result(const QString& query_text) const {
     return -1;
   }
   return query.value(0).toInt();
+}
+
+bool AnnotationsModel::is_positioned_on_valid_doc() const {
+  return current_doc_id != -1;
 }
 
 int AnnotationsModel::current_doc_position() const {

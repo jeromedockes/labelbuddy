@@ -5,15 +5,18 @@
 #include "doc_list_model.h"
 #include "label_list.h"
 #include "label_list_model.h"
+#include "utils.h"
 
 namespace labelbuddy {
 DatasetMenu::DatasetMenu(QWidget* parent) : QSplitter(parent) {
 
   label_list = new LabelList();
   addWidget(label_list);
+  scale_margin(*label_list, Side::Right);
 
   doc_list = new DocList();
   addWidget(doc_list);
+  scale_margin(*doc_list, Side::Left);
 
   QSettings settings("labelbuddy", "labelbuddy");
   if (settings.contains("DatasetMenu/state")) {

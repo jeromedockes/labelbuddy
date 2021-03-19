@@ -1,3 +1,11 @@
+labelbuddy (0.0.4) unstable; urgency=medium
+
+  * Support overlapping annotations
+  * Option to export docs without annotations
+  * Some CLI options have changed
+
+ -- jerome dockes <jerome@dockes.org>  Mon, 08 Mar 2021 20:27:10 -0500
+
 labelbuddy (0.0.3) unstable; urgency=medium
 
   * minor packaging detail

@@ -21,7 +21,6 @@ void TestDatabase::test_open_database() {
                        "app_state", "app_state_extra", "database_info"};
   QCOMPARE(db.tables(), expected);
   QCOMPARE(catalog.get_current_database(), file_path);
-  QCOMPARE(catalog.get_current_directory(), tmp_dir.filePath(""));
 
   catalog.open_temp_database();
   QCOMPARE(catalog.get_last_opened_directory(), tmp_dir.filePath(""));
@@ -46,7 +45,7 @@ void TestDatabase::test_database_path_choice() {
   auto file_path = tmp_dir.filePath("db.sqlite");
   catalog.open_database();
   auto db_path = catalog.get_current_database();
-  QCOMPARE(QFileInfo(db_path).fileName(), QString("labelbuddy_data.sqlite3"));
+  QCOMPARE(QFileInfo(db_path).fileName(), QString("database.labelbuddy"));
   catalog.open_database(file_path);
   db_path = catalog.get_current_database();
   QCOMPARE(db_path, file_path);
@@ -73,30 +72,48 @@ void TestDatabase::test_import_export_docs_data() {
   QTest::addColumn<bool>("import_with_meta");
   QTest::addColumn<QString>("export_format");
   QTest::addColumn<bool>("export_with_content");
+  QTest::addColumn<bool>("export_annotations");
   QTest::addColumn<bool>("export_all");
 
   QList<QString> json_import_formats{"json", "jsonl"};
   QList<QString> export_formats{"json", "jsonl", "xml"};
   QList<bool> false_true{false, true};
   int i{};
+  QString name{};
+  QTextStream ns(&name);
   for (const auto& export_format : export_formats) {
     for (auto with_content : false_true) {
-      for (auto export_all : false_true) {
-        QTest::newRow(QString("row %0").arg(i).toUtf8().data())
-            << "txt" << false << false << export_format << with_content
-            << export_all;
-        ++i;
-        for (auto with_meta : false_true) {
-          QTest::newRow(QString("row %0").arg(i).toUtf8().data())
-              << "xml" << false << with_meta << export_format << with_content
-              << export_all;
+      for (auto export_annotations : false_true) {
+        for (auto export_all : false_true) {
+          name = QString();
+          ns << "txt " << 0 << " " << 0 << " " << export_format << " "
+             << int(with_content) << " " << int(export_annotations) << " "
+             << int(export_all);
+          QTest::newRow(name.toUtf8().data())
+              << "txt" << false << false << export_format << with_content
+              << export_annotations << export_all;
           ++i;
-          for (const auto& import_format : json_import_formats) {
-            for (auto as_objects : false_true) {
-              QTest::newRow(QString("row %0").arg(i).toUtf8().data())
-                  << import_format << as_objects << with_meta << export_format
-                  << with_content << export_all;
-              ++i;
+          for (auto with_meta : false_true) {
+            name = QString();
+            ns << "xml " << 0 << " " << int(with_meta) << " " << export_format
+               << " " << int(with_content) << " " << int(export_annotations)
+               << " " << int(export_all);
+            QTest::newRow(name.toUtf8().data())
+                << "xml" << false << with_meta << export_format << with_content
+                << export_annotations << export_all;
+            ++i;
+            for (const auto& import_format : json_import_formats) {
+              for (auto as_objects : false_true) {
+                name = QString();
+                ns << import_format << " " << int(as_objects) << " "
+                   << int(with_meta) << " " << export_format << " "
+                   << int(with_content) << " " << int(export_annotations) << " "
+                   << int(export_all);
+                QTest::newRow(name.toUtf8().data())
+                    << import_format << as_objects << with_meta << export_format
+                    << with_content << export_annotations << export_all;
+                ++i;
+              }
             }
           }
         }
@@ -197,32 +214,34 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
   QCOMPARE(query.value(0).toInt(), 6);
 
   catalog.import_documents(export_file);
+  QFETCH(bool, export_annotations);
 
   query.exec("select count(*) from annotation;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), 3);
+  QCOMPARE(query.value(0).toInt(), export_annotations ? 3 : 0);
   query.exec("select count(*) from document;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
-  query.exec(
-      "select doc_id, label_id, start_char from annotation order by rowid;");
+  if (export_annotations) {
+    query.exec(
+        "select doc_id, label_id, start_char from annotation order by rowid;");
 
-  query.next();
-  QCOMPARE(query.value(0).toInt(), 2);
-  QCOMPARE(query.value(1).toInt(), 1);
-  QCOMPARE(query.value(2).toInt(), 3);
+    query.next();
+    QCOMPARE(query.value(0).toInt(), 2);
+    QCOMPARE(query.value(1).toInt(), 1);
+    QCOMPARE(query.value(2).toInt(), 3);
 
-  query.next();
-  QCOMPARE(query.value(0).toInt(), 2);
-  QCOMPARE(query.value(1).toInt(), 2);
-  QCOMPARE(query.value(2).toInt(), 5);
+    query.next();
+    QCOMPARE(query.value(0).toInt(), 2);
+    QCOMPARE(query.value(1).toInt(), 2);
+    QCOMPARE(query.value(2).toInt(), 5);
 
-  query.next();
-  QCOMPARE(query.value(0).toInt(), 3);
-  QCOMPARE(query.value(1).toInt(), 1);
-  QCOMPARE(query.value(2).toInt(), 3);
-
+    query.next();
+    QCOMPARE(query.value(0).toInt(), 3);
+    QCOMPARE(query.value(1).toInt(), 1);
+    QCOMPARE(query.value(2).toInt(), 3);
+  }
   QFETCH(bool, export_with_content);
   if (!export_with_content) {
     return;
@@ -240,7 +259,7 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
 
   query.exec("select count(*) from annotation;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), 3);
+  QCOMPARE(query.value(0).toInt(), export_annotations ? 3 : 0);
 
   QFETCH(bool, export_all);
 
@@ -249,13 +268,16 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
   QCOMPARE(query.value(0).toInt(), (export_all ? 6 : 2));
 
   QTemporaryDir tmp_dir{};
-  check_exported_docs(catalog, tmp_dir);
+  if (export_annotations || export_all) {
+    check_exported_docs(catalog, tmp_dir);
+  }
 }
 
 QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
                                           QTemporaryDir& tmp_dir) {
   QFETCH(QString, export_format);
   QFETCH(bool, export_with_content);
+  QFETCH(bool, export_annotations);
   QFETCH(bool, export_all);
 
   QFile docs_file(":test/data/test_documents.json");
@@ -268,8 +290,8 @@ QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
   }
 
   auto out_file = tmp_dir.filePath(QString("exported.%0").arg(export_format));
-  catalog.export_annotations(out_file, !export_all, export_with_content,
-                             "some_user");
+  catalog.export_documents(out_file, !export_all, export_with_content,
+                           export_annotations, "some_user");
   if (export_format == "xml") {
     check_exported_docs_xml(out_file, docs);
   } else {
@@ -281,6 +303,7 @@ QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
 void TestDatabase::check_exported_docs_xml(const QString& file_path,
                                            const QJsonArray& docs) {
   QFETCH(bool, export_with_content);
+  QFETCH(bool, export_annotations);
   QFETCH(bool, import_with_meta);
   QFETCH(QString, import_format);
   QFile xml_file(file_path);
@@ -293,7 +316,7 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
   for (const auto& doc : docs) {
     auto json_data = doc.toArray();
     auto meta = json_data[1].toObject();
-    while (!xml.readNextStartElement()) {
+    while (!xml.readNextStartElement() && !xml.atEnd()) {
     }
     QCOMPARE(xml.name().toString(), QString("document"));
     if (export_with_content) {
@@ -327,48 +350,50 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
     QCOMPARE(xml.name().toString(), QString("annotation_approver"));
     QCOMPARE(xml.readElementText(), QString("some_user"));
 
-    xml.readNextStartElement();
-    QCOMPARE(xml.name().toString(), QString("labels"));
-    if (meta.value("title").toString() == "document 1") {
+    if (export_annotations) {
       xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("annotation"));
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("start_char"));
-      QCOMPARE(xml.readElementText().toInt(), 3);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("end_char"));
-      QCOMPARE(xml.readElementText().toInt(), 4);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("label"));
-      QCOMPARE(xml.readElementText(), QString("label: Reinício da sessão"));
+      QCOMPARE(xml.name().toString(), QString("labels"));
+      if (meta.value("title").toString() == "document 1") {
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("annotation"));
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("start_char"));
+        QCOMPARE(xml.readElementText().toInt(), 3);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("end_char"));
+        QCOMPARE(xml.readElementText().toInt(), 4);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("label"));
+        QCOMPARE(xml.readElementText(), QString("label: Reinício da sessão"));
 
-      xml.readNextStartElement();
-      while (!xml.readNextStartElement()) {
+        xml.readNextStartElement();
+        while (!xml.readNextStartElement() && !xml.atEnd()) {
+        }
+        QCOMPARE(xml.name().toString(), QString("annotation"));
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("start_char"));
+        QCOMPARE(xml.readElementText().toInt(), 5);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("end_char"));
+        QCOMPARE(xml.readElementText().toInt(), 7);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("label"));
+        QCOMPARE(xml.readElementText(),
+                 QString("label: Resumption of the session"));
+
+      } else if (meta.value("title").toString() == "document 2") {
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("annotation"));
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("start_char"));
+        QCOMPARE(xml.readElementText().toInt(), 3);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("end_char"));
+        QCOMPARE(xml.readElementText().toInt(), 4);
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("label"));
+        QCOMPARE(xml.readElementText(), QString("label: Reinício da sessão"));
       }
-      QCOMPARE(xml.name().toString(), QString("annotation"));
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("start_char"));
-      QCOMPARE(xml.readElementText().toInt(), 5);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("end_char"));
-      QCOMPARE(xml.readElementText().toInt(), 7);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("label"));
-      QCOMPARE(xml.readElementText(),
-               QString("label: Resumption of the session"));
-
-    } else if (meta.value("title").toString() == "document 2") {
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("annotation"));
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("start_char"));
-      QCOMPARE(xml.readElementText().toInt(), 3);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("end_char"));
-      QCOMPARE(xml.readElementText().toInt(), 4);
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("label"));
-      QCOMPARE(xml.readElementText(), QString("label: Reinício da sessão"));
     }
   }
 }
@@ -376,6 +401,7 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
 void TestDatabase::check_exported_docs_json(const QString& file_path,
                                             const QJsonArray& docs) {
   QFETCH(bool, export_with_content);
+  QFETCH(bool, export_annotations);
   QFETCH(bool, import_with_meta);
   QFETCH(QString, import_format);
   QFETCH(QString, export_format);
@@ -421,23 +447,30 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
     QCOMPARE(output_json.value("annotation_approver").toString(),
              QString("some_user"));
 
-    if (meta.value("title").toString() == "document 1") {
-      auto annotation = output_json.value("labels").toArray()[0].toArray();
-      QCOMPARE(annotation[0].toInt(), 3);
-      QCOMPARE(annotation[1].toInt(), 4);
-      QCOMPARE(annotation[2].toString(), QString("label: Reinício da sessão"));
+    if (export_annotations) {
+      if (meta.value("title").toString() == "document 1") {
+        auto annotation = output_json.value("labels").toArray()[0].toArray();
+        QCOMPARE(annotation[0].toInt(), 3);
+        QCOMPARE(annotation[1].toInt(), 4);
+        QCOMPARE(annotation[2].toString(),
+                 QString("label: Reinício da sessão"));
 
-      annotation = output_json.value("labels").toArray()[1].toArray();
-      QCOMPARE(annotation[0].toInt(), 5);
-      QCOMPARE(annotation[1].toInt(), 7);
-      QCOMPARE(annotation[2].toString(),
-               QString("label: Resumption of the session"));
+        annotation = output_json.value("labels").toArray()[1].toArray();
+        QCOMPARE(annotation[0].toInt(), 5);
+        QCOMPARE(annotation[1].toInt(), 7);
+        QCOMPARE(annotation[2].toString(),
+                 QString("label: Resumption of the session"));
 
-    } else if (meta.value("title").toString() == "document 2") {
-      auto annotation = output_json.value("labels").toArray()[0].toArray();
-      QCOMPARE(annotation[0].toInt(), 3);
-      QCOMPARE(annotation[1].toInt(), 4);
-      QCOMPARE(annotation[2].toString(), QString("label: Reinício da sessão"));
+      } else if (meta.value("title").toString() == "document 2") {
+        auto annotation = output_json.value("labels").toArray()[0].toArray();
+        QCOMPARE(annotation[0].toInt(), 3);
+        QCOMPARE(annotation[1].toInt(), 4);
+        QCOMPARE(annotation[2].toString(),
+                 QString("label: Reinício da sessão"));
+      }
+    }
+    else {
+      QVERIFY(!output_json.contains("labels"));
     }
     ++i;
   }

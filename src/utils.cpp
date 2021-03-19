@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QLayout>
 #include <QModelIndex>
 #include <QTextStream>
 
@@ -54,12 +55,12 @@ void prepare_parser(QCommandLineParser& parser) {
                     "docs file"});
   parser.addOption(
       {"export-labels", "Labels file to export to.", "exported labels file"});
-  parser.addOption({"export-docs",
-                    "Docs & annotations file to export to.",
+  parser.addOption({"export-docs", "Docs & annotations file to export to.",
                     "exported docs file"});
   parser.addOption({"labelled-only", "Export only labelled documents"});
+  parser.addOption({"no-text", "Do not include doc text when exporting"});
   parser.addOption(
-      {"include-text", "Include doc text with exported annotations"});
+      {"no-annotations", "Do not include annotations when exporting"});
   parser.addOption(
       {"approver", "User or 'annotations approver' name", "name", ""});
   parser.addOption(
@@ -68,6 +69,34 @@ void prepare_parser(QCommandLineParser& parser) {
 
 QRegularExpression shortcut_key_pattern(bool accept_empty) {
   return QRegularExpression{accept_empty ? "^[a-z]?$" : "^[a-z]$"};
+}
+
+QString database_name_display(const QString& database_name,
+                              bool short_version) {
+  if (database_name == ":LABELBUDDY_TEMPORARY_DATABASE:") {
+    if (short_version) {
+      return "Temporary database";
+    } else {
+      return "Temporary database (will disappear when labelbuddy exits)";
+    }
+  }
+  if (short_version) {
+    return QFileInfo(database_name).fileName();
+  }
+  return database_name;
+}
+
+void scale_margin(QWidget& widget, Side side, float scale) {
+  auto margins = widget.layout()->contentsMargins();
+  switch (side) {
+  case Side::Left:
+    margins.setLeft(margins.left() * scale);
+    break;
+  case Side::Right:
+    margins.setRight(margins.right() * scale);
+    break;
+  }
+  widget.layout()->setContentsMargins(margins);
 }
 
 } // namespace labelbuddy

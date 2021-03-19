@@ -12,6 +12,7 @@
 
 #include "database.h"
 #include "import_export_menu.h"
+#include "utils.h"
 
 namespace labelbuddy {
 
@@ -28,14 +29,14 @@ void ImportExportMenu::store_parent_dir(const QString& file_path,
                                         DirRole role) {
   QString name;
   switch (role) {
-  case DirRole::import_docs:
-    name = "import_docs";
+  case DirRole::import_documents:
+    name = "import_documents";
     break;
   case DirRole::import_labels:
     name = "import_labels";
     break;
-  case DirRole::export_annotations:
-    name = "export_annotations";
+  case DirRole::export_documents:
+    name = "export_documents";
     break;
   case DirRole::export_labels:
     name = "export_labels";
@@ -50,21 +51,21 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
 
   QList<QString> options;
   switch (role) {
-  case DirRole::import_docs:
-    options = QList<QString>{"import_docs", "import_labels",
-                             "export_annotations", "export_labels"};
+  case DirRole::import_documents:
+    options = QList<QString>{"import_documents", "import_labels",
+                             "export_documents", "export_labels"};
     break;
   case DirRole::import_labels:
-    options = QList<QString>{"import_labels", "import_docs", "export_labels",
-                             "export_annotations"};
+    options = QList<QString>{"import_labels", "import_documents",
+                             "export_labels", "export_documents"};
     break;
-  case DirRole::export_annotations:
-    options = QList<QString>{"export_annotations", "export_labels",
-                             "import_docs", "import_labels"};
+  case DirRole::export_documents:
+    options = QList<QString>{"export_documents", "export_labels",
+                             "import_documents", "import_labels"};
     break;
   case DirRole::export_labels:
-    options = QList<QString>{"export_labels", "export_annotations",
-                             "import_labels", "import_docs"};
+    options = QList<QString>{"export_labels", "export_documents",
+                             "import_labels", "import_documents"};
     break;
   }
   for (const auto& opt : options) {
@@ -81,7 +82,8 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
 
 void ImportExportMenu::update_database_info() {
   annotator_name_edit->setText(default_user_name());
-  db_path_line->setText(database_catalog->get_current_database());
+  db_path_line->setText(
+      database_name_display(database_catalog->get_current_database()));
 }
 
 ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
@@ -110,20 +112,25 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
       database_catalog->get_app_state_extra("export_labelled_only", 1).toInt());
   export_layout->addWidget(labelled_only_checkbox, 0, 0, 1, 2);
 
-  include_docs_checkbox =
-      new QCheckBox("Include document text with exported annotations");
-  include_docs_checkbox->setChecked(
+  include_text_checkbox = new QCheckBox("Include document text");
+  export_layout->addWidget(include_text_checkbox, 1, 0, 1, 2);
+  include_text_checkbox->setChecked(
       database_catalog->get_app_state_extra("export_include_doc_text", 1)
           .toInt());
-  export_layout->addWidget(include_docs_checkbox, 1, 0, 1, 2);
+
+  include_annotations_checkbox = new QCheckBox("Include annotations");
+  export_layout->addWidget(include_annotations_checkbox, 2, 0, 1, 2);
+  include_annotations_checkbox->setChecked(
+      database_catalog->get_app_state_extra("export_include_annotations", 1)
+          .toInt());
 
   auto annotator_name_label = new QLabel("Annotation approver (optional): ");
-  export_layout->addWidget(annotator_name_label, 2, 0, 1, 1);
+  export_layout->addWidget(annotator_name_label, 3, 0, 1, 1);
   annotator_name_edit = new QLineEdit();
-  export_layout->addWidget(annotator_name_edit, 2, 1, 1, 1);
+  export_layout->addWidget(annotator_name_edit, 3, 1, 1, 1);
   annotator_name_edit->setFixedWidth(annotator_name_label->sizeHint().width());
   auto export_buttons_frame = new QFrame();
-  export_layout->addWidget(export_buttons_frame, 3, 0, 1, 2);
+  export_layout->addWidget(export_buttons_frame, 4, 0, 1, 2);
   auto export_buttons_layout = new QHBoxLayout();
   export_buttons_frame->setLayout(export_buttons_layout);
   export_buttons_layout->setContentsMargins(0, 0, 0, 0);
@@ -138,12 +145,13 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
 
   auto db_path_frame = new QFrame();
   layout->addWidget(db_path_frame);
-  auto db_path_layout = new QHBoxLayout();
+  auto db_path_layout = new QVBoxLayout();
   db_path_frame->setLayout(db_path_layout);
   auto db_path_label = new QLabel("Current database path:");
   db_path_layout->addWidget(db_path_label);
   db_path_line = new QLabel();
   db_path_layout->addWidget(db_path_line);
+  db_path_line->setWordWrap(true);
   db_path_line->setTextInteractionFlags(Qt::TextSelectableByMouse);
   db_path_layout->addStretch(1);
 
@@ -156,22 +164,23 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   QObject::connect(import_labels_button, &QPushButton::clicked, this,
                    &ImportExportMenu::import_labels);
   QObject::connect(export_button, &QPushButton::clicked, this,
-                   &ImportExportMenu::export_annotations);
+                   &ImportExportMenu::export_documents);
   QObject::connect(export_labels_button, &QPushButton::clicked, this,
                    &ImportExportMenu::export_labels);
 }
 
 void ImportExportMenu::import_documents() {
-  auto start_dir = suggest_dir(DirRole::import_docs);
+  auto start_dir = suggest_dir(DirRole::import_documents);
   auto file_path = QFileDialog::getOpenFileName(
-      this, "Documents file", start_dir,
+      this, "Docs & annotations file", start_dir,
       "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files "
       "(*.txt);; JSON files (*.json);; JSON Lines files (*.jsonl);; XML files "
-      "(*.xml);; All files (*)");
+      "(*.xml);; All files (*)",
+      nullptr, QFileDialog::DontUseNativeDialog);
   if (file_path == QString()) {
     return;
   }
-  store_parent_dir(file_path, DirRole::import_docs);
+  store_parent_dir(file_path, DirRole::import_documents);
   QProgressDialog progress("Importing documents...", "Stop", 0, 0, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(2000);
@@ -193,7 +202,8 @@ void ImportExportMenu::import_labels() {
   auto file_path = QFileDialog::getOpenFileName(
       this, "Labels file", start_dir,
       "labelbuddy labels (*.txt *.json);; JSON files (*.json);; Text files "
-      "(*.txt);; All files (*)");
+      "(*.txt);; All files (*)",
+      nullptr, QFileDialog::DontUseNativeDialog);
   if (file_path == QString()) {
     return;
   }
@@ -206,29 +216,33 @@ void ImportExportMenu::import_labels() {
       QMessageBox::Ok);
 }
 
-void ImportExportMenu::export_annotations() {
-  auto start_dir = suggest_dir(DirRole::export_annotations);
+void ImportExportMenu::export_documents() {
+  auto start_dir = suggest_dir(DirRole::export_documents);
   auto file_path = QFileDialog::getSaveFileName(
-      this, "Annotations file", start_dir,
-      "JSON files (*.json);; JSON Lines files (*.jsonl);; XML files (*.xml);; "
-      "All files (*)");
+      this, "Docs & annotations file", start_dir,
+      "labelbuddy documents (*.json *.jsonl *.xml);; JSON files (*.json);; "
+      "JSON Lines files (*.jsonl);; XML files (*.xml);; All files (*)",
+      nullptr, QFileDialog::DontUseNativeDialog);
   if (file_path == QString()) {
     return;
   }
-  store_parent_dir(file_path, DirRole::export_annotations);
+  store_parent_dir(file_path, DirRole::export_documents);
   database_catalog->set_app_state_extra("approver_name",
                                         annotator_name_edit->text());
-  QProgressDialog progress("Exporting annotations...", "Stop", 0, 0, this);
+  QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(2000);
-  auto n_exported = database_catalog->export_annotations(
+  auto n_exported = database_catalog->export_documents(
       file_path, labelled_only_checkbox->isChecked(),
-      include_docs_checkbox->isChecked(), annotator_name_edit->text(),
+      include_text_checkbox->isChecked(),
+      include_annotations_checkbox->isChecked(), annotator_name_edit->text(),
       &progress);
   database_catalog->set_app_state_extra("export_labelled_only",
                                         labelled_only_checkbox->isChecked());
   database_catalog->set_app_state_extra("export_include_doc_text",
-                                        include_docs_checkbox->isChecked());
+                                        include_text_checkbox->isChecked());
+  database_catalog->set_app_state_extra(
+      "export_include_annotations", include_annotations_checkbox->isChecked());
   QMessageBox::information(this, "labelbuddy",
                            QString("Exported %0 annotation%1 for %2 document%3")
                                .arg(n_exported[1])
@@ -241,7 +255,8 @@ void ImportExportMenu::export_annotations() {
 void ImportExportMenu::export_labels() {
   auto start_dir = suggest_dir(DirRole::export_labels);
   auto file_path = QFileDialog::getSaveFileName(
-      this, "Labels file", start_dir, "JSON files (*.json);; All files (*)");
+      this, "Labels file", start_dir, "JSON files (*.json);; All files (*)",
+      nullptr, QFileDialog::DontUseNativeDialog);
   if (file_path == QString()) {
     return;
   }

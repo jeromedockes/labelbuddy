@@ -132,7 +132,8 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
   labels_view = new QListView();
   layout->addWidget(labels_view);
   labels_view->setSpacing(3);
-  labels_view->setItemDelegate(new LabelDelegate);
+  label_delegate_.reset(new LabelDelegate);
+  labels_view->setItemDelegate(label_delegate_.get());
   labels_view->setFocusPolicy(Qt::NoFocus);
   buttons_frame->set_view(labels_view);
 

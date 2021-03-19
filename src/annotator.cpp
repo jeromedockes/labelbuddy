@@ -28,7 +28,8 @@ LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   layout->addWidget(labels_view);
   labels_view->setSpacing(3);
   labels_view->setFocusPolicy(Qt::NoFocus);
-  labels_view->setItemDelegate(new LabelDelegate);
+  label_delegate_.reset(new LabelDelegate);
+  labels_view->setItemDelegate(label_delegate_.get());
 
   QObject::connect(delete_button, &QPushButton::clicked, this,
                    &LabelChoices::on_delete_button_click);
@@ -86,13 +87,45 @@ bool LabelChoices::is_label_choice_enabled() const {
   return labels_view->isEnabled();
 }
 
+bool operator<(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  if (lhs.start_char < rhs.start_char) {
+    return true;
+  }
+  if (lhs.start_char > rhs.start_char) {
+    return false;
+  }
+  return lhs.id < rhs.id;
+}
+
+bool operator>(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  return rhs < lhs;
+}
+
+bool operator==(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  return (lhs.id == rhs.id) && (lhs.start_char == rhs.start_char);
+}
+
+bool operator!=(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  return !(lhs == rhs);
+}
+
+bool operator<=(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  return (lhs == rhs) || (lhs < rhs);
+}
+
+bool operator>=(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
+  return rhs <= lhs;
+}
+
 Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   label_choices = new LabelChoices();
   addWidget(label_choices);
+  scale_margin(*label_choices, Side::Right);
   auto text_frame = new QFrame();
   addWidget(text_frame);
   auto text_layout = new QVBoxLayout();
   text_frame->setLayout(text_layout);
+  text_layout->setContentsMargins(0, 0, 0, 0);
   nav_buttons = new AnnotationsNavButtons();
   text_layout->addWidget(nav_buttons);
   title_label = new QLabel();
@@ -103,8 +136,10 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   title_label->setWordWrap(true);
   text = new SearchableText();
   text_layout->addWidget(text);
+  scale_margin(*text, Side::Left);
   text->get_text_edit()->installEventFilter(this);
-  default_weight = text->get_text_edit()->fontWeight();
+  text->get_text_edit()->viewport()->installEventFilter(this);
+  default_format = text->get_text_edit()->textCursor().charFormat();
   text->fill("");
   text->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -121,10 +156,12 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::paint_annotations);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
                    &Annotator::update_label_choices_button_states);
+  QObject::connect(this, &Annotator::active_annotation_changed, this,
+                   &Annotator::current_status_display_changed);
   QObject::connect(text->get_text_edit(), &QTextEdit::selectionChanged, this,
                    &Annotator::update_label_choices_button_states);
   QObject::connect(text->get_text_edit(), &QTextEdit::cursorPositionChanged,
-                   this, &Annotator::activate_annotation_at_cursor_pos);
+                   this, &Annotator::activate_cluster_at_cursor_pos);
 }
 
 void Annotator::store_state() {
@@ -135,10 +172,37 @@ void Annotator::store_state() {
 bool Annotator::is_monospace() const { return monospace_font; }
 bool Annotator::is_using_bold() const { return use_bold_font; }
 
+QString Annotator::current_status_display() const {
+  if (!annotations_model->is_positioned_on_valid_doc()) {
+    return "-";
+  }
+  QString active_info{""};
+  if (active_annotation != -1) {
+    bool is_first = active_annotation == sorted_annotations_.cbegin()->id;
+    bool is_first_in_group{};
+    for (const auto& cluster : clusters_) {
+      if (active_annotation == cluster.first_annotation.id) {
+        is_first_in_group = true;
+        break;
+      }
+    }
+    active_info = QString("\"%0\" %1%2 %3, %4  | ")
+                      .arg(labels[annotations[active_annotation].label_id].name)
+                      .arg(is_first_in_group ? "^" : " ")
+                      .arg(is_first ? "^" : " ")
+                      .arg(annotations[active_annotation].start_char)
+                      .arg(annotations[active_annotation].end_char);
+  }
+  return QString("%2 %0 annotation%1 in current doc")
+      .arg(annotations.size())
+      .arg(annotations.size() != 1 ? "s" : "")
+      .arg(active_info);
+}
+
 void Annotator::set_monospace_font(bool monospace) {
   monospace_font = monospace;
   QFont new_font(monospace ? QFont("monospace") : QFont());
-  new_font.setStyleHint(monospace ? QFont::TypeWriter : QFont::AnyStyle);
+  new_font.setStyleHint(monospace ? QFont::Monospace : QFont::AnyStyle);
   text->get_text_edit()->setFont(new_font);
 }
 
@@ -170,11 +234,20 @@ void Annotator::set_annotations_model(AnnotationsModel* new_model) {
   reset_document();
 }
 
-void Annotator::reset_document() {
+void Annotator::clear_annotations() {
   deactivate_active_annotation();
+  text->get_text_edit()->setExtraSelections({});
+  annotations.clear();
+  sorted_annotations_.clear();
+  clusters_.clear();
+}
+
+void Annotator::reset_document() {
+  clear_annotations();
   text->fill(annotations_model->get_content());
   title_label->setText(annotations_model->get_title());
   update_annotations();
+  emit current_status_display_changed();
 }
 
 void Annotator::update_annotations() {
@@ -186,6 +259,60 @@ void Annotator::update_annotations() {
 
 void Annotator::set_label_list_model(LabelListModel* new_model) {
   label_choices->setModel(new_model);
+}
+
+void Annotator::add_annotation_to_clusters(const AnnotationCursor& annotation,
+                                           std::list<Cluster>& clusters) {
+  Cluster new_cluster{{annotation.start_char, annotation.id},
+                      {annotation.start_char, annotation.id},
+                      annotation.start_char,
+                      annotation.end_char};
+  QList<std::list<Cluster>::const_iterator> clusters_to_remove{};
+  for (auto c_it = clusters.cbegin(); c_it != clusters.cend(); ++c_it) {
+    if (annotation.start_char < c_it->end_char &&
+        c_it->start_char < annotation.end_char) {
+      clusters_to_remove << c_it;
+      new_cluster.first_annotation =
+          std::min(new_cluster.first_annotation, c_it->first_annotation);
+      new_cluster.last_annotation =
+          std::max(new_cluster.last_annotation, c_it->last_annotation);
+      new_cluster.start_char =
+          std::min(new_cluster.start_char, c_it->start_char);
+      new_cluster.end_char = std::max(new_cluster.end_char, c_it->end_char);
+    }
+  }
+  for (auto c_it_to_remove : clusters_to_remove) {
+    clusters.erase(c_it_to_remove);
+  }
+  clusters.push_back(new_cluster);
+}
+
+void Annotator::remove_annotation_from_clusters(
+    const AnnotationCursor& annotation, std::list<Cluster>& clusters) {
+  auto annotation_cluster = clusters.cbegin();
+  while (annotation_cluster != clusters.cend()) {
+    if (annotation_cluster->start_char <= annotation.start_char &&
+        annotation_cluster->end_char >= annotation.end_char) {
+      break;
+    }
+    ++annotation_cluster;
+  }
+  if (annotation_cluster == clusters.cend()) {
+    return;
+  }
+  std::list<Cluster> new_clusters{};
+  auto anno = sorted_annotations_.find(annotation_cluster->first_annotation);
+  while (*anno != annotation_cluster->last_annotation) {
+    if (anno->id != annotation.id) {
+      add_annotation_to_clusters(annotations[anno->id], new_clusters);
+    }
+    ++anno;
+  }
+  if (anno->id != annotation.id) {
+    add_annotation_to_clusters(annotations[anno->id], new_clusters);
+  }
+  clusters.erase(annotation_cluster);
+  clusters.splice(clusters.cend(), new_clusters);
 }
 
 void Annotator::update_label_choices_button_states() {
@@ -204,13 +331,13 @@ void Annotator::update_label_choices_button_states() {
   }
 }
 
-int Annotator::annotation_at_pos(int char_pos) const {
-  for (const auto& anno : annotations) {
-    if (anno.start_char <= char_pos && anno.end_char > char_pos) {
-      return anno.id;
+std::list<Cluster>::const_iterator Annotator::cluster_at_pos(int pos) const {
+  for (auto c_it = clusters_.cbegin(); c_it != clusters_.cend(); ++c_it) {
+    if (c_it->start_char <= pos && c_it->end_char > pos) {
+      return c_it;
     }
   }
-  return -1;
+  return clusters_.cend();
 }
 
 void Annotator::update_nav_buttons() { nav_buttons->update_button_states(); }
@@ -226,13 +353,17 @@ void Annotator::deactivate_active_annotation() {
   if (!annotations.contains(active_annotation)) {
     return;
   }
-  auto fmt = annotations[active_annotation].cursor.charFormat();
-  fmt.setFontWeight(default_weight);
-  annotations[active_annotation].cursor.setCharFormat(fmt);
+  // we only set a charformat if necessary, to avoid re-wrapping long lines
+  // unnecessarily when bold is not used
+  if (active_anno_format_is_set_) {
+    annotations[active_annotation].cursor.setCharFormat(default_format);
+    active_anno_format_is_set_ = false;
+  }
   active_annotation = -1;
 }
 
-void Annotator::activate_annotation_at_cursor_pos() {
+void Annotator::activate_cluster_at_cursor_pos() {
+  need_update_active_anno_ = false;
   auto cursor = text->get_text_edit()->textCursor();
   // only activate if click, not drag
   if (cursor.anchor() != cursor.position()) {
@@ -242,7 +373,28 @@ void Annotator::activate_annotation_at_cursor_pos() {
     }
     return;
   }
-  auto annotation_id = annotation_at_pos(cursor.position());
+  int annotation_id{-1};
+  auto cluster = cluster_at_pos(cursor.position());
+  if (cluster != clusters_.cend()) {
+    if (active_annotation == -1) {
+      annotation_id = cluster->first_annotation.id;
+    } else {
+      auto active = annotations[active_annotation];
+      auto active_index = AnnotationIndex{active.start_char, active.id};
+      if (active_index < cluster->first_annotation ||
+          active_index > cluster->last_annotation) {
+        annotation_id = cluster->first_annotation.id;
+      } else {
+        auto it = sorted_annotations_.find(active_index);
+        if (it->id == cluster->last_annotation.id) {
+          annotation_id = cluster->first_annotation.id;
+        } else {
+          ++it;
+          annotation_id = it->id;
+        }
+      }
+    }
+  }
   if (active_annotation == annotation_id) {
     return;
   }
@@ -251,39 +403,21 @@ void Annotator::activate_annotation_at_cursor_pos() {
   emit active_annotation_changed();
 }
 
-void Annotator::delete_annotations(QList<int> annotation_ids) {
-  QList<int> to_delete{};
-  for (auto id : annotation_ids) {
-    if (active_annotation == id) {
-      deactivate_active_annotation();
-    }
-    auto anno = annotations.take(id);
-    pos_to_anno.remove(anno.start_char);
-    to_delete << id;
-  }
-  if (!to_delete.length()) {
-    return;
-  }
-  annotations_model->delete_annotations(to_delete);
-  emit active_annotation_changed();
-}
-
 void Annotator::delete_annotation(int annotation_id) {
-  delete_annotations(QList<int>{annotation_id});
-}
-
-void Annotator::delete_overlapping_annotations(int start_char, int end_char) {
-  QList<int> to_delete{};
-  for (const auto& anno : annotations) {
-    if (start_char < anno.end_char && anno.start_char < end_char) {
-      to_delete << anno.id;
-    }
+  if (active_annotation == annotation_id) {
+    deactivate_active_annotation();
   }
-  delete_annotations(to_delete);
+  auto anno = annotations[annotation_id];
+  remove_annotation_from_clusters(anno, clusters_);
+  annotations.remove(annotation_id);
+  sorted_annotations_.erase({anno.start_char, anno.id});
+  annotations_model->delete_annotations({annotation_id});
+  emit active_annotation_changed();
 }
 
 void Annotator::delete_active_annotation() {
   delete_annotation(active_annotation);
+  text->setFocus();
 }
 
 void Annotator::set_label_for_selected_region() {
@@ -298,40 +432,51 @@ void Annotator::set_label_for_selected_region() {
   }
   auto start = annotations[active_annotation].start_char;
   auto end = annotations[active_annotation].end_char;
-  delete_annotation(active_annotation);
-  add_annotation(label_id, start, end);
+  int prev_active = active_annotation;
+  if (add_annotation(label_id, start, end)) {
+    delete_annotation(prev_active);
+  }
 }
 
-void Annotator::add_annotation() {
+bool Annotator::add_annotation() {
   int label_id = label_choices->selected_label_id();
   if (label_id == -1) {
-    return;
+    return false;
   }
   QList<int> selection_boundaries = text->current_selection();
   auto start = selection_boundaries[0];
   auto end = selection_boundaries[1];
   if (start == end) {
-    return;
+    return false;
   }
-  add_annotation(label_id, start, end);
+  return add_annotation(label_id, start, end);
 }
 
-void Annotator::add_annotation(int label_id, int start_char, int end_char) {
+bool Annotator::add_annotation(int label_id, int start_char, int end_char) {
   auto annotation_id =
       annotations_model->add_annotation(label_id, start_char, end_char);
-  delete_overlapping_annotations(start_char, end_char);
+  if (annotation_id == -1) {
+    auto c = text->get_text_edit()->textCursor();
+    c.clearSelection();
+    text->get_text_edit()->setTextCursor(c);
+    active_annotation = -1;
+    emit active_annotation_changed();
+    return false;
+  }
   auto annotation_cursor = text->get_text_edit()->textCursor();
   annotation_cursor.setPosition(start_char);
   annotation_cursor.setPosition(end_char, QTextCursor::KeepAnchor);
   annotations[annotation_id] = AnnotationCursor{
       annotation_id, label_id, start_char, end_char, annotation_cursor};
-  pos_to_anno[start_char] = annotation_id;
+  add_annotation_to_clusters(annotations[annotation_id], clusters_);
+  sorted_annotations_.insert({start_char, annotation_id});
   auto new_cursor = text->get_text_edit()->textCursor();
   new_cursor.clearSelection();
   text->get_text_edit()->setTextCursor(new_cursor);
   deactivate_active_annotation();
   active_annotation = annotation_id;
   emit active_annotation_changed();
+  return true;
 }
 
 void Annotator::fetch_labels_info() {
@@ -346,10 +491,8 @@ void Annotator::fetch_annotations_info() {
     return;
   }
   int prev_active{active_annotation};
-  deactivate_active_annotation();
+  clear_annotations();
   auto annotation_positions = annotations_model->get_annotations_info();
-  annotations.clear();
-  pos_to_anno.clear();
   for (auto i = annotation_positions.constBegin();
        i != annotation_positions.constEnd(); ++i) {
     auto start = i.value().start_char;
@@ -359,44 +502,43 @@ void Annotator::fetch_annotations_info() {
     cursor.setPosition(end, QTextCursor::KeepAnchor);
     annotations[i.value().id] =
         AnnotationCursor{i.value().id, i.value().label_id, start, end, cursor};
-    pos_to_anno[start] = i.value().id;
+    sorted_annotations_.insert({start, i.value().id});
+    add_annotation_to_clusters(annotations[i.value().id], clusters_);
   }
   if (annotations.contains(prev_active)) {
     active_annotation = prev_active;
   }
 }
 
-int Annotator::find_next_annotation(int pos, bool forward) const {
+int Annotator::find_next_annotation(AnnotationIndex pos, bool forward) const {
   if (annotations.size() == 0) {
     return -1;
   }
   if (forward) {
-    QMap<int, int>::const_iterator i = pos_to_anno.lowerBound(pos);
-    if (i != pos_to_anno.constEnd()) {
-      return *i;
+    auto i = sorted_annotations_.lower_bound(pos);
+    if (i != sorted_annotations_.cend()) {
+      return i->id;
     }
-    return *pos_to_anno.constBegin();
+    return sorted_annotations_.cbegin()->id;
   }
-  QMap<int, int>::const_iterator i = pos_to_anno.lowerBound(pos);
-  if (i == pos_to_anno.constEnd()) {
-    --i;
+  auto i = sorted_annotations_.crbegin();
+  while ((i != sorted_annotations_.crend()) && (*i > pos)) {
+    ++i;
   }
-  while (i != pos_to_anno.constBegin() - 1 && i.key() > pos) {
-    --i;
+  if (i != sorted_annotations_.crend()) {
+    return i->id;
   }
-  if (i != pos_to_anno.constBegin() - 1) {
-    return *i;
-  }
-  return *(pos_to_anno.constEnd() - 1);
+  return (sorted_annotations_.crbegin())->id;
 }
 
 void Annotator::select_next_annotation(bool forward) {
-  int pos{};
+  AnnotationIndex pos{};
   if (active_annotation != -1) {
     int offset = forward ? 1 : -1;
-    pos = annotations[active_annotation].start_char + offset;
+    pos = {annotations[active_annotation].start_char,
+           active_annotation + offset};
   } else {
-    pos = text->get_text_edit()->textCursor().position();
+    pos = {text->get_text_edit()->textCursor().position(), 0};
   }
   auto next_anno = find_next_annotation(pos, forward);
   if (next_anno == -1) {
@@ -411,19 +553,68 @@ void Annotator::select_next_annotation(bool forward) {
   emit active_annotation_changed();
 }
 
+QTextEdit::ExtraSelection
+Annotator::make_painted_region(int start_char, int end_char,
+                               const QString& color, const QString& text_color,
+                               bool underline) {
+  auto cursor = text->get_text_edit()->textCursor();
+  cursor.setPosition(start_char);
+  cursor.setPosition(end_char, QTextCursor::KeepAnchor);
+
+  QTextCharFormat format(default_format);
+  format.setBackground(QColor(color));
+  format.setForeground(QColor(text_color));
+  format.setFontUnderline(underline);
+
+  return QTextEdit::ExtraSelection{cursor, format};
+}
+
 void Annotator::paint_annotations() {
+  const QString dark_gray{"#606060"};
   QList<QTextEdit::ExtraSelection> new_selections{};
-  for (auto& anno : annotations) {
-    QTextCharFormat format(anno.cursor.charFormat());
-    QColor color(labels.value(anno.label_id).color);
-    format.setBackground(color);
-    if (anno.id == active_annotation) {
-      format.setFontUnderline(true);
-      auto fmt = anno.cursor.charFormat();
-      fmt.setFontWeight(use_bold_font ? QFont::DemiBold : default_weight);
-      anno.cursor.setCharFormat(fmt);
+  int active_start{-1};
+  int active_end{-1};
+  if (active_annotation != -1) {
+    active_start = annotations[active_annotation].start_char;
+    active_end = annotations[active_annotation].end_char;
+  }
+  for (const auto& cluster : clusters_) {
+    auto cluster_start = cluster.start_char;
+    auto cluster_end = cluster.end_char;
+    if (cluster.last_annotation.id != cluster.first_annotation.id) {
+      if ((cluster_start < active_start) && (active_start < cluster_end)) {
+        new_selections << make_painted_region(cluster_start, active_start,
+                                              dark_gray, "white");
+      }
+      if ((cluster_start < active_end) && (cluster_end > active_end)) {
+        new_selections << make_painted_region(active_end, cluster_end,
+                                              dark_gray, "white");
+      }
+      if ((active_end <= cluster_start) || (active_start >= cluster_end)) {
+        new_selections << make_painted_region(cluster_start, cluster_end,
+                                              dark_gray, "white");
+      }
+    } else if (cluster.first_annotation.id != active_annotation) {
+      new_selections << make_painted_region(
+          cluster_start, cluster_end,
+          labels.value(annotations.value(cluster.first_annotation.id).label_id)
+              .color);
     }
-    new_selections << QTextEdit::ExtraSelection{anno.cursor, format};
+  }
+  if (active_annotation != -1) {
+    auto anno = annotations[active_annotation];
+    if (use_bold_font) {
+      QTextCharFormat fmt(default_format);
+      fmt.setFontWeight(QFont::DemiBold);
+      anno.cursor.setCharFormat(fmt);
+      active_anno_format_is_set_ = true;
+    } else if (active_anno_format_is_set_) {
+      annotations[active_annotation].cursor.setCharFormat(default_format);
+      active_anno_format_is_set_ = false;
+    }
+    new_selections << make_painted_region(anno.start_char, anno.end_char,
+                                          labels[anno.label_id].color, "black",
+                                          true);
   }
   text->get_text_edit()->setExtraSelections(new_selections);
 }
@@ -438,7 +629,27 @@ bool Annotator::eventFilter(QObject* object, QEvent* event) {
       }
     }
   }
+  if (event->type() == QEvent::MouseButtonPress) {
+    mousePressEvent(static_cast<QMouseEvent*>(event));
+    return false;
+  }
+  if (event->type() == QEvent::MouseButtonRelease) {
+    mouseReleaseEvent(static_cast<QMouseEvent*>(event));
+    return false;
+  }
   return QWidget::eventFilter(object, event);
+}
+
+void Annotator::mousePressEvent(QMouseEvent* event) {
+  (void)event;
+  need_update_active_anno_ = true;
+}
+
+void Annotator::mouseReleaseEvent(QMouseEvent* event) {
+  (void)event;
+  if (need_update_active_anno_) {
+    activate_cluster_at_cursor_pos();
+  }
 }
 
 void Annotator::keyPressEvent(QKeyEvent* event) {

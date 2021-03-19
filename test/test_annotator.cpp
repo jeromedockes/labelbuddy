@@ -42,7 +42,7 @@ void TestAnnotator::test_annotator() {
   QVERIFY(del->isEnabled());
   // set label using shortcut
   QTest::keyClicks(&annotator, "p");
-  QCOMPARE(annotations_model.get_annotations_info()[1].label_id, 1);
+  QCOMPARE(annotations_model.get_annotations_info()[2].label_id, 1);
   del->click();
   QCOMPARE(annotations_model.get_annotations_info().size(), 0);
   nav->findChildren<QPushButton*>()[4]->click();
@@ -62,5 +62,61 @@ void TestAnnotator::test_annotator() {
   QCOMPARE(annotator.active_annotation_label(), -1);
   annotator.select_next_annotation();
   QCOMPARE(annotator.active_annotation_label(), 2);
+}
+
+void TestAnnotator::test_overlapping_annotations() {
+  QTemporaryDir tmp_dir{};
+  auto db_name = prepare_db(tmp_dir);
+  AnnotationsModel annotations_model{};
+  annotations_model.set_database(db_name);
+  LabelListModel labels_model{};
+  labels_model.set_database(db_name);
+  Annotator annotator{};
+  annotator.set_annotations_model(&annotations_model);
+  annotator.set_label_list_model(&labels_model);
+  annotations_model.visit_next();
+
+  auto lv = annotator.findChild<LabelChoices*>()->findChild<QListView*>();
+  auto te = annotator.findChild<SearchableText*>()->get_text_edit();
+  auto cursor = te->textCursor();
+  cursor.setPosition(0);
+  cursor.setPosition(5, QTextCursor::KeepAnchor);
+  te->setTextCursor(cursor);
+
+  QTest::keyClicks(&annotator, "p");
+  QCOMPARE(te->extraSelections().size(), 1);
+  QCOMPARE(annotations_model.get_annotations_info().size(), 1);
+
+  auto status = annotator.current_status_display();
+  QVERIFY(status.contains("0, 5"));
+  QVERIFY(status.contains("^^"));
+  QVERIFY(status.contains("1 annotation"));
+  QVERIFY(status.contains("label: Reinício da sessão"));
+
+  cursor.setPosition(0);
+  te->setTextCursor(cursor);
+  cursor.setPosition(0);
+  cursor.setPosition(5, QTextCursor::KeepAnchor);
+  te->setTextCursor(cursor);
+  lv->selectionModel()->select(labels_model.index(2, 0),
+                               QItemSelectionModel::SelectCurrent);
+  QCOMPARE(te->extraSelections().size(), 1);
+  QCOMPARE(annotations_model.get_annotations_info().size(), 2);
+
+  cursor.setPosition(0);
+  te->setTextCursor(cursor);
+  cursor.setPosition(1);
+  cursor.setPosition(4, QTextCursor::KeepAnchor);
+  te->setTextCursor(cursor);
+  lv->selectionModel()->select(labels_model.index(1, 0),
+                               QItemSelectionModel::SelectCurrent);
+  QCOMPARE(te->extraSelections().size(), 3);
+  QCOMPARE(annotations_model.get_annotations_info().size(), 3);
+
+  status = annotator.current_status_display();
+  QVERIFY(status.contains("1, 4"));
+  QVERIFY(!status.contains("^"));
+  QVERIFY(status.contains("3 annotations"));
+  QVERIFY(status.contains("label: Resumption of the session"));
 }
 } // namespace labelbuddy

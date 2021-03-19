@@ -1,6 +1,8 @@
 #ifndef LABELBUDDY_LABEL_LIST_H
 #define LABELBUDDY_LABEL_LIST_H
 
+#include <memory>
+
 #include <QFrame>
 #include <QLabel>
 #include <QLineEdit>
@@ -122,6 +124,7 @@ private:
   LabelListButtons* buttons_frame;
   QListView* labels_view;
   LabelListModel* model = nullptr;
+  std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
 };
 
 } // namespace labelbuddy

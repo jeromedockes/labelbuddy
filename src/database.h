@@ -12,10 +12,9 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QString>
-#include <QVector>
-#include <QTemporaryFile>
 #include <QTextStream>
 #include <QVariant>
+#include <QVector>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -39,6 +38,7 @@ class DocsReader {
 
 public:
   DocsReader(const QString& file_path);
+  virtual ~DocsReader();
   bool is_open() const;
   virtual bool read_next();
   const DocRecord* get_current_record() const;
@@ -115,7 +115,7 @@ private:
   QTextStream stream;
 };
 
-class AnnotationsWriter {
+class DocsWriter {
 public:
   struct Annotation {
     int start_char;
@@ -123,11 +123,19 @@ public:
     QString label_name;
   };
 
-  AnnotationsWriter(const QString& file_path);
+  DocsWriter(const QString& file_path);
+  virtual ~DocsWriter();
   bool is_open() const;
+
+  /// if `content` is a null QVariant the "text" field is not created.
+  ///
+  /// if `annotations` is `nullptr` the "labels" field is not created.
+  ///
+  /// the fields for `user_name`, `title`, `short_title`, `long_title` are only
+  /// added if the corresponding values are not empty.
   virtual void add_document(const QString& md5, const QVariant& content,
                             const QJsonObject& extra_data,
-                            const QList<Annotation> annotations,
+                            const QList<Annotation>* annotations,
                             const QString& user_name, const QString& title,
                             const QString& short_title,
                             const QString& long_title);
@@ -141,12 +149,12 @@ private:
   QFile file;
 };
 
-class AnnotationsJsonLinesWriter : public AnnotationsWriter {
+class DocsJsonLinesWriter : public DocsWriter {
 public:
-  AnnotationsJsonLinesWriter(const QString& file_path);
+  DocsJsonLinesWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
-                    const QList<Annotation> annotations,
+                    const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -162,12 +170,12 @@ private:
   int n_docs{};
 };
 
-class AnnotationsJsonWriter : public AnnotationsJsonLinesWriter {
+class DocsJsonWriter : public DocsJsonLinesWriter {
 public:
-  AnnotationsJsonWriter(const QString& file_path);
+  DocsJsonWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
-                    const QList<Annotation> annotations,
+                    const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -175,12 +183,12 @@ public:
   void write_suffix() override;
 };
 
-class AnnotationsXmlWriter : public AnnotationsWriter {
+class DocsXmlWriter : public DocsWriter {
 public:
-  AnnotationsXmlWriter(const QString& file_path);
+  DocsXmlWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
                     const QJsonObject& extra_data,
-                    const QList<Annotation> annotations,
+                    const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -190,7 +198,7 @@ public:
 private:
   QXmlStreamWriter xml;
 
-  void add_annotations(const QList<Annotation> annotations);
+  void add_annotations(const QList<Annotation>* annotations);
 };
 
 struct LabelRecord {
@@ -218,17 +226,22 @@ public:
   /// Returns true if the database was opened sucessfully and false otherwise.
   /// If database_path is empty, attempts to open the last databased that was
   /// opened (according to the QSettings), and if it cannot be opened, the
-  /// default database (~/labelbuddy_data.sqlite3). If database_path is not
+  /// default database (in home dir). If database_path is not
   /// empty and it cannot be opened, returns false without considering the
   /// default databases.
-  bool open_database(const QString& database_path = QString(),
-                     bool remember = true);
+  ///
+  /// If database_path is :LABELBUDDY_TEMPORARY_DATABASE:, opens a sqlite
+  /// temporary db ie passes "" (empty string) as the database name
+  bool open_database(const QString& database_path = QString());
 
   /// Open a temporary database.
 
-  /// Only one is opened per execution of the program, if we call this function
+  /// Only one is opened per execution of the program; if we call this function
   /// again the current database is set to the previously created temporary
   /// database.
+  /// It is a sqlite temporary database so in memory by default but flushed to
+  /// disk if it becomes big: https://www.sqlite.org/inmemorydb.html#temp_db
+  /// https://doc.qt.io/qt-5/sql-driver.html#qsqlite
   QString open_temp_database();
 
   /// Imports documents in .json, .jsonl, .xml or .txt format
@@ -249,28 +262,27 @@ public:
   /// \param file_path file in which to write the exported docs and annotations
   /// \param labelled_docs_only only documents with at least one annotation are
   /// exported.
-  /// \param include_documents the documents' text is included in the exported
+  /// \param include_text the documents' text is included in the exported
   /// data -- ie exported docs will have a `text` key.
+  /// \param include_annotations the annotations are included -- exported docs
+  /// will have a `labels` key.
   /// \param user_name value for the `annotation_approver` key. If an empty
   /// string this key won't be added.
   /// \param progress if not `nullptr`, used to display the export progress
   /// \returns `{n exported docs, n exported annotations}`
-  QList<int> export_annotations(const QString& file_path,
-                                bool labelled_docs_only = true,
-                                bool include_documents = true,
-                                const QString& user_name = "",
-                                QProgressDialog* progress = nullptr);
+  QList<int> export_documents(const QString& file_path,
+                              bool labelled_docs_only = true,
+                              bool include_text = true,
+                              bool include_annotations = true,
+                              const QString& user_name = "",
+                              QProgressDialog* progress = nullptr);
 
   /// Exports labels to a .json file. Returns number of exported labels
   int export_labels(const QString& file_path);
 
-  /// Return the name (which is also the path) of the currently used database
+  /// Return the name of the currently used database
+  /// Unless it is the temporary database, this is also the path to the db file.
   QString get_current_database() const;
-  /// Return the directory of the current database
-
-  /// to be stored in QSettings so that we start from the same directory
-  /// next time the user clicks File > Open or New
-  QString get_current_directory() const;
 
   /// Last directory in which a database was opened or if there isn't any, the
   /// home directory.
@@ -294,11 +306,10 @@ public:
 private:
   QSet<QString> databases{};
   QString current_database;
-  std::unique_ptr<QTemporaryFile> temp_database = nullptr;
 
   bool create_tables(QSqlDatabase& database);
 
-  /// Last used database if it can be opened else `~/labelbuddy_data.sqlite3`
+  /// Last used database if it can be opened else default database
   QString get_default_database_path();
 
   /// Find which database to open and return its absolute path.
@@ -311,20 +322,19 @@ private:
   /// If `database_path` is empty, user didn't specify a database, find a
   /// default one:
   /// - Last used if it exists and can be opened
-  /// - default `~/labelbuddy_data.sqlite3` if it can be opened
+  /// - default database if it can be opened
   /// - otherwise return empty string to indicate failure
   QString check_database_path(const QString& database_path);
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   void insert_label(QSqlQuery& query, const QString& label_name,
                     const QString& color = QString(),
                     const QString& shortcut_key = QString());
-  int write_doc_and_annotations(AnnotationsWriter& writer, int doc_id,
-                                bool include_document,
-                                const QString& user_name);
-
-  const QVector<QString> label_colors{
-      "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
-      "#c49c94", "#f7b6d2", "#c7c7c7", "#dbdb8d", "#9edae5"};
+  int write_doc(DocsWriter& writer, int doc_id, bool include_text,
+                bool include_annotations, const QString& user_name);
+  const QVector<QString> label_colors{"#aec7e8", "#ffbb78", "#98df8a",
+                                      "#ff9896", "#c5b0d5", "#c49c94",
+                                      "#f7b6d2", "#dbdb8d", "#9edae5"};
+  const QString tmp_db_name_{":LABELBUDDY_TEMPORARY_DATABASE:"};
   int color_index{};
 };
 
@@ -334,13 +344,11 @@ private:
 /// exporting labels, then exporting docs.
 /// If vacuum is `true`, executes `VACUUM` and does not consider any of the
 /// other operations.
-bool batch_import_export(const QString& db_path,
-                         const QList<QString>& labels_files,
-                         const QList<QString>& docs_files,
-                         const QString& export_labels_file,
-                         const QString& export_docs_file,
-                         bool labelled_docs_only, bool include_documents,
-                         const QString& user_name, bool vacuum);
+bool batch_import_export(
+    const QString& db_path, const QList<QString>& labels_files,
+    const QList<QString>& docs_files, const QString& export_labels_file,
+    const QString& export_docs_file, bool labelled_docs_only, bool include_text,
+    bool include_annotations, const QString& user_name, bool vacuum);
 
 } // namespace labelbuddy
 
