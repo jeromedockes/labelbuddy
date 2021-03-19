@@ -502,7 +502,8 @@ void RemoveConnection::execute() const {
 
 void RemoveConnection::cancel() { cancelled_ = true; }
 
-bool DatabaseCatalog::open_database(const QString& database_path) {
+bool DatabaseCatalog::open_database(const QString& database_path,
+                                    bool remember) {
   QString actual_database_path{
       database_path == QString() ? get_default_database_path() : database_path};
   if (actual_database_path == QString()) {
@@ -510,6 +511,8 @@ bool DatabaseCatalog::open_database(const QString& database_path) {
   }
   if (QSqlDatabase::contains(actual_database_path)) {
     current_database = actual_database_path;
+    if (remember)
+      store_db_path(actual_database_path);
     return true;
   }
   // Qt's "database name" the param for sqlite call
@@ -534,15 +537,22 @@ bool DatabaseCatalog::open_database(const QString& database_path) {
   }
   remove_con.cancel();
   current_database = actual_database_path;
-  if (actual_database_path != tmp_db_name_) {
-    QSettings settings("labelbuddy", "labelbuddy");
-    settings.setValue("last_opened_database", current_database);
+  if (remember)
+    store_db_path(actual_database_path);
+  return true;
+}
+
+bool DatabaseCatalog::store_db_path(const QString& db_path) {
+  if (db_path == tmp_db_name_) {
+    return false;
   }
+  QSettings settings("labelbuddy", "labelbuddy");
+  settings.setValue("last_opened_database", db_path);
   return true;
 }
 
 QString DatabaseCatalog::open_temp_database(bool load_data) {
-  open_database(tmp_db_name_);
+  open_database(tmp_db_name_, false);
   if (load_data && (!tmp_db_data_loaded_)) {
     import_labels(":docs/example_data/example_labels.json");
     import_documents(":docs/example_data/example_documents.json");
@@ -983,7 +993,7 @@ int batch_import_export(
     const QString& export_docs_file, bool labelled_docs_only, bool include_text,
     bool include_annotations, const QString& user_name, bool vacuum) {
   DatabaseCatalog catalog{};
-  if (!catalog.open_database(db_path)) {
+  if (!catalog.open_database(db_path, false)) {
     std::cerr << "Could not open database: " << db_path.toStdString()
               << std::endl;
     return 1;

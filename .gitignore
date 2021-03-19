@@ -3,6 +3,10 @@ docs/*.html
 !docs/docinfo.html
 docs/gh-pages-site/
 
+*.pyc
+__pycache__/
+test_cli/data/newsgroups/
+
 cmake_build/
 qmake_build/
 

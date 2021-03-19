@@ -87,6 +87,12 @@ set(CPACK_SOURCE_IGNORE_FILES
   Makefile
   test/labelbuddy_tests
   test_build
+  test_cli/data/newsgroups/
+  test_cli/__pycache__/
+  test_cli/.*[.]pyc
+  doxygen_output/
+  docs/gh-pages-site/
+  docs/screenshots/
   docs/README[.]rst
   moc_.*
   src/moc_.*

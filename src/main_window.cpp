@@ -41,11 +41,11 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
   notebook_owner_.reset(new QTabWidget());
   notebook = notebook_owner_.get();
   annotator = new Annotator();
-  notebook->addTab(annotator, "Annotate");
+  notebook->addTab(annotator, "&Annotate");
   dataset_menu = new DatasetMenu();
-  notebook->addTab(dataset_menu, "Dataset");
+  notebook->addTab(dataset_menu, "&Dataset");
   import_export_menu = new ImportExportMenu(&database_catalog);
-  notebook->addTab(import_export_menu, "Import / Export");
+  notebook->addTab(import_export_menu, "&Import / Export");
 
   doc_model = new DocListModel(this);
   doc_model->set_database(database_catalog.get_current_database());

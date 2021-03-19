@@ -8,13 +8,11 @@
 #include <QJsonArray>
 #include <QObject>
 #include <QProgressDialog>
-#include <QSet>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QString>
 #include <QTextStream>
 #include <QVariant>
-#include <QVector>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
@@ -272,7 +270,11 @@ public:
   ///
   /// If database_path is :LABELBUDDY_TEMPORARY_DATABASE:, opens the sqlite
   /// temporary db
-  bool open_database(const QString& database_path = QString());
+  ///
+  /// If remember is true, stores the path in QSettings for next execution of
+  /// the program.
+  bool open_database(const QString& database_path = QString(),
+                     bool remember = true);
 
   /// Open the temporary database.
 
@@ -360,6 +362,8 @@ public:
 
 private:
   QString current_database;
+
+  bool store_db_path(const QString& db_path);
 
   /// Check database, set foreign_keys pragma, create tables if necessary
   bool initialize_database(QSqlDatabase& database);

@@ -58,6 +58,20 @@ void TestDatabase::test_open_database() {
   new_query.exec("select count(*) from label where name = 'pronoun';");
   new_query.next();
   QCOMPARE(new_query.value(0).toInt(), 0);
+  auto file_path_1 = tmp_dir.filePath("db_1.sqlite");
+  catalog.open_database(file_path_1, false);
+  {
+    DatabaseCatalog new_catalog{};
+    new_catalog.open_database();
+    QCOMPARE(new_catalog.get_current_database(), file_path);
+  }
+  auto res = catalog.open_database(file_path_1, true);
+  QCOMPARE(res, true);
+  {
+    DatabaseCatalog new_catalog{};
+    new_catalog.open_database();
+    QCOMPARE(new_catalog.get_current_database(), file_path_1);
+  }
 }
 
 void TestDatabase::test_open_database_errors() {
