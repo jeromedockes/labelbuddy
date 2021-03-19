@@ -159,9 +159,9 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::update_label_choices_button_states);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
                    &Annotator::current_status_display_changed);
-  QObject::connect(text->get_text_edit(), &QTextEdit::selectionChanged, this,
+  QObject::connect(text->get_text_edit(), &QPlainTextEdit::selectionChanged, this,
                    &Annotator::update_label_choices_button_states);
-  QObject::connect(text->get_text_edit(), &QTextEdit::cursorPositionChanged,
+  QObject::connect(text->get_text_edit(), &QPlainTextEdit::cursorPositionChanged,
                    this, &Annotator::activate_cluster_at_cursor_pos);
 
   setFocusProxy(text);

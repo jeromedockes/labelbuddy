@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #include "testing_utils.h"
 
 #include "searchable_text.h"
@@ -13,7 +15,7 @@ void TestSearchableText::test_search() {
   QCOMPARE(text.get_text_edit()->toPlainText(), example_doc());
   QVERIFY(text.get_text_edit()->isReadOnly());
   auto search_box = text.findChild<QLineEdit*>();
-  auto te = text.findChild<QTextEdit*>();
+  auto te = text.findChild<QPlainTextEdit*>();
   search_box->setText(u8"maçã");
 
   text.search_forward();
@@ -54,16 +56,17 @@ void TestSearchableText::test_cycle_pos() {
   text.show();
   text.fill(long_doc());
   auto search_box = text.findChild<QLineEdit*>();
-  auto te = text.findChild<QTextEdit*>();
+  auto te = text.findChild<QPlainTextEdit*>();
   search_box->setText("Line 150");
   text.search_forward();
   QTest::keyClicks(te, "l", Qt::ControlModifier);
+  auto cheight = (te->cursorRect().bottom() - te->cursorRect().top());
   QVERIFY((te->cursorRect().bottom() != te->rect().bottom()) &&
           (te->cursorRect().top() != te->rect().top()));
   QTest::keyClicks(te, "l", Qt::ControlModifier);
-  QCOMPARE(te->cursorRect().top(), te->rect().top());
+  QVERIFY(abs(te->cursorRect().top() - te->rect().top()) < cheight);
   QTest::keyClicks(te, "l", Qt::ControlModifier);
-  QCOMPARE(te->cursorRect().bottom(), te->rect().bottom());
+  QVERIFY(abs(te->cursorRect().bottom() - te->rect().bottom()) < cheight);
 }
 
 void TestSearchableText::test_shortcuts() {
@@ -71,7 +74,7 @@ void TestSearchableText::test_shortcuts() {
   text.show();
   text.fill(long_doc());
   auto search_box = text.findChild<QLineEdit*>();
-  auto te = text.findChild<QTextEdit*>();
+  auto te = text.findChild<QPlainTextEdit*>();
   search_box->setText("Line 150");
   text.search_forward();
 
@@ -114,8 +117,6 @@ void TestSearchableText::test_shortcuts() {
   QTest::keyClicks(te, "}", Qt::ControlModifier);
   QTest::keyClicks(te, "}", Qt::ControlModifier);
   QCOMPARE(te->textCursor().selectedText(), QString("Line 150"));
-
-
 }
 
 } // namespace labelbuddy

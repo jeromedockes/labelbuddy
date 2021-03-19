@@ -31,7 +31,7 @@ This document describes how to install <<index#,{lb}>>.
 Packages built for different Ubuntu distributions are published on {lbppa}[this Personal Package Archive].
 Add it to your system by executing:
 ....
-sudo add-apt-repository ppa:jdockes/labelbuddy
+sudo add-apt-repository -y ppa:jdockes/labelbuddy
 sudo apt-get update
 ....
 

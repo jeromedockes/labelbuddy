@@ -4,9 +4,9 @@
 #include <QEvent>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QTextCursor>
-#include <QTextEdit>
 #include <QWidget>
 
 #include "utils.h"
@@ -32,11 +32,11 @@ public:
   /// returns `{start, end}`
   QList<int> current_selection() const;
 
-  /// The QTextEdit's textCursor
+  /// The QPlainTextEdit's textCursor
   QTextCursor textCursor() const;
 
-  /// Get a pointer to the child QTextEdit
-  QTextEdit* get_text_edit();
+  /// Get a pointer to the child QPlainTextEdit
+  QPlainTextEdit* get_text_edit();
 
   /// Get a pointer to the child search line
   QLineEdit* get_search_box();
@@ -59,7 +59,7 @@ private slots:
   void update_search_button_states();
 
 private:
-  QTextEdit* text_edit;
+  QPlainTextEdit* text_edit;
   QLineEdit* search_box;
   QPushButton* find_prev_button;
   QPushButton* find_next_button;
@@ -70,6 +70,21 @@ private:
   /// swap the cursor's position and anchor
   void swap_pos_anchor(QTextCursor& cursor) const;
   void handle_nav_event(QKeyEvent* event);
+
+  enum class TopOrBottom { Top, Bottom };
+
+  /// scroll until cursor reaches the target position (approximately)
+
+  /// Done by triggering a single step on the scrollbar repeatedly, and not
+  /// using the scrollbar's setValue, because we use a QPlainTextEdit which
+  /// scrolls paragraph (newline-terminated string rather than wrapped line) by
+  /// paragraph, and does not operate on vertical pixels but on paragraphs.
+  /// Thus may not reach exactly the target position: it may stop within one
+  /// line height of it. (or further if reached end or beginning of text)
+  ///
+  /// returns true if moved
+  bool scroll_to_position(int target, TopOrBottom cursor_side);
+  int get_cursor_pos(TopOrBottom top_bottom);
 
   /// cycle the cursor position between top, center, bottom by scrolling the
   /// text.

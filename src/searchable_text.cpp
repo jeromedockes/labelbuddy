@@ -7,12 +7,12 @@
 #include <QLineEdit>
 #include <QList>
 #include <QPalette>
+#include <QPlainTextEdit>
 #include <QPoint>
 #include <QPushButton>
 #include <QScrollBar>
 #include <QStyle>
 #include <QTextDocument>
-#include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
 
@@ -24,7 +24,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   QVBoxLayout* top_layout = new QVBoxLayout();
   setLayout(top_layout);
 
-  text_edit = new QTextEdit();
+  text_edit = new QPlainTextEdit();
   top_layout->addWidget(text_edit);
   auto palette = text_edit->palette();
   palette.setColor(QPalette::Inactive, QPalette::Highlight,
@@ -61,7 +61,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   QObject::connect(search_box, &QLineEdit::textChanged, this,
                    &SearchableText::update_search_button_states);
 
-  QObject::connect(text_edit, &QTextEdit::selectionChanged, this,
+  QObject::connect(text_edit, &QPlainTextEdit::selectionChanged, this,
                    &SearchableText::set_cursor_position);
   update_search_button_states();
 }
@@ -167,12 +167,12 @@ void SearchableText::cycle_cursor_height() {
 }
 
 void SearchableText::cycle_cursor_height_once() {
+  text_edit->ensureCursorVisible();
+
   auto pos = text_edit->textCursor().position();
-  auto crect = text_edit->cursorRect();
   auto bottom = text_edit->rect().bottom();
   auto top = text_edit->rect().top();
   auto center = (bottom + top) / 2;
-  auto sb = text_edit->verticalScrollBar();
 
   CursorHeight target_height;
   if (pos != last_cursor_pos) {
@@ -182,19 +182,52 @@ void SearchableText::cycle_cursor_height_once() {
     target_height = static_cast<CursorHeight>(
         (static_cast<int>(last_cursor_height) + 1) % 3);
   }
-
   switch (target_height) {
   case CursorHeight::Center:
-    sb->setValue(sb->value() + crect.bottom() - center);
+    scroll_to_position(center, TopOrBottom::Bottom);
     break;
   case CursorHeight::Top:
-    sb->setValue(sb->value() + crect.top() - top);
+    scroll_to_position(top, TopOrBottom::Top);
     break;
   case CursorHeight::Bottom:
-    sb->setValue(sb->value() + crect.bottom() - bottom);
+    scroll_to_position(bottom, TopOrBottom::Bottom);
     break;
   }
   last_cursor_height = target_height;
+}
+
+bool SearchableText::scroll_to_position(int target, TopOrBottom cursor_side) {
+  auto crect = text_edit->cursorRect();
+  auto line_height = (crect.bottom() - crect.top());
+  auto pos = get_cursor_pos(cursor_side);
+  auto prev_pos = pos;
+  auto initial_pos = pos;
+  auto scroll_bar = text_edit->verticalScrollBar();
+  if (pos <= target - line_height) {
+    // scroll up ie move cursor down on the screen
+    do {
+      prev_pos = pos;
+      scroll_bar->triggerAction(QAbstractSlider::SliderSingleStepSub);
+      pos = get_cursor_pos(cursor_side);
+    } while ((pos != prev_pos) && (pos <= target - line_height));
+    return pos != initial_pos;
+  }
+
+  if (pos >= target + line_height) {
+    // scroll down ie move cursor up on the screen
+    do {
+      prev_pos = pos;
+      scroll_bar->triggerAction(QAbstractSlider::SliderSingleStepAdd);
+      pos = get_cursor_pos(cursor_side);
+    } while ((pos != prev_pos) && (pos >= target + line_height));
+    return pos != initial_pos;
+  }
+  return false;
+}
+
+int SearchableText::get_cursor_pos(TopOrBottom top_bottom) {
+  return top_bottom == TopOrBottom::Top ? text_edit->cursorRect().top()
+                                        : text_edit->cursorRect().bottom();
 }
 
 void SearchableText::handle_nav_event(QKeyEvent* event) {
@@ -293,7 +326,7 @@ void SearchableText::keyPressEvent(QKeyEvent* event) {
 QTextCursor SearchableText::textCursor() const {
   return text_edit->textCursor();
 }
-QTextEdit* SearchableText::get_text_edit() { return text_edit; }
+QPlainTextEdit* SearchableText::get_text_edit() { return text_edit; }
 QLineEdit* SearchableText::get_search_box() { return search_box; }
 
 QList<int> SearchableText::current_selection() const {
