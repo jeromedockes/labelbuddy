@@ -40,7 +40,7 @@ Then the latest release of {lb} (and any future releases) can be installed with:
 sudo apt-get install labelbuddy
 ....
 
-If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt-get`:
+If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt`:
 
 ....
 sudo apt install ./labelbuddy_<version>.deb
@@ -49,7 +49,7 @@ sudo apt install ./labelbuddy_<version>.deb
 === On Debian
 
 Binary packages can be downloaded from {ghreleases}[the releases page on GitHub].
-Once you have downloaded the package, you can install it with `apt-get`:
+Once you have downloaded the package, you can install it with `apt`:
 ....
 sudo apt install ./labelbuddy_<version>.deb
 ....

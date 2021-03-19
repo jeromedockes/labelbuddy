@@ -25,6 +25,10 @@ Jérôme Dockès <jerome@dockes.org>
 :ietab: pass:q[*"`Import / Export`"* tab]
 :annotab: pass:q[*"`Annotate`"* tab]
 :dstab: pass:q[*"`Dataset`"* tab]
+:iet: pass:q[*"`Import / Export`"*]
+:annot: pass:q[*"`Annotate`"*]
+:dst: pass:q[*"`Dataset`"*]
+
 
 ifndef::env-github[]
 ifdef::lbversion[]
@@ -258,7 +262,7 @@ Once you have created annotations, you can select any of them by clicking it.
 It becomes [.blue-bg.active-anno]#underlined# and you can change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
-TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Bold selected region].
+TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Bold selected annotation].
 
 TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
 If you need to tag some document status such as "approved", "checked", etc., add a label for that!
@@ -366,6 +370,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 | go to previous document
 |===
 
+Moreover, you can use kbd:[Alt+A], kbd:[Alt+D] and kbd:[Alt+I] to jump to the {annot}, {dst} and {iet} tabs respectively.
 
 === Exporting documents and annotations
 

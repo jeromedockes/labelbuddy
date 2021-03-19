@@ -19,7 +19,7 @@ labelbuddy documentation
           + 2.8. Command-line interface
      * 3. Conclusion
 
-   This document describes labelbuddy version 0.0.4.
+   This document describes labelbuddy version 0.0.5.
 
 1. Introduction
 
@@ -180,7 +180,7 @@ Adjective
 
    Once you have created annotations, you can select any of them by clicking it. It becomes underlined and you can change its label by clicking on a different one or remove the annotation by clicking Remove. You can also do this with the keyboard: jump to the next annotation with the Space key and change its label with a label shortcut or remove it with Backspace.
    Tip
-   If the selected annotation is not visible enough you can also make it bold by selecting Preferences › Bold selected region.
+   If the selected annotation is not visible enough you can also make it bold by selecting Preferences › Bold selected annotation.
    Tip
    If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text. If you need to tag some document status such as "approved", "checked", etc., add a label for that!
 
@@ -292,6 +292,8 @@ Adjective
    <
 
    go to previous document
+
+   Moreover, you can use Alt+A, Alt+D and Alt+I to jump to the “Annotate”, “Dataset” and “Import / Export” tabs respectively.
 
 2.4. Exporting documents and annotations
 

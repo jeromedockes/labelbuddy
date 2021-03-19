@@ -196,7 +196,7 @@ void LabelBuddy::add_menubar() {
 
   auto preferences_menu = menuBar()->addMenu("Preferences");
   QSettings settings("labelbuddy", "labelbuddy");
-  auto set_use_bold_action = new QAction("Bold selected region", this);
+  auto set_use_bold_action = new QAction("Bold selected annotation", this);
   set_use_bold_action->setCheckable(true);
   set_use_bold_action->setChecked(
       settings.value(bf_setting_key_, false).toBool());
@@ -231,7 +231,7 @@ void LabelBuddy::add_welcome_label() {
   welcome_label->setTextFormat(Qt::RichText);
   welcome_label->setText(get_welcome_message());
   welcome_label->setWordWrap(true);
-  welcome_label->setIndent(welcome_label->fontMetrics().horizontalAdvance("x"));
+  welcome_label->setIndent(welcome_label->fontMetrics().averageCharWidth());
   welcome_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
   welcome_label->setOpenExternalLinks(true);
 }
