@@ -117,6 +117,12 @@ struct Cluster {
   int end_char;
 };
 
+struct StatusBarInfo {
+  QString doc_info;
+  QString annotation_info;
+  QString annotation_label;
+};
+
 /// The widget that allows creating and manipulating annotations
 
 /// There can be several annotations for the document, highlighted with their
@@ -152,13 +158,7 @@ public:
   /// `id`, otherwise return -1 .
   int active_annotation_label() const;
 
-  /// Is text displayed with a fixed-width font
-  bool is_monospace() const;
-
-  /// Is the active annotation shown with bold text
-  bool is_using_bold() const;
-
-  QString current_status_display() const;
+  StatusBarInfo current_status_info() const;
 
 signals:
 
@@ -180,8 +180,8 @@ public slots:
 
   /// Remember window state (slider position) in QSettings
   void store_state();
-  void set_monospace_font(bool monospace = true);
-  void set_use_bold_font(bool use_bold = true);
+  void set_font(const QFont& new_font);
+  void set_use_bold_font(bool use_bold);
 
 protected:
   /// Filter installed on the textedit to override the behaviour of Space key
@@ -240,7 +240,6 @@ private:
   AnnotationsModel* annotations_model = nullptr;
   AnnotationsNavButtons* nav_buttons = nullptr;
   QTextCharFormat default_format;
-  bool monospace_font{};
   bool use_bold_font{};
 };
 

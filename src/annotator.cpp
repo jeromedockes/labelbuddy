@@ -1,5 +1,6 @@
 #include <QColor>
 #include <QFont>
+#include <QFontDatabase>
 #include <QFontMetrics>
 #include <QItemSelectionModel>
 #include <QLabel>
@@ -162,6 +163,8 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::update_label_choices_button_states);
   QObject::connect(text->get_text_edit(), &QTextEdit::cursorPositionChanged,
                    this, &Annotator::activate_cluster_at_cursor_pos);
+
+  setFocusProxy(text);
 }
 
 void Annotator::store_state() {
@@ -169,14 +172,11 @@ void Annotator::store_state() {
   settings.setValue("Annotator/state", saveState());
 }
 
-bool Annotator::is_monospace() const { return monospace_font; }
-bool Annotator::is_using_bold() const { return use_bold_font; }
-
-QString Annotator::current_status_display() const {
+StatusBarInfo Annotator::current_status_info() const {
   if (!annotations_model->is_positioned_on_valid_doc()) {
-    return "-";
+    return {"", "", ""};
   }
-  QString active_info{""};
+  StatusBarInfo status_info{};
   if (active_annotation != -1) {
     bool is_first = active_annotation == sorted_annotations_.cbegin()->id;
     bool is_first_in_group{};
@@ -186,23 +186,22 @@ QString Annotator::current_status_display() const {
         break;
       }
     }
-    active_info = QString("\"%0\" %1%2 %3, %4  | ")
-                      .arg(labels[annotations[active_annotation].label_id].name)
-                      .arg(is_first_in_group ? "^" : " ")
-                      .arg(is_first ? "^" : " ")
-                      .arg(annotations[active_annotation].start_char)
-                      .arg(annotations[active_annotation].end_char);
+    status_info.annotation_info =
+        QString("%0%1 %2, %3")
+            .arg(is_first_in_group ? "^" : "")
+            .arg(is_first ? "^" : "")
+            .arg(annotations[active_annotation].start_char)
+            .arg(annotations[active_annotation].end_char);
+    status_info.annotation_label =
+        labels[annotations[active_annotation].label_id].name;
   }
-  return QString("%2 %0 annotation%1 in current doc")
-      .arg(annotations.size())
-      .arg(annotations.size() != 1 ? "s" : "")
-      .arg(active_info);
+  status_info.doc_info = QString("%0 annotation%1 in current doc")
+                             .arg(annotations.size())
+                             .arg(annotations.size() != 1 ? "s" : "");
+  return status_info;
 }
 
-void Annotator::set_monospace_font(bool monospace) {
-  monospace_font = monospace;
-  QFont new_font(monospace ? QFont("monospace") : QFont());
-  new_font.setStyleHint(monospace ? QFont::Monospace : QFont::AnyStyle);
+void Annotator::set_font(const QFont& new_font) {
   text->get_text_edit()->setFont(new_font);
 }
 
@@ -605,7 +604,7 @@ void Annotator::paint_annotations() {
     auto anno = annotations[active_annotation];
     if (use_bold_font) {
       QTextCharFormat fmt(default_format);
-      fmt.setFontWeight(QFont::DemiBold);
+      fmt.setFontWeight(QFont::Bold);
       anno.cursor.setCharFormat(fmt);
       active_anno_format_is_set_ = true;
     } else if (active_anno_format_is_set_) {

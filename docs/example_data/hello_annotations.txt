@@ -5,7 +5,7 @@ It will disappear when you close the application. This database contains a few d
 
 (You don't have to actually read this text, try annotating it instead!)
 
-If you decide to start a real project you want to keep, from the "File" menu select "New" and choose a location on your filesystem to create a persistent database. You can also close labelbuddy and open it again and by default it will open a database in your home directory: ~/database.labelbuddy.
+If you decide to start a real project you want to keep, select "File > Open" and choose a location on your filesystem to create a persistent database.
 
 Time to start annotating documents! Select some text with the mouse and click on one of the labels on the left to annotate it.
 
@@ -15,7 +15,7 @@ Annotations are inserted in the database as you create them so there is no need 
 
 Once you are done annotating this document, you can click "Next" above to move on to another one.
 
-The next document is the labelbuddy documentation, and then a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help" > "Documentation".
+The next document is the labelbuddy documentation, and then a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help > Documentation".
 
 To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Dataset" tab.
 

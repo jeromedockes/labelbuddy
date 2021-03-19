@@ -1,4 +1,5 @@
 #include <QSqlDatabase>
+#include <QSqlError>
 
 #include "doc_list_model.h"
 #include "user_roles.h"
@@ -115,19 +116,30 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
   if (progress != nullptr) {
     progress->setMaximum(total);
   }
+  bool cancelled{};
   query.exec("begin transaction;");
   query.exec("delete from annotation;");
   do {
     if (progress != nullptr) {
       progress->setValue(n_deleted);
       if (progress->wasCanceled()) {
+        cancelled = true;
         break;
       }
     }
     query.exec("delete from document limit 1000;");
     n_deleted += query.numRowsAffected();
+    if(query.lastError().type() != QSqlError::NoError){
+      cancelled = true;
+      break;
+    }
   } while (query.numRowsAffected());
-  query.exec("commit transaction;");
+  if (cancelled) {
+    n_deleted = 0;
+    query.exec("rollback transaction;");
+  } else {
+    query.exec("commit transaction;");
+  }
   if (progress != nullptr) {
     progress->setValue(total);
   }

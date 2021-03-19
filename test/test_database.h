@@ -12,10 +12,15 @@ class TestDatabase : public QObject {
 
 private slots:
   void test_open_database();
-  void test_database_path_choice();
+  void test_last_opened_database();
+  void test_app_state_extra();
+  void test_open_database_errors();
+  void test_import_export_labels();
   void test_import_export_docs();
   void test_import_export_docs_data();
-  void test_import_export_labels();
+  void test_batch_import_export();
+
+  void cleanup();
 
 private:
   QString create_documents_file(QTemporaryDir& tmp_dir);

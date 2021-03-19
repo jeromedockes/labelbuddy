@@ -2,6 +2,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QFontDatabase>
 #include <QLayout>
 #include <QModelIndex>
 #include <QTextStream>
@@ -15,6 +16,13 @@ QString get_version() {
   file.open(QIODevice::ReadOnly | QIODevice::Text);
   QTextStream in_stream(&file);
   return in_stream.readAll().trimmed();
+}
+
+QString get_welcome_message() {
+  QFile file(":/data/welcome_message.html");
+  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  QTextStream in_stream(&file);
+  return in_stream.readAll();
 }
 
 QUrl get_doc_url() {

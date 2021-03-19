@@ -2,6 +2,7 @@
 #define LABELBUDDY_UTILS_H
 
 #include <QCommandLineParser>
+#include <QFont>
 #include <QModelIndexList>
 #include <QRegularExpression>
 #include <QString>
@@ -15,6 +16,8 @@ namespace labelbuddy {
 
 /// The labelbuddy version 'x.y.z'
 QString get_version();
+
+QString get_welcome_message();
 
 /// URL to the html documentation
 

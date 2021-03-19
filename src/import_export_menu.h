@@ -54,6 +54,22 @@ private:
   /// Remember directory from which a file was selected
   void store_parent_dir(const QString& file_path, DirRole role);
 
+  /// Warn user file extension unknown, ask if proceed with default format.
+
+  /// Returns true if user asked to proceed. for Import operations this is not
+  /// an option -- this function always returns false in that case.
+  bool ask_confirm_unknown_extension(const QString& file_path,
+                                     DatabaseCatalog::Action action,
+                                     DatabaseCatalog::ItemKind kind);
+
+  void warn_failed_to_open_file(const QString& file_path);
+  template <typename T>
+  void report_result(const T& result, const QString& file_path);
+  QString get_report_msg(const ImportDocsResult& result) const;
+  QString get_report_msg(const ImportLabelsResult& result) const;
+  QString get_report_msg(const ExportDocsResult& result) const;
+  QString get_report_msg(const ExportLabelsResult& result) const;
+
   DatabaseCatalog* database_catalog;
   QLineEdit* annotator_name_edit;
   QCheckBox* labelled_only_checkbox;

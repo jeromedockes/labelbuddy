@@ -251,7 +251,7 @@ You then go to the {annotab}.
 To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
 It is also possible to do the same thing with the keyboard.
 Search for the term you want to annotate and the first match will be selected.
-The selection can be adusted with the keyboard using the bindings described <<summary-of-key-bindings-in-the-annotate-tab,below>>.
+The selection can be adusted with the keyboard using the bindings described <<keybindings-summary,below>>.
 Then press the shortcut key associated with the label you want to set.
 
 Once you have created annotations, you can select any of them by clicking it.
@@ -271,6 +271,7 @@ As you click the gray region or press the kbd:[Space] key, each [.annotation-clu
 The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
 
 
+[#keybindings-summary]
 ==== Summary of key bindings in the {annotab}
 
 [cols="1,2"]
@@ -278,7 +279,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 2+| Searching and navigation
 
 | kbd:[Ctrl] and scroll the mouse
-| zoom or dezoom the text
+| zoom or dezoom the text (for persistent settings, use menu:Preferences[Choose font] )
 
 | kbd:[Ctrl+F], kbd:[/]
 | search
@@ -309,7 +310,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 |===
 2+| Manipulating annotations
 
-| kbd:[a-z] (label's `shortcut_key`)
+| kbd:[A-Z] (label's `shortcut_key`)
 | set corresponding label for the currently selected region or annotation
 
 | kbd:[Backspace]
@@ -519,24 +520,19 @@ That is a single regular file on your disk that you can copy, backup, or share, 
 TIP: Using SQLite you can also open a connection directly to the database to query it or even modify it.
 If you do so, set `PRAGMA foreign_keys = ON`.
 
-When you first start {lb} it creates a new database in `~/database.labelbuddy`.
-You can switch to a different one by selecting menu:File[Open] or menu:File[New].
-The path to the current database is displayed in the {ietab}.
-
-The next time you start {lb}, it will open the last database that you opened.
-
+After starting {lb}, you can create a new database or open an existing one by selecting menu:File[Open].
+If you used {lb} before, by default at startup it opens the last database that you used.
 The database to open can also be specified when invoking {lb} from the command line:
+....
+labelbuddy /path/to/my_project.labelbuddy
+....
 
-....
-labelbuddy /path/to/my_annotations.sqlite3
-....
+The path to the current database is displayed in the {ietab}.
 
 If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
 
-As it is easy to create and delete databases (an empty {lb} database is just 48K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
-In particular, it is possible to work with several databases rather than a monolithic one.
-You can break down the annotations into several files to reflect the structure of your project.
-As an example you could also create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.
+As it is easy to create, copy and delete databases (an empty {lb} database is just 56K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+For example, you can break down the annotations into several files to reflect the structure of your project.
 
 === Command-line interface
 
@@ -586,13 +582,13 @@ The freed up space is not lost; it is kept and reused when new data is added to 
 To shrink the database to occupy a minimal amount of disk space, we can use:
 
 ....
-labelbuddy --vacuum /path/to/db.sqlite3
+labelbuddy --vacuum /path/to/db.labelbuddy
 ....
 
 or equivalently:
 
 ....
-sqlite3 /path/to/db.sqlite3 'VACUUM;'
+sqlite3 /path/to/db.labelbuddy 'VACUUM;'
 ....
 
 See more details https://sqlite.org/lang_vacuum.html[here].

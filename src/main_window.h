@@ -1,9 +1,12 @@
 #ifndef LABELBUDDY_MAIN_WINDOW_H
 #define LABELBUDDY_MAIN_WINDOW_H
 
+#include <memory>
+
 #include <QCloseEvent>
 #include <QLabel>
 #include <QMainWindow>
+#include <QShowEvent>
 #include <QString>
 #include <QTabWidget>
 
@@ -25,29 +28,30 @@ class LabelBuddy : public QMainWindow {
   Q_OBJECT
 
 public:
+  /// Create the main window and children widgets.
+
+  /// Unless `start_from_temp_db` is true, tries to open `database_path` if it
+  /// is not empty, otherwise the last opened database. If that fails, the tab
+  /// widget is not shown; the welcome banner is shown instead. However the tab
+  /// widget is still created (and managed by a `unique_ptr`) and the models are
+  /// positioned on a valid database (the empty temp database, see
+  /// `DatabaseCatalog`).
+  ///
+  /// If `start_from_temp_db` is true, opens the temp database and inserts the
+  /// example docs.
+  ///
+  /// The tab widget is set as the central widget the first time a database is
+  /// successfully opened (either a SQLite file or asking explicitly for the
+  /// temp database).
   LabelBuddy(QWidget* parent = nullptr,
              const QString& database_path = QString(),
              bool start_from_temp_db = false);
   void closeEvent(QCloseEvent* event);
-
-  /// `false` if database could not be opened when object was constructed.
-
-  /// There must always be a database opened.
-  ///
-  /// When constructing the object, if the specified database could not be
-  /// opened, or if the database was not specified and the default ones could
-  /// not be opened, the children widgets are not created and `is_valid` is set
-  /// to false.
-  /// In this case the application is closed.
-  ///
-  /// During application execution, if the user tries to open a database that
-  /// cannot be opened (eg not a sqlite3 file), it is not opened and the current
-  /// database remains, and `is_valid` remains `true`.
-  bool is_valid() const;
+  void showEvent(QShowEvent* event);
 
 signals:
 
-  /// User selected a different database through "New", "Open" or "Demo"
+  /// User selected a different database through "Open" or "Demo"
   void database_changed(const QString& new_database_name);
   void about_to_close();
 
@@ -76,7 +80,15 @@ private slots:
   void open_documentation_url();
 
   void update_status_bar();
+  void update_window_title();
   void update_current_doc_info();
+
+private slots:
+  void warn_failed_to_open_init_db();
+  void check_tab_focus();
+  void choose_font();
+  void reset_font();
+  void set_use_bold_font(bool use_bold);
 
 private:
   DocListModel* doc_model;
@@ -87,17 +99,39 @@ private:
   DatasetMenu* dataset_menu;
   ImportExportMenu* import_export_menu;
   DatabaseCatalog database_catalog;
-  QLabel* db_name_label;
-  QLabel* db_summary_label;
-  QLabel* current_doc_info_label;
 
+  // QLabels in the status bar
+  QLabel* status_db_name_;
+  QLabel* status_db_summary_;
+  QLabel* status_current_doc_info_;
+  QLabel* status_current_annotation_info_;
+  // having the label in its own widget means it doesn't affect the rest if it
+  // is written from right to left (eg in Arabic), has rich text, several lines,
+  // etc.
+  QLabel* status_current_annotation_label_;
+
+  // store info about the db passed to constructor if it failed to open. Used to
+  // display an error message after the main window is shown.
+  // set to false once the error message has been shown.
+  bool need_warn_failed_to_open_init_db_{};
+  QString init_db_path_{};
+
+  /// own the notebook when it is not set as central widget
+  std::unique_ptr<QTabWidget> notebook_owner_ = nullptr;
+
+  /// Sets the tab widget as central widget if not already the case.
+  void display_notebook();
   void store_notebook_page();
   void add_connections();
   void add_menubar();
   void set_geometry();
+  void init_annotator_settings();
+  void add_welcome_label();
 
   void warn_failed_to_open_db(const QString& database_path);
-  bool valid_state{true};
+
+  static const QString bf_setting_key_;
+  static const QString font_setting_key_;
 };
 } // namespace labelbuddy
 #endif

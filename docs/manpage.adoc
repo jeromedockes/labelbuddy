@@ -16,7 +16,7 @@ labelbuddy - application for annotating text documents
 == Description
 
 Without any options, the *labelbuddy* command will start the *labelbuddy* GUI to annotate documents in the database _FILE_.
-If neither _FILE_ nor *--demo* is used, *labelbuddy* will open the last database that was opened, or if it is used for the first time, `~/database.labelbuddy`.
+If neither _FILE_ nor *--demo* is used, *labelbuddy* will open the last database that was opened if it exists.
 With the option *--demo*, *labelbuddy* will open a temporary database pre-loaded with some example documents and labels.
 
 == Options

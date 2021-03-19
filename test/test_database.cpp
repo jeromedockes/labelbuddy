@@ -11,6 +11,27 @@
 
 namespace labelbuddy {
 
+void TestDatabase::cleanup() {
+  for (const auto& connection_name : QSqlDatabase::connectionNames()) {
+    QSqlDatabase::removeDatabase(connection_name);
+  }
+}
+
+void TestDatabase::test_app_state_extra() {
+  QTemporaryDir tmp_dir{};
+  DatabaseCatalog catalog{};
+  auto file_path = tmp_dir.filePath("db.sqlite");
+  catalog.open_database(file_path);
+  catalog.set_app_state_extra("my key", "value 1");
+  auto res = catalog.get_app_state_extra("my key", "default").toString();
+  QCOMPARE(res, QString("value 1"));
+  res = catalog.get_app_state_extra("new key", "default").toString();
+  QCOMPARE(res, QString("default"));
+  catalog.set_app_state_extra("my key", "value 2");
+  res = catalog.get_app_state_extra("my key", "default").toString();
+  QCOMPARE(res, QString("value 2"));
+}
+
 void TestDatabase::test_open_database() {
   QTemporaryDir tmp_dir{};
   DatabaseCatalog catalog{};
@@ -28,7 +49,7 @@ void TestDatabase::test_open_database() {
   query.exec("select count(*) from document;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 5);
-  query.exec("select count(*) from label where name = 'pronoun';");
+  query.exec("select count(*) from label where name = 'Word';");
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
   catalog.open_database(file_path);
@@ -39,16 +60,20 @@ void TestDatabase::test_open_database() {
   QCOMPARE(new_query.value(0).toInt(), 0);
 }
 
-void TestDatabase::test_database_path_choice() {
+void TestDatabase::test_open_database_errors() {
   QTemporaryDir tmp_dir{};
   DatabaseCatalog catalog{};
   auto file_path = tmp_dir.filePath("db.sqlite");
   catalog.open_database();
   auto db_path = catalog.get_current_database();
-  QCOMPARE(QFileInfo(db_path).fileName(), QString("database.labelbuddy"));
+  QCOMPARE(QFileInfo(db_path).fileName(),
+           QString(":LABELBUDDY_TEMPORARY_DATABASE:"));
+  QVERIFY(QSqlDatabase::contains(":LABELBUDDY_TEMPORARY_DATABASE:"));
   catalog.open_database(file_path);
   db_path = catalog.get_current_database();
   QCOMPARE(db_path, file_path);
+  QVERIFY(QSqlDatabase::contains(file_path));
+
   auto bad_file_path = tmp_dir.filePath("bad.sql");
   {
     QFile file(bad_file_path);
@@ -58,12 +83,55 @@ void TestDatabase::test_database_path_choice() {
   }
   bool opened = catalog.open_database(bad_file_path);
   QVERIFY(!opened);
+  QVERIFY(!QSqlDatabase::contains(bad_file_path));
   db_path = catalog.get_current_database();
   QCOMPARE(db_path, file_path);
-  opened = catalog.open_database("/tmp/some/dir/does/notexist.sql");
+  bad_file_path = "/tmp/some/dir/does/notexist.sql";
+  opened = catalog.open_database(bad_file_path);
   QVERIFY(!opened);
+  QVERIFY(!QSqlDatabase::contains(bad_file_path));
   db_path = catalog.get_current_database();
   QCOMPARE(db_path, file_path);
+
+  auto bad_db_path = tmp_dir.filePath("other_db_type.sql");
+  {
+    auto db = QSqlDatabase::addDatabase("QSQLITE", "non_labelbuddy");
+    db.setDatabaseName(bad_db_path);
+    db.open();
+    QSqlQuery query(db);
+    auto executed = query.exec("create table bookmarks (page, title);");
+    QVERIFY(executed);
+  }
+  QSqlDatabase::removeDatabase("non_labelbuddy");
+  opened = catalog.open_database(bad_db_path);
+  QVERIFY(!opened);
+  QVERIFY(!QSqlDatabase::contains(bad_db_path));
+  db_path = catalog.get_current_database();
+  QCOMPARE(db_path, file_path);
+}
+
+void TestDatabase::test_last_opened_database() {
+  QTemporaryDir tmp_dir{};
+  auto file_path = tmp_dir.filePath("database.labelbuddy");
+  {
+    DatabaseCatalog catalog{};
+    auto opened = catalog.open_database(file_path);
+    QVERIFY(opened);
+    QCOMPARE(catalog.get_current_database(), file_path);
+  }
+  {
+    DatabaseCatalog catalog{};
+    auto opened = catalog.open_database();
+    QVERIFY(opened);
+    QCOMPARE(catalog.get_current_database(), file_path);
+  }
+  QFile(file_path).remove();
+  {
+    DatabaseCatalog catalog{};
+    auto opened = catalog.open_database();
+    QVERIFY(!opened);
+    QCOMPARE(catalog.get_current_database(), ":LABELBUDDY_TEMPORARY_DATABASE:");
+  }
 }
 
 void TestDatabase::test_import_export_docs_data() {
@@ -468,8 +536,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
         QCOMPARE(annotation[2].toString(),
                  QString("label: Reinício da sessão"));
       }
-    }
-    else {
+    } else {
       QVERIFY(!output_json.contains("labels"));
     }
     ++i;
@@ -575,6 +642,44 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
     ++i;
   }
   out << (jsonl ? "\n" : "\n]\n");
+}
+
+void TestDatabase::test_batch_import_export() {
+  QTemporaryDir tmp_dir{};
+  auto db_path = tmp_dir.filePath("db.sqlite");
+  auto docs_file = tmp_dir.filePath("docs.json");
+  auto docs_file_bad_ext = tmp_dir.filePath("docs.abc");
+  QFile::copy(":test/data/test_documents.json", docs_file);
+  QFile::copy(":test/data/test_documents.json", docs_file_bad_ext);
+  auto labels_file = tmp_dir.filePath("labels.json");
+  QFile::copy(":test/data/test_labels.json", labels_file);
+  auto labels_out = tmp_dir.filePath("exported_labels.json");
+  auto docs_out = tmp_dir.filePath("exported_docs.json");
+  auto res = batch_import_export(
+      db_path, {labels_file},
+      {docs_file, "/some/file/does/not/exist.xml", docs_file_bad_ext},
+      labels_out, docs_out, false, true, true, "someone", false);
+  QCOMPARE(res, 1);
+
+  QJsonArray output_docs;
+  QFile docs_out_f(docs_out);
+  docs_out_f.open(QIODevice::ReadOnly);
+  output_docs = QJsonDocument::fromJson(docs_out_f.readAll()).array();
+
+  QFile input_docs_f(docs_file);
+  input_docs_f.open(QIODevice::ReadOnly);
+  auto input_docs = QJsonDocument::fromJson(input_docs_f.readAll()).array();
+
+  QCOMPARE(output_docs.size(), input_docs.size());
+  QCOMPARE(output_docs[0].toObject()["text"], input_docs[0].toArray()[0]);
+
+  res = batch_import_export(db_path, {}, {}, "", "", false, false, false, "",
+                            true);
+  QCOMPARE(res, 0);
+
+  res = batch_import_export("/does/not/exist/db.sql", {}, {}, "", "", false,
+                            false, false, "", true);
+  QCOMPARE(res, 1);
 }
 
 } // namespace labelbuddy

@@ -7,7 +7,9 @@
 namespace labelbuddy {
 QString prepare_db(QTemporaryDir&);
 void add_annotations(const QString& db_name);
+void add_many_docs(const QString& db_name);
 QString example_doc();
+QString long_doc();
 } // namespace labelbuddy
 
 #endif

@@ -125,6 +125,8 @@ public:
 
   DocsWriter(const QString& file_path);
   virtual ~DocsWriter();
+
+  /// after constructing the file should be open and is_open should return true
   bool is_open() const;
 
   /// if `content` is a null QVariant the "text" field is not created.
@@ -207,55 +209,108 @@ struct LabelRecord {
   QString shortcut_key{};
 };
 
+enum class ErrorCode { NoError = 0, FileSystemError };
+
+struct ImportDocsResult {
+  int n_docs;
+  int n_annotations;
+  ErrorCode error_code;
+};
+
+struct ExportDocsResult {
+  int n_docs;
+  int n_annotations;
+  ErrorCode error_code;
+};
+
+struct ImportLabelsResult {
+  int n_labels;
+  ErrorCode error_code;
+};
+
+struct ExportLabelsResult {
+  int n_labels;
+  ErrorCode error_code;
+};
+
 LabelRecord json_to_label_record(const QJsonValue& json);
-QJsonArray read_json_array(const QString& file_path);
+QPair<QJsonArray, ErrorCode> read_json_array(const QString& file_path);
+
+class RemoveConnection {
+  QString connection_name_;
+  bool cancelled_;
+
+public:
+  RemoveConnection(const QString& connection_name);
+  ~RemoveConnection();
+  void execute() const;
+  void cancel();
+};
 
 /// Class to handle connections to databases and import and export operations.
 
-/// Maintains a catalog of sqlite3 file paths. For each file, the Qt database
-/// name is exactly the file path. If we ask to open the same file again the
-/// existing database is reused.
+/// For each SQLite file, the Qt connection name is exactly the file path. If we
+/// ask to open the same file again the existing connection is reused.
 ///
+/// A SQLite temporary database (ie database name = "") is also created when
+/// constructing the object. After construction this temp db has the correct
+/// schema (but its tables are empty) and it is the `current_database` -- the
+/// `current_database` is always positioned on a valid database. The
+/// corresponding connection name is `:LABELBUDDY_TEMPORARY_DATABASE:`.
 class DatabaseCatalog : public QObject {
 
   Q_OBJECT
 
 public:
-  /// Open a connection to a SQLite database.
+  DatabaseCatalog(QObject* parent = nullptr);
 
-  /// Returns true if the database was opened sucessfully and false otherwise.
-  /// If database_path is empty, attempts to open the last databased that was
-  /// opened (according to the QSettings), and if it cannot be opened, the
-  /// default database (in home dir). If database_path is not
-  /// empty and it cannot be opened, returns false without considering the
-  /// default databases.
+  /// Open a connection to a SQLite database or return the existing one.
+
+  /// Returns true if the database was opened sucessfully (or already existed)
+  /// and false otherwise. If database_path is empty, attempts to open the last
+  /// database that was opened (according to the QSettings).
   ///
-  /// If database_path is :LABELBUDDY_TEMPORARY_DATABASE:, opens a sqlite
-  /// temporary db ie passes "" (empty string) as the database name
+  /// If database_path is :LABELBUDDY_TEMPORARY_DATABASE:, opens the sqlite
+  /// temporary db
   bool open_database(const QString& database_path = QString());
 
-  /// Open a temporary database.
+  /// Open the temporary database.
 
   /// Only one is opened per execution of the program; if we call this function
   /// again the current database is set to the previously created temporary
   /// database.
+  ///
   /// It is a sqlite temporary database so in memory by default but flushed to
   /// disk if it becomes big: https://www.sqlite.org/inmemorydb.html#temp_db
   /// https://doc.qt.io/qt-5/sql-driver.html#qsqlite
-  QString open_temp_database();
+  ///
+  /// The database is created at construction, but example docs and labels are
+  /// only inserted when this function is called with `load_data = true` for the
+  /// first time.
+  QString open_temp_database(bool load_data = true);
+
+  enum class Action { Import, Export };
+  enum class ItemKind { Document, Label };
+  QPair<QStringList, QString> accepted_and_default_formats(Action action,
+                                                           ItemKind kind) const;
+
+  /// Returns an error message if file extension is not appropriate
+
+  /// If the file extension corresponds to one of the recognized formats (ie no
+  /// error), returns an empty string.
+  QString file_extension_error_message(const QString& file_path, Action action,
+                                       ItemKind kind,
+                                       bool accept_default) const;
 
   /// Imports documents in .json, .jsonl, .xml or .txt format
 
   /// If `progress` is not `nullptr`, used to display current progress.
-  /// Returns the number of imported (new) documents and annotations
-  /// ie `{n docs, n annotations}`.
-  QList<int> import_documents(const QString& file_path,
-                              QProgressDialog* progress = nullptr);
+  ImportDocsResult import_documents(const QString& file_path,
+                                    QProgressDialog* progress = nullptr);
 
   /// Imports labels in .txt or .json format
 
-  /// Returns number of imported (new) labels.
-  int import_labels(const QString& file_path);
+  ImportLabelsResult import_labels(const QString& file_path);
 
   /// Exports annotations to .xml, .jsonl or .json formats.
 
@@ -269,18 +324,18 @@ public:
   /// \param user_name value for the `annotation_approver` key. If an empty
   /// string this key won't be added.
   /// \param progress if not `nullptr`, used to display the export progress
-  /// \returns `{n exported docs, n exported annotations}`
-  QList<int> export_documents(const QString& file_path,
-                              bool labelled_docs_only = true,
-                              bool include_text = true,
-                              bool include_annotations = true,
-                              const QString& user_name = "",
-                              QProgressDialog* progress = nullptr);
+  ExportDocsResult export_documents(const QString& file_path,
+                                    bool labelled_docs_only = true,
+                                    bool include_text = true,
+                                    bool include_annotations = true,
+                                    const QString& user_name = "",
+                                    QProgressDialog* progress = nullptr);
 
-  /// Exports labels to a .json file. Returns number of exported labels
-  int export_labels(const QString& file_path);
+  /// Exports labels to a .json file.
+  ExportLabelsResult export_labels(const QString& file_path);
 
   /// Return the name of the currently used database
+
   /// Unless it is the temporary database, this is also the path to the db file.
   QString get_current_database() const;
 
@@ -304,47 +359,43 @@ public:
   void vacuum_db();
 
 private:
-  QSet<QString> databases{};
   QString current_database;
 
-  bool create_tables(QSqlDatabase& database);
+  /// Check database, set foreign_keys pragma, create tables if necessary
+  bool initialize_database(QSqlDatabase& database);
+  bool create_tables(QSqlQuery& query);
 
-  /// Last used database if it can be opened else default database
+  /// Last used database if it is found in QSettings and exists else ""
   QString get_default_database_path();
 
-  /// Find which database to open and return its absolute path.
-
-  /// If `database_path` is not empty, user asked for this one explicitly
-  /// - if it can be opened for reading and writing, return it
-  /// - otherwise return empty string to indicate failure without considering
-  ///   the default ones.
-  ///
-  /// If `database_path` is empty, user didn't specify a database, find a
-  /// default one:
-  /// - Last used if it exists and can be opened
-  /// - default database if it can be opened
-  /// - otherwise return empty string to indicate failure
-  QString check_database_path(const QString& database_path);
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
+
   void insert_label(QSqlQuery& query, const QString& label_name,
                     const QString& color = QString(),
                     const QString& shortcut_key = QString());
+
   int write_doc(DocsWriter& writer, int doc_id, bool include_text,
                 bool include_annotations, const QString& user_name);
-  const QVector<QString> label_colors{"#aec7e8", "#ffbb78", "#98df8a",
-                                      "#ff9896", "#c5b0d5", "#c49c94",
-                                      "#f7b6d2", "#dbdb8d", "#9edae5"};
-  const QString tmp_db_name_{":LABELBUDDY_TEMPORARY_DATABASE:"};
+
   int color_index{};
+  bool tmp_db_data_loaded_{};
+  static const QList<QString> label_colors;
+  static const QString tmp_db_name_;
 };
 
 /// Perform import, export, or vacuum operations without the GUI.
 
-/// Returns `true` if successful. Starts by importing labels, then docs, then
-/// exporting labels, then exporting docs.
-/// If vacuum is `true`, executes `VACUUM` and does not consider any of the
-/// other operations.
-bool batch_import_export(
+/// Returns 0 if there were no errors and 1 otherwise. Starts by importing
+/// labels, then docs, then exporting labels, then exporting docs. If vacuum is
+/// `true`, executes `VACUUM` and does not consider any of the other operations.
+///
+/// If one of the import files doesn't have a recognized extension it is
+/// skipped to avoid inserting incorrect data in the database.
+/// If one of the export files doesn't have a recognized extension a message is
+/// printed, but the export is still performed in a default format (json) and it
+/// is not considered an error -- this function can still return 0 if there were
+/// no other errors.
+int batch_import_export(
     const QString& db_path, const QList<QString>& labels_files,
     const QList<QString>& docs_files, const QString& export_labels_file,
     const QString& export_docs_file, bool labelled_docs_only, bool include_text,

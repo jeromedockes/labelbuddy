@@ -87,11 +87,10 @@ void TestAnnotator::test_overlapping_annotations() {
   QCOMPARE(te->extraSelections().size(), 1);
   QCOMPARE(annotations_model.get_annotations_info().size(), 1);
 
-  auto status = annotator.current_status_display();
-  QVERIFY(status.contains("0, 5"));
-  QVERIFY(status.contains("^^"));
-  QVERIFY(status.contains("1 annotation"));
-  QVERIFY(status.contains("label: Reinício da sessão"));
+  auto status = annotator.current_status_info();
+  QCOMPARE(status.annotation_info, QString("^^ 0, 5"));
+  QCOMPARE(status.doc_info, QString("1 annotation in current doc"));
+  QCOMPARE(status.annotation_label, QString("label: Reinício da sessão"));
 
   cursor.setPosition(0);
   te->setTextCursor(cursor);
@@ -113,10 +112,10 @@ void TestAnnotator::test_overlapping_annotations() {
   QCOMPARE(te->extraSelections().size(), 3);
   QCOMPARE(annotations_model.get_annotations_info().size(), 3);
 
-  status = annotator.current_status_display();
-  QVERIFY(status.contains("1, 4"));
-  QVERIFY(!status.contains("^"));
-  QVERIFY(status.contains("3 annotations"));
-  QVERIFY(status.contains("label: Resumption of the session"));
+  status = annotator.current_status_info();
+  QCOMPARE(status.annotation_info, QString(" 1, 4"));
+  QCOMPARE(status.doc_info, QString("3 annotations in current doc"));
+  QCOMPARE(status.annotation_label,
+           QString("label: Resumption of the session"));
 }
 } // namespace labelbuddy

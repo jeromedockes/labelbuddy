@@ -26,16 +26,16 @@ gh-pages-site/screenshots.html: screenshots.html
 documentation.html: README.adoc ../data/VERSION.txt
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
-# example_data/documentation.txt: documentation.html
-# 	lynx -dump -nolist -nonumbers -width=79 $< | \
-#     sed 's/\xe2\x80\x8b//g;/^ *Last updated[-: 0-9]*$$/d'  > $@
-
 example_data/documentation.txt: documentation.html
-	pandoc $<  -t plain | \
-     sed '1s/^/\nThis document is better read with a fixed width font: Preferences > monospace, or Help > documentation for html version\n\n/;s/\xe2\x80\x8b//g;/^ *Last updated[-: 0-9]*$$/d'  > $@
+	lynx -dump -nolist -nonumbers -width=1000 $< | \
+    sed '1s/^/html version: Help > documentation\n\n/;s/\xe2\x80\x8b//g;/^ *Last updated[-: 0-9]*$$/d'  > $@
+
+# example_data/documentation.txt: documentation.html
+# 	pandoc $<  --wrap=none -t plain | \
+#      sed '1s/^/\nThis document is better read with a fixed width font: Preferences > Choose font, or Help > documentation for html version\n\n/;s/\xe2\x80\x8b//g;/^ *Last updated[-: 0-9]*$$/d'  > $@
 
 
-example_data/example_documents.json: $(examples) example_data/documentation.txt example_data/make_example_docs.py
+example_data/example_documents.json: $(examples) example_data/example_labels.json example_data/documentation.txt example_data/make_example_docs.py
 	python3 example_data/make_example_docs.py
 
 clean:

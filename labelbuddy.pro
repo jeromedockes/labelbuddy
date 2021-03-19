@@ -39,6 +39,11 @@ RESOURCES = resources.qrc
 test {
 TEMPLATE = app
 TARGET = labelbuddy_tests
+CONFIG += debug
+
+QMAKE_CXXFLAGS += --coverage
+QMAKE_CFLAGS += --coverage
+QMAKE_LFLAGS += --coverage
 
 QT += testlib
 
@@ -54,6 +59,11 @@ test/test_doc_list_model.h \
 test/test_label_list_model.h \
 test/test_annotations_model.h \
 test/test_annotator.h \
+test/test_dataset_menu.h \
+test/test_doc_list.h \
+test/test_main_window.h \
+test/test_utils.h \
+test/test_label_list.h \
 
 SOURCES += \
 test/main.cpp \
@@ -64,6 +74,11 @@ test/test_doc_list_model.cpp \
 test/test_label_list_model.cpp \
 test/test_annotations_model.cpp \
 test/test_annotator.cpp \
+test/test_dataset_menu.cpp \
+test/test_doc_list.cpp \
+test/test_main_window.cpp \
+test/test_utils.cpp \
+test/test_label_list.cpp \
 
 SOURCES -= src/main.cpp
 }

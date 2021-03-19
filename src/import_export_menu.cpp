@@ -169,6 +169,75 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
                    &ImportExportMenu::export_labels);
 }
 
+bool ImportExportMenu::ask_confirm_unknown_extension(
+    const QString& file_path, DatabaseCatalog::Action action,
+    DatabaseCatalog::ItemKind kind) {
+  bool accept_default{action == DatabaseCatalog::Action::Export};
+  auto msg = database_catalog->file_extension_error_message(
+      file_path, action, kind, accept_default);
+  if (msg == QString()) {
+    return true;
+  }
+  if (!accept_default) {
+    QMessageBox::critical(this, "labelbuddy", msg, QMessageBox::Ok);
+    return false;
+  }
+  auto answer = QMessageBox::warning(this, "labelbuddy", msg,
+                                     QMessageBox::Ok | QMessageBox::Cancel);
+  if (answer == QMessageBox::Ok) {
+    return true;
+  }
+  return false;
+}
+
+void ImportExportMenu::warn_failed_to_open_file(const QString& file_path) {
+  QMessageBox::critical(this, "labelbuddy",
+                        QString("Could not open file: %0").arg(file_path),
+                        QMessageBox::Ok);
+}
+
+template <typename T>
+void ImportExportMenu::report_result(const T& result,
+                                     const QString& file_path) {
+  if (result.error_code != ErrorCode::NoError) {
+    warn_failed_to_open_file(file_path);
+    return;
+  }
+  QMessageBox::information(this, "labelbuddy", get_report_msg(result),
+                           QMessageBox::Ok);
+}
+
+QString ImportExportMenu::get_report_msg(const ImportDocsResult& result) const {
+  return QString("Added %0 new document%1 and %2 new annotation%3")
+      .arg(result.n_docs)
+      .arg(result.n_docs != 1 ? "s" : "")
+      .arg(result.n_annotations)
+      .arg(result.n_annotations != 1 ? "s" : "");
+}
+
+QString
+ImportExportMenu::get_report_msg(const ImportLabelsResult& result) const {
+  return QString("Added %0 new label%1")
+      .arg(result.n_labels)
+      .arg(result.n_labels != 1 ? "s" : "");
+}
+
+QString ImportExportMenu::get_report_msg(const ExportDocsResult& result) const {
+
+  return QString("Exported %0 annotation%1 for %2 document%3")
+      .arg(result.n_annotations)
+      .arg(result.n_annotations == 1 ? "" : "s")
+      .arg(result.n_docs)
+      .arg(result.n_docs == 1 ? "" : "s");
+}
+
+QString
+ImportExportMenu::get_report_msg(const ExportLabelsResult& result) const {
+  return QString("Exported %0 label%1")
+      .arg(result.n_labels)
+      .arg(result.n_labels == 1 ? "" : "s");
+}
+
 void ImportExportMenu::import_documents() {
   auto start_dir = suggest_dir(DirRole::import_documents);
   auto file_path = QFileDialog::getOpenFileName(
@@ -180,21 +249,18 @@ void ImportExportMenu::import_documents() {
   if (file_path == QString()) {
     return;
   }
+  if (!ask_confirm_unknown_extension(file_path, DatabaseCatalog::Action::Import,
+                                     DatabaseCatalog::ItemKind::Document)) {
+    return;
+  }
   store_parent_dir(file_path, DirRole::import_documents);
   QProgressDialog progress("Importing documents...", "Stop", 0, 0, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(2000);
-  auto n_added = database_catalog->import_documents(file_path, &progress);
+  auto result = database_catalog->import_documents(file_path, &progress);
   emit documents_added();
   emit labels_added();
-  QMessageBox::information(
-      this, "labelbuddy",
-      QString("Added %0 new document%1 and %2 new annotation%3")
-          .arg(n_added[0])
-          .arg(n_added[0] != 1 ? "s" : "")
-          .arg(n_added[1])
-          .arg(n_added[1] != 1 ? "s" : ""),
-      QMessageBox::Ok);
+  report_result(result, file_path);
 }
 
 void ImportExportMenu::import_labels() {
@@ -207,13 +273,14 @@ void ImportExportMenu::import_labels() {
   if (file_path == QString()) {
     return;
   }
+  if (!ask_confirm_unknown_extension(file_path, DatabaseCatalog::Action::Import,
+                                     DatabaseCatalog::ItemKind::Label)) {
+    return;
+  }
   store_parent_dir(file_path, DirRole::import_labels);
-  int n_added = database_catalog->import_labels(file_path);
+  auto result = database_catalog->import_labels(file_path);
   emit labels_added();
-  QMessageBox::information(
-      this, "labelbuddy",
-      QString("Added %0 new label%1").arg(n_added).arg(n_added != 1 ? "s" : ""),
-      QMessageBox::Ok);
+  report_result(result, file_path);
 }
 
 void ImportExportMenu::export_documents() {
@@ -226,13 +293,17 @@ void ImportExportMenu::export_documents() {
   if (file_path == QString()) {
     return;
   }
+  if (!ask_confirm_unknown_extension(file_path, DatabaseCatalog::Action::Export,
+                                     DatabaseCatalog::ItemKind::Document)) {
+    return;
+  }
   store_parent_dir(file_path, DirRole::export_documents);
   database_catalog->set_app_state_extra("approver_name",
                                         annotator_name_edit->text());
   QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
   progress.setWindowModality(Qt::WindowModal);
   progress.setMinimumDuration(2000);
-  auto n_exported = database_catalog->export_documents(
+  auto result = database_catalog->export_documents(
       file_path, labelled_only_checkbox->isChecked(),
       include_text_checkbox->isChecked(),
       include_annotations_checkbox->isChecked(), annotator_name_edit->text(),
@@ -243,13 +314,7 @@ void ImportExportMenu::export_documents() {
                                         include_text_checkbox->isChecked());
   database_catalog->set_app_state_extra(
       "export_include_annotations", include_annotations_checkbox->isChecked());
-  QMessageBox::information(this, "labelbuddy",
-                           QString("Exported %0 annotation%1 for %2 document%3")
-                               .arg(n_exported[1])
-                               .arg(n_exported[1] == 1 ? "" : "s")
-                               .arg(n_exported[0])
-                               .arg(n_exported[0] == 1 ? "" : "s"),
-                           QMessageBox::Ok);
+  report_result(result, file_path);
 }
 
 void ImportExportMenu::export_labels() {
@@ -260,13 +325,13 @@ void ImportExportMenu::export_labels() {
   if (file_path == QString()) {
     return;
   }
+  if (!ask_confirm_unknown_extension(file_path, DatabaseCatalog::Action::Export,
+                                     DatabaseCatalog::ItemKind::Label)) {
+    return;
+  }
   store_parent_dir(file_path, DirRole::export_labels);
-  auto n_exported = database_catalog->export_labels(file_path);
-  QMessageBox::information(this, "labelbuddy",
-                           QString("Exported %0 label%1")
-                               .arg(n_exported)
-                               .arg(n_exported == 1 ? "" : "s"),
-                           QMessageBox::Ok);
+  auto result = database_catalog->export_labels(file_path);
+  report_result(result, file_path);
 }
 
 } // namespace labelbuddy

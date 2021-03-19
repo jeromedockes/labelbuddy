@@ -2,12 +2,12 @@
 .\"     Title: labelbuddy
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2021-03-12
+.\"      Date: 2021-03-15
 .\"    Manual: labelbuddy Manual
 .\"    Source: labelbuddy 0.0.4
 .\"  Language: English
 .\"
-.TH "LABELBUDDY" "1" "2021-03-12" "labelbuddy 0.0.4" "labelbuddy Manual"
+.TH "LABELBUDDY" "1" "2021-03-15" "labelbuddy 0.0.4" "labelbuddy Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -35,7 +35,7 @@ labelbuddy \- application for annotating text documents
 .SH "DESCRIPTION"
 .sp
 Without any options, the \fBlabelbuddy\fP command will start the \fBlabelbuddy\fP GUI to annotate documents in the database \fIFILE\fP.
-If neither \fIFILE\fP nor \fB\-\-demo\fP is used, \fBlabelbuddy\fP will open the last database that was opened, or if it is used for the first time, \f(CR~/database.labelbuddy\fP.
+If neither \fIFILE\fP nor \fB\-\-demo\fP is used, \fBlabelbuddy\fP will open the last database that was opened if it exists.
 With the option \fB\-\-demo\fP, \fBlabelbuddy\fP will open a temporary database pre\-loaded with some example documents and labels.
 .SH "OPTIONS"
 .sp

@@ -4,6 +4,7 @@
   <file>data/icons/go-up.png</file>
   <file>data/icons/go-down.png</file>
   <file>data/VERSION.txt</file>
+  <file>data/welcome_message.html</file>
   <file>docs/example_data/example_documents.json</file>
   <file>docs/example_data/example_labels.json</file>
 </qresource>

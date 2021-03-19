@@ -14,6 +14,7 @@ Jérôme Dockès <jerome@dockes.org>
 :ghreleases: https://github.com/jeromedockes/labelbuddy/releases
 :ghrepo: https://github.com/jeromedockes/labelbuddy/
 :lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
+:polinelab-home: https://neurodatascience.github.io/
 :lb: pass:q[*labelbuddy*]
 :doca: pass:q[*doccano*]
 
@@ -24,3 +25,6 @@ To get started, <<installation.adoc#,install>> {lb}, and have a look at the <<do
 You can also see some <<screenshots.adoc#,screenshots>>.
 
 {lb} is {lblicense}[open-source], and the source code is hosted on {ghrepo}[GitHub].
+
+{lb} was created to support text-mining and meta-analysis research projects in the {polinelab-home}[ORIGAMI lab] at McGill University.
+It should be suitable for a wide variety of text annotation projects.

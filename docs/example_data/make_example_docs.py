@@ -47,13 +47,16 @@ for doc_name in doc_file_names:
         annotations = get_annotations(
             body,
             [
-                (r"(You) don't", "pronoun"),
-                (r"(annotating) it instead", "verb"),
-                (r"read this (text)", "noun"),
-                (r"Gro(ups of overlap.*?with white te)xt", "something else"),
-                (r"Groups of (overlapping) annotations", "verb"),
-                (r"(Groups) of overlapping", "noun"),
-                (r"gray with white (text)", "noun"),
+                (r"(You) don't", "Word"),
+                (r"(annotating) it instead", "Mot"),
+                (r"read this (text)", "Palavra"),
+                (r"Gro(ups of overlap.*?with white te)xt", "In progress"),
+                (
+                    r"Groups of (overlapping) annotations",
+                    "\u0643\u0644\u0645\u0629",
+                ),
+                (r"(Groups) of overlapping", "Word"),
+                (r"gray with white (text)", "\u8a5e"),
             ],
         )
     else:

@@ -48,4 +48,74 @@ void TestSearchableText::test_search() {
   cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
   QCOMPARE(cursor.selectedText(), QString("3"));
 }
+
+void TestSearchableText::test_cycle_pos() {
+  SearchableText text{};
+  text.show();
+  text.fill(long_doc());
+  auto search_box = text.findChild<QLineEdit*>();
+  auto te = text.findChild<QTextEdit*>();
+  search_box->setText("Line 150");
+  text.search_forward();
+  QTest::keyClicks(te, "l", Qt::ControlModifier);
+  QVERIFY((te->cursorRect().bottom() != te->rect().bottom()) &&
+          (te->cursorRect().top() != te->rect().top()));
+  QTest::keyClicks(te, "l", Qt::ControlModifier);
+  QCOMPARE(te->cursorRect().top(), te->rect().top());
+  QTest::keyClicks(te, "l", Qt::ControlModifier);
+  QCOMPARE(te->cursorRect().bottom(), te->rect().bottom());
+}
+
+void TestSearchableText::test_shortcuts() {
+  SearchableText text{};
+  text.show();
+  text.fill(long_doc());
+  auto search_box = text.findChild<QLineEdit*>();
+  auto te = text.findChild<QTextEdit*>();
+  search_box->setText("Line 150");
+  text.search_forward();
+
+  QTest::keyClicks(te, "]");
+  QTest::keyClicks(te, "]");
+  QTest::keyClicks(te, "]");
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150\u2029Line 151"));
+
+  QTest::keyClicks(te, "[");
+  QTest::keyClicks(te, "[");
+  QTest::keyClicks(te, "[");
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150"));
+
+  QTest::keyClicks(te, "{");
+  QTest::keyClicks(te, "{");
+  QTest::keyClicks(te, "{");
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 149\u2029Line 150"));
+
+  QTest::keyClicks(te, "}");
+  QTest::keyClicks(te, "}");
+  QTest::keyClicks(te, "}");
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150"));
+
+  QTest::keyClicks(te, "]", Qt::ControlModifier);
+  QTest::keyClicks(te, "]", Qt::ControlModifier);
+  QTest::keyClicks(te, "]", Qt::ControlModifier);
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150\u2029Li"));
+
+  QTest::keyClicks(te, "[", Qt::ControlModifier);
+  QTest::keyClicks(te, "[", Qt::ControlModifier);
+  QTest::keyClicks(te, "[", Qt::ControlModifier);
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150"));
+
+  QTest::keyClicks(te, "{", Qt::ControlModifier);
+  QTest::keyClicks(te, "{", Qt::ControlModifier);
+  QTest::keyClicks(te, "{", Qt::ControlModifier);
+  QCOMPARE(te->textCursor().selectedText(), QString("49\u2029Line 150"));
+
+  QTest::keyClicks(te, "}", Qt::ControlModifier);
+  QTest::keyClicks(te, "}", Qt::ControlModifier);
+  QTest::keyClicks(te, "}", Qt::ControlModifier);
+  QCOMPARE(te->textCursor().selectedText(), QString("Line 150"));
+
+
+}
+
 } // namespace labelbuddy
