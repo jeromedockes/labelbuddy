@@ -271,10 +271,13 @@ void DocList::delete_all_docs() {
   if (resp != QMessageBox::Ok) {
     return;
   }
-  QProgressDialog progress("Deleting documents...", "Stop", 0, 0, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(2000);
-  auto n_deleted = model->delete_all_docs(&progress);
+  int n_deleted{};
+  {
+    QProgressDialog progress("Deleting documents...", "Stop", 0, 0, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(2000);
+    n_deleted = model->delete_all_docs(&progress);
+  }
   doc_view->reset();
   QMessageBox::information(this, "labelbuddy",
                            QString("Deleted %0 document%1")

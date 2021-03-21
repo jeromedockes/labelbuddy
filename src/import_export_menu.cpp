@@ -244,8 +244,7 @@ void ImportExportMenu::import_documents() {
       this, "Docs & annotations file", start_dir,
       "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files "
       "(*.txt);; JSON files (*.json);; JSON Lines files (*.jsonl);; XML files "
-      "(*.xml);; All files (*)",
-      nullptr, QFileDialog::DontUseNativeDialog);
+      "(*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -254,10 +253,13 @@ void ImportExportMenu::import_documents() {
     return;
   }
   store_parent_dir(file_path, DirRole::import_documents);
-  QProgressDialog progress("Importing documents...", "Stop", 0, 0, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(2000);
-  auto result = database_catalog->import_documents(file_path, &progress);
+  ImportDocsResult result;
+  {
+    QProgressDialog progress("Importing documents...", "Stop", 0, 0, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(2000);
+    result = database_catalog->import_documents(file_path, &progress);
+  }
   emit documents_added();
   emit labels_added();
   report_result(result, file_path);
@@ -268,8 +270,7 @@ void ImportExportMenu::import_labels() {
   auto file_path = QFileDialog::getOpenFileName(
       this, "Labels file", start_dir,
       "labelbuddy labels (*.txt *.json);; JSON files (*.json);; Text files "
-      "(*.txt);; All files (*)",
-      nullptr, QFileDialog::DontUseNativeDialog);
+      "(*.txt);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -288,8 +289,7 @@ void ImportExportMenu::export_documents() {
   auto file_path = QFileDialog::getSaveFileName(
       this, "Docs & annotations file", start_dir,
       "labelbuddy documents (*.json *.jsonl *.xml);; JSON files (*.json);; "
-      "JSON Lines files (*.jsonl);; XML files (*.xml);; All files (*)",
-      nullptr, QFileDialog::DontUseNativeDialog);
+      "JSON Lines files (*.jsonl);; XML files (*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -300,14 +300,18 @@ void ImportExportMenu::export_documents() {
   store_parent_dir(file_path, DirRole::export_documents);
   database_catalog->set_app_state_extra("approver_name",
                                         annotator_name_edit->text());
-  QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
-  progress.setWindowModality(Qt::WindowModal);
-  progress.setMinimumDuration(2000);
-  auto result = database_catalog->export_documents(
-      file_path, labelled_only_checkbox->isChecked(),
-      include_text_checkbox->isChecked(),
-      include_annotations_checkbox->isChecked(), annotator_name_edit->text(),
-      &progress);
+  ExportDocsResult result;
+  {
+    QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
+    progress.setWindowModality(Qt::WindowModal);
+    progress.setMinimumDuration(2000);
+
+    result = database_catalog->export_documents(
+        file_path, labelled_only_checkbox->isChecked(),
+        include_text_checkbox->isChecked(),
+        include_annotations_checkbox->isChecked(), annotator_name_edit->text(),
+        &progress);
+  }
   database_catalog->set_app_state_extra("export_labelled_only",
                                         labelled_only_checkbox->isChecked());
   database_catalog->set_app_state_extra("export_include_doc_text",
@@ -320,8 +324,7 @@ void ImportExportMenu::export_documents() {
 void ImportExportMenu::export_labels() {
   auto start_dir = suggest_dir(DirRole::export_labels);
   auto file_path = QFileDialog::getSaveFileName(
-      this, "Labels file", start_dir, "JSON files (*.json);; All files (*)",
-      nullptr, QFileDialog::DontUseNativeDialog);
+      this, "Labels file", start_dir, "JSON files (*.json);; All files (*)");
   if (file_path == QString()) {
     return;
   }

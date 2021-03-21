@@ -889,7 +889,7 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
     query.exec("select id from document order by id;");
   }
   if (progress != nullptr) {
-    progress->setMaximum(total_n_docs);
+    progress->setMaximum(total_n_docs + 1);
   }
 
   int n_docs{};
@@ -911,6 +911,9 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
   }
   std::cout << std::endl;
   writer->write_suffix();
+  if (progress != nullptr) {
+    progress->setValue(progress->maximum());
+  }
   return {n_docs, n_annotations, ErrorCode::NoError};
 }
 
