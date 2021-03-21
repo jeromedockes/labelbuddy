@@ -40,6 +40,7 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
   limit = new_limit;
   offset = new_offset;
   doc_filter = new_doc_filter;
+  result_set_outdated_ = false;
 
   auto query = get_query();
   switch (new_doc_filter) {
@@ -71,22 +72,29 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
 }
 
 int DocListModel::total_n_docs(DocFilter doc_filter) {
-  auto query = get_query();
   switch (doc_filter) {
-  case DocFilter::all:
-    query.prepare("select count(*) from document;");
-    break;
   case DocFilter::labelled:
-    query.prepare("select count (*) from "
-                  "(select distinct doc_id from annotation);");
-    break;
+    return n_labelled_docs_;
   case DocFilter::unlabelled:
-    query.prepare("select count (*) from unlabelled_document;");
-    break;
+    return total_n_docs_no_filter() - n_labelled_docs_;
+  default:
+    return total_n_docs_no_filter();
   }
-  query.exec();
+}
+
+int DocListModel::total_n_docs_no_filter() {
+  auto query = get_query();
+  query.exec("select count(*) from document;");
   query.next();
   return query.value(0).toInt();
+}
+
+void DocListModel::refresh_n_labelled_docs() {
+  auto query = get_query();
+  query.exec("select count (*) from "
+             "(select distinct doc_id from annotation);");
+  query.next();
+  n_labelled_docs_ = query.value(0).toInt();
 }
 
 int DocListModel::delete_docs(const QModelIndexList& indices) {
@@ -129,7 +137,7 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
     }
     query.exec("delete from document limit 1000;");
     n_deleted += query.numRowsAffected();
-    if(query.lastError().type() != QSqlError::NoError){
+    if (query.lastError().type() != QSqlError::NoError) {
       cancelled = true;
       break;
     }
@@ -149,7 +157,25 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
 }
 
 void DocListModel::refresh_current_query() {
+  refresh_n_labelled_docs();
   adjust_query(doc_filter, limit, offset);
+}
+
+void DocListModel::document_status_changed(DocumentStatus new_status) {
+  if (doc_filter != DocFilter::all) {
+    result_set_outdated_ = true;
+  }
+  if (new_status == DocumentStatus::Labelled) {
+    ++n_labelled_docs_;
+  } else {
+    --n_labelled_docs_;
+  }
+}
+
+void DocListModel::refresh_current_query_if_outdated() {
+  if (result_set_outdated_) {
+    refresh_current_query();
+  }
 }
 
 } // namespace labelbuddy

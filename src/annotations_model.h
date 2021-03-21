@@ -7,6 +7,8 @@
 #include <QSqlQuery>
 #include <QString>
 
+#include "user_roles.h"
+
 /// \file
 /// Model providing information to the Annotator
 
@@ -61,11 +63,13 @@ public:
 
   /// Delete annotations provided their `rowid` in the database
 
+  /// Returns the number of deleted annotations
+  ///
   /// If after delete operation the current doc has 0 annotations, emits
   /// `document_status_changed` (as it changed from labelled to unlabelled).
   ///
   /// Also emits `annotations_changed`
-  void delete_annotations(QList<int>);
+  int delete_annotations(QList<int>);
 
   /// Info for all labels in the database
   QMap<int, LabelInfo> get_labels_info() const;
@@ -120,7 +124,7 @@ signals:
   void document_changed();
 
   /// current document's status (labelled or unlabelled) changed
-  void document_status_changed();
+  void document_status_changed(DocumentStatus new_status);
 
 private:
   int current_doc_id = -1;

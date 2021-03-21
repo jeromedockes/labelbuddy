@@ -120,10 +120,12 @@ void LabelBuddy::add_connections() {
 
   QObject::connect(annotations_model,
                    &AnnotationsModel::document_status_changed, doc_model,
-                   &DocListModel::refresh_current_query);
+                   &DocListModel::document_status_changed);
 
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
                    doc_model, &DocListModel::refresh_current_query);
+  QObject::connect(this, &LabelBuddy::database_changed, annotator,
+                   &Annotator::reset_skip_updating_nav_buttons);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
                    annotations_model, &AnnotationsModel::check_current_doc);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
@@ -196,7 +198,8 @@ void LabelBuddy::add_menubar() {
 
   auto preferences_menu = menuBar()->addMenu("Preferences");
   QSettings settings("labelbuddy", "labelbuddy");
-  auto set_use_bold_action = new QAction("Bold selected annotation", this);
+  auto set_use_bold_action =
+      new QAction("Show selected annotation in bold font", this);
   set_use_bold_action->setCheckable(true);
   set_use_bold_action->setChecked(
       settings.value(bf_setting_key_, false).toBool());

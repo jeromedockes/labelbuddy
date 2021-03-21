@@ -105,12 +105,12 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   query.exec();
   query.next();
   if (query.value(0).toInt() == 1) {
-    emit document_status_changed();
+    emit document_status_changed(DocumentStatus::Labelled);
   }
   return new_annotation_id;
 }
 
-void AnnotationsModel::delete_annotations(QList<int> annotation_ids) {
+int AnnotationsModel::delete_annotations(QList<int> annotation_ids) {
   QVariantList ids{};
   for (auto id : annotation_ids) {
     ids << id;
@@ -119,14 +119,20 @@ void AnnotationsModel::delete_annotations(QList<int> annotation_ids) {
   query.prepare("delete from annotation where rowid = :id;");
   query.bindValue(":id", ids);
   query.execBatch();
+  auto n_deleted = query.numRowsAffected();
+  // -1 if query is not active
+  if (n_deleted <= 0) {
+    return 0;
+  }
   query.prepare("select count(*) from annotation where doc_id = :doc;");
   query.bindValue(":doc", current_doc_id);
   query.exec();
   query.next();
   if (query.value(0).toInt() == 0) {
-    emit document_status_changed();
+    emit document_status_changed(DocumentStatus::Unlabelled);
   }
   emit annotations_changed();
+  return n_deleted;
 }
 
 void AnnotationsModel::check_current_doc() {

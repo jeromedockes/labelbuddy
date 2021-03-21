@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QProgressDialog>
 
+#include "user_roles.h"
+
 /// \file
 /// Interface providing information about documents in the database.
 
@@ -48,17 +50,25 @@ public slots:
   /// reset model
   void refresh_current_query();
 
+  void document_status_changed(DocumentStatus new_status);
+  void refresh_current_query_if_outdated();
+
 signals:
 
   void docs_deleted();
 
 private:
   QSqlQuery get_query() const;
+  void refresh_n_labelled_docs();
+  int total_n_docs_no_filter();
 
   DocFilter doc_filter = DocFilter::all;
   int offset = 0;
   int limit = 100;
   QString database_name;
+  bool result_set_outdated_{};
+
+  int n_labelled_docs_{};
 };
 } // namespace labelbuddy
 #endif // LABELBUDDY_DOC_LIST_MODEL_H

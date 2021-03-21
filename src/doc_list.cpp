@@ -261,6 +261,13 @@ void DocList::setModel(DocListModel* new_model) {
   update_select_delete_buttons();
 }
 
+void DocList::showEvent(QShowEvent* event) {
+  if (model != nullptr) {
+    model->refresh_current_query_if_outdated();
+  }
+  QFrame::showEvent(event);
+}
+
 void DocList::delete_all_docs() {
   if (model == nullptr) {
     return;

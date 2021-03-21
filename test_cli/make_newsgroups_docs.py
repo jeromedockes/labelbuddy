@@ -68,30 +68,9 @@ for (a, b) in [(None, None), (0, 11), (6, 15), (0, 15), (0, 300)]:
     )
 
 
-mpl_tab_colors = [
-    "#aec7e8",
-    "#ffbb78",
-    "#98df8a",
-    "#ff9896",
-    "#c5b0d5",
-    "#c49c94",
-    "#f7b6d2",
-    "#c7c7c7",
-    "#dbdb8d",
-    "#9edae5",
-]
-letters = [chr(ord("a") + i) for i in range(26)]
-labels = [
-    {
-        "text": label,
-        "background_color": mpl_tab_colors[i % len(mpl_tab_colors)],
-        "shortcut_key": letters[i],
-    }
-    for (i, label) in enumerate(data["target_names"])
-]
-(out_dir / "labels.json").write_text(json.dumps(labels))
+(out_dir / "labels.json").write_text(json.dumps(data["labels"]))
 out_dir.joinpath("labels.txt").write_text(
-    "\n".join(lab["text"] for lab in labels)
+    "\n".join(lab["text"] for lab in data["labels"])
 )
 
 with tempfile.TemporaryDirectory() as tmp_dir:

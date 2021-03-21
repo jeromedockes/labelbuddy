@@ -68,6 +68,7 @@ public:
 
 public slots:
   void update_button_states();
+  void set_skip_updating(bool skip);
 
 private:
   AnnotationsModel* annotations_model = nullptr;
@@ -80,6 +81,8 @@ private:
   QPushButton* next_button;
   QPushButton* next_unlabelled_button;
   QPushButton* next_labelled_button;
+
+  bool skip_updating_buttons_{};
 
 signals:
   void visit_next();
@@ -182,6 +185,8 @@ public slots:
   void store_state();
   void set_font(const QFont& new_font);
   void set_use_bold_font(bool use_bold);
+
+  void reset_skip_updating_nav_buttons();
 
 protected:
   /// Filter installed on the textedit to override the behaviour of Space key

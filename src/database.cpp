@@ -1162,15 +1162,15 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
   query.bindValue(":lbv", get_version());
   success *= query.exec();
 
-  // In experiments with many documents the nested select below seemed much
-  // faster than an outer join.
+  // In experiments with many documents the subqueries below seemed much
+  // faster than a left join and slightly faster than using 'where not exists'.
   success *= query.exec(
       "CREATE VIEW IF NOT EXISTS unlabelled_document AS SELECT * FROM "
-      "document WHERE id NOT IN (SELECT doc_id FROM annotation); ");
+      "document WHERE id NOT IN (SELECT distinct doc_id FROM annotation); ");
 
   success *= query.exec(
-      "CREATE VIEW IF NOT EXISTS labelled_document AS SELECT distinct * "
-      "FROM document WHERE id IN (SELECT doc_id FROM annotation); ");
+      "CREATE VIEW IF NOT EXISTS labelled_document AS SELECT * "
+      "FROM document WHERE id IN (SELECT distinct doc_id FROM annotation); ");
   if (success) {
     query.exec("COMMIT;");
     return true;

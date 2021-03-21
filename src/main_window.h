@@ -46,8 +46,8 @@ public:
   LabelBuddy(QWidget* parent = nullptr,
              const QString& database_path = QString(),
              bool start_from_temp_db = false);
-  void closeEvent(QCloseEvent* event);
-  void showEvent(QShowEvent* event);
+  void closeEvent(QCloseEvent* event) override;
+  void showEvent(QShowEvent* event) override;
 
 signals:
 

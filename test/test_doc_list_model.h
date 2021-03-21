@@ -9,6 +9,7 @@ namespace labelbuddy {
   private slots:
     void test_delete_docs();
     void test_filters();
+    void test_updating_results();
   };
 }
 #endif

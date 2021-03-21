@@ -65,7 +65,33 @@ def fetch_newsgroups(n_docs=None):
         "txt": txt_ready,
         "xml": xml_ready,
         "target_names": newsgroups["target_names"],
+        "labels": get_labels(newsgroups["target_names"]),
     }
+
+
+def get_labels(label_names):
+    mpl_tab_colors = [
+        "#aec7e8",
+        "#ffbb78",
+        "#98df8a",
+        "#ff9896",
+        "#c5b0d5",
+        "#c49c94",
+        "#f7b6d2",
+        "#c7c7c7",
+        "#dbdb8d",
+        "#9edae5",
+    ]
+    letters = [chr(ord("a") + i) for i in range(26)]
+    labels = [
+        {
+            "text": label,
+            "background_color": mpl_tab_colors[i % len(mpl_tab_colors)],
+            "shortcut_key": letters[i],
+        }
+        for (i, label) in enumerate(label_names)
+    ]
+    return labels
 
 
 def random_annotations(doc_len, n_anno, labels, seed=0):
@@ -97,7 +123,12 @@ def random_non_overlapping_annotations(doc_len, n_anno, labels, seed=0):
 
 
 def add_random_annotations(
-    db, step=2, n_anno=20, seed=0, annotation_generator=random_annotations
+    db,
+    step=2,
+    n_anno=20,
+    seed=0,
+    annotation_generator=random_annotations,
+    max_docs=None,
 ):
     con = sqlite3.connect(db)
     con.execute("pragma foreign_keys = on;")
@@ -109,6 +140,13 @@ def add_random_annotations(
         for i, (doc_id, doc_len) in itertools.islice(
             enumerate(docs), 0, None, step
         ):
+            if max_docs is not None and i >= max_docs:
+                break
+            print(
+                f"random annotations: {i + 1}",
+                end="\r",
+                flush=True,
+            )
             annotations = annotation_generator(
                 doc_len=doc_len, n_anno=n_anno, labels=label_ids, seed=seed
             )
@@ -122,3 +160,18 @@ def add_random_annotations(
                 "values (?, ?, ?, ?)",
                 anno,
             )
+    print("\n")
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("db", type=str)
+    parser.add_argument("-n", "--n_anno", type=int, default=150)
+    parser.add_argument("-d", "--n_docs", type=int, default=None)
+    parser.add_argument("-s", "--step", type=int, default=2)
+    args = parser.parse_args()
+    add_random_annotations(
+        args.db, n_anno=args.n_anno, max_docs=args.n_docs, step=args.step
+    )

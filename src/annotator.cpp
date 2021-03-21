@@ -1,4 +1,5 @@
 #include <QColor>
+#include <QElapsedTimer>
 #include <QFont>
 #include <QFontDatabase>
 #include <QFontMetrics>
@@ -159,10 +160,11 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::update_label_choices_button_states);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
                    &Annotator::current_status_display_changed);
-  QObject::connect(text->get_text_edit(), &QPlainTextEdit::selectionChanged, this,
-                   &Annotator::update_label_choices_button_states);
-  QObject::connect(text->get_text_edit(), &QPlainTextEdit::cursorPositionChanged,
-                   this, &Annotator::activate_cluster_at_cursor_pos);
+  QObject::connect(text->get_text_edit(), &QPlainTextEdit::selectionChanged,
+                   this, &Annotator::update_label_choices_button_states);
+  QObject::connect(text->get_text_edit(),
+                   &QPlainTextEdit::cursorPositionChanged, this,
+                   &Annotator::activate_cluster_at_cursor_pos);
 
   setFocusProxy(text);
 }
@@ -341,6 +343,10 @@ std::list<Cluster>::const_iterator Annotator::cluster_at_pos(int pos) const {
 
 void Annotator::update_nav_buttons() { nav_buttons->update_button_states(); }
 
+void Annotator::reset_skip_updating_nav_buttons() {
+  nav_buttons->set_skip_updating(false);
+}
+
 int Annotator::active_annotation_label() const {
   if (active_annotation == -1) {
     return -1;
@@ -406,11 +412,13 @@ void Annotator::delete_annotation(int annotation_id) {
   if (active_annotation == annotation_id) {
     deactivate_active_annotation();
   }
-  auto anno = annotations[annotation_id];
-  remove_annotation_from_clusters(anno, clusters_);
-  annotations.remove(annotation_id);
-  sorted_annotations_.erase({anno.start_char, anno.id});
-  annotations_model->delete_annotations({annotation_id});
+  auto deleted = annotations_model->delete_annotations({annotation_id});
+  if (deleted) {
+    auto anno = annotations[annotation_id];
+    remove_annotation_from_clusters(anno, clusters_);
+    annotations.remove(annotation_id);
+    sorted_annotations_.erase({anno.start_char, anno.id});
+  }
   emit active_annotation_changed();
 }
 
@@ -739,12 +747,42 @@ void AnnotationsNavButtons::update_button_states() {
     new_msg = QString("0 / 0");
   }
   current_doc_label->setText(new_msg);
+  if (skip_updating_buttons_) {
+    return;
+  }
+  QElapsedTimer timer{};
+  timer.start();
   next_button->setEnabled(annotations_model->has_next());
   prev_button->setEnabled(annotations_model->has_prev());
   next_labelled_button->setEnabled(annotations_model->has_next_labelled());
+  if (timer.elapsed() > 500)
+    return set_skip_updating(true);
   prev_labelled_button->setEnabled(annotations_model->has_prev_labelled());
+  if (timer.elapsed() > 500)
+    return set_skip_updating(true);
   next_unlabelled_button->setEnabled(annotations_model->has_next_unlabelled());
+  if (timer.elapsed() > 500)
+    return set_skip_updating(true);
   prev_unlabelled_button->setEnabled(annotations_model->has_prev_unlabelled());
+  if (timer.elapsed() > 500)
+    return set_skip_updating(true);
+}
+
+void AnnotationsNavButtons::set_skip_updating(bool skip) {
+  if (skip) {
+    skip_updating_buttons_ = true;
+    next_button->setEnabled(true);
+    prev_button->setEnabled(true);
+    next_labelled_button->setEnabled(true);
+    prev_labelled_button->setEnabled(true);
+    next_unlabelled_button->setEnabled(true);
+    prev_unlabelled_button->setEnabled(true);
+    return;
+  }
+  if (skip_updating_buttons_) {
+    skip_updating_buttons_ = false;
+    update_button_states();
+  }
 }
 
 } // namespace labelbuddy

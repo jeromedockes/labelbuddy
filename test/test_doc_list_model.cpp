@@ -44,4 +44,31 @@ void TestDocListModel::test_filters() {
   QCOMPARE(model.data(model.index(3, 0), Roles::RowIdRole).toInt(), 4);
 }
 
+void TestDocListModel::test_updating_results() {
+  QTemporaryDir tmp_dir{};
+  auto db_name = prepare_db(tmp_dir);
+  add_annotations(db_name);
+  DocListModel model{};
+  model.set_database(db_name);
+  model.adjust_query(DocListModel::DocFilter::labelled);
+  QCOMPARE(model.rowCount(), 1);
+  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 1);
+  QSqlQuery query(QSqlDatabase::database(db_name));
+
+  query.exec("delete from annotation;");
+  model.document_status_changed(DocumentStatus::Unlabelled);
+  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 0);
+  QCOMPARE(model.rowCount(), 1);
+  model.refresh_current_query_if_outdated();
+  QCOMPARE(model.rowCount(), 0);
+
+  add_annotations(db_name);
+  model.document_status_changed(DocumentStatus::Labelled);
+  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 1);
+  QCOMPARE(model.rowCount(), 0);
+  model.refresh_current_query_if_outdated();
+  QCOMPARE(model.rowCount(), 1);
+
+}
+
 } // namespace labelbuddy

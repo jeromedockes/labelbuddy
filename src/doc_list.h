@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QSqlDatabase>
+#include <QShowEvent>
 
 #include "doc_list_model.h"
 
@@ -88,6 +89,8 @@ public:
   DocList(QWidget* parent = nullptr);
 
   void setModel(DocListModel*);
+
+  void showEvent(QShowEvent* event) override;
 
 private slots:
 
