@@ -234,8 +234,8 @@ int AnnotationsModel::first_doc_id() const {
   return get_query_result("select min(id) from document;");
 }
 int AnnotationsModel::last_unlabelled_doc_id() const {
-
-  return get_query_result("select max(id) from unlabelled_document;");
+  auto res = get_query_result("select max(id) from unlabelled_document;");
+  return res;
 }
 int AnnotationsModel::first_unlabelled_doc_id() const {
 

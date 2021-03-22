@@ -46,10 +46,12 @@ public:
 protected:
   QFile* get_file();
   void set_current_record(std::unique_ptr<DocRecord>);
+  static const int progress_range_max_{1000};
 
 private:
   QFile file;
   std::unique_ptr<DocRecord> current_record{nullptr};
+  double file_size_{};
 };
 
 class TxtDocsReader : public DocsReader {
@@ -383,7 +385,6 @@ private:
 
   int color_index{};
   bool tmp_db_data_loaded_{};
-  static const QList<QString> label_colors;
   static const QString tmp_db_name_;
 };
 

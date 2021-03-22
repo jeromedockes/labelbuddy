@@ -1,4 +1,8 @@
+#include <cmath>
+#include <stdlib.h>
+
 #include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -98,13 +102,30 @@ void scale_margin(QWidget& widget, Side side, float scale) {
   auto margins = widget.layout()->contentsMargins();
   switch (side) {
   case Side::Left:
-    margins.setLeft(margins.left() * scale);
+    margins.setLeft(
+        static_cast<int>(static_cast<float>(margins.left()) * scale));
     break;
   case Side::Right:
-    margins.setRight(margins.right() * scale);
+    margins.setRight(
+        static_cast<int>(static_cast<float>(margins.right()) * scale));
     break;
   }
   widget.layout()->setContentsMargins(margins);
 }
 
+const QString& suggest_label_color() {
+  static int color_index{};
+  return suggest_label_color(color_index++);
+}
+
+const QString& suggest_label_color(int color_index) {
+  static const QList<QString> label_colors{"#aec7e8", "#ffbb78", "#98df8a",
+                                           "#ff9896", "#c5b0d5", "#c49c94",
+                                           "#f7b6d2", "#dbdb8d", "#9edae5"};
+  return label_colors[std::max(0, color_index) % label_colors.length()];
+}
+
+int cast_progress_to_range(double current, double maximum, double range_max) {
+  return static_cast<int>(floor((current / std::max(maximum, 1.)) * range_max));
+}
 } // namespace labelbuddy

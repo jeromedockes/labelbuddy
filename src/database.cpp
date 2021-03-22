@@ -27,7 +27,9 @@ namespace labelbuddy {
 // writing xml we force utf-8 (which is the Qt default on all platforms)
 
 DocsReader::DocsReader(const QString& file_path) : file(file_path) {
-  file.open(QIODevice::ReadOnly | QIODevice::Text);
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    file_size_ = static_cast<double>(file.size());
+  }
 }
 
 DocsReader::~DocsReader() {}
@@ -36,9 +38,12 @@ bool DocsReader::read_next() { return false; }
 
 bool DocsReader::is_open() const { return file.isOpen(); }
 
-int DocsReader::progress_max() const { return file.size(); }
+int DocsReader::progress_max() const { return progress_range_max_; }
 
-int DocsReader::current_progress() const { return file.pos(); }
+int DocsReader::current_progress() const {
+  return cast_progress_to_range(static_cast<double>(file.pos()), file_size_,
+                                progress_range_max_);
+}
 
 const DocRecord* DocsReader::get_current_record() const {
   return current_record.get();
@@ -463,9 +468,6 @@ LabelRecord json_to_label_record(const QJsonValue& json) {
   return record;
 }
 
-const QList<QString> DatabaseCatalog::label_colors{
-    "#aec7e8", "#ffbb78", "#98df8a", "#ff9896", "#c5b0d5",
-    "#c49c94", "#f7b6d2", "#dbdb8d", "#9edae5"};
 const QString DatabaseCatalog::tmp_db_name_{":LABELBUDDY_TEMPORARY_DATABASE:"};
 
 DatabaseCatalog::DatabaseCatalog(QObject* parent) : QObject(parent) {
@@ -745,8 +747,7 @@ void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
   if (QColor::isValidColor(color)) {
     query.bindValue(":color", QColor(color).name());
   } else {
-    query.bindValue(":color",
-                    label_colors[color_index % label_colors.length()]);
+    query.bindValue(":color", suggest_label_color(color_index));
     used_default_color = true;
   }
   query.bindValue(":shortcut",
@@ -1119,6 +1120,10 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
       "content_md5 BLOB UNIQUE NOT NULL, "
       "content TEXT NOT NULL, extra_data BLOB, title TEXT DEFAULT NULL, "
       "long_title TEXT DEFAULT NULL, short_title TEXT DEFAULT NULL);");
+  // for some reason the auto index created for the primary key is not treated
+  // as a covering index in 'count(*) from document where id < xxx' but this is:
+  success *= query.exec("CREATE INDEX IF NOT EXISTS document_id_idx ON "
+                        "document(id);");
 
   success *= query.exec(
       "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "

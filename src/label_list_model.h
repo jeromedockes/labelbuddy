@@ -41,6 +41,8 @@ public:
   /// Valid if it is a single lowercase letter not used by another label.
   bool is_valid_shortcut(const QString& shortcut, const QModelIndex& index);
 
+  int add_label(const QString& name);
+
 public slots:
 
   /// Set the current database
@@ -69,6 +71,7 @@ signals:
 
   void labels_changed();
   void labels_deleted();
+  void labels_added();
 
 private:
   QSqlQuery get_query() const;

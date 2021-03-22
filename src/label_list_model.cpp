@@ -3,6 +3,7 @@
 
 #include "label_list_model.h"
 #include "user_roles.h"
+#include "utils.h"
 
 namespace labelbuddy {
 
@@ -106,7 +107,7 @@ void LabelListModel::refresh_current_query() {
 
 void LabelListModel::set_label_color(const QModelIndex& index,
                                      const QColor& color) {
-  if (!color.isValid()){
+  if (!color.isValid()) {
     return;
   }
   auto label_id = data(index, Roles::RowIdRole);
@@ -165,4 +166,24 @@ void LabelListModel::set_label_shortcut(const QModelIndex& index,
   emit labels_changed();
 }
 
+int LabelListModel::add_label(const QString& name) {
+  auto query = get_query();
+  query.prepare("select id from label where name = :name;");
+  query.bindValue(":name", name);
+  query.exec();
+  if (query.next()) {
+    return query.value(0).toInt();
+  }
+  query.prepare("insert into label(name, color) values (:name, :color);");
+  query.bindValue(":name", name);
+  query.bindValue(":color", suggest_label_color());
+  if (!query.exec()) {
+    return -1;
+  }
+  auto label_id = query.lastInsertId().toInt();
+  refresh_current_query();
+  emit labels_added();
+  emit labels_changed();
+  return label_id;
+}
 } // namespace labelbuddy

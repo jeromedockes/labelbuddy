@@ -72,6 +72,7 @@ signals:
   void delete_selected_rows();
   void set_label_color();
   void set_label_shortcut(const QString& new_shortcut);
+  void add_label(const QString& name);
 
 public slots:
 
@@ -87,6 +88,7 @@ public slots:
 private:
   QPushButton* select_all_button;
   QPushButton* delete_button;
+  QLineEdit* add_label_edit;
   QPushButton* set_color_button;
   QLineEdit* shortcut_edit;
   QLabel* shortcut_label;
@@ -94,6 +96,7 @@ private:
 
 private slots:
   void shortcut_edit_pressed();
+  void add_label_edit_pressed();
 };
 
 /// List of labels shown in the Dataset and Annotate tabs
@@ -119,6 +122,8 @@ private slots:
 
   /// shortcut is validated by the model before update
   void set_label_shortcut(const QString& new_shortcut);
+
+  void add_label(const QString& name);
 
 private:
   LabelListButtons* buttons_frame;

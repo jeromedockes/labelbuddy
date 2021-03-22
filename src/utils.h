@@ -57,5 +57,10 @@ enum class Side { Left, Right };
 
 void scale_margin(QWidget& widget, Side side, float scale = .5);
 
+const QString& suggest_label_color(int color_index);
+const QString& suggest_label_color();
+
+int cast_progress_to_range(double current, double maximum,
+                           double range_max = 1000);
 } // namespace labelbuddy
 #endif

@@ -71,6 +71,12 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
   delete_button = new QPushButton("Delete");
   top_layout->addWidget(delete_button);
 
+  auto add_label_layout = new QHBoxLayout();
+  outer_layout->addLayout(add_label_layout);
+  add_label_layout->addWidget(new QLabel("New label:"));
+  add_label_edit = new QLineEdit();
+  add_label_layout->addWidget(add_label_edit);
+
   auto bottom_layout = new QHBoxLayout();
   outer_layout->addLayout(bottom_layout);
   set_color_button = new QPushButton("Set color");
@@ -92,6 +98,8 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
                    SIGNAL(delete_selected_rows()));
   QObject::connect(shortcut_edit, &QLineEdit::returnPressed, this,
                    &LabelListButtons::shortcut_edit_pressed);
+  QObject::connect(add_label_edit, &QLineEdit::returnPressed, this,
+                   &LabelListButtons::add_label_edit_pressed);
 }
 
 void LabelListButtons::update_button_states(int n_selected, int total,
@@ -121,6 +129,14 @@ void LabelListButtons::shortcut_edit_pressed() {
   emit set_label_shortcut(shortcut_edit->text());
 }
 
+void LabelListButtons::add_label_edit_pressed() {
+  auto label_name = add_label_edit->text().trimmed();
+  if (label_name != "") {
+    emit add_label(label_name);
+  }
+  add_label_edit->setText("");
+}
+
 LabelList::LabelList(QWidget* parent) : QFrame(parent) {
   QVBoxLayout* layout = new QVBoxLayout();
   setLayout(layout);
@@ -141,15 +157,14 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
 
   QObject::connect(buttons_frame, &LabelListButtons::select_all, labels_view,
                    &QListView::selectAll);
-
   QObject::connect(buttons_frame, &LabelListButtons::delete_selected_rows, this,
                    &LabelList::delete_selected_rows);
-
   QObject::connect(buttons_frame, &LabelListButtons::set_label_color, this,
                    &LabelList::set_label_color);
-
   QObject::connect(buttons_frame, &LabelListButtons::set_label_shortcut, this,
                    &LabelList::set_label_shortcut);
+  QObject::connect(buttons_frame, &LabelListButtons::add_label, this,
+                   &LabelList::add_label);
 }
 
 void LabelList::setModel(LabelListModel* new_model) {
@@ -235,8 +250,18 @@ void LabelList::set_label_shortcut(const QString& new_shortcut) {
   model->set_label_shortcut(*selected, new_shortcut);
 }
 
+void LabelList::add_label(const QString& name) {
+  auto label_id = model->add_label(name);
+  if (label_id == -1) {
+    return;
+  }
+  labels_view->reset();
+  auto model_index = model->label_id_to_model_index(label_id);
+  labels_view->setCurrentIndex(model_index);
+}
+
 QValidator::State ShortcutValidator::validate(QString& input, int& pos) const {
-  (void) pos;
+  (void)pos;
   if (model == nullptr || view == nullptr) {
     return State::Invalid;
   }
