@@ -4,7 +4,7 @@
 <meta charset="UTF-8"></meta>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-<meta name="generator" content="Asciidoctor 2.0.12"></meta>
+<meta name="generator" content="Asciidoctor 2.0.10"></meta>
 <meta name="author" content="Jérôme Dockès"></meta>
 <title>labelbuddy documentation</title>
 <style>
@@ -47,7 +47,7 @@ textarea{overflow:auto;vertical-align:top}
 table{border-collapse:collapse;border-spacing:0}
 *,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
 html,body{font-size:100%}
-body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
 a:hover{cursor:pointer}
 img,object,embed{max-width:100%;height:auto}
 object,embed{height:100%}
@@ -62,8 +62,10 @@ img{-ms-interpolation-mode:bicubic}
 img,object,svg{display:inline-block;vertical-align:middle}
 textarea{height:auto;min-height:50px}
 select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
 .subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
-div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
 a{color:#2156a5;text-decoration:underline;line-height:inherit}
 a:hover,a:focus{color:#1d4b8f}
 a img{border:0}
@@ -103,22 +105,19 @@ h1{font-size:2.75em}
 h2{font-size:2.3125em}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
 h4{font-size:1.4375em}}
-table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede;word-wrap:normal}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
 table thead,table tfoot{background:#f7f8f7}
 table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
 table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
 table tr.even,table tr.alt{background:#f8f8f7}
-table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
 h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
 h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
-.center{margin-left:auto;margin-right:auto}
-.stretch{width:100%}
 .clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
 .clearfix::after,.float-group::after{clear:both}
-:not(pre).nobreak{word-wrap:normal}
-:not(pre).nowrap{white-space:nowrap}
-:not(pre).pre-wrap{white-space:pre-wrap}
-:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+:not(pre)>code.nobreak{word-wrap:normal}
+:not(pre)>code.nowrap{white-space:nowrap}
 pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
 pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
 pre>code{display:block}
@@ -183,7 +182,7 @@ body.toc2.toc-right{padding-left:0;padding-right:20em}}
 #content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
 #content #toc>:first-child{margin-top:0}
 #content #toc>:last-child{margin-bottom:0}
-#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer{max-width:100%;background:rgba(0,0,0,.8);padding:1.25em}
 #footer-text{color:rgba(255,255,255,.8);line-height:1.44}
 #content{margin-bottom:.625em}
 .sect1{padding-bottom:.625em}
@@ -206,7 +205,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .admonitionblock>table td.icon{text-align:center;width:80px}
 .admonitionblock>table td.icon img{max-width:none}
 .admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
-.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
 .exampleblock>.content>:first-child{margin-top:0}
@@ -216,7 +215,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
 .exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
-.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
 .literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
@@ -262,20 +261,21 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
+table.tableblock{max-width:100%;border-collapse:separate}
 p.tableblock:last-child{margin-bottom:0}
-td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
 td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+td.tableblock>.content>:last-child.sidebarblock{margin-bottom:0}
 table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
-table.grid-all>*>tr>*{border-width:1px}
-table.grid-cols>*>tr>*{border-width:0 1px}
-table.grid-rows>*>tr>*{border-width:1px 0}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
 table.frame-all{border-width:1px}
-table.frame-ends{border-width:1px 0}
 table.frame-sides{border-width:0 1px}
-table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
-table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
-table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
-table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
 table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
@@ -284,7 +284,7 @@ th.valign-top,td.valign-top{vertical-align:top}
 th.valign-bottom,td.valign-bottom{vertical-align:bottom}
 th.valign-middle,td.valign-middle{vertical-align:middle}
 table thead th,table tfoot th{font-weight:bold}
-tbody tr th{background:#f7f8f7}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
 tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
 p.tableblock>code:only-child{background:none;padding:0}
 p.tableblock{font-size:1em}
@@ -313,7 +313,6 @@ ol.lowergreek{list-style-type:lower-greek}
 .hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
 td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
 td.hdlist1{font-weight:bold;padding-bottom:1.25em}
-td.hdlist2{word-wrap:anywhere}
 .literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
 .colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
 .colist td:not([class]):first-child img{max-width:none}
@@ -386,7 +385,7 @@ a span.icon>.fa{cursor:inherit}
 .admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
 .admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
 .admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
-.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:50%;border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
 .conum[data-value] *{color:#fff!important}
 .conum[data-value]+b{display:none}
 .conum[data-value]::after{content:attr(data-value)}
@@ -413,7 +412,6 @@ thead{display:table-header-group}
 svg{max-width:100%}
 p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
 h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
-#header,#content,#footnotes,#footer{max-width:none}
 #toc,.sidebarblock,.exampleblock>.content{background:none!important}
 #toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
 body.book #header{text-align:center}
@@ -438,76 +436,23 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 <style>
-pre.pygments .hll { background-color: #ffffcc }
-pre.pygments  { background: #ffffff; }
-pre.pygments .tok-c { color: #888888; font-style: italic } /* Comment */
-pre.pygments .tok-err { background-color: #a848a8 } /* Error */
-pre.pygments .tok-k { color: #2838b0 } /* Keyword */
-pre.pygments .tok-o { color: #666666 } /* Operator */
-pre.pygments .tok-p { color: #888888 } /* Punctuation */
-pre.pygments .tok-ch { color: #287088; font-style: italic } /* Comment.Hashbang */
-pre.pygments .tok-cm { color: #888888; font-style: italic } /* Comment.Multiline */
-pre.pygments .tok-cp { color: #289870 } /* Comment.Preproc */
-pre.pygments .tok-cpf { color: #888888; font-style: italic } /* Comment.PreprocFile */
-pre.pygments .tok-c1 { color: #888888; font-style: italic } /* Comment.Single */
-pre.pygments .tok-cs { color: #888888; font-style: italic } /* Comment.Special */
-pre.pygments .tok-gd { color: #c02828 } /* Generic.Deleted */
-pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
-pre.pygments .tok-gr { color: #c02828 } /* Generic.Error */
-pre.pygments .tok-gh { color: #666666 } /* Generic.Heading */
-pre.pygments .tok-gi { color: #388038 } /* Generic.Inserted */
-pre.pygments .tok-go { color: #666666 } /* Generic.Output */
-pre.pygments .tok-gp { color: #444444 } /* Generic.Prompt */
-pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
-pre.pygments .tok-gu { color: #444444 } /* Generic.Subheading */
-pre.pygments .tok-gt { color: #2838b0 } /* Generic.Traceback */
-pre.pygments .tok-kc { color: #444444; font-style: italic } /* Keyword.Constant */
-pre.pygments .tok-kd { color: #2838b0; font-style: italic } /* Keyword.Declaration */
-pre.pygments .tok-kn { color: #2838b0 } /* Keyword.Namespace */
-pre.pygments .tok-kp { color: #2838b0 } /* Keyword.Pseudo */
-pre.pygments .tok-kr { color: #2838b0 } /* Keyword.Reserved */
-pre.pygments .tok-kt { color: #2838b0; font-style: italic } /* Keyword.Type */
-pre.pygments .tok-m { color: #444444 } /* Literal.Number */
-pre.pygments .tok-s { color: #b83838 } /* Literal.String */
-pre.pygments .tok-na { color: #388038 } /* Name.Attribute */
-pre.pygments .tok-nb { color: #388038 } /* Name.Builtin */
-pre.pygments .tok-nc { color: #287088 } /* Name.Class */
-pre.pygments .tok-no { color: #b85820 } /* Name.Constant */
-pre.pygments .tok-nd { color: #287088 } /* Name.Decorator */
-pre.pygments .tok-ni { color: #709030 } /* Name.Entity */
-pre.pygments .tok-ne { color: #908828 } /* Name.Exception */
-pre.pygments .tok-nf { color: #785840 } /* Name.Function */
-pre.pygments .tok-nl { color: #289870 } /* Name.Label */
-pre.pygments .tok-nn { color: #289870 } /* Name.Namespace */
-pre.pygments .tok-nt { color: #2838b0 } /* Name.Tag */
-pre.pygments .tok-nv { color: #b04040 } /* Name.Variable */
-pre.pygments .tok-ow { color: #a848a8 } /* Operator.Word */
-pre.pygments .tok-w { color: #a89028 } /* Text.Whitespace */
-pre.pygments .tok-mb { color: #444444 } /* Literal.Number.Bin */
-pre.pygments .tok-mf { color: #444444 } /* Literal.Number.Float */
-pre.pygments .tok-mh { color: #444444 } /* Literal.Number.Hex */
-pre.pygments .tok-mi { color: #444444 } /* Literal.Number.Integer */
-pre.pygments .tok-mo { color: #444444 } /* Literal.Number.Oct */
-pre.pygments .tok-sa { color: #444444 } /* Literal.String.Affix */
-pre.pygments .tok-sb { color: #b83838 } /* Literal.String.Backtick */
-pre.pygments .tok-sc { color: #a848a8 } /* Literal.String.Char */
-pre.pygments .tok-dl { color: #b85820 } /* Literal.String.Delimiter */
-pre.pygments .tok-sd { color: #b85820; font-style: italic } /* Literal.String.Doc */
-pre.pygments .tok-s2 { color: #b83838 } /* Literal.String.Double */
-pre.pygments .tok-se { color: #709030 } /* Literal.String.Escape */
-pre.pygments .tok-sh { color: #b83838 } /* Literal.String.Heredoc */
-pre.pygments .tok-si { color: #b83838; text-decoration: underline } /* Literal.String.Interpol */
-pre.pygments .tok-sx { color: #a848a8 } /* Literal.String.Other */
-pre.pygments .tok-sr { color: #a848a8 } /* Literal.String.Regex */
-pre.pygments .tok-s1 { color: #b83838 } /* Literal.String.Single */
-pre.pygments .tok-ss { color: #b83838 } /* Literal.String.Symbol */
-pre.pygments .tok-bp { color: #388038; font-style: italic } /* Name.Builtin.Pseudo */
-pre.pygments .tok-fm { color: #b85820 } /* Name.Function.Magic */
-pre.pygments .tok-vc { color: #b04040 } /* Name.Variable.Class */
-pre.pygments .tok-vg { color: #908828 } /* Name.Variable.Global */
-pre.pygments .tok-vi { color: #b04040 } /* Name.Variable.Instance */
-pre.pygments .tok-vm { color: #b85820 } /* Name.Variable.Magic */
-pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
+ .annotation-cluster {
+     background: gray;
+     color: white;
+ }
+ .active-anno {
+     text-decoration: underline;
+ }
+ .active-anno-bold {
+     font-weight: bold;
+     text-decoration: underline;
+ }
+ .blue-bg {
+     background: LightBlue;
+ }
+ .yellow-bg {
+     background: Gold;
+ }
 </style>
 </head>
 <body class="article toc2 toc-left">
@@ -531,7 +476,7 @@ pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
 <li><a href="#importing-documents">2.1. Importing documents</a></li>
 <li><a href="#importing-labels">2.2. Importing labels</a></li>
 <li><a href="#annotating-documents">2.3. Annotating documents</a></li>
-<li><a href="#exporting-annotations">2.4. Exporting annotations</a></li>
+<li><a href="#exporting-documents-and-annotations">2.4. Exporting documents and annotations</a></li>
 <li><a href="#exporting-labels">2.5. Exporting labels</a></li>
 <li><a href="#importing-annotations">2.6. Importing annotations</a></li>
 <li><a href="#managing-projects">2.7. Managing projects</a></li>
@@ -546,7 +491,7 @@ pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This document describes <a href="https://jeromedockes.github.io/labelbuddy/"><strong>labelbuddy</strong></a> version <strong>0.0.3</strong>.</p>
+<p>This document describes <a href="https://jeromedockes.github.io/labelbuddy/"><strong>labelbuddy</strong></a> version <strong>0.0.6</strong>.</p>
 </div>
 </div>
 </div>
@@ -558,14 +503,14 @@ pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
 It can be used for example for Part Of Speech tagging, Named Entity Recognition, sentiment analysis and document classification …​</p>
 </div>
 <div class="paragraph">
-<p>It aims to be easy to install and use, and can efficiently handle many documents, labels and annotations.</p>
+<p>It aims to be easy to install and use, and can efficiently handle many documents and annotations.</p>
 </div>
 <div class="sect2">
 <h3 id="labelbuddy-vs-other-annotation-tools">1.1. labelbuddy vs other annotation tools</h3>
 <div class="paragraph">
 <p>There exist several tools for annotating documents.
 Most of them, such as <a href="https://doccano.github.io/doccano/">doccano</a> and <a href="https://labelstud.io/">labelstudio</a> are meant to run on a web server and be used online.
-If you are crowdsourcing annotations and want many users to contribute annotations to a central database without installing anything on their machine you should turn to one of these tools.</p>
+If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.</p>
 </div>
 <div class="paragraph">
 <p>However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents.
@@ -598,7 +543,7 @@ If you decide to start creating annotations that you want to keep, open a new da
 <div class="title">Note</div>
 </td>
 <td class="content">
-a <a href="#managing-projects">labelbuddy database</a> is actually just a regular file on your disk (an <a href="https://www.sqlite.org/">SQLite</a> database).
+a <a href="#managing-projects">labelbuddy database</a> is just an ordinary file (an <a href="https://www.sqlite.org/">SQLite</a> database).
 </td>
 </tr>
 </table>
@@ -610,18 +555,22 @@ a <a href="#managing-projects">labelbuddy database</a> is actually just a regula
 <h2 id="using-labelbuddy">2. Using labelbuddy</h2>
 <div class="sectionbody">
 <div class="paragraph">
+<p>The labelbuddy interface is organized around three tabs: the <strong>“Import / Export”</strong> tab for importing and exporting documents, labels and annotations, the <strong>“Dataset”</strong> tab to get an overview and manage documents and labels in the database, and the <strong>“Annotate”</strong> tab is where you annotate documents.</p>
+</div>
+<div class="paragraph">
 <p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from various formats.
 Once this is done, you can annotate the documents and finally export your annotations.
 It is also possible to import annotations exported from <strong>labelbuddy</strong> or <strong>doccano</strong>.
-Importing and exporting data can be done from the graphical or the <a href="#command-line-interface">command line</a> interface.</p>
+This section describes how to perform each of these operations.</p>
 </div>
 <div class="paragraph">
-<p>Documents and labels that are already in the database are skipped if you try to import them again.</p>
+<p>Importing and exporting data can be done from the graphical or the <a href="#command-line-interface">command line</a> interface.
+Documents, labels and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).</p>
 </div>
 <div class="sect2">
 <h3 id="importing-documents">2.1. Importing documents</h3>
 <div class="paragraph">
-<p>In the <strong>“Import / Export”</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file.</p>
+<p>In the <strong>“Import / Export”</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file containing the documents you plan to annotate.</p>
 </div>
 <div class="paragraph">
 <p>When importing a new document into <strong>labelbuddy</strong>, several attributes can be specified (exactly how will depend on the format used as described in the following sections):</p>
@@ -700,7 +649,12 @@ It can contain links by using an html <code>&lt;a&gt;</code> tag.
 </table>
 </div>
 <div class="paragraph">
-<p>This information can be provided in several plain text formats. The format is deduced from the filename extension.</p>
+<p>This information can be provided in several plain text formats described in the following sections.
+The format is deduced from the filename extension.</p>
+</div>
+<div class="paragraph">
+<p>Note that <strong>labelbuddy</strong> only deals with plain text documents.
+Other formats will need to be converted to plain text, for example using <a href="https://www.xpdfreader.com/pdftotext-man.html">pdftotext</a> if they are in PDF, or <a href="https://pandoc.org/">pandoc</a> (specifying the target format as "plain") for many other formats.</p>
 </div>
 <div class="sect3">
 <h4 id="from-txt">2.1.1. From <code>.txt</code></h4>
@@ -737,15 +691,8 @@ If provided, <code>meta</code> must be a JSON object containing user data about 
 <div class="paragraph">
 <p>Moreover, it is also possible to <a href="#importing-annotations">import annotations</a> together with a new document, or for a document already in the database.</p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
 <div class="paragraph">
-<p>Besides of the object format above, <strong>labelbuddy</strong> also accepts another format, providing one JSON array per document.
+<p>Detail: besides the object format above, <strong>labelbuddy</strong> also accepts another format, providing one JSON array per document.
 In this case the first (mandatory) element of the array is the text, and the second (optional) one is <code>meta</code>.
 Other attributes cannot be specified.</p>
 </div>
@@ -756,10 +703,6 @@ Other attributes cannot be specified.</p>
 <span class="tok-p">[</span><span class="tok-s2">"text of second doc"</span><span class="tok-p">]</span>
 <span class="tok-p">]</span></code></pre>
 </div>
-</div>
-</td>
-</tr>
-</table>
 </div>
 </div>
 <div class="sect3">
@@ -829,7 +772,7 @@ The <code>shortcut_key</code> is a lower-case ASCII letter (a-z) that helps quic
 </div>
 <div class="paragraph">
 <p>As for documents, the format is deduced from the filename extension when importing labels.
-The label color and shortcut key can be changed from within the GUI application .</p>
+It is also possible to add a new label or change the color or shortcut key from within the GUI application.</p>
 </div>
 <div class="sect3">
 <h4 id="from-txt-2">2.2.1. From <code>.txt</code></h4>
@@ -867,15 +810,8 @@ Adjective</pre>
 <span class="tok-p">]</span></code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
 <div class="paragraph">
-<p>Besides of the object format above, <strong>labelbuddy</strong> also accepts another format, providing one JSON array per label.
+<p>Detail: besides the object format above, <strong>labelbuddy</strong> also accepts another format, providing one JSON array per label.
 In this case the first (mandatory) element of the array is the text (label name), and the second (optional) one is the color.</p>
 </div>
 <div class="listingblock">
@@ -887,9 +823,8 @@ In this case the first (mandatory) element of the array is the text (label name)
 <span class="tok-p">]</span></code></pre>
 </div>
 </div>
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>There are no <code>.jsonl</code> or <code>.xml</code> formats for representing labels.</p>
 </div>
 </div>
 </div>
@@ -897,24 +832,22 @@ In this case the first (mandatory) element of the array is the text (label name)
 <h3 id="annotating-documents">2.3. Annotating documents</h3>
 <div class="paragraph">
 <p>Once you have imported labels and documents you can see them in the <strong>“Dataset”</strong> tab.
-You can delete labels or documents and change the color and shortcut associated with each label.
+You can filter which documents are shown by the labels they have been annotated with.
+You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You then go to the <strong>“Annotate”</strong> tab.
-(If you double-click a document it will be opened in the <strong>“Annotate”</strong> tab.)</p>
+(If you double-click a document or press <kbd>Enter</kbd> after selecting it it will be opened in the <strong>“Annotate”</strong> tab.)</p>
 </div>
 <div class="paragraph">
 <p>To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
 It is also possible to do the same thing with the keyboard.
 Search for the term you want to annotate and the first match will be selected.
-The selection can be adusted with the keyboard using the bindings described <a href="#summary-of-key-bindings-in-the-annotate-tab">below</a>.
+The selection can be adusted with the keyboard using the bindings described <a href="#keybindings-summary">below</a>.
 Then press the shortcut key associated with the label you want to set.</p>
 </div>
 <div class="paragraph">
 <p>Once you have created annotations, you can select any of them by clicking it.
-It becomes bold and underlined and you can change its label by clicking on a different one or remove the annotation by clicking <b class="button">Remove</b>.
+It becomes <span class="blue-bg active-anno">underlined</span> and you can change its label by clicking on a different one or remove the annotation by clicking <b class="button">Remove</b>.
 You can also do this with the keyboard: jump to the next annotation with the <kbd>Space</kbd> key and change its label with a label shortcut or remove it with <kbd>Backspace</kbd>.</p>
-</div>
-<div class="paragraph">
-<p>If you create a new annotation that overlaps with a previously existing one, the previously existing one is automatically removed.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -923,13 +856,37 @@ You can also do this with the keyboard: jump to the next annotation with the <kb
 <div class="title">Tip</div>
 </td>
 <td class="content">
-If showing the selection in bold is annoying (depending on the font it can slightly change its size) you can disable it in <span class="menuseq"><b class="menu">Preferences</b> <b class="caret">›</b> <b class="menuitem">Bold selected region</b></span>.
+If the selected annotation is not visible enough you can also make it <strong>bold</strong> by selecting  <span class="menuseq"><b class="menu">Preferences</b> <b class="caret">›</b> <b class="menuitem">Show selected annotation in bold font</b></span>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Tip</div>
+</td>
+<td class="content">
+If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
+If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
+You can then use it to filter documents in the <strong>“Annotate”</strong> tab.
 </td>
 </tr>
 </table>
 </div>
 <div class="sect3">
-<h4 id="summary-of-key-bindings-in-the-annotate-tab">2.3.1. Summary of key bindings in the <strong>“Annotate”</strong> tab</h4>
+<h4 id="overlapping-annotations">2.3.1. Overlapping annotations</h4>
+<div class="paragraph">
+<p>When two or more annotations overlap, the whole group is shown in <span class="annotation-cluster">white text on a gray background</span>.
+As you click the gray region or press the <kbd>Space</kbd> key, each <span class="annotation-cluster">annotation is </span><span class="active-anno blue-bg">selected</span><span class="annotation-cluster"> in turn</span> and shown in its label’s color.</p>
+</div>
+<div class="paragraph">
+<p>The status bar on the bottom of the window shows a caret (“^”) next to the label name when the selected annotation is the first of its overlapping group (and “^^” when it is the first in the document).</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="keybindings-summary">2.3.2. Summary of key bindings in the <strong>“Annotate”</strong> tab</h4>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 33.3333%;"></col>
@@ -943,7 +900,7 @@ If showing the selection in bold is annoying (depending on the font it can sligh
 <tbody>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Ctrl</kbd> and scroll the mouse</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">zoom or dezoom the text</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zoom or dezoom the text (for persistent settings, use <span class="menuseq"><b class="menu">Preferences</b> <b class="caret">›</b> <b class="menuitem">Choose font</b></span> )</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>, <kbd>/</kbd></p></td>
@@ -991,7 +948,7 @@ If showing the selection in bold is annoying (depending on the font it can sligh
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>a-z</kbd> (label’s <code>shortcut_key</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>A-Z</kbd> (label’s <code>shortcut_key</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">set corresponding label for the currently selected region or annotation</p></td>
 </tr>
 <tr>
@@ -1078,10 +1035,13 @@ If showing the selection in bold is annoying (depending on the font it can sligh
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p>Moreover, you can use <span class="keyseq"><kbd>Alt</kbd>+<kbd>A</kbd></span>, <span class="keyseq"><kbd>Alt</kbd>+<kbd>D</kbd></span> and <span class="keyseq"><kbd>Alt</kbd>+<kbd>I</kbd></span> to jump to the <strong>“Annotate”</strong>, <strong>“Dataset”</strong> and <strong>“Import / Export”</strong> tabs respectively.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
-<h3 id="exporting-annotations">2.4. Exporting annotations</h3>
+<h3 id="exporting-documents-and-annotations">2.4. Exporting documents and annotations</h3>
 <div class="paragraph">
 <p>Once you are satisfied with your annotations you can export them to an <code>.json</code>, <code>.jsonl</code> or <code>.xml</code> file to share them or use them in other applications.</p>
 </div>
@@ -1090,7 +1050,8 @@ If showing the selection in bold is annoying (depending on the font it can sligh
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
 If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the MD5 checksum of the text that is always exported.
-You can also provide an “annotation approver” (user name), that will be exported as the <code>annotation_approver</code> (used by <strong>doccano</strong>).</p>
+You can also provide an “annotation approver” (user name), that will be exported as the <code>annotation_approver</code> (used by <strong>doccano</strong>).
+You can also choose to only export the documents, without the annotations.</p>
 </div>
 <div class="paragraph">
 <p>When clicking <b class="button">Export docs &amp; annotations</b> you are asked to select a file and the resulting format will depend on the filename extension.
@@ -1235,6 +1196,20 @@ Again the format is the same as for importing with some additional elements (and
 <span class="tok-nt">&lt;/document_set&gt;</span></code></pre>
 </div>
 </div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Caution</div>
+</td>
+<td class="content">
+<a href="https://en.wikipedia.org/wiki/Valid_characters_in_XML">Invalid characters</a> (for example form feed, <code>0xC</code>) will not be written to the output.
+JSON can represent all Unicode characters, including some characters that are invalid in XML.
+Thus if you imported documents from JSON or JSONL and there is a chance that they contain invalid XML characters, it is safer to choose JSON or JSONL as the export format so that no characters are ommitted in the output.
+</td>
+</tr>
+</table>
+</div>
 </div>
 </div>
 <div class="sect2">
@@ -1243,7 +1218,7 @@ Again the format is the same as for importing with some additional elements (and
 <p>You can also export labels by clicking “Export labels” and selecting a JSON file.
 The resulting file will contain an array of json objects; the same format as the <a href="#from-json">input format</a>.
 Unlike documents each label is not on a single line.
-Both keys <code>color</code> and <code>background_color</code> are set to the label’s colors.
+Both keys <code>color</code> and <code>background_color</code> are set to the label’s color.
 Both keys <code>shortcut_key</code> and <code>suffix_key</code> are set to the label’s shortcut key if it has one.</p>
 </div>
 </div>
@@ -1260,7 +1235,7 @@ changed in the application).</p>
 If the text is not present in the exported file, the MD5 checksum will be used to associate the annotations with the correct document.</p>
 </div>
 <div class="paragraph">
-<p>To avoid mixing annotations from different sources, if the document already contains annotations in the database, the new annotations will not be added.</p>
+<p>Annotations already in the database (same label at the same position in the same document) will not be inserted, so it is not a problem to import the same documents and annotations several times.</p>
 </div>
 <div class="paragraph">
 <p>For documents that are not in the database, their text must have been exported together with the annotations and in this case both the document and the annotations will be added to the database.</p>
@@ -1296,7 +1271,9 @@ Therefore if you import the result into a <strong>labelbuddy</strong> database t
 </td>
 <td class="content">
 if the original document contained leading whitespace, <strong>labelbuddy</strong> annotations will appear shifted when <strong>doccano</strong> removes the whitespace.
-Moreover, <strong>doccano</strong> allows duplicate documents so if the documents were already in the <strong>doccano</strong> database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
+Moreover, <strong>labelbuddy</strong> can handle overlapping annotations whereas <strong>doccano</strong> cannot.
+Therefore if you try to import overlapping annotations (created with <strong>labelbuddy</strong>) into <strong>doccano</strong> the results will be incorrect; annotated text will appear duplicated and jumbled.
+Finally, <strong>doccano</strong> allows duplicate documents so if the documents were already in the <strong>doccano</strong> database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
 </td>
 </tr>
 </table>
@@ -1307,7 +1284,7 @@ Moreover, <strong>doccano</strong> allows duplicate documents so if the document
 <h3 id="managing-projects">2.7. Managing projects</h3>
 <div class="paragraph">
 <p>Each <strong>labelbuddy</strong> database (containing documents, labels and annotations) is an <a href="https://www.sqlite.org/">SQLite</a> database.
-That is a single binary file on your disk that you can copy, backup, or share, like any other file.</p>
+That is a single regular file on your disk that you can copy, backup, or share, like any other file.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -1316,94 +1293,98 @@ That is a single binary file on your disk that you can copy, backup, or share, l
 <div class="title">Tip</div>
 </td>
 <td class="content">
-Using SQLite you can also open a connection directly to the database to query it or even modify it.
+Using <strong>SQLite</strong> you can also open a connection directly to the database to query it or even modify it.
 If you do so, set <code>PRAGMA foreign_keys = ON</code>.
 </td>
 </tr>
 </table>
 </div>
 <div class="paragraph">
-<p>When you first start <strong>labelbuddy</strong> it creates a new database in <code>~/labelbuddy_data.sqlite3</code>.
-You can switch to a different one by selecting <span class="menuseq"><b class="menu">File</b> <b class="caret">›</b> <b class="menuitem">Open</b></span> or <span class="menuseq"><b class="menu">File</b> <b class="caret">›</b> <b class="menuitem">New</b></span>.
-The path to the current database is displayed in the <strong>“Import / Export”</strong> tab.</p>
-</div>
-<div class="paragraph">
-<p>The next time you start <strong>labelbuddy</strong>, it will open the last database that you opened.</p>
-</div>
-<div class="paragraph">
-<p>The database to open can also be specified when invoking <strong>labelbuddy</strong> from the command line:</p>
+<p>After starting <strong>labelbuddy</strong>, you can create a new database or open an existing one by selecting <span class="menuseq"><b class="menu">File</b> <b class="caret">›</b> <b class="menuitem">Open</b></span>.
+If you used <strong>labelbuddy</strong> before, by default at startup it opens the last database that you used.
+The database to open can also be specified when invoking <strong>labelbuddy</strong> from the command line:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">labelbuddy /path/to/my_annotations.sqlite3</pre>
+<pre class="nowrap">labelbuddy /path/to/my_project.labelbuddy</pre>
 </div>
+</div>
+<div class="paragraph">
+<p>The path to the current database is displayed in the <strong>“Import / Export”</strong> tab.</p>
 </div>
 <div class="paragraph">
 <p>If you just want to give <strong>labelbuddy</strong> a try and don’t have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b> <b class="caret">›</b> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
 </div>
 <div class="paragraph">
-<p>As it is easy to create and delete databases (an empty <strong>labelbuddy</strong> database is just 48K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
-In particular, it is possible to work with several databases rather than a monolithic one.
-You can break down the annotations into several files to reflect the structure of your project.
-As an example you could also create a new database to annotate a fresh batch of documents, then export and merge into a main database once that batch is finished.</p>
+<p>As it is easy to create, copy and delete databases (an empty <strong>labelbuddy</strong> database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each <strong>labelbuddy</strong> file.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="command-line-interface">2.8. Command-line interface</h3>
 <div class="paragraph">
 <p><strong>labelbuddy</strong> can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
-See the <code>labelbuddy(1)</code> <strong>man</strong> page, or <code>labelbuddy -h</code> for a short list of options reproduced here:</p>
+See the <code>labelbuddy(1)</code> <a href="manpage.html"><strong>man</strong> page</a>, or <code>labelbuddy -h</code> for a short list of options reproduced here:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">Usage: ./labelbuddy [options] database
+<pre class="nowrap">Usage: ./labelbuddy [options] [database]
 Annotate documents.
 
 Options:
-  -h, --help                                 Displays this help.
-  -v, --version                              Displays version information.
-  --demo                                     Open a temporary demo database
-                                             with pre-loaded docs
-  --import-labels &lt;labels file&gt;              Labels file to import in database.
-  --import-docs &lt;docs file&gt;                  Docs &amp; annotations file to import
-                                             in database.
-  --export-labels &lt;exported labels file&gt;     Labels file to export to.
-  --export-docs &lt;exported docs file&gt;         Docs &amp; annotations file to export
-                                             to.
-  --labelled-only                            Export only labelled documents
-  --include-text                             Include doc text with exported
-                                             annotations
-  --approver &lt;name&gt;                          User or 'annotations approver'
-                                             name
-  --vacuum                                   Repack database into minimal
-                                             amount of disk space.
+  -h, --help                              Displays this help.
+  -v, --version                           Displays version information.
+  --demo                                  Open a temporary demo database with
+                                          pre-loaded docs
+  --import-labels &lt;labels file&gt;           Labels file to import in database.
+  --import-docs &lt;docs file&gt;               Docs &amp; annotations file to import in
+                                          database.
+  --export-labels &lt;exported labels file&gt;  Labels file to export to.
+  --export-docs &lt;exported docs file&gt;      Docs &amp; annotations file to export to.
+  --labelled-only                         Export only labelled documents
+  --no-text                               Do not include doc text when
+                                          exporting
+  --no-annotations                        Do not include annotations when
+                                          exporting
+  --approver &lt;name&gt;                       User or 'annotations approver' name
+  --vacuum                                Repack database into minimal amount
+                                          of disk space.
 
 Arguments:
-  database                                   Database to open.</pre>
+  database                                Database to open.</pre>
 </div>
 </div>
 <div class="paragraph">
 <p>If any of the <code>import-</code> or <code>export-</code> options are used, <strong>labelbuddy</strong> doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
-To use these options, the database path must be provided explicitly.
-Labels are imported first, then documents, then export operations are performed.</p>
+To use these options, the database path must be provided explicitly.</p>
 </div>
 <div class="paragraph">
-<p>As an example, to convert a previously exported file <code>docs.xml</code> to JSON and strip the documents' text, you could run:</p>
+<p>Labels are imported first, then documents, then export operations are performed.
+Therefore it is possible to export documents and then export them in one execution of <strong>labelbuddy</strong>.
+As an example, to strip the annotations from previously exported documents you could run:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">tmpdb=$(mktemp) &amp;&amp; labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb</pre>
+<pre class="nowrap">labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations; rm tempdb</pre>
 </div>
 </div>
 <div class="paragraph">
-<p>Regarding <code>vacuum</code>: when data is deleted from an <code>sqlite3</code> database, the file doesn’t shrink.
+<p>Or even (using <strong>SQLite</strong>'s in-memory database):</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre class="nowrap">labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file doesn’t shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
 To shrink the database to occupy a minimal amount of disk space, we can use:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">labelbuddy --vacuum /path/to/db.sqlite3</pre>
+<pre class="nowrap">labelbuddy --vacuum /path/to/db.labelbuddy</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1411,7 +1392,7 @@ To shrink the database to occupy a minimal amount of disk space, we can use:</p>
 </div>
 <div class="literalblock">
 <div class="content">
-<pre class="nowrap">sqlite3 /path/to/db.sqlite3 'VACUUM;'</pre>
+<pre class="nowrap">sqlite3 /path/to/db.labelbuddy 'VACUUM;'</pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1435,8 +1416,85 @@ When the <code>vacuum</code> option is used, other options are ignored and <stro
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-27 17:57:49 -0500
+Last updated 2021-03-28 11:48:45 -0400
 </div>
 </div>
+<style>
+pre { line-height: 125%; }
+td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+pre.pygments .hll { background-color: #ffffcc }
+pre.pygments { background: #ffffff; }
+pre.pygments .tok-c { color: #888888; font-style: italic } /* Comment */
+pre.pygments .tok-err { background-color: #a848a8 } /* Error */
+pre.pygments .tok-k { color: #2838b0 } /* Keyword */
+pre.pygments .tok-o { color: #666666 } /* Operator */
+pre.pygments .tok-p { color: #888888 } /* Punctuation */
+pre.pygments .tok-ch { color: #287088; font-style: italic } /* Comment.Hashbang */
+pre.pygments .tok-cm { color: #888888; font-style: italic } /* Comment.Multiline */
+pre.pygments .tok-cp { color: #289870 } /* Comment.Preproc */
+pre.pygments .tok-cpf { color: #888888; font-style: italic } /* Comment.PreprocFile */
+pre.pygments .tok-c1 { color: #888888; font-style: italic } /* Comment.Single */
+pre.pygments .tok-cs { color: #888888; font-style: italic } /* Comment.Special */
+pre.pygments .tok-gd { color: #c02828 } /* Generic.Deleted */
+pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
+pre.pygments .tok-gr { color: #c02828 } /* Generic.Error */
+pre.pygments .tok-gh { color: #666666 } /* Generic.Heading */
+pre.pygments .tok-gi { color: #388038 } /* Generic.Inserted */
+pre.pygments .tok-go { color: #666666 } /* Generic.Output */
+pre.pygments .tok-gp { color: #444444 } /* Generic.Prompt */
+pre.pygments .tok-gs { font-weight: bold } /* Generic.Strong */
+pre.pygments .tok-gu { color: #444444 } /* Generic.Subheading */
+pre.pygments .tok-gt { color: #2838b0 } /* Generic.Traceback */
+pre.pygments .tok-kc { color: #444444; font-style: italic } /* Keyword.Constant */
+pre.pygments .tok-kd { color: #2838b0; font-style: italic } /* Keyword.Declaration */
+pre.pygments .tok-kn { color: #2838b0 } /* Keyword.Namespace */
+pre.pygments .tok-kp { color: #2838b0 } /* Keyword.Pseudo */
+pre.pygments .tok-kr { color: #2838b0 } /* Keyword.Reserved */
+pre.pygments .tok-kt { color: #2838b0; font-style: italic } /* Keyword.Type */
+pre.pygments .tok-m { color: #444444 } /* Literal.Number */
+pre.pygments .tok-s { color: #b83838 } /* Literal.String */
+pre.pygments .tok-na { color: #388038 } /* Name.Attribute */
+pre.pygments .tok-nb { color: #388038 } /* Name.Builtin */
+pre.pygments .tok-nc { color: #287088 } /* Name.Class */
+pre.pygments .tok-no { color: #b85820 } /* Name.Constant */
+pre.pygments .tok-nd { color: #287088 } /* Name.Decorator */
+pre.pygments .tok-ni { color: #709030 } /* Name.Entity */
+pre.pygments .tok-ne { color: #908828 } /* Name.Exception */
+pre.pygments .tok-nf { color: #785840 } /* Name.Function */
+pre.pygments .tok-nl { color: #289870 } /* Name.Label */
+pre.pygments .tok-nn { color: #289870 } /* Name.Namespace */
+pre.pygments .tok-nt { color: #2838b0 } /* Name.Tag */
+pre.pygments .tok-nv { color: #b04040 } /* Name.Variable */
+pre.pygments .tok-ow { color: #a848a8 } /* Operator.Word */
+pre.pygments .tok-w { color: #a89028 } /* Text.Whitespace */
+pre.pygments .tok-mb { color: #444444 } /* Literal.Number.Bin */
+pre.pygments .tok-mf { color: #444444 } /* Literal.Number.Float */
+pre.pygments .tok-mh { color: #444444 } /* Literal.Number.Hex */
+pre.pygments .tok-mi { color: #444444 } /* Literal.Number.Integer */
+pre.pygments .tok-mo { color: #444444 } /* Literal.Number.Oct */
+pre.pygments .tok-sa { color: #444444 } /* Literal.String.Affix */
+pre.pygments .tok-sb { color: #b83838 } /* Literal.String.Backtick */
+pre.pygments .tok-sc { color: #a848a8 } /* Literal.String.Char */
+pre.pygments .tok-dl { color: #b85820 } /* Literal.String.Delimiter */
+pre.pygments .tok-sd { color: #b85820; font-style: italic } /* Literal.String.Doc */
+pre.pygments .tok-s2 { color: #b83838 } /* Literal.String.Double */
+pre.pygments .tok-se { color: #709030 } /* Literal.String.Escape */
+pre.pygments .tok-sh { color: #b83838 } /* Literal.String.Heredoc */
+pre.pygments .tok-si { color: #b83838; text-decoration: underline } /* Literal.String.Interpol */
+pre.pygments .tok-sx { color: #a848a8 } /* Literal.String.Other */
+pre.pygments .tok-sr { color: #a848a8 } /* Literal.String.Regex */
+pre.pygments .tok-s1 { color: #b83838 } /* Literal.String.Single */
+pre.pygments .tok-ss { color: #b83838 } /* Literal.String.Symbol */
+pre.pygments .tok-bp { color: #388038; font-style: italic } /* Name.Builtin.Pseudo */
+pre.pygments .tok-fm { color: #b85820 } /* Name.Function.Magic */
+pre.pygments .tok-vc { color: #b04040 } /* Name.Variable.Class */
+pre.pygments .tok-vg { color: #908828 } /* Name.Variable.Global */
+pre.pygments .tok-vi { color: #b04040 } /* Name.Variable.Instance */
+pre.pygments .tok-vm { color: #b85820 } /* Name.Variable.Magic */
+pre.pygments .tok-il { color: #444444 } /* Literal.Number.Integer.Long */
+</style>
 </body>
 </html>

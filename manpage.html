@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 <meta name="generator" content="Asciidoctor 2.0.10"></meta>
-<meta name="author" content="Jérôme Dockès"></meta>
-<title>Installing labelbuddy</title>
+<title>labelbuddy(1)</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"></link>
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
 /* Uncomment @import statement to use as custom stylesheet */
@@ -436,152 +436,136 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article toc2 toc-left">
+<body class="manpage">
 <div id="header">
-<h1>Installing labelbuddy</h1>
-<div class="details">
-<span id="author" class="author">Jérôme Dockès</span><br></br>
-<span id="email" class="email"><a href="mailto:jerome@dockes.org">jerome@dockes.org</a></span><br></br>
-</div>
-<div id="toc" class="toc2"><div><ul class="sectlevel1"><li><a href="index.html">Home</a></li><li><a href="documentation.html">Documentation</a></li><li><a href="installation.html">Installation</a></li></ul></div>
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#installing-a-binary-copy">Installing a binary copy</a>
-<ul class="sectlevel2">
-<li><a href="#on-ubuntu">On Ubuntu</a></li>
-<li><a href="#on-debian">On Debian</a></li>
-<li><a href="#on-windows">On Windows</a></li>
-<li><a href="#on-macos">On MacOS</a></li>
-</ul>
-</li>
-<li><a href="#building-from-source">Building from source</a></li>
-</ul>
+<h1>labelbuddy(1) Manual Page</h1>
+<h2 id="_name">Name</h2>
+<div class="sectionbody">
+<p>labelbuddy - application for annotating text documents</p>
 </div>
 </div>
 <div id="content">
-<div id="preamble">
+<div class="sect1">
+<h2 id="_synopsis">Synopsis</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This document describes how to install <a href="index.html"><strong>labelbuddy</strong></a>.</p>
+<p><strong>labelbuddy</strong> [ <em>OPTIONS</em> ]…​ [ <em>FILE</em> ]</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="installing-a-binary-copy">Installing a binary copy</h2>
+<h2 id="_description">Description</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="on-ubuntu">On Ubuntu</h3>
 <div class="paragraph">
-<p>Packages built for different Ubuntu distributions are published on <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy">this Personal Package Archive</a>.
-Add it to your system by executing:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">sudo add-apt-repository -y ppa:jdockes/labelbuddy
-sudo apt-get update</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Then the latest release of <strong>labelbuddy</strong> (and any future releases) can be installed with:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">sudo apt-get install labelbuddy</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If you don’t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt</code>:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-debian">On Debian</h3>
-<div class="paragraph">
-<p>Binary packages can be downloaded from <a href="https://github.com/jeromedockes/labelbuddy/releases">the releases page on GitHub</a>.
-Once you have downloaded the package, you can install it with <code>apt</code>:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-windows">On Windows</h3>
-<div class="paragraph">
-<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download and run <code>labelbuddy_&lt;version&gt;_windows_installer.exe</code> (ignore Windows’ security warnings).
-<strong>labelbuddy</strong> can be uninstalled from the Windows applications menu, or by running the <code>maintenancetool.exe</code> executable found in the <strong>labelbuddy</strong> installation folder.</p>
-</div>
-<div class="paragraph">
-<p>An alternative to using the installer is to download <code>labelbuddy_windows.zip</code>, unzip it anywhere, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-macos">On MacOS</h3>
-<div class="paragraph">
-<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download <code>labelbuddy_&lt;version&gt;.dmg</code>.
-Double-click the downloaded file, and from the window that opens drag <code>labelbuddy</code> into the <code>/Applications</code> folder in <strong>Finder</strong>.</p>
-</div>
+<p>Without any options, the <strong>labelbuddy</strong> command will start the <strong>labelbuddy</strong> GUI to annotate documents in the database <em>FILE</em>.
+If neither <em>FILE</em> nor <strong>--demo</strong> is used, <strong>labelbuddy</strong> will open the last database that was opened if it exists.
+With the option <strong>--demo</strong>, <strong>labelbuddy</strong> will open a temporary database pre-loaded with some example documents and labels.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="building-from-source">Building from source</h2>
+<h2 id="_options">Options</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>-h, --help</strong></dt>
+<dd>
+<p>Output a usage message and exit.</p>
+</dd>
+<dt class="hdlist1"><strong>-v, --version</strong></dt>
+<dd>
+<p>Display the <strong>labelbuddy</strong> version and exit.</p>
+</dd>
+<dt class="hdlist1"><strong>--demo</strong></dt>
+<dd>
+<p>Open a temporary database pre-loaded with some example documents and labels.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The options below allow executing batch operations on the database without opening the GUI.
+These actions will only be executed if the database <em>FILE</em> is specified explicitly.
+The import and export operations are executed in the order in which they appear here: import labels, import documents, export labels, export documents.
+This means that the same command can for example import a new document and then export it.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--import-labels</strong> <em>labelsfile</em></dt>
+<dd>
+<p>Import labels contained in the (.json or .txt) file <em>labelsfile</em> into the database.
+Can be used several times.</p>
+</dd>
+<dt class="hdlist1"><strong>--import-docs</strong> <em>docsfile</em></dt>
+<dd>
+<p>Import documents and annotations contained in the (.json, .jsonl, .xml or .txt) file <em>docsfile</em> into the database.
+Can be used several times.</p>
+</dd>
+<dt class="hdlist1"><strong>--export-labels</strong> <em>labelsfile</em></dt>
+<dd>
+<p>Export labels in the database to the .json file <em>labelsfile</em>.</p>
+</dd>
+<dt class="hdlist1"><strong>--export-docs</strong> <em>docsfile</em></dt>
+<dd>
+<p>Export documents and annotations in the database to the (.json, .jsonl or .xml) file <em>docsfile</em>.
+Some options described below control what is exported.</p>
+</dd>
+<dt class="hdlist1"><strong>--labelled-only</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, only export documents that contain at least one annotation.</p>
+</dd>
+<dt class="hdlist1"><strong>--no-text</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, do not include the document’s text in the output.
+When the text is not exported, the documents can be identified from the MD5 checksum found in the output, or from any user metadata that was imported with the documents.</p>
+</dd>
+<dt class="hdlist1">--<strong>no-annotations</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, do not include annotations in the output.</p>
+</dd>
+<dt class="hdlist1"><strong>--approver</strong> <em>name</em></dt>
+<dd>
+<p>Use <em>name</em> as the annotation_approver.
+If not specified, the output will not contain an annotation_approver.</p>
+</dd>
+<dt class="hdlist1"><strong>--vacuum</strong></dt>
+<dd>
+<p>Repack the database so that it occupies a minimal amount of disk space (the database can contain some empty pages if data has been deleted from it, that it normally keeps and re-uses when new data is inserted).
+See SQlite3 documentation for details.
+If this option is used, <strong>labelbuddy</strong> vacuums the database and exits without doing anything else (and the options starting with <strong>--import-</strong> or <strong>--export-</strong> are ignored).</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources">Resources</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>project website</strong></dt>
+<dd>
+<p><a href="https://jeromedockes.github.io/labelbuddy/" class="bare">https://jeromedockes.github.io/labelbuddy/</a></p>
+</dd>
+<dt class="hdlist1"><strong>git repository</strong></dt>
+<dd>
+<p><a href="https://github.com/jeromedockes/labelbuddy/" class="bare">https://github.com/jeromedockes/labelbuddy/</a></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_author">Author</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Download a source distribution from <a href="https://github.com/jeromedockes/labelbuddy/releases">GitHub</a>, the <strong>labelbuddy</strong> <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">PPA</a>, or get the latest code by cloning or downloading the <strong>labelbuddy</strong> <a href="https://github.com/jeromedockes/labelbuddy/">git repository</a>.</p>
-</div>
-<div class="paragraph">
-<p><strong>labelbuddy</strong> uses <a href="https://www.qt.io/">Qt 5</a>. Qt can probably be installed with your package manager, for example:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">apt-get install qt5-default</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>or</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">yum install qt5-qtbase
-yum install qt5-qtbase-devel</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Otherwise you can get it from the <a href="https://www.qt.io/download-qt-installer">Qt downloads page</a>.</p>
-</div>
-<div class="paragraph">
-<p><strong>labelbuddy</strong> can be built with <a href="https://cmake.org/">CMake</a>. In an empty directory run:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">cmake /path/to/labelbuddy
-cmake --build .</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>It can also be built with <a href="https://doc.qt.io/qt-5/qmake-manual.html">qmake</a>:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">qmake /path/to/labelbuddy
-make</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Building <strong>labelbuddy</strong> should be straightforward, so if you run into any difficulties please open a <a href="https://github.com/jeromedockes/labelbuddy/issues">GitHub issue</a>.</p>
+<p>Jerome Dockes &lt;<a href="mailto:jerome@dockes.org">jerome@dockes.org</a>&gt;</p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-03-19 17:27:51 -0400
+Last updated 2021-03-18 20:46:20 -0400
 </div>
 </div>
 </body>

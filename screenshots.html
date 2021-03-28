@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
 <meta name="generator" content="Asciidoctor 2.0.10"></meta>
-<meta name="author" content="Jérôme Dockès"></meta>
-<title>Installing labelbuddy</title>
+<title>labelbuddy screenshots</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"></link>
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
 /* Uncomment @import statement to use as custom stylesheet */
@@ -436,152 +436,39 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article toc2 toc-left">
+<body class="article">
 <div id="header">
-<h1>Installing labelbuddy</h1>
-<div class="details">
-<span id="author" class="author">Jérôme Dockès</span><br></br>
-<span id="email" class="email"><a href="mailto:jerome@dockes.org">jerome@dockes.org</a></span><br></br>
-</div>
-<div id="toc" class="toc2"><div><ul class="sectlevel1"><li><a href="index.html">Home</a></li><li><a href="documentation.html">Documentation</a></li><li><a href="installation.html">Installation</a></li></ul></div>
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#installing-a-binary-copy">Installing a binary copy</a>
-<ul class="sectlevel2">
-<li><a href="#on-ubuntu">On Ubuntu</a></li>
-<li><a href="#on-debian">On Debian</a></li>
-<li><a href="#on-windows">On Windows</a></li>
-<li><a href="#on-macos">On MacOS</a></li>
-</ul>
-</li>
-<li><a href="#building-from-source">Building from source</a></li>
-</ul>
-</div>
+<h1>labelbuddy screenshots</h1>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
 <div class="paragraph">
-<p>This document describes how to install <a href="index.html"><strong>labelbuddy</strong></a>.</p>
+<p><a href="index.html">Back to labelbuddy home</a></p>
 </div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="installing-a-binary-copy">Installing a binary copy</h2>
-<div class="sectionbody">
-<div class="sect2">
-<h3 id="on-ubuntu">On Ubuntu</h3>
-<div class="paragraph">
-<p>Packages built for different Ubuntu distributions are published on <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy">this Personal Package Archive</a>.
-Add it to your system by executing:</p>
-</div>
-<div class="literalblock">
+<div class="imageblock">
 <div class="content">
-<pre class="nowrap">sudo add-apt-repository -y ppa:jdockes/labelbuddy
-sudo apt-get update</pre>
+<img src="screenshots/annotate.png" alt="Annotate tab"></img>
 </div>
+<div class="title">Annotating a document</div>
 </div>
-<div class="paragraph">
-<p>Then the latest release of <strong>labelbuddy</strong> (and any future releases) can be installed with:</p>
-</div>
-<div class="literalblock">
+<div class="imageblock">
 <div class="content">
-<pre class="nowrap">sudo apt-get install labelbuddy</pre>
+<img src="screenshots/dataset.png" alt="Dataset tab"></img>
 </div>
+<div class="title">Managing the documents and labels; choosing a document to annotate</div>
 </div>
-<div class="paragraph">
-<p>If you don’t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt</code>:</p>
-</div>
-<div class="literalblock">
+<div class="imageblock">
 <div class="content">
-<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
+<img src="screenshots/import_export.png" alt="Import / Export tab"></img>
 </div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-debian">On Debian</h3>
-<div class="paragraph">
-<p>Binary packages can be downloaded from <a href="https://github.com/jeromedockes/labelbuddy/releases">the releases page on GitHub</a>.
-Once you have downloaded the package, you can install it with <code>apt</code>:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-windows">On Windows</h3>
-<div class="paragraph">
-<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download and run <code>labelbuddy_&lt;version&gt;_windows_installer.exe</code> (ignore Windows’ security warnings).
-<strong>labelbuddy</strong> can be uninstalled from the Windows applications menu, or by running the <code>maintenancetool.exe</code> executable found in the <strong>labelbuddy</strong> installation folder.</p>
+<div class="title">Importing (exporting) documents and labels from (to) plain text files</div>
 </div>
 <div class="paragraph">
-<p>An alternative to using the installer is to download <code>labelbuddy_windows.zip</code>, unzip it anywhere, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="on-macos">On MacOS</h3>
-<div class="paragraph">
-<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download <code>labelbuddy_&lt;version&gt;.dmg</code>.
-Double-click the downloaded file, and from the window that opens drag <code>labelbuddy</code> into the <code>/Applications</code> folder in <strong>Finder</strong>.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="building-from-source">Building from source</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Download a source distribution from <a href="https://github.com/jeromedockes/labelbuddy/releases">GitHub</a>, the <strong>labelbuddy</strong> <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">PPA</a>, or get the latest code by cloning or downloading the <strong>labelbuddy</strong> <a href="https://github.com/jeromedockes/labelbuddy/">git repository</a>.</p>
-</div>
-<div class="paragraph">
-<p><strong>labelbuddy</strong> uses <a href="https://www.qt.io/">Qt 5</a>. Qt can probably be installed with your package manager, for example:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">apt-get install qt5-default</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>or</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">yum install qt5-qtbase
-yum install qt5-qtbase-devel</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Otherwise you can get it from the <a href="https://www.qt.io/download-qt-installer">Qt downloads page</a>.</p>
-</div>
-<div class="paragraph">
-<p><strong>labelbuddy</strong> can be built with <a href="https://cmake.org/">CMake</a>. In an empty directory run:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">cmake /path/to/labelbuddy
-cmake --build .</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>It can also be built with <a href="https://doc.qt.io/qt-5/qmake-manual.html">qmake</a>:</p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre class="nowrap">qmake /path/to/labelbuddy
-make</pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Building <strong>labelbuddy</strong> should be straightforward, so if you run into any difficulties please open a <a href="https://github.com/jeromedockes/labelbuddy/issues">GitHub issue</a>.</p>
-</div>
-</div>
+<p><a href="index.html">Back to labelbuddy home</a></p>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-03-19 17:27:51 -0400
+Last updated 2021-03-18 20:46:20 -0400
 </div>
 </div>
 </body>
