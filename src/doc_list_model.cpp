@@ -14,7 +14,13 @@ QSqlQuery DocListModel::get_query() const {
 
 void DocListModel::set_database(const QString& new_database_name) {
   database_name = new_database_name;
+  doc_filter = DocFilter::all;
+  filter_label_id_ = -1;
+  limit = 100;
+  offset = 0;
+  emit database_changed();
   refresh_current_query();
+  emit labels_changed();
 }
 
 QVariant DocListModel::data(const QModelIndex& index, int role) const {
@@ -35,33 +41,58 @@ Qt::ItemFlags DocListModel::flags(const QModelIndex& index) const {
   return default_flags & (~Qt::ItemIsSelectable);
 }
 
-void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
-                                int new_offset) {
+QList<QPair<QString, int>> DocListModel::get_label_names() const {
+  auto query = get_query();
+  query.exec("select name, id from label order by id;");
+  QList<QPair<QString, int>> result{};
+  while (query.next()) {
+    result << QPair<QString, int>{query.value(0).toString(),
+                                  query.value(1).toInt()};
+  }
+  return result;
+}
+
+void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
+                                int new_limit, int new_offset) {
   limit = new_limit;
   offset = new_offset;
   doc_filter = new_doc_filter;
+  filter_label_id_ = filter_label_id;
   result_set_outdated_ = false;
 
   auto query = get_query();
   switch (new_doc_filter) {
-
   case DocFilter::all:
     query.prepare("select replace(substr(coalesce(long_title, title, content), "
                   "1, 160), char(10), ' ') as head, id "
                   "from document order by id limit :lim offset :off;");
     break;
-
   case DocFilter::labelled:
     query.prepare("select replace(substr(coalesce(long_title, title, content), "
                   "1, 160), char(10), ' ') as head, id "
                   "from labelled_document order by id limit :lim offset :off;");
     break;
-
   case DocFilter::unlabelled:
     query.prepare(
         "select replace(substr(coalesce(long_title, title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from unlabelled_document order by id limit :lim offset :off;");
+    break;
+  case DocFilter::has_given_label:
+    query.prepare(
+        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "char(10), ' ') as head, id "
+        "from document where id in (select distinct doc_id from annotation "
+        "where label_id = :labelid) order by id limit :lim offset :off;");
+    query.bindValue(":labelid", filter_label_id);
+    break;
+  case DocFilter::not_has_given_label:
+    query.prepare(
+        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "char(10), ' ') as head, id "
+        "from document where id not in (select distinct doc_id from annotation "
+        "where label_id = :labelid) order by id limit :lim offset :off;");
+    query.bindValue(":labelid", filter_label_id);
     break;
   }
 
@@ -71,12 +102,27 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int new_limit,
   setQuery(query);
 }
 
-int DocListModel::total_n_docs(DocFilter doc_filter) {
+int DocListModel::total_n_docs(DocFilter doc_filter, int filter_label_id) {
+  auto query = get_query();
   switch (doc_filter) {
   case DocFilter::labelled:
     return n_labelled_docs_;
   case DocFilter::unlabelled:
     return total_n_docs_no_filter() - n_labelled_docs_;
+  case DocFilter::has_given_label:
+    query.prepare("select count (*) from (select distinct doc_id from "
+                  "annotation where label_id = :labelid)");
+    query.bindValue(":labelid", filter_label_id);
+    query.exec();
+    query.next();
+    return query.value(0).toInt();
+  case DocFilter::not_has_given_label:
+    query.prepare("select count (*) from (select distinct doc_id from "
+                  "annotation where label_id = :labelid)");
+    query.bindValue(":labelid", filter_label_id);
+    query.exec();
+    query.next();
+    return total_n_docs_no_filter() - query.value(0).toInt();
   default:
     return total_n_docs_no_filter();
   }
@@ -137,6 +183,13 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
     }
     query.exec("delete from document limit 1000;");
     n_deleted += query.numRowsAffected();
+    if (query.lastError().type() == QSqlError::StatementError){
+      // sqlite not compiled with SQLITE_ENABLE_UPDATE_DELETE_LIMIT
+      // delete all in one go
+      cancelled = !query.exec("delete from document;");
+      n_deleted = query.numRowsAffected();
+      break;
+    }
     if (query.lastError().type() != QSqlError::NoError) {
       cancelled = true;
       break;
@@ -158,7 +211,7 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
 
 void DocListModel::refresh_current_query() {
   refresh_n_labelled_docs();
-  adjust_query(doc_filter, limit, offset);
+  adjust_query(doc_filter, filter_label_id_, limit, offset);
 }
 
 void DocListModel::document_status_changed(DocumentStatus new_status) {
@@ -169,6 +222,24 @@ void DocListModel::document_status_changed(DocumentStatus new_status) {
     ++n_labelled_docs_;
   } else {
     --n_labelled_docs_;
+  }
+}
+
+void DocListModel::document_gained_label(int label_id, int doc_id) {
+  (void)doc_id;
+  if ((doc_filter == DocFilter::has_given_label ||
+       doc_filter == DocFilter::not_has_given_label) &&
+      filter_label_id_ == label_id) {
+    result_set_outdated_ = true;
+  }
+}
+
+void DocListModel::document_lost_label(int label_id, int doc_id) {
+  (void)doc_id;
+  if ((doc_filter == DocFilter::has_given_label ||
+       doc_filter == DocFilter::not_has_given_label) &&
+      filter_label_id_ == label_id) {
+    result_set_outdated_ = true;
   }
 }
 

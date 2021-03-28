@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 #include <QCoreApplication>
-#include <QDebug>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -57,7 +56,7 @@ void prepare_parser(QCommandLineParser& parser) {
   parser.setApplicationDescription("Annotate documents.");
   parser.addHelpOption();
   parser.addVersionOption();
-  parser.addPositionalArgument("database", "Database to open.");
+  parser.addPositionalArgument("database", "Database to open.", "[database]");
   parser.addOption(
       {"demo", "Open a temporary demo database with pre-loaded docs"});
   parser.addOption(
@@ -83,19 +82,26 @@ QRegularExpression shortcut_key_pattern(bool accept_empty) {
   return QRegularExpression{accept_empty ? "^[a-z]?$" : "^[a-z]$"};
 }
 
-QString database_name_display(const QString& database_name,
-                              bool short_version) {
+QString database_name_display(const QString& database_name, bool full_path,
+                              bool temp_warning) {
   if (database_name == ":LABELBUDDY_TEMPORARY_DATABASE:") {
-    if (short_version) {
-      return "Temporary database";
-    } else {
+    if (temp_warning) {
       return "Temporary database (will disappear when labelbuddy exits)";
+    } else {
+      return "Temporary database";
     }
   }
-  if (short_version) {
-    return QFileInfo(database_name).fileName();
+  if (database_name == ":memory:") {
+    if (temp_warning) {
+      return "In-memory database (will disappear when labelbuddy exits)";
+    } else {
+      return "In-memory database";
+    }
   }
-  return database_name;
+  if (full_path) {
+    return database_name;
+  }
+  return QFileInfo(database_name).fileName();
 }
 
 void scale_margin(QWidget& widget, Side side, float scale) {

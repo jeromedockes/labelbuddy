@@ -82,4 +82,6 @@ subprocess.run(
         str(docs_file),
     ]
 )
-data_gen.add_random_annotations(db, n_anno=100, max_docs=None)
+data_gen.add_random_annotations(
+    db, n_anno=100, max_docs=None, subsample_labels=True
+)

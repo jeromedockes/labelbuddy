@@ -73,9 +73,12 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
 
   auto add_label_layout = new QHBoxLayout();
   outer_layout->addLayout(add_label_layout);
-  add_label_layout->addWidget(new QLabel("New label:"));
+  auto add_label_instruction = new QLabel("&New label:");
+  add_label_layout->addWidget(add_label_instruction);
   add_label_edit = new QLineEdit();
   add_label_layout->addWidget(add_label_edit);
+  add_label_instruction->setBuddy(add_label_edit);
+  add_label_edit->installEventFilter(this);
 
   auto bottom_layout = new QHBoxLayout();
   outer_layout->addLayout(bottom_layout);
@@ -94,8 +97,8 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
                    &LabelListButtons::select_all);
   QObject::connect(set_color_button, &QPushButton::clicked, this,
                    &LabelListButtons::set_label_color);
-  QObject::connect(delete_button, SIGNAL(clicked()), this,
-                   SIGNAL(delete_selected_rows()));
+  QObject::connect(delete_button, &QPushButton::clicked, this,
+                   &LabelListButtons::delete_selected_rows);
   QObject::connect(shortcut_edit, &QLineEdit::returnPressed, this,
                    &LabelListButtons::shortcut_edit_pressed);
   QObject::connect(add_label_edit, &QLineEdit::returnPressed, this,
@@ -107,22 +110,44 @@ void LabelListButtons::update_button_states(int n_selected, int total,
   select_all_button->setEnabled(total > 0);
   delete_button->setEnabled(n_selected > 0);
   set_color_button->setEnabled(n_selected == 1);
+  auto shortcut_edit_had_focus = shortcut_edit->hasFocus();
   shortcut_edit->setEnabled(n_selected == 1);
   shortcut_label->setEnabled(n_selected == 1);
   if (n_selected == 1 && first_selected.isValid()) {
     shortcut_edit->setText(first_selected.model()
                                ->data(first_selected, Roles::ShortcutKeyRole)
                                .toString());
+    shortcut_edit->setFocus();
   } else {
+    if (shortcut_edit_had_focus) {
+      setFocus();
+    }
     shortcut_edit->setText("");
+  }
+  if (n_selected != 0) {
+    add_label_edit->setText("");
+    if (add_label_edit->hasFocus()) {
+      setFocus();
+    }
   }
 }
 
 void LabelListButtons::set_model(LabelListModel* new_model) {
   validator.setModel(new_model);
 }
+
 void LabelListButtons::set_view(QListView* new_view) {
+  label_list_view_ = new_view;
   validator.setView(new_view);
+}
+
+bool LabelListButtons::eventFilter(QObject* object, QEvent* event) {
+  if (object == add_label_edit && event->type() == QEvent::FocusIn) {
+    if (label_list_view_ != nullptr) {
+      label_list_view_->clearSelection();
+    }
+  }
+  return QWidget::eventFilter(object, event);
 }
 
 void LabelListButtons::shortcut_edit_pressed() {
@@ -196,6 +221,7 @@ void LabelList::delete_selected_rows() {
     return;
   }
   int n_before = model->total_n_labels();
+  setFocus();
   model->delete_labels(selected);
   int n_after = model->total_n_labels();
   int n_deleted = n_before - n_after;

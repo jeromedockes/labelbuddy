@@ -22,8 +22,9 @@ void TestDatasetMenu::test_dataset_menu() {
   menu.set_doc_list_model(&doc_model);
   menu.set_label_list_model(&label_model);
   auto doc_list = menu.findChild<DocList*>();
-  auto ldocs = doc_list->findChildren<QRadioButton*>()[1];
-  ldocs->click();
+  auto filter_box = doc_list->findChildren<QComboBox*>()[0];
+  filter_box->setCurrentIndex(1);
+  filter_box->activated(1);
   QCOMPARE(doc_model.rowCount(), 1);
   auto lbuttons = menu.findChild<LabelListButtons*>();
   lbuttons->findChildren<QPushButton*>()[0]->click();

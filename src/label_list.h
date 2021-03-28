@@ -65,6 +65,7 @@ public:
   LabelListButtons(QWidget* parent = nullptr);
   void set_model(LabelListModel* new_model);
   void set_view(QListView* new_view);
+  bool eventFilter(QObject* object, QEvent* event) override;
 
 signals:
 
@@ -93,6 +94,7 @@ private:
   QLineEdit* shortcut_edit;
   QLabel* shortcut_label;
   ShortcutValidator validator;
+  QListView* label_list_view_ = nullptr;
 
 private slots:
   void shortcut_edit_pressed();

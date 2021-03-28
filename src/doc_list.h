@@ -1,13 +1,13 @@
 #ifndef LABELBUDDY_DOC_LIST_H
 #define LABELBUDDY_DOC_LIST_H
 
+#include <QComboBox>
 #include <QFrame>
 #include <QLabel>
 #include <QListView>
 #include <QPushButton>
-#include <QRadioButton>
-#include <QSqlDatabase>
 #include <QShowEvent>
+#include <QSqlDatabase>
 
 #include "doc_list_model.h"
 
@@ -32,7 +32,8 @@ public:
 
 signals:
 
-  void doc_filter_changed(DocListModel::DocFilter, int limit, int offset);
+  void doc_filter_changed(DocListModel::DocFilter, int filter_label_id,
+                          int limit, int offset);
   void select_all();
   void delete_selected_rows();
   void delete_all_docs();
@@ -42,14 +43,15 @@ signals:
 
 private slots:
 
-  void filter_keep_labelled_docs(bool checked);
+  /// prepare the combobox
+  void fill_filter_choice();
 
-  void filter_keep_unlabelled_docs(bool checked);
-
-  void filter_keep_all_docs(bool checked);
+  /// reset filter and offset when database changes
+  void after_database_change();
 
   void update_button_states();
 
+  /// adjust offset and button states when model data changes
   void update_after_data_change();
 
   void go_to_next_page();
@@ -60,10 +62,15 @@ private slots:
 
   void go_to_first_page();
 
+  /// adjust doc filter when combobox selection changes
+  void update_filter();
+
 private:
   int offset = 0;
   int page_size = 100;
   DocListModel::DocFilter current_filter = DocListModel::DocFilter::all;
+  // label used to either include or exclude docs
+  int current_label_id = -1;
   DocListModel* model = nullptr;
   QLabel* current_page_label = nullptr;
 
@@ -77,9 +84,7 @@ private:
   QPushButton* first_page_button = nullptr;
   QPushButton* last_page_button = nullptr;
 
-  QRadioButton* all_docs_button = nullptr;
-  QRadioButton* labelled_docs_button = nullptr;
-  QRadioButton* unlabelled_docs_button = nullptr;
+  QComboBox* filter_choice_ = nullptr;
 };
 
 /// document list in the Dataset tab
@@ -91,6 +96,8 @@ public:
   void setModel(DocListModel*);
 
   void showEvent(QShowEvent* event) override;
+
+  void keyPressEvent(QKeyEvent* event) override;
 
 private slots:
 

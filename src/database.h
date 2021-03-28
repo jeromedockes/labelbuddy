@@ -362,17 +362,30 @@ public:
   /// execute SQLite's VACUUM
   void vacuum_db();
 
+signals:
+  /// emitted after opening a connection to a database for the first time
+  void new_database_opened(const QString& database_name);
+
+  /// emitted after loading example docs in the temporary database
+  void temporary_database_filled(const QString& database_name);
+
 private:
   QString current_database;
 
   bool store_db_path(const QString& db_path);
+
+  /// whether db_path is an sqlite file as opposed to temp or in-memory db
+  bool is_persistent_database(const QString& db_path) const;
 
   /// Check database, set foreign_keys pragma, create tables if necessary
   bool initialize_database(QSqlDatabase& database);
   bool create_tables(QSqlQuery& query);
 
   /// Last used database if it is found in QSettings and exists else ""
-  QString get_default_database_path();
+  QString get_default_database_path() const;
+
+  /// transform to absolute path unless it is the temp db, :memory:, or ""
+  QString absolute_database_path(const QString& database_path) const;
 
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
 

@@ -13,6 +13,7 @@ class TestDatabase : public QObject {
 private slots:
   void test_open_database();
   void test_last_opened_database();
+  void test_stored_database_path();
   void test_app_state_extra();
   void test_open_database_errors();
   void test_import_export_labels();

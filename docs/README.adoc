@@ -20,6 +20,7 @@ Jérôme Dockès <jerome@dockes.org>
 :ghrepo: https://github.com/jeromedockes/labelbuddy/
 :lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
 :sqlitehome: https://www.sqlite.org/
+:sqlite: pass:q[*SQLite*]
 :lb: pass:q[*labelbuddy*]
 :doca: pass:q[*doccano*]
 :ietab: pass:q[*"`Import / Export`"* tab]
@@ -41,13 +42,13 @@ endif::[]
 {lb} is an {lblicense}[open-source] desktop GUI application for annotating documents.
 It can be used for example for Part Of Speech tagging, Named Entity Recognition, sentiment analysis and document classification ...
 
-It aims to be easy to install and use, and can efficiently handle many documents, labels and annotations.
+It aims to be easy to install and use, and can efficiently handle many documents and annotations.
 
 === labelbuddy vs other annotation tools
 
 There exist several tools for annotating documents.
 Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio] are meant to run on a web server and be used online.
-If you are crowdsourcing annotations and want many users to contribute annotations to a central database without installing anything on their machine you should turn to one of these tools.
+If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.
 
 However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents.
 In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
@@ -67,7 +68,7 @@ labelbuddy --demo
 You can play around with {lb}’s features in this temporary database.
 If you decide to start creating annotations that you want to keep, open a new database and import your <<importing-documents,documents>> and <<importing-labels,labels>>.
 
-NOTE: a <<managing-projects,labelbuddy database>> is actually just an ordinary file (an {sqlitehome}[SQLite] database).
+NOTE: a <<managing-projects,labelbuddy database>> is just an ordinary file (an {sqlitehome}[SQLite] database).
 
 == Using labelbuddy
 
@@ -79,12 +80,12 @@ It is also possible to import annotations exported from {lb} or {doca}.
 This section describes how to perform each of these operations.
 
 Importing and exporting data can be done from the graphical or the <<command-line-interface,command line>> interface.
-Documents, labels and annotations that are already in the database are skipped if you try to import them again.
+Documents, labels and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).
 
 
 === Importing documents
 
-In the {ietab}, click btn:[Import docs & annotations] and select a file.
+In the {ietab}, click btn:[Import docs & annotations] and select a file containing the documents you plan to annotate.
 
 When importing a new document into {lb}, several attributes can be specified (exactly how will depend on the format used as described in the following sections):
 
@@ -108,7 +109,7 @@ This information can be provided in several plain text formats described in the 
 The format is deduced from the filename extension.
 
 Note that {lb} only deals with plain text documents.
-Other formats will need to converted them to plain text, for example using https://www.xpdfreader.com/pdftotext-man.html[pdftotext] if they are in PDF, or https://pandoc.org/[pandoc] (specifying the target format as "plain") for many other formats.
+Other formats will need to be converted to plain text, for example using https://www.xpdfreader.com/pdftotext-man.html[pdftotext] if they are in PDF, or https://pandoc.org/[pandoc] (specifying the target format as "plain") for many other formats.
 
 ==== From `.txt`
 
@@ -203,7 +204,7 @@ The `shortcut_key` is a lower-case ASCII letter (a-z) that helps quickly <<annot
 For compatibility with {doca}, `color` can also be specified as `background_color` and `shortcut_key` can be specified as `suffix_key`.
 
 As for documents, the format is deduced from the filename extension when importing labels.
-The label color and shortcut key can be changed from within the GUI application .
+It is also possible to add a new label or change the color or shortcut key from within the GUI application.
 
 ==== From `.txt`
 
@@ -245,12 +246,15 @@ In this case the first (mandatory) element of the array is the text (label name)
 ]
 ----
 
+There are no `.jsonl` or `.xml` formats for representing labels.
+
 === Annotating documents
 
 Once you have imported labels and documents you can see them in the {dstab}.
-You can delete labels or documents and change the color and shortcut associated with each label.
+You can filter which documents are shown by the labels they have been annotated with.
+You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You then go to the {annotab}.
-(If you double-click a document it will be opened in the {annotab}.)
+(If you double-click a document or press kbd:[Enter] after selecting it it will be opened in the {annotab}.)
 
 To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
 It is also possible to do the same thing with the keyboard.
@@ -262,10 +266,11 @@ Once you have created annotations, you can select any of them by clicking it.
 It becomes [.blue-bg.active-anno]#underlined# and you can change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
-TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Bold selected annotation].
+TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Show selected annotation in bold font].
 
 TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
-If you need to tag some document status such as "approved", "checked", etc., add a label for that!
+If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
+You can then use it to filter documents in the {annotab}.
 
 ==== Overlapping annotations
 
@@ -484,7 +489,7 @@ Thus if you imported documents from JSON or JSONL and there is a chance that the
 You can also export labels by clicking "`Export labels`" and selecting a JSON file.
 The resulting file will contain an array of json objects; the same format as the <<from-json,input format>>.
 Unlike documents each label is not on a single line.
-Both keys `color` and `background_color` are set to the label's colors.
+Both keys `color` and `background_color` are set to the label's color.
 Both keys `shortcut_key` and `suffix_key` are set to the label's shortcut key if it has one.
 
 === Importing annotations
@@ -522,7 +527,7 @@ Finally, {doca} allows duplicate documents so if the documents were already in t
 Each {lb} database (containing documents, labels and annotations) is an {sqlitehome}[SQLite] database.
 That is a single regular file on your disk that you can copy, backup, or share, like any other file.
 
-TIP: Using SQLite you can also open a connection directly to the database to query it or even modify it.
+TIP: Using {sqlite} you can also open a connection directly to the database to query it or even modify it.
 If you do so, set `PRAGMA foreign_keys = ON`.
 
 After starting {lb}, you can create a new database or open an existing one by selecting menu:File[Open].
@@ -536,8 +541,8 @@ The path to the current database is displayed in the {ietab}.
 
 If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
 
-As it is easy to create, copy and delete databases (an empty {lb} database is just 56K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
-For example, you can break down the annotations into several files to reflect the structure of your project.
+As it is easy to create, copy and delete databases (an empty {lb} database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each {lb} file.
 
 === Command-line interface
 
@@ -545,7 +550,7 @@ For example, you can break down the annotations into several files to reflect th
 See the `labelbuddy(1)` <<manpage#,*man* page>>, or `labelbuddy -h` for a short list of options reproduced here:
 
 ....
-Usage: ./labelbuddy [options] database
+Usage: ./labelbuddy [options] [database]
 Annotate documents.
 
 Options:
@@ -574,28 +579,28 @@ Arguments:
 If any of the `import-` or `export-` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.
+
 Labels are imported first, then documents, then export operations are performed.
-
-As an example, to convert a previously exported file `docs.xml` to JSON you could run:
-
+Therefore it is possible to export documents and then export them in one execution of {lb}.
+As an example, to strip the annotations from previously exported documents you could run:
 ....
-tmpdb=$(mktemp) && labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb
+labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations; rm tempdb
+....
+Or even (using {sqlite}'s in-memory database):
+....
+labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations
 ....
 
-Regarding `vacuum`: when data is deleted from an `sqlite3` database, the file doesn’t shrink.
+Regarding `vacuum`: when data is deleted from an {sqlite} database, the file doesn’t shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
 To shrink the database to occupy a minimal amount of disk space, we can use:
-
 ....
 labelbuddy --vacuum /path/to/db.labelbuddy
 ....
-
 or equivalently:
-
 ....
 sqlite3 /path/to/db.labelbuddy 'VACUUM;'
 ....
-
 See more details https://sqlite.org/lang_vacuum.html[here].
 When the `vacuum` option is used, other options are ignored and {lb} shrinks the database then exits without starting the GUI.
 

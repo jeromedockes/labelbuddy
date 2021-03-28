@@ -129,6 +129,7 @@ def add_random_annotations(
     seed=0,
     annotation_generator=random_annotations,
     max_docs=None,
+    subsample_labels=False,
 ):
     con = sqlite3.connect(db)
     con.execute("pragma foreign_keys = on;")
@@ -136,6 +137,7 @@ def add_random_annotations(
         "select id, length(content) as len from document;"
     ).fetchall()
     label_ids = [int(r[0]) for r in con.execute("select id from label;")]
+    rng = np.random.default_rng(seed)
     with con:
         for i, (doc_id, doc_len) in itertools.islice(
             enumerate(docs), 0, None, step
@@ -147,8 +149,14 @@ def add_random_annotations(
                 end="\r",
                 flush=True,
             )
+            if subsample_labels:
+                lab = rng.choice(
+                    label_ids, size=len(label_ids) // 2, replace=False
+                )
+            else:
+                lab = label_ids
             annotations = annotation_generator(
-                doc_len=doc_len, n_anno=n_anno, labels=label_ids, seed=seed
+                doc_len=doc_len, n_anno=n_anno, labels=lab, seed=i
             )
             anno = [
                 (int(doc_id), int(label), start, stop)
@@ -171,7 +179,12 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--n_anno", type=int, default=150)
     parser.add_argument("-d", "--n_docs", type=int, default=None)
     parser.add_argument("-s", "--step", type=int, default=2)
+    parser.add_argument("-l", "--subsample-labels", action="store_true")
     args = parser.parse_args()
     add_random_annotations(
-        args.db, n_anno=args.n_anno, max_docs=args.n_docs, step=args.step
+        args.db,
+        n_anno=args.n_anno,
+        max_docs=args.n_docs,
+        step=args.step,
+        subsample_labels=args.subsample_labels,
     )

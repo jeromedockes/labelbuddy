@@ -19,17 +19,17 @@ labelbuddy documentation
           + 2.8. Command-line interface
      * 3. Conclusion
 
-   This document describes labelbuddy version 0.0.5.
+   This document describes labelbuddy version 0.0.6.
 
 1. Introduction
 
    labelbuddy is an open-source desktop GUI application for annotating documents. It can be used for example for Part Of Speech tagging, Named Entity Recognition, sentiment analysis and document classification …
 
-   It aims to be easy to install and use, and can efficiently handle many documents, labels and annotations.
+   It aims to be easy to install and use, and can efficiently handle many documents and annotations.
 
 1.1. labelbuddy vs other annotation tools
 
-   There exist several tools for annotating documents. Most of them, such as doccano and labelstudio are meant to run on a web server and be used online. If you are crowdsourcing annotations and want many users to contribute annotations to a central database without installing anything on their machine you should turn to one of these tools.
+   There exist several tools for annotating documents. Most of them, such as doccano and labelstudio are meant to run on a web server and be used online. If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.
 
    However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents. In this case, it may be easier to rely on a desktop application such as labelbuddy, which is a more lightweight solution.
 
@@ -42,7 +42,7 @@ labelbuddy --demo
 
    (You can also start labelbuddy without any options and then select File › Demo in the GUI.) You can play around with labelbuddy’s features in this temporary database. If you decide to start creating annotations that you want to keep, open a new database and import your documents and labels.
    Note
-   a labelbuddy database is actually just an ordinary file (an SQLite database).
+   a labelbuddy database is just an ordinary file (an SQLite database).
 
 2. Using labelbuddy
 
@@ -50,11 +50,11 @@ labelbuddy --demo
 
    Documents and labels can be imported into a labelbuddy database from various formats. Once this is done, you can annotate the documents and finally export your annotations. It is also possible to import annotations exported from labelbuddy or doccano. This section describes how to perform each of these operations.
 
-   Importing and exporting data can be done from the graphical or the command line interface. Documents, labels and annotations that are already in the database are skipped if you try to import them again.
+   Importing and exporting data can be done from the graphical or the command line interface. Documents, labels and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).
 
 2.1. Importing documents
 
-   In the “Import / Export” tab, click Import docs & annotations and select a file.
+   In the “Import / Export” tab, click Import docs & annotations and select a file containing the documents you plan to annotate.
 
    When importing a new document into labelbuddy, several attributes can be specified (exactly how will depend on the format used as described in the following sections):
    text
@@ -80,7 +80,7 @@ labelbuddy --demo
 
    This information can be provided in several plain text formats described in the following sections. The format is deduced from the filename extension.
 
-   Note that labelbuddy only deals with plain text documents. Other formats will need to converted them to plain text, for example using pdftotext if they are in PDF, or pandoc (specifying the target format as "plain") for many other formats.
+   Note that labelbuddy only deals with plain text documents. Other formats will need to be converted to plain text, for example using pdftotext if they are in PDF, or pandoc (specifying the target format as "plain") for many other formats.
 
 2.1.1. From .txt
 
@@ -141,7 +141,7 @@ labelbuddy --demo
 
    For compatibility with doccano, color can also be specified as background_color and shortcut_key can be specified as suffix_key.
 
-   As for documents, the format is deduced from the filename extension when importing labels. The label color and shortcut key can be changed from within the GUI application .
+   As for documents, the format is deduced from the filename extension when importing labels. It is also possible to add a new label or change the color or shortcut key from within the GUI application.
 
 2.2.1. From .txt
 
@@ -172,17 +172,19 @@ Adjective
 ["Adjective"]
 ]
 
+   There are no .jsonl or .xml formats for representing labels.
+
 2.3. Annotating documents
 
-   Once you have imported labels and documents you can see them in the “Dataset” tab. You can delete labels or documents and change the color and shortcut associated with each label. You then go to the “Annotate” tab. (If you double-click a document it will be opened in the “Annotate” tab.)
+   Once you have imported labels and documents you can see them in the “Dataset” tab. You can filter which documents are shown by the labels they have been annotated with. You can delete labels or documents, add labels and change the color and shortcut associated with each label. You then go to the “Annotate” tab. (If you double-click a document or press Enter after selecting it it will be opened in the “Annotate” tab.)
 
    To annotate a document, select the region you want to label with the mouse and click on the appropriate label. It is also possible to do the same thing with the keyboard. Search for the term you want to annotate and the first match will be selected. The selection can be adusted with the keyboard using the bindings described below. Then press the shortcut key associated with the label you want to set.
 
    Once you have created annotations, you can select any of them by clicking it. It becomes underlined and you can change its label by clicking on a different one or remove the annotation by clicking Remove. You can also do this with the keyboard: jump to the next annotation with the Space key and change its label with a label shortcut or remove it with Backspace.
    Tip
-   If the selected annotation is not visible enough you can also make it bold by selecting Preferences › Bold selected annotation.
+   If the selected annotation is not visible enough you can also make it bold by selecting Preferences › Show selected annotation in bold font.
    Tip
-   If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text. If you need to tag some document status such as "approved", "checked", etc., add a label for that!
+   If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text. If you need to tag some document status such as "approved", "in progress", etc., add a label for that! You can then use it to filter documents in the “Annotate” tab.
 
 2.3.1. Overlapping annotations
 
@@ -384,7 +386,7 @@ Adjective
 
 2.5. Exporting labels
 
-   You can also export labels by clicking “Export labels” and selecting a JSON file. The resulting file will contain an array of json objects; the same format as the input format. Unlike documents each label is not on a single line. Both keys color and background_color are set to the label’s colors. Both keys shortcut_key and suffix_key are set to the label’s shortcut key if it has one.
+   You can also export labels by clicking “Export labels” and selecting a JSON file. The resulting file will contain an array of json objects; the same format as the input format. Unlike documents each label is not on a single line. Both keys color and background_color are set to the label’s color. Both keys shortcut_key and suffix_key are set to the label’s shortcut key if it has one.
 
 2.6. Importing annotations
 
@@ -419,12 +421,12 @@ labelbuddy /path/to/my_project.labelbuddy
 
    If you just want to give labelbuddy a try and don’t have documents or labels yet, you can also select File › Demo to open a temporary database pre-loaded with a few examples.
 
-   As it is easy to create, copy and delete databases (an empty labelbuddy database is just 56K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work. For example, you can break down the annotations into several files to reflect the structure of your project.
+   As it is easy to create, copy and delete databases (an empty labelbuddy database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work. For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each labelbuddy file.
 
 2.8. Command-line interface
 
    labelbuddy can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI. See the labelbuddy(1) man page, or labelbuddy -h for a short list of options reproduced here:
-Usage: ./labelbuddy [options] database
+Usage: ./labelbuddy [options] [database]
 Annotate documents.
 
 Options:
@@ -449,12 +451,15 @@ Options:
 Arguments:
   database                                Database to open.
 
-   If any of the import- or export- options are used, labelbuddy doesn’t start a GUI but performs the required import or export operations and exits. It is possible to specify these options several times. To use these options, the database path must be provided explicitly. Labels are imported first, then documents, then export operations are performed.
+   If any of the import- or export- options are used, labelbuddy doesn’t start a GUI but performs the required import or export operations and exits. It is possible to specify these options several times. To use these options, the database path must be provided explicitly.
 
-   As an example, to convert a previously exported file docs.xml to JSON you could run:
-tmpdb=$(mktemp) && labelbuddy $tmpdb --import-docs docs.xml --export-docs docs.json; rm $tmpdb
+   Labels are imported first, then documents, then export operations are performed. Therefore it is possible to export documents and then export them in one execution of labelbuddy. As an example, to strip the annotations from previously exported documents you could run:
+labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations; rm tempdb
 
-   Regarding vacuum: when data is deleted from an sqlite3 database, the file doesn’t shrink. The freed up space is not lost; it is kept and reused when new data is added to the database. To shrink the database to occupy a minimal amount of disk space, we can use:
+   Or even (using SQLite's in-memory database):
+labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations
+
+   Regarding vacuum: when data is deleted from an SQLite database, the file doesn’t shrink. The freed up space is not lost; it is kept and reused when new data is added to the database. To shrink the database to occupy a minimal amount of disk space, we can use:
 labelbuddy --vacuum /path/to/db.labelbuddy
 
    or equivalently:

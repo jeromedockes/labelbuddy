@@ -21,7 +21,7 @@ void TestAnnotationsModel::test_add_and_delete_annotations() {
   QCOMPARE(id, -1);
   id = model.add_annotation(3, 10, 12);
   QCOMPARE(id, 3);
-  model.delete_annotations(QList<int>{1});
+  model.delete_annotation(1);
   QSqlQuery query(QSqlDatabase::database(db_name));
   query.exec(
       "select label_id from annotation where doc_id = 1 order by label_id;");

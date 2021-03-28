@@ -124,10 +124,11 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
       database_catalog->get_app_state_extra("export_include_annotations", 1)
           .toInt());
 
-  auto annotator_name_label = new QLabel("Annotation approver (optional): ");
+  auto annotator_name_label = new QLabel("A&nnotation approver (optional): ");
   export_layout->addWidget(annotator_name_label, 3, 0, 1, 1);
   annotator_name_edit = new QLineEdit();
   export_layout->addWidget(annotator_name_edit, 3, 1, 1, 1);
+  annotator_name_label->setBuddy(annotator_name_edit);
   annotator_name_edit->setFixedWidth(annotator_name_label->sizeHint().width());
   auto export_buttons_frame = new QFrame();
   export_layout->addWidget(export_buttons_frame, 4, 0, 1, 2);
@@ -243,7 +244,7 @@ void ImportExportMenu::import_documents() {
   auto file_path = QFileDialog::getOpenFileName(
       this, "Docs & annotations file", start_dir,
       "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files "
-      "(*.txt);; JSON files (*.json);; JSON Lines files (*.jsonl);; XML files "
+      "(*.txt);; JSON files (*.json);; JSONLines files (*.jsonl);; XML files "
       "(*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
@@ -289,7 +290,7 @@ void ImportExportMenu::export_documents() {
   auto file_path = QFileDialog::getSaveFileName(
       this, "Docs & annotations file", start_dir,
       "labelbuddy documents (*.json *.jsonl *.xml);; JSON files (*.json);; "
-      "JSON Lines files (*.jsonl);; XML files (*.xml);; All files (*)");
+      "JSONLines files (*.jsonl);; XML files (*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }

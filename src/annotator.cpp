@@ -3,6 +3,7 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QFontMetrics>
+#include <QIcon>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QPushButton>
@@ -412,7 +413,7 @@ void Annotator::delete_annotation(int annotation_id) {
   if (active_annotation == annotation_id) {
     deactivate_active_annotation();
   }
-  auto deleted = annotations_model->delete_annotations({annotation_id});
+  auto deleted = annotations_model->delete_annotation(annotation_id);
   if (deleted) {
     auto anno = annotations[annotation_id];
     remove_annotation_from_clusters(anno, clusters_);
@@ -696,22 +697,26 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
   auto layout = new QHBoxLayout();
   setLayout(layout);
 
-  prev_labelled_button = new QPushButton("Prev labelled");
+  auto next_icon =
+      QIcon::fromTheme("go-next", QIcon(":data/icons/go-next.png"));
+  auto prev_icon =
+      QIcon::fromTheme("go-previous", QIcon(":data/icons/go-previous.png"));
+  prev_labelled_button = new QPushButton(prev_icon, "labelled");
   layout->addWidget(prev_labelled_button);
-  prev_unlabelled_button = new QPushButton("Prev unlabelled");
+  prev_unlabelled_button = new QPushButton(prev_icon, "unlabelled");
   layout->addWidget(prev_unlabelled_button);
-  prev_button = new QPushButton("Prev");
+  prev_button = new QPushButton(prev_icon, "");
   layout->addWidget(prev_button);
 
   current_doc_label = new QLabel();
   layout->addWidget(current_doc_label);
-  current_doc_label->setAlignment(Qt::AlignHCenter);
+  current_doc_label->setAlignment(Qt::AlignCenter);
 
-  next_button = new QPushButton("Next");
+  next_button = new QPushButton(next_icon, "");
   layout->addWidget(next_button);
-  next_unlabelled_button = new QPushButton("Next unlabelled");
+  next_unlabelled_button = new QPushButton(next_icon, "unlabelled");
   layout->addWidget(next_unlabelled_button);
-  next_labelled_button = new QPushButton("Next labelled");
+  next_labelled_button = new QPushButton(next_icon, "labelled");
   layout->addWidget(next_labelled_button);
 
   QObject::connect(next_button, &QPushButton::clicked, this,
@@ -781,7 +786,6 @@ void AnnotationsNavButtons::set_skip_updating(bool skip) {
   }
   if (skip_updating_buttons_) {
     skip_updating_buttons_ = false;
-    update_button_states();
   }
 }
 

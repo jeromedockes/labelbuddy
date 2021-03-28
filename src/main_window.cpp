@@ -121,11 +121,17 @@ void LabelBuddy::add_connections() {
   QObject::connect(annotations_model,
                    &AnnotationsModel::document_status_changed, doc_model,
                    &DocListModel::document_status_changed);
+  QObject::connect(annotations_model, &AnnotationsModel::document_gained_label,
+                   doc_model, &DocListModel::document_gained_label);
+  QObject::connect(annotations_model, &AnnotationsModel::document_lost_label,
+                   doc_model, &DocListModel::document_lost_label);
 
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
                    doc_model, &DocListModel::refresh_current_query);
-  QObject::connect(this, &LabelBuddy::database_changed, annotator,
-                   &Annotator::reset_skip_updating_nav_buttons);
+  QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
+                   doc_model, &DocListModel::labels_changed);
+  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
+                   doc_model, &DocListModel::labels_changed);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
                    annotations_model, &AnnotationsModel::check_current_doc);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
@@ -136,6 +142,8 @@ void LabelBuddy::add_connections() {
   QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
                    annotator, &Annotator::update_annotations);
 
+  QObject::connect(this, &LabelBuddy::database_changed, annotator,
+                   &Annotator::reset_skip_updating_nav_buttons);
   QObject::connect(this, &LabelBuddy::database_changed, doc_model,
                    &DocListModel::set_database);
   QObject::connect(this, &LabelBuddy::database_changed, label_model,
@@ -185,13 +193,25 @@ void LabelBuddy::add_menubar() {
   auto open_db_action = new QAction("Open...", this);
   file_menu->addAction(open_db_action);
   open_db_action->setShortcut(QKeySequence::Open);
+  opened_databases_submenu_ = new QMenu("Opened during this session", this);
+  file_menu->addMenu(opened_databases_submenu_);
+  QObject::connect(opened_databases_submenu_, &QMenu::triggered, this,
+                   &LabelBuddy::open_database_from_action);
+  QObject::connect(&database_catalog, &DatabaseCatalog::new_database_opened,
+                   this, &LabelBuddy::add_connection_to_menu);
+  // we connect to new_database_opened after catalog construction so the temp db
+  // only shows up in the if we explicitly ask to open it and fill it with
+  // example docs, which emits `temporary_database_filled`.
+  QObject::connect(&database_catalog,
+                   &DatabaseCatalog::temporary_database_filled, this,
+                   &LabelBuddy::add_connection_to_menu);
   auto temp_db_action = new QAction("Demo", this);
   file_menu->addAction(temp_db_action);
   auto quit_action = new QAction("Quit", this);
   file_menu->addAction(quit_action);
   quit_action->setShortcut(QKeySequence::Quit);
   QObject::connect(open_db_action, &QAction::triggered, this,
-                   &LabelBuddy::open_database);
+                   &LabelBuddy::choose_and_open_database);
   QObject::connect(temp_db_action, &QAction::triggered, this,
                    &LabelBuddy::open_temp_database);
   QObject::connect(quit_action, &QAction::triggered, this, &LabelBuddy::close);
@@ -228,6 +248,12 @@ void LabelBuddy::add_menubar() {
                    &LabelBuddy::open_documentation_url);
 }
 
+void LabelBuddy::add_connection_to_menu(const QString& db_name) {
+  auto action = opened_databases_submenu_->addAction(
+      database_name_display(db_name, true, false));
+  action->setData(db_name);
+}
+
 void LabelBuddy::add_welcome_label() {
   auto welcome_label = new QLabel();
   setCentralWidget(welcome_label);
@@ -243,8 +269,8 @@ void LabelBuddy::update_window_title() {
   if (notebook_owner_ != nullptr) {
     setWindowTitle("labelbuddy");
   } else {
-    auto db_name =
-        database_name_display(database_catalog.get_current_database(), true);
+    auto db_name = database_name_display(
+        database_catalog.get_current_database(), false, false);
     setWindowTitle(QString("labelbuddy — %0").arg(db_name));
   }
 }
@@ -279,8 +305,8 @@ void LabelBuddy::reset_font() {
 }
 
 void LabelBuddy::update_status_bar() {
-  auto db_name =
-      database_name_display(database_catalog.get_current_database(), true);
+  auto db_name = database_name_display(database_catalog.get_current_database(),
+                                       false, false);
   status_db_name_->setText(db_name);
   auto n_docs = doc_model->total_n_docs();
   auto n_labelled = doc_model->total_n_docs(DocListModel::DocFilter::labelled);
@@ -313,7 +339,18 @@ void LabelBuddy::update_current_doc_info() {
   status_current_annotation_label_->show();
 }
 
-void LabelBuddy::open_database() {
+void LabelBuddy::open_database(const QString& db_name) {
+  store_notebook_page();
+  bool opened = database_catalog.open_database(db_name);
+  if (opened) {
+    display_notebook();
+    emit database_changed(db_name);
+  } else {
+    warn_failed_to_open_db(db_name);
+  }
+}
+
+void LabelBuddy::choose_and_open_database() {
   QFileDialog dialog(this, "Open database");
   dialog.setOption(QFileDialog::DontUseNativeDialog);
   dialog.setFileMode(QFileDialog::AnyFile);
@@ -329,16 +366,15 @@ void LabelBuddy::open_database() {
     return;
   }
   auto file_path = dialog.selectedFiles()[0];
-  if (file_path == QString()) {
-    return;
+  if (file_path != QString()) {
+    open_database(file_path);
   }
-  store_notebook_page();
-  bool opened = database_catalog.open_database(file_path);
-  if (opened) {
-    display_notebook();
-    emit database_changed(file_path);
-  } else {
-    warn_failed_to_open_db(file_path);
+}
+
+void LabelBuddy::open_database_from_action(QAction* action) {
+  auto db_name = action->data().toString();
+  if (db_name != QString()) {
+    open_database(db_name);
   }
 }
 

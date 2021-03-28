@@ -3,6 +3,10 @@
   <file>data/icons/LB.png</file>
   <file>data/icons/go-up.png</file>
   <file>data/icons/go-down.png</file>
+  <file>data/icons/go-last.png</file>
+  <file>data/icons/go-first.png</file>
+  <file>data/icons/go-next.png</file>
+  <file>data/icons/go-previous.png</file>
   <file>data/VERSION.txt</file>
   <file>data/welcome_message.html</file>
   <file>docs/example_data/example_documents.json</file>

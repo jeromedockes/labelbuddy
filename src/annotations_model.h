@@ -59,17 +59,19 @@ public:
   /// Otherwise returns the new annotation's `rowid`. If this is the document's
   /// first annotation, emits `document_status_changed` (it changed from
   /// unlabelled to labelled)
+  /// If it is its first annotation with this label emit
+  /// `document_gained_label`.
   int add_annotation(int label_id, int start_char, int end_char);
 
-  /// Delete annotations provided their `rowid` in the database
+  /// Delete annotation provided its `rowid` in the database
 
-  /// Returns the number of deleted annotations
+  /// Returns the number of deleted annotations (0 or 1)
   ///
   /// If after delete operation the current doc has 0 annotations, emits
   /// `document_status_changed` (as it changed from labelled to unlabelled).
-  ///
-  /// Also emits `annotations_changed`
-  int delete_annotations(QList<int>);
+  /// If after delete it has 0 annotations with this label, emits
+  /// `document_lost_label`.
+  int delete_annotation(int annotation_id);
 
   /// Info for all labels in the database
   QMap<int, LabelInfo> get_labels_info() const;
@@ -118,7 +120,6 @@ public slots:
   void set_database(const QString& new_database_name);
 
 signals:
-  void annotations_changed();
 
   /// current document changed, ie we are now visiting a different doc
   void document_changed();
@@ -126,11 +127,17 @@ signals:
   /// current document's status (labelled or unlabelled) changed
   void document_status_changed(DocumentStatus new_status);
 
+  void document_gained_label(int label_id, int doc_id);
+  void document_lost_label(int label_id, int doc_id);
+
 private:
   int current_doc_id = -1;
   QString database_name;
 
   QSqlQuery get_query() const;
+
+  /// query must return the id of a document to visit
+  /// if there are no results, returns false
   bool visit_query_result(const QString& query_text);
   int get_query_result(const QString& query_text) const;
 

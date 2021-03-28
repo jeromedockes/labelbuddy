@@ -474,7 +474,7 @@ DatabaseCatalog::DatabaseCatalog(QObject* parent) : QObject(parent) {
   open_temp_database(false);
 }
 
-QString DatabaseCatalog::get_default_database_path() {
+QString DatabaseCatalog::get_default_database_path() const {
   QSettings settings("labelbuddy", "labelbuddy");
   if (!settings.contains("last_opened_database")) {
     return QString();
@@ -506,8 +506,9 @@ void RemoveConnection::cancel() { cancelled_ = true; }
 
 bool DatabaseCatalog::open_database(const QString& database_path,
                                     bool remember) {
-  QString actual_database_path{
-      database_path == QString() ? get_default_database_path() : database_path};
+  QString actual_database_path{database_path == QString()
+                                   ? get_default_database_path()
+                                   : absolute_database_path(database_path)};
   if (actual_database_path == QString()) {
     return false;
   }
@@ -541,11 +542,27 @@ bool DatabaseCatalog::open_database(const QString& database_path,
   current_database = actual_database_path;
   if (remember)
     store_db_path(actual_database_path);
+  emit new_database_opened(actual_database_path);
   return true;
 }
 
+bool DatabaseCatalog::is_persistent_database(const QString& db_path) const {
+  if (db_path == tmp_db_name_ || db_path == ":memory:" || db_path == "") {
+    return false;
+  }
+  return true;
+}
+
+QString
+DatabaseCatalog::absolute_database_path(const QString& database_path) const {
+  if (is_persistent_database(database_path)) {
+    return QFileInfo(database_path).absoluteFilePath();
+  }
+  return database_path;
+}
+
 bool DatabaseCatalog::store_db_path(const QString& db_path) {
-  if (db_path == tmp_db_name_) {
+  if (!is_persistent_database(db_path)) {
     return false;
   }
   QSettings settings("labelbuddy", "labelbuddy");
@@ -560,6 +577,7 @@ QString DatabaseCatalog::open_temp_database(bool load_data) {
     import_documents(":docs/example_data/example_documents.json");
     set_app_state_extra("notebook_page", 0);
     tmp_db_data_loaded_ = true;
+    temporary_database_filled(tmp_db_name_);
   }
   return tmp_db_name_;
 }

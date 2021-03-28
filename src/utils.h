@@ -49,9 +49,11 @@ QRegularExpression shortcut_key_pattern(bool accept_empty = false);
 /// Display string for the database name (path or helpful message if temp db)
 
 /// `database_name` is the Qt database name; if not temporary database it is the
-/// path to the sqlite file and is returned as is.
+/// path to the sqlite file. If `full_path` is false only filename is returned;
+/// if `temp_warning` and database is temporary or in-memory a message saying it
+/// will disappear is added.
 QString database_name_display(const QString& database_name,
-                              bool short_version = false);
+                              bool full_path = true, bool temp_warning = true);
 
 enum class Side { Left, Right };
 

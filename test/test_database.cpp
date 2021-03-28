@@ -1,6 +1,7 @@
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSettings>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTemporaryDir>
@@ -146,6 +147,34 @@ void TestDatabase::test_last_opened_database() {
     QVERIFY(!opened);
     QCOMPARE(catalog.get_current_database(), ":LABELBUDDY_TEMPORARY_DATABASE:");
   }
+}
+
+void TestDatabase::test_stored_database_path() {
+  DatabaseCatalog catalog{};
+  QDir dir(".");
+  auto rel_path = dir.filePath("database.labelbuddy");
+  auto abs_path = dir.absoluteFilePath("database.labelbuddy");
+  QVERIFY(rel_path != abs_path);
+  auto opened = catalog.open_database(rel_path);
+  QVERIFY(opened);
+  auto stored = QSettings("labelbuddy", "labelbuddy")
+                    .value("last_opened_database")
+                    .toString();
+  QCOMPARE(stored, abs_path);
+
+  opened = catalog.open_database(":memory:");
+  QVERIFY(opened);
+  stored = QSettings("labelbuddy", "labelbuddy")
+               .value("last_opened_database")
+               .toString();
+  QCOMPARE(stored, abs_path);
+
+  opened = catalog.open_database("");
+  QVERIFY(opened);
+  stored = QSettings("labelbuddy", "labelbuddy")
+               .value("last_opened_database")
+               .toString();
+  QCOMPARE(stored, abs_path);
 }
 
 void TestDatabase::test_import_export_docs_data() {

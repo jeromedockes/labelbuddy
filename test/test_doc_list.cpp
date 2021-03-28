@@ -1,7 +1,9 @@
+#include <QComboBox>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QRadioButton>
 #include <QSignalSpy>
+#include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QTimer>
 
 #include "doc_list.h"
@@ -123,7 +125,7 @@ void TestDocList::test_navigation() {
   doc_list.setModel(&doc_model);
   QCOMPARE(doc_model.total_n_docs(), 366);
 
-  auto radio = doc_list.findChildren<QRadioButton*>();
+  auto filter_box = doc_list.findChild<QComboBox*>();
   auto buttons = doc_list.findChildren<QPushButton*>();
   auto first = buttons[4];
   auto prev = buttons[5];
@@ -156,18 +158,92 @@ void TestDocList::test_navigation() {
   last->click();
   QCOMPARE(label->text(), QString("301 - 366 / 366"));
 
-  radio[1]->click();
+  filter_box->setCurrentIndex(1);
+  filter_box->activated(1);
   QCOMPARE(label->text(), QString("1 / 1"));
   QVERIFY(!first->isEnabled());
   QVERIFY(!prev->isEnabled());
   QVERIFY(!next->isEnabled());
   QVERIFY(!last->isEnabled());
 
-  radio[2]->click();
+  filter_box->setCurrentIndex(2);
+  filter_box->activated(2);
   QCOMPARE(label->text(), QString("1 - 100 / 365"));
 
-  radio[0]->click();
+  filter_box->setCurrentIndex(0);
+  filter_box->activated(0);
   QCOMPARE(label->text(), QString("1 - 100 / 366"));
 }
 
+void TestDocList::test_filters() {
+  QTemporaryDir tmp_dir{};
+  auto db_name = prepare_db(tmp_dir);
+  add_annotations(db_name);
+  DocListModel doc_model{};
+  doc_model.set_database(db_name);
+  DocList doc_list{};
+  doc_list.setModel(&doc_model);
+  QCOMPARE(doc_model.rowCount(), 6);
+
+  auto filter_box = doc_list.findChild<QComboBox*>();
+
+  // separators count as items
+  QCOMPARE(filter_box->count(), 11);
+
+  filter_box->setCurrentIndex(1);
+  filter_box->activated(1);
+  QCOMPARE(doc_model.rowCount(), 1);
+  doc_model.labels_changed();
+  QCOMPARE(filter_box->currentIndex(), 1);
+  QCOMPARE(doc_model.rowCount(), 1);
+
+  filter_box->setCurrentIndex(2);
+  filter_box->activated(2);
+  QCOMPARE(doc_model.rowCount(), 5);
+  doc_model.labels_changed();
+  QCOMPARE(filter_box->currentIndex(), 2);
+  QCOMPARE(doc_model.rowCount(), 5);
+
+  // label 1
+  filter_box->setCurrentIndex(4);
+  filter_box->activated(4);
+  auto label_id = filter_box->currentData().value<QPair<int, int>>().first;
+  QCOMPARE(label_id, 1);
+  QCOMPARE(doc_model.rowCount(), 1);
+
+  filter_box->setCurrentIndex(5);
+  filter_box->activated(5);
+  QCOMPARE(filter_box->currentText(),
+           QString("label: Resumption of the session"));
+  QCOMPARE(doc_model.rowCount(), 0);
+
+  // not label 1
+  filter_box->setCurrentIndex(8);
+  filter_box->activated(8);
+  QCOMPARE(doc_model.rowCount(), 5);
+
+  filter_box->setCurrentIndex(10);
+  filter_box->activated(10);
+  QCOMPARE(doc_model.rowCount(), 6);
+
+  // not label 1
+  filter_box->setCurrentIndex(8);
+  filter_box->activated(8);
+  QCOMPARE(doc_model.rowCount(), 5);
+  QSqlQuery query(QSqlDatabase::database(db_name));
+  query.exec("delete from label where id = 2;");
+  doc_model.labels_changed();
+  QCOMPARE(filter_box->currentIndex(), 7);
+  QCOMPARE(doc_model.rowCount(), 5);
+  query.exec("delete from annotation;");
+  doc_model.document_lost_label(1, 1);
+  doc_list.showEvent(nullptr);
+  QCOMPARE(doc_model.rowCount(), 6);
+
+  auto new_db = tmp_dir.filePath("db1");
+  doc_model.set_database(new_db);
+  // separators have been removed
+  QCOMPARE(filter_box->count(), 3);
+  QCOMPARE(filter_box->currentIndex(), 0);
+}
 } // namespace labelbuddy

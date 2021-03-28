@@ -2,6 +2,7 @@ html := $(patsubst %.adoc,%.html,$(wildcard *.adoc))
 html := $(subst README.html,documentation.html,$(html))
 webhtml := $(patsubst %,gh-pages-site/%,$(html))
 examples := $(wildcard example_data/*.txt)
+screenshots := $(wildcard screenshots/*.png)
 
 .PHONY: all clean html
 
@@ -17,7 +18,7 @@ gh-pages-site/%.html: %.html
 	mkdir -p gh-pages-site
 	xsltproc add_nav.xsl $< > $@
 
-gh-pages-site/screenshots.html: screenshots.html
+gh-pages-site/screenshots.html: screenshots.html $(screenshots)
 	mkdir -p gh-pages-site
 	xsltproc add_nav.xsl $< > $@
 	mkdir -p gh-pages-site/screenshots

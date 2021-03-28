@@ -9,6 +9,7 @@ class TestUtils : public QObject {
   Q_OBJECT
 private slots:
   void test_get_doc_url();
+  void test_database_name_display();
 };
 } // namespace labelbuddy
 

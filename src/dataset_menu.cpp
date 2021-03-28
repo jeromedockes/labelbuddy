@@ -33,6 +33,10 @@ void DatasetMenu::set_doc_list_model(DocListModel* new_model) {
   if (label_list_model != nullptr) {
     QObject::connect(label_list_model, &LabelListModel::labels_deleted,
                      doc_list_model, &DocListModel::refresh_current_query);
+    QObject::connect(label_list_model, &LabelListModel::labels_added,
+                     doc_list_model, &DocListModel::labels_changed);
+    QObject::connect(label_list_model, &LabelListModel::labels_deleted,
+                     doc_list_model, &DocListModel::labels_changed);
   }
 }
 
@@ -42,6 +46,10 @@ void DatasetMenu::set_label_list_model(LabelListModel* new_model) {
   if (doc_list_model != nullptr) {
     QObject::connect(label_list_model, &LabelListModel::labels_deleted,
                      doc_list_model, &DocListModel::refresh_current_query);
+    QObject::connect(label_list_model, &LabelListModel::labels_added,
+                     doc_list_model, &DocListModel::labels_changed);
+    QObject::connect(label_list_model, &LabelListModel::labels_deleted,
+                     doc_list_model, &DocListModel::labels_changed);
   }
 }
 void DatasetMenu::store_state() {

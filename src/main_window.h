@@ -6,6 +6,7 @@
 #include <QCloseEvent>
 #include <QLabel>
 #include <QMainWindow>
+#include <QMenu>
 #include <QShowEvent>
 #include <QString>
 #include <QTabWidget>
@@ -65,9 +66,15 @@ private slots:
   /// Open a file dialog to select and open a database
 
   /// We don't use a native dialog to allow selecting an existing or a new file.
-  void open_database();
+  void choose_and_open_database();
+
+  /// Previously opened database selecte from the menu bar
+  // ("from_action" because signals and slots should not be overloaded)
+  void open_database_from_action(QAction* action);
 
   /// Open the temporary demo database
+
+  /// emits `database_changed`
   void open_temp_database();
 
   /// show the "about" message box
@@ -75,16 +82,20 @@ private slots:
 
   /// Open documentation in a web browser.
 
-  /// If it is found in /user/share/doc or in the executable's parent directory
-  /// the local file is opened, otherwise the online documentation
+  /// If it is found in /usr/share/doc/labelbuddy or in the executable's parent
+  /// directory the local file is opened, otherwise the online documentation
   void open_documentation_url();
 
   void update_status_bar();
   void update_window_title();
   void update_current_doc_info();
 
-private slots:
+  /// message box when the db given in command line failed to open
+
+  /// displayed after the window is shown
   void warn_failed_to_open_init_db();
+
+  /// set focus on text when opening the Annotate tab
   void check_tab_focus();
   void choose_font();
   void reset_font();
@@ -110,6 +121,13 @@ private:
   // etc.
   QLabel* status_current_annotation_label_;
 
+  QMenu* opened_databases_submenu_;
+
+  /// Open the given database and warn user if it failed
+
+  /// emits `database_changed`
+  void open_database(const QString& db_name);
+
   // store info about the db passed to constructor if it failed to open. Used to
   // display an error message after the main window is shown.
   // set to false once the error message has been shown.
@@ -124,10 +142,13 @@ private:
   void store_notebook_page();
   void add_connections();
   void add_menubar();
+  void add_connection_to_menu(const QString& db_name);
   void set_geometry();
+  /// Set stored fond and bold selected annotation option
   void init_annotator_settings();
   void add_welcome_label();
 
+  /// Display a message box saying database could not be opened
   void warn_failed_to_open_db(const QString& database_path);
 
   static const QString bf_setting_key_;

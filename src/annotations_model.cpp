@@ -106,19 +106,31 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   query.next();
   if (query.value(0).toInt() == 1) {
     emit document_status_changed(DocumentStatus::Labelled);
+    emit document_gained_label(label_id, current_doc_id);
+  } else {
+    query.prepare("select count(*) from annotation where doc_id = :doc and "
+                  "label_id = :label;");
+    query.bindValue(":doc", current_doc_id);
+    query.bindValue(":label", label_id);
+    query.exec();
+    query.next();
+    if (query.value(0).toInt() == 1) {
+      emit document_gained_label(label_id, current_doc_id);
+    }
   }
   return new_annotation_id;
 }
 
-int AnnotationsModel::delete_annotations(QList<int> annotation_ids) {
-  QVariantList ids{};
-  for (auto id : annotation_ids) {
-    ids << id;
-  }
+int AnnotationsModel::delete_annotation(int annotation_id) {
   auto query = get_query();
+  query.prepare("select label_id from annotation where rowid = :id;");
+  query.bindValue(":id", annotation_id);
+  query.exec();
+  query.next();
+  auto label_id = query.value(0).toInt();
   query.prepare("delete from annotation where rowid = :id;");
-  query.bindValue(":id", ids);
-  query.execBatch();
+  query.bindValue(":id", annotation_id);
+  query.exec();
   auto n_deleted = query.numRowsAffected();
   // -1 if query is not active
   if (n_deleted <= 0) {
@@ -130,8 +142,18 @@ int AnnotationsModel::delete_annotations(QList<int> annotation_ids) {
   query.next();
   if (query.value(0).toInt() == 0) {
     emit document_status_changed(DocumentStatus::Unlabelled);
+    emit document_lost_label(label_id, current_doc_id);
+  } else {
+    query.prepare("select count(*) from annotation where doc_id = :doc and "
+                  "label_id = :label;");
+    query.bindValue(":doc", current_doc_id);
+    query.bindValue(":label", label_id);
+    query.exec();
+    query.next();
+    if (query.value(0).toInt() == 0) {
+      emit document_lost_label(label_id, current_doc_id);
+    }
   }
-  emit annotations_changed();
   return n_deleted;
 }
 
