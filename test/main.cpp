@@ -14,6 +14,7 @@
 #include "test_main_window.h"
 #include "test_searchable_text.h"
 #include "test_utils.h"
+#include "test_import_export_menu.h"
 
 int main(int argc, char* argv[]) {
   QTemporaryDir tmp_dir{};
@@ -34,5 +35,6 @@ int main(int argc, char* argv[]) {
   status |= QTest::qExec(new labelbuddy::TestLabelBuddy, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestUtils, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestLabelList, argc, argv);
+  status |= QTest::qExec(new labelbuddy::TestImportExportMenu, argc, argv);
   return status;
 }

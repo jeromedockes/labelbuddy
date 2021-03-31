@@ -54,6 +54,8 @@ private:
   /// Remember directory from which a file was selected
   void store_parent_dir(const QString& file_path, DirRole role);
 
+  void init_checkbox_states();
+
   /// Warn user file extension unknown, ask if proceed with default format.
 
   /// Returns true if user asked to proceed. for Import operations this is not

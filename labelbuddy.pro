@@ -64,6 +64,7 @@ test/test_doc_list.h \
 test/test_main_window.h \
 test/test_utils.h \
 test/test_label_list.h \
+test/test_import_export_menu.h \
 
 SOURCES += \
 test/main.cpp \
@@ -79,6 +80,7 @@ test/test_doc_list.cpp \
 test/test_main_window.cpp \
 test/test_utils.cpp \
 test/test_label_list.cpp \
+test/test_import_export_menu.cpp \
 
 SOURCES -= src/main.cpp
 }

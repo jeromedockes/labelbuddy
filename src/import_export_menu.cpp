@@ -84,6 +84,7 @@ void ImportExportMenu::update_database_info() {
   annotator_name_edit->setText(default_user_name());
   db_path_line->setText(
       database_name_display(database_catalog->get_current_database()));
+  init_checkbox_states();
 }
 
 ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
@@ -108,21 +109,11 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   import_layout->addStretch(1);
 
   labelled_only_checkbox = new QCheckBox("Export only annotated documents");
-  labelled_only_checkbox->setChecked(
-      database_catalog->get_app_state_extra("export_labelled_only", 1).toInt());
   export_layout->addWidget(labelled_only_checkbox, 0, 0, 1, 2);
-
   include_text_checkbox = new QCheckBox("Include document text");
   export_layout->addWidget(include_text_checkbox, 1, 0, 1, 2);
-  include_text_checkbox->setChecked(
-      database_catalog->get_app_state_extra("export_include_doc_text", 1)
-          .toInt());
-
   include_annotations_checkbox = new QCheckBox("Include annotations");
   export_layout->addWidget(include_annotations_checkbox, 2, 0, 1, 2);
-  include_annotations_checkbox->setChecked(
-      database_catalog->get_app_state_extra("export_include_annotations", 1)
-          .toInt());
 
   auto annotator_name_label = new QLabel("A&nnotation approver (optional): ");
   export_layout->addWidget(annotator_name_label, 3, 0, 1, 1);
@@ -168,6 +159,19 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
                    &ImportExportMenu::export_documents);
   QObject::connect(export_labels_button, &QPushButton::clicked, this,
                    &ImportExportMenu::export_labels);
+}
+
+void ImportExportMenu::init_checkbox_states() {
+  labelled_only_checkbox->setChecked(
+      database_catalog->get_app_state_extra("export_labelled_only", 1).toInt());
+
+  include_text_checkbox->setChecked(
+      database_catalog->get_app_state_extra("export_include_doc_text", 1)
+          .toInt());
+
+  include_annotations_checkbox->setChecked(
+      database_catalog->get_app_state_extra("export_include_annotations", 1)
+          .toInt());
 }
 
 bool ImportExportMenu::ask_confirm_unknown_extension(
