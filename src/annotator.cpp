@@ -34,8 +34,19 @@ LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   label_delegate_.reset(new LabelDelegate);
   labels_view->setItemDelegate(label_delegate_.get());
 
+  extra_data_label = new QLabel("&Extra annotation data:");
+  layout->addWidget(extra_data_label);
+  extra_data_label->setWordWrap(true);
+  extra_data_edit = new QLineEdit();
+  layout->addWidget(extra_data_edit);
+  extra_data_label->setBuddy(extra_data_edit);
+
   QObject::connect(delete_button, &QPushButton::clicked, this,
                    &LabelChoices::on_delete_button_click);
+  QObject::connect(extra_data_edit, &QLineEdit::textEdited, this,
+                   &LabelChoices::extra_data_edited);
+  QObject::connect(extra_data_edit, &QLineEdit::returnPressed, this,
+                   &LabelChoices::extra_data_edit_finished);
 }
 
 void LabelChoices::setModel(LabelListModel* new_model) {
@@ -82,8 +93,20 @@ void LabelChoices::set_selected_label_id(int label_id) {
   labels_view->setCurrentIndex(model_index);
 }
 
-void LabelChoices::enable_delete() { delete_button->setEnabled(true); }
-void LabelChoices::disable_delete() { delete_button->setDisabled(true); }
+void LabelChoices::set_extra_data(const QString& new_data) {
+  extra_data_edit->setText(new_data);
+}
+
+void LabelChoices::enable_delete_and_edit() {
+  delete_button->setEnabled(true);
+  extra_data_edit->setEnabled(true);
+  extra_data_label->setEnabled(true);
+}
+void LabelChoices::disable_delete_and_edit() {
+  delete_button->setDisabled(true);
+  extra_data_edit->setDisabled(true);
+  extra_data_label->setDisabled(true);
+}
 void LabelChoices::enable_label_choice() { labels_view->setEnabled(true); }
 void LabelChoices::disable_label_choice() { labels_view->setDisabled(true); }
 bool LabelChoices::is_label_choice_enabled() const {
@@ -155,6 +178,10 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::set_label_for_selected_region);
   QObject::connect(label_choices, &LabelChoices::delete_button_clicked, this,
                    &Annotator::delete_active_annotation);
+  QObject::connect(label_choices, &LabelChoices::extra_data_edited, this,
+                   &Annotator::update_extra_data_for_active_annotation);
+  QObject::connect(label_choices, &LabelChoices::extra_data_edit_finished, this,
+                   &Annotator::set_default_focus);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
                    &Annotator::paint_annotations);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
@@ -319,12 +346,13 @@ void Annotator::remove_annotation_from_clusters(
 
 void Annotator::update_label_choices_button_states() {
   label_choices->set_selected_label_id(active_annotation_label());
+  label_choices->set_extra_data(active_annotation_extra_data());
   if (active_annotation != -1) {
-    label_choices->enable_delete();
+    label_choices->enable_delete_and_edit();
     label_choices->enable_label_choice();
     return;
   }
-  label_choices->disable_delete();
+  label_choices->disable_delete_and_edit();
   auto selection = text->current_selection();
   if (selection[0] != selection[1]) {
     label_choices->enable_label_choice();
@@ -353,6 +381,13 @@ int Annotator::active_annotation_label() const {
     return -1;
   }
   return annotations[active_annotation].label_id;
+}
+
+QString Annotator::active_annotation_extra_data() const {
+  if (active_annotation == -1) {
+    return "";
+  }
+  return annotations[active_annotation].extra_data;
 }
 
 void Annotator::deactivate_active_annotation() {
@@ -425,7 +460,20 @@ void Annotator::delete_annotation(int annotation_id) {
 
 void Annotator::delete_active_annotation() {
   delete_annotation(active_annotation);
-  text->setFocus();
+  set_default_focus();
+}
+
+void Annotator::set_default_focus() { text->setFocus(); }
+
+void Annotator::update_extra_data_for_active_annotation(
+    const QString& new_data) {
+  if (active_annotation == -1) {
+    return;
+  }
+  if (annotations_model->update_annotation_extra_data(active_annotation,
+                                                      new_data)) {
+    annotations[active_annotation].extra_data = new_data;
+  }
 }
 
 void Annotator::set_label_for_selected_region() {
@@ -474,8 +522,9 @@ bool Annotator::add_annotation(int label_id, int start_char, int end_char) {
   auto annotation_cursor = text->get_text_edit()->textCursor();
   annotation_cursor.setPosition(start_char);
   annotation_cursor.setPosition(end_char, QTextCursor::KeepAnchor);
-  annotations[annotation_id] = AnnotationCursor{
-      annotation_id, label_id, start_char, end_char, annotation_cursor};
+  annotations[annotation_id] =
+      AnnotationCursor{annotation_id, label_id,  start_char,
+                       end_char,      QString(), annotation_cursor};
   add_annotation_to_clusters(annotations[annotation_id], clusters_);
   sorted_annotations_.insert({start_char, annotation_id});
   auto new_cursor = text->get_text_edit()->textCursor();
@@ -509,7 +558,8 @@ void Annotator::fetch_annotations_info() {
     cursor.setPosition(start);
     cursor.setPosition(end, QTextCursor::KeepAnchor);
     annotations[i.value().id] =
-        AnnotationCursor{i.value().id, i.value().label_id, start, end, cursor};
+        AnnotationCursor{i.value().id, i.value().label_id,   start,
+                         end,          i.value().extra_data, cursor};
     sorted_annotations_.insert({start, i.value().id});
     add_annotation_to_clusters(annotations[i.value().id], clusters_);
   }

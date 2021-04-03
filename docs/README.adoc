@@ -23,12 +23,15 @@ Jérôme Dockès <jerome@dockes.org>
 :sqlite: pass:q[*SQLite*]
 :lb: pass:q[*labelbuddy*]
 :doca: pass:q[*doccano*]
+:libreoffice-calc: pass:q[*LibreOffice Calc*]
+:excel: pass:q[*Microsoft Excel*]
 :ietab: pass:q[*"`Import / Export`"* tab]
 :annotab: pass:q[*"`Annotate`"* tab]
 :dstab: pass:q[*"`Dataset`"* tab]
 :iet: pass:q[*"`Import / Export`"*]
 :annot: pass:q[*"`Annotate`"*]
 :dst: pass:q[*"`Dataset`"*]
+:extra-edit: pass:q["`Extra annotation data`"]
 
 
 ifndef::env-github[]
@@ -53,6 +56,10 @@ If you are crowdsourcing annotations and want users to annotate documents online
 However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents.
 In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
 
+A <<managing-projects,labelbuddy database>> is just an ordinary file that you can copy or share like any other file.
+Therefore managing annotations with {lb} is just as simple as if the annotations were stored in plain text formats or {libreoffice-calc} or {excel} spreadsheets.
+However {lb} is a more convenient and powerful tool for creating and editing the annotations.
+
 {lb} supports the input and output formats of {doca} so it is <<copying-annotations-to-and-from-doccano,possible>> to switch from one to the other or to combine the work of annotators that use either.
 
 === Quick start
@@ -67,8 +74,6 @@ labelbuddy --demo
 (You can also start {lb} without any options and then select menu:File[Demo] in the GUI.)
 You can play around with {lb}’s features in this temporary database.
 If you decide to start creating annotations that you want to keep, open a new database and import your <<importing-documents,documents>> and <<importing-labels,labels>>.
-
-NOTE: a <<managing-projects,labelbuddy database>> is just an ordinary file (an {sqlitehome}[SQLite] database).
 
 == Using labelbuddy
 
@@ -261,9 +266,11 @@ It is also possible to do the same thing with the keyboard.
 Search for the term you want to annotate and the first match will be selected.
 The selection can be adusted with the keyboard using the bindings described <<keybindings-summary,below>>.
 Then press the shortcut key associated with the label you want to set.
+You can also attach additional information to the annotation by typing it in the {extra-edit} box.
+Use this to add a comment, or for free-form labelling -- for example enter a number, the normalized name of an entity, a URI, etc. that an Information Extraction system should find in the labelled region.
 
 Once you have created annotations, you can select any of them by clicking it.
-It becomes [.blue-bg.active-anno]#underlined# and you can change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+It becomes [.blue-bg.active-anno]#underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
 TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Show selected annotation in bold font].
@@ -271,6 +278,7 @@ TIP: If the selected annotation is not visible enough you can also make it *bold
 TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
 If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
 You can then use it to filter documents in the {annotab}.
+If you need free-form labels, use a generic label name and type the free-form annotation in the {extra-edit} box.
 
 ==== Overlapping annotations
 
@@ -325,6 +333,9 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 | kbd:[Backspace]
 | remove selected annotation
 
+| kbd:[Alt+E]
+| edit the extra annotation data (then press kbd:[Enter] to return focus to the text)
+
 | kbd:[Space]
 | jump to next annotation and select it
 
@@ -376,6 +387,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 |===
 
 Moreover, you can use kbd:[Alt+A], kbd:[Alt+D] and kbd:[Alt+I] to jump to the {annot}, {dst} and {iet} tabs respectively.
+More generally underlined letter in the GUI indicate kbd:[Alt]-key shortcuts: for example "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
 
 === Exporting documents and annotations
 
@@ -398,14 +410,16 @@ Compared to previous description of the import format, in exported documents:
 * `document_md5_checksum` (containing the hex representation of the MD5 checksum of the text) and `labels` (containing the document’s annotations) are added.
 The optional attribute `annotation_approver` can also be added.
 
-`labels` is a list of annotations, each represented by a triplet of:
+`labels` is a list of annotations, each represented by a sequence of:
 
 [horizontal]
 `start_char`:: the position of the first character (starting from 0 at the begining of the text)
 `end_char`:: the position of one past the last character
 `label`:: the label name.
+`extra_data` (optional):: additional text associated with the annotation.
 
 For example if the text starts with "`hello`" and you highlighted exactly that word, and labelled it with `label_1`, the associated annotation will be `[0, 5, "label_1"]`.
+If you also typed "`some more info`" in the {extra-edit} box, the annotation will be `[0, 5, "label_1", "some more info"]`.
 
 NOTE: Documents are exported in the same order that they were imported.
 
@@ -417,7 +431,7 @@ JSON exported annotations might look like:
 ----
 [
 {"annotation_approver":"jerome","document_md5_checksum":"f5a42de39848dbdadf79aade46135b7a","labels":[[0,4,"Noun"]],"meta":{"DOI":"123","author":"me"},"text":"text of first doc"},
-{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
+{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb", "some more info: 4"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
 ]
 ----
 
@@ -431,7 +445,7 @@ If you choose to export to a https://jsonlines.org/[JSON lines] file, the conten
 [source,json]
 ----
 {"annotation_approver":"jerome","document_md5_checksum":"f5a42de39848dbdadf79aade46135b7a","labels":[[0,4,"Noun"]],"meta":{"DOI":"123","author":"me"},"text":"text of first doc"}
-{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
+{"annotation_approver":"jerome","document_md5_checksum":"d5c080bd4c6033f977182e757a0059b1","labels":[[0,4,"Verb", "some more info: 4"],[8,14,"Adjective"]],"meta":{}, "text":"text of second doc", "short_title": "doc456"}
 ----
 
 ==== Exporting to `.xml`
@@ -469,6 +483,7 @@ So it may look like:
                 <start_char>0</start_char>
                 <end_char>4</end_char>
                 <label>Verb</label>
+                <extra_data>some more info: 4</extra_data>
             </annotation>
             <annotation>
                 <start_char>8</start_char>
@@ -517,15 +532,24 @@ Therefore if you import the result into a {lb} database that already contains th
 
 Annotations exported from {lb} in the `.jsonl` format together with the document’s text can also be imported into {doca} (selecting the "`jsonl`" import format).
 
-CAUTION: if the original document contained leading whitespace, {lb} annotations will appear shifted when {doca} removes the whitespace.
-Moreover, {lb} can handle overlapping annotations whereas {doca} cannot.
+CAUTION: If the original document contained leading whitespace, {lb} annotations will appear shifted when {doca} removes the whitespace.
+Moreover, {doca} allows duplicate documents so if the documents were already in the {doca} database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
+
+[CAUTION]
+====
+If you used {lb} features that do not exist in {doca}, you will not be able to import the resulting annotations into {doca}:
+
+- if you have attached extra data to the annotations, {doca} will not recognize the format and will not import the annotations.
+- {doca} does not allow overlapping annotations.
 Therefore if you try to import overlapping annotations (created with {lb}) into {doca} the results will be incorrect; annotated text will appear duplicated and jumbled.
-Finally, {doca} allows duplicate documents so if the documents were already in the {doca} database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
+====
+
 
 === Managing projects
 
 Each {lb} database (containing documents, labels and annotations) is an {sqlitehome}[SQLite] database.
 That is a single regular file on your disk that you can copy, backup, or share, like any other file.
+Therefore managing {lb} data is as simple as if you were storing annotations in a {libreoffice-calc} or {excel} spreadsheet, for example.
 
 TIP: Using {sqlite} you can also open a connection directly to the database to query it or even modify it.
 If you do so, set `PRAGMA foreign_keys = ON`.
@@ -608,4 +632,4 @@ When the `vacuum` option is used, other options are ignored and {lb} shrinks the
 
 {lb} was created using C++, https://www.qt.io/[Qt], {sqlitehome}[SQLite], tools from the https://www.gnu.org/[GNU project], and more.
 
-If you find a bug, kindly open an issue on the {ghrepo}[labelbuddy GitHub repository].
+If you find a bug or have suggestions to improve {lb}, kindly open an issue on the {ghrepo}[labelbuddy GitHub repository].

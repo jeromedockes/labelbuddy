@@ -25,6 +25,7 @@ struct AnnotationInfo {
   int label_id;
   int start_char;
   int end_char;
+  QString extra_data;
 };
 
 /// Model providing information to the Annotator
@@ -72,6 +73,8 @@ public:
   /// If after delete it has 0 annotations with this label, emits
   /// `document_lost_label`.
   int delete_annotation(int annotation_id);
+
+  bool update_annotation_extra_data(int annotation_id, const QString& new_data);
 
   /// Info for all labels in the database
   QMap<int, LabelInfo> get_labels_info() const;

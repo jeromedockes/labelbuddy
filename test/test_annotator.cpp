@@ -118,4 +118,30 @@ void TestAnnotator::test_overlapping_annotations() {
   QCOMPARE(status.annotation_label,
            QString("label: Resumption of the session"));
 }
+
+void TestAnnotator::test_extra_data_annotations() {
+  QTemporaryDir tmp_dir{};
+  auto db_name = prepare_db(tmp_dir);
+  add_annotations(db_name);
+  AnnotationsModel annotations_model{};
+  annotations_model.set_database(db_name);
+  LabelListModel labels_model{};
+  labels_model.set_database(db_name);
+  Annotator annotator{};
+  annotator.set_annotations_model(&annotations_model);
+  annotator.set_label_list_model(&labels_model);
+
+  auto te = annotator.findChild<SearchableText*>()->get_text_edit();
+  auto ed = annotator.findChild<LabelChoices*>()->findChild<QLineEdit*>();
+  QTest::keyClicks(te, " ");
+  QCOMPARE(ed->text(), QString("hello extra data"));
+  ed->setText("");
+  QTest::keyClicks(ed, "new extra data");
+  QSqlQuery query(QSqlDatabase::database(db_name));
+  query.exec("select extra_data from annotation where rowid = 1;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), "new extra data");
+  QTest::keyClick(te, Qt::Key_Escape);
+  QCOMPARE(ed->text(), QString(""));
+}
 } // namespace labelbuddy

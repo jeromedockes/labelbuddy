@@ -247,8 +247,8 @@ void TestDatabase::test_import_export_docs() {
 
   query.exec("insert into annotation (doc_id, label_id, start_char, end_char) "
              "values (2, 1, 3, 4);");
-  query.exec("insert into annotation (doc_id, label_id, start_char, end_char) "
-             "values (2, 2, 5, 7);");
+  query.exec("insert into annotation (doc_id, label_id, start_char, end_char, "
+             "extra_data) values (2, 2, 5, 7, 'hello extra data');");
   query.exec("insert into annotation (doc_id, label_id, start_char, end_char) "
              "values (3, 1, 3, 4);");
 
@@ -491,7 +491,9 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
         QCOMPARE(xml.name().toString(), QString("label"));
         QCOMPARE(xml.readElementText(),
                  QString("label: Resumption of the session"));
-
+        xml.readNextStartElement();
+        QCOMPARE(xml.name().toString(), QString("extra_data"));
+        QCOMPARE(xml.readElementText(), QString("hello extra data"));
       } else if (meta.value("title").toString() == "document 2") {
         xml.readNextStartElement();
         QCOMPARE(xml.name().toString(), QString("annotation"));
@@ -571,7 +573,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
         QCOMPARE(annotation[1].toInt(), 7);
         QCOMPARE(annotation[2].toString(),
                  QString("label: Resumption of the session"));
-
+        QCOMPARE(annotation[3].toString(), QString("hello extra data"));
       } else if (meta.value("title").toString() == "document 2") {
         auto annotation = output_json.value("labels").toArray()[0].toArray();
         QCOMPARE(annotation[0].toInt(), 3);
@@ -628,9 +630,9 @@ void TestDatabase::create_documents_file_xml(const QString& file_path,
     xml.writeStartElement("document");
     if (import_with_meta) {
       xml.writeStartElement("meta");
-      auto extra_data = doc_array[1].toObject();
-      for (auto key_val = extra_data.constBegin();
-           key_val != extra_data.constEnd(); ++key_val) {
+      auto metadata = doc_array[1].toObject();
+      for (auto key_val = metadata.constBegin();
+           key_val != metadata.constEnd(); ++key_val) {
         xml.writeAttribute(key_val.key(),
                            key_val.value().toVariant().toString());
       }

@@ -19,8 +19,8 @@ QString prepare_db(QTemporaryDir& tmp_dir) {
 
 void add_annotations(const QString& db_name) {
   QSqlQuery query(QSqlDatabase::database(db_name));
-  query.exec("insert into annotation (doc_id, label_id, start_char, end_char) "
-             "values (1, 1, 0, 1);");
+  query.exec("insert into annotation (doc_id, label_id, start_char, end_char, "
+             "extra_data) values (1, 1, 0, 1, 'hello extra data');");
 }
 
 void add_many_docs(const QString& db_name) {

@@ -6,6 +6,7 @@
 #include <set>
 
 #include <QLabel>
+#include <QLineEdit>
 #include <QMap>
 #include <QPushButton>
 #include <QSplitter>
@@ -35,15 +36,19 @@ public:
   int selected_label_id() const;
   /// Set the currently selected label based on its `id` in the db
   void set_selected_label_id(int label_id);
+  /// Set the extra data in the line edit
+  void set_extra_data(const QString& new_data);
   bool is_label_choice_enabled() const;
 
 signals:
   void selectionChanged();
   void delete_button_clicked();
+  void extra_data_edited(const QString& new_data);
+  void extra_data_edit_finished();
 
 public slots:
-  void enable_delete();
-  void disable_delete();
+  void enable_delete_and_edit();
+  void disable_delete_and_edit();
   void enable_label_choice();
   void disable_label_choice();
 
@@ -56,6 +61,8 @@ private:
   NoDeselectAllView* labels_view;
   LabelListModel* label_list_model = nullptr;
   std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
+  QLineEdit* extra_data_edit = nullptr;
+  QLabel* extra_data_label = nullptr;
 };
 
 /// Navigation buttons above the text: next, next labelled etc.
@@ -98,6 +105,7 @@ struct AnnotationCursor {
   int label_id;
   int start_char;
   int end_char;
+  QString extra_data;
   QTextCursor cursor;
 };
 
@@ -161,6 +169,10 @@ public:
   /// `id`, otherwise return -1 .
   int active_annotation_label() const;
 
+  /// If there is a currently active annotation return its extra data
+  /// "" if there is no active annotation or its data is NULL
+  QString active_annotation_extra_data() const;
+
   StatusBarInfo current_status_info() const;
 
 signals:
@@ -193,7 +205,9 @@ protected:
   bool eventFilter(QObject* object, QEvent* event) override;
 
 private slots:
+  void set_default_focus();
   void delete_active_annotation();
+  void update_extra_data_for_active_annotation(const QString& new_data);
   void activate_cluster_at_cursor_pos();
   void set_label_for_selected_region();
   void update_label_choices_button_states();

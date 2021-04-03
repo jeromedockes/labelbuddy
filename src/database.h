@@ -23,7 +23,7 @@ namespace labelbuddy {
 
 struct DocRecord {
   QString content;
-  QByteArray extra_data;
+  QByteArray metadata;
   QString declared_md5;
   QJsonArray annotations;
   bool valid_content = true;
@@ -121,6 +121,7 @@ public:
     int start_char;
     int end_char;
     QString label_name;
+    QString extra_data;
   };
 
   DocsWriter(const QString& file_path);
@@ -136,7 +137,7 @@ public:
   /// the fields for `user_name`, `title`, `short_title`, `long_title` are only
   /// added if the corresponding values are not empty.
   virtual void add_document(const QString& md5, const QVariant& content,
-                            const QJsonObject& extra_data,
+                            const QJsonObject& metadata,
                             const QList<Annotation>* annotations,
                             const QString& user_name, const QString& title,
                             const QString& short_title,
@@ -155,7 +156,7 @@ class DocsJsonLinesWriter : public DocsWriter {
 public:
   DocsJsonLinesWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
-                    const QJsonObject& extra_data,
+                    const QJsonObject& metadata,
                     const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
@@ -176,7 +177,7 @@ class DocsJsonWriter : public DocsJsonLinesWriter {
 public:
   DocsJsonWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
-                    const QJsonObject& extra_data,
+                    const QJsonObject& metadata,
                     const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
@@ -189,7 +190,7 @@ class DocsXmlWriter : public DocsWriter {
 public:
   DocsXmlWriter(const QString& file_path);
   void add_document(const QString& md5, const QVariant& content,
-                    const QJsonObject& extra_data,
+                    const QJsonObject& metadata,
                     const QList<Annotation>* annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
@@ -388,6 +389,8 @@ private:
   QString absolute_database_path(const QString& database_path) const;
 
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
+  int insert_doc_annotations(int doc_id, const QJsonArray& annotations,
+                             QSqlQuery& query);
 
   void insert_label(QSqlQuery& query, const QString& label_name,
                     const QString& color = QString(),

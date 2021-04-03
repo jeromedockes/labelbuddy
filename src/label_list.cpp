@@ -99,8 +99,8 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
                    &LabelListButtons::set_label_color);
   QObject::connect(delete_button, &QPushButton::clicked, this,
                    &LabelListButtons::delete_selected_rows);
-  QObject::connect(shortcut_edit, &QLineEdit::returnPressed, this,
-                   &LabelListButtons::shortcut_edit_pressed);
+  QObject::connect(shortcut_edit, &QLineEdit::textEdited, this,
+                   &LabelListButtons::set_label_shortcut);
   QObject::connect(add_label_edit, &QLineEdit::returnPressed, this,
                    &LabelListButtons::add_label_edit_pressed);
 }
@@ -148,10 +148,6 @@ bool LabelListButtons::eventFilter(QObject* object, QEvent* event) {
     }
   }
   return QWidget::eventFilter(object, event);
-}
-
-void LabelListButtons::shortcut_edit_pressed() {
-  emit set_label_shortcut(shortcut_edit->text());
 }
 
 void LabelListButtons::add_label_edit_pressed() {

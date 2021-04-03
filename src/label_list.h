@@ -97,7 +97,6 @@ private:
   QListView* label_list_view_ = nullptr;
 
 private slots:
-  void shortcut_edit_pressed();
   void add_label_edit_pressed();
 };
 

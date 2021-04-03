@@ -91,7 +91,7 @@ def compare_docs(db_doc, input_doc, use_meta_md5=True):
         else:
             assert db_doc[k] is None
     if "meta" in input_doc:
-        db_doc_meta = json.loads(db_doc["extra_data"])
+        db_doc_meta = json.loads(db_doc["metadata"])
         excluded = [] if use_meta_md5 else ["md5"]
         assert compare_dicts_excluding_keys(
             input_doc["meta"], db_doc_meta, excluded
@@ -394,6 +394,12 @@ def test_import_back(doc_format, label_format, tmp_path, ng, labelbuddy):
     con = sqlite3.connect(db)
     n_anno = con.execute("select count(*) from annotation;").fetchone()[0]
     assert n_anno == 3000
+    assert (
+        con.execute(
+            "select count(*) from annotation where extra_data is not null;"
+        ).fetchone()[0]
+        == 1500
+    )
     assert check_import_back(db, labelbuddy)
 
 

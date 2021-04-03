@@ -74,15 +74,15 @@ QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
 
 QMap<int, AnnotationInfo> AnnotationsModel::get_annotations_info() const {
   auto query = get_query();
-  query.prepare("select rowid, label_id, start_char, end_char from annotation "
-                "where doc_id = :doc order by rowid;");
+  query.prepare("select rowid, label_id, start_char, end_char, extra_data from "
+                "annotation where doc_id = :doc order by rowid;");
   query.bindValue(":doc", current_doc_id);
   query.exec();
   QMap<int, AnnotationInfo> result{};
   while (query.next()) {
-    result[query.value(0).toInt()] =
-        AnnotationInfo{query.value(0).toInt(), query.value(1).toInt(),
-                       query.value(2).toInt(), query.value(3).toInt()};
+    result[query.value(0).toInt()] = AnnotationInfo{
+        query.value(0).toInt(), query.value(1).toInt(), query.value(2).toInt(),
+        query.value(3).toInt(), query.value(4).toString()};
   }
   return result;
 }
@@ -155,6 +155,15 @@ int AnnotationsModel::delete_annotation(int annotation_id) {
     }
   }
   return n_deleted;
+}
+
+bool AnnotationsModel::update_annotation_extra_data(int annotation_id,
+                                                    const QString& new_data) {
+  auto query = get_query();
+  query.prepare("update annotation set extra_data = :data where rowid = :id;");
+  query.bindValue(":data", new_data == "" ? QVariant() : new_data);
+  query.bindValue(":id", annotation_id);
+  return query.exec();
 }
 
 void AnnotationsModel::check_current_doc() {

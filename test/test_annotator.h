@@ -9,6 +9,7 @@ class TestAnnotator : public QObject {
 private slots:
   void test_annotator();
   void test_overlapping_annotations();
+  void test_extra_data_annotations();
 };
 } // namespace labelbuddy
 #endif

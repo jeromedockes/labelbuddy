@@ -2,6 +2,7 @@ import re
 import hashlib
 import itertools
 import sqlite3
+import string
 
 import numpy as np
 from sklearn.datasets import fetch_20newsgroups
@@ -94,20 +95,29 @@ def get_labels(label_names):
     return labels
 
 
-def random_annotations(doc_len, n_anno, labels, seed=0):
-    annotations = set()
+def random_annotations(doc_len, n_anno, labels, seed=0, chars=None):
+    if chars is None:
+        chars = list(string.printable)
+    annotations = {}
     rng = np.random.default_rng(seed)
     for i in range(n_anno):
         start = int(rng.integers(0, doc_len - 1))
         stop = start + rng.poisson(30)
         stop = int(np.clip(stop, start + 1, doc_len))
         label = rng.choice(labels)
-        annotations.add((label, start, stop))
-    return list(annotations)
+        extra = (
+            None if i % 2 else "".join(rng.choice(chars, size=rng.poisson(30)))
+        )
+        annotations[(label, start, stop)] = (label, start, stop, extra)
+    return list(annotations.values())
 
 
-def random_non_overlapping_annotations(doc_len, n_anno, labels, seed=0):
-    annotations = set()
+def random_non_overlapping_annotations(
+    doc_len, n_anno, labels, seed=0, chars=None
+):
+    if chars is None:
+        chars = list(string.printable)
+    annotations = {}
     rng = np.random.default_rng(seed)
     start = 0
     for i in range(n_anno):
@@ -117,9 +127,12 @@ def random_non_overlapping_annotations(doc_len, n_anno, labels, seed=0):
         stop = start + rng.poisson(20)
         stop = int(np.clip(stop, start + 1, doc_len))
         label = int(rng.choice(labels))
-        annotations.add((label, start, stop))
+        extra = (
+            None if i % 2 else "".join(rng.choice(chars, size=rng.poisson(30)))
+        )
+        annotations[(label, start, stop)] = (label, start, stop, extra)
         start = stop
-    return list(annotations)
+    return list(annotations.values())
 
 
 def add_random_annotations(
@@ -137,6 +150,7 @@ def add_random_annotations(
         "select id, length(content) as len from document;"
     ).fetchall()
     label_ids = [int(r[0]) for r in con.execute("select id from label;")]
+    chars = list(string.printable)
     rng = np.random.default_rng(seed)
     with con:
         for i, (doc_id, doc_len) in itertools.islice(
@@ -156,16 +170,16 @@ def add_random_annotations(
             else:
                 lab = label_ids
             annotations = annotation_generator(
-                doc_len=doc_len, n_anno=n_anno, labels=lab, seed=i
+                doc_len=doc_len, n_anno=n_anno, labels=lab, seed=i, chars=chars
             )
             anno = [
-                (int(doc_id), int(label), start, stop)
-                for (label, start, stop) in annotations
+                (int(doc_id), int(label), start, stop, extra)
+                for (label, start, stop, extra) in annotations
             ]
             con.executemany(
                 "insert into annotation "
-                "(doc_id, label_id, start_char, end_char) "
-                "values (?, ?, ?, ?)",
+                "(doc_id, label_id, start_char, end_char, extra_data) "
+                "values (?, ?, ?, ?, ?)",
                 anno,
             )
     print("\n")
