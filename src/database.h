@@ -124,21 +124,20 @@ public:
     QString extra_data;
   };
 
-  DocsWriter(const QString& file_path);
+  DocsWriter(const QString& file_path, bool include_text,
+             bool include_annotations);
   virtual ~DocsWriter();
 
   /// after constructing the file should be open and is_open should return true
   bool is_open() const;
+  bool is_including_text() const;
+  bool is_including_annotations() const;
 
-  /// if `content` is a null QVariant the "text" field is not created.
-  ///
-  /// if `annotations` is `nullptr` the "labels" field is not created.
-  ///
-  /// the fields for `user_name`, `title`, `short_title`, `long_title` are only
-  /// added if the corresponding values are not empty.
-  virtual void add_document(const QString& md5, const QVariant& content,
+  /// the fields for `content`, `user_name`, `title`, `short_title`,
+  /// `long_title` are only added if the corresponding values are not empty.
+  virtual void add_document(const QString& md5, const QString& content,
                             const QJsonObject& metadata,
-                            const QList<Annotation>* annotations,
+                            const QList<Annotation>& annotations,
                             const QString& user_name, const QString& title,
                             const QString& short_title,
                             const QString& long_title);
@@ -150,14 +149,17 @@ protected:
 
 private:
   QFile file;
+  bool include_text_;
+  bool include_annotations_;
 };
 
 class DocsJsonLinesWriter : public DocsWriter {
 public:
-  DocsJsonLinesWriter(const QString& file_path);
-  void add_document(const QString& md5, const QVariant& content,
+  DocsJsonLinesWriter(const QString& file_path, bool include_text,
+                      bool include_annotations);
+  void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
-                    const QList<Annotation>* annotations,
+                    const QList<Annotation>& annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -175,10 +177,12 @@ private:
 
 class DocsJsonWriter : public DocsJsonLinesWriter {
 public:
-  DocsJsonWriter(const QString& file_path);
-  void add_document(const QString& md5, const QVariant& content,
+  DocsJsonWriter(const QString& file_path, bool include_text,
+                 bool include_annotations);
+
+  void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
-                    const QList<Annotation>* annotations,
+                    const QList<Annotation>& annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -188,10 +192,11 @@ public:
 
 class DocsXmlWriter : public DocsWriter {
 public:
-  DocsXmlWriter(const QString& file_path);
-  void add_document(const QString& md5, const QVariant& content,
+  DocsXmlWriter(const QString& file_path, bool include_text,
+                bool include_annotations);
+  void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
-                    const QList<Annotation>* annotations,
+                    const QList<Annotation>& annotations,
                     const QString& user_name, const QString& title,
                     const QString& short_title,
                     const QString& long_title) override;
@@ -201,7 +206,7 @@ public:
 private:
   QXmlStreamWriter xml;
 
-  void add_annotations(const QList<Annotation>* annotations);
+  void add_annotations(const QList<Annotation>& annotations);
 };
 
 struct LabelRecord {

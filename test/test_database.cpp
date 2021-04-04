@@ -430,22 +430,14 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
     while (!xml.readNextStartElement() && !xml.atEnd()) {
     }
     QCOMPARE(xml.name().toString(), QString("document"));
-    if (export_with_content) {
-      xml.readNextStartElement();
-      QCOMPARE(xml.name().toString(), QString("text"));
-      auto text = xml.readElementText();
-      if (import_format != "txt") {
-        QCOMPARE(text, json_data[0].toString());
-      } else {
-        QCOMPARE(text, json_data[0].toString().replace("\n", "\t"));
-      }
-    }
+
     xml.readNextStartElement();
     QCOMPARE(xml.name().toString(), QString("document_md5_checksum"));
     auto output_md5 = xml.readElementText();
     if (import_format != "txt") {
       QCOMPARE(output_md5, meta.value("original_md5").toString());
     }
+
     xml.readNextStartElement();
     QCOMPARE(xml.name().toString(), QString("meta"));
     if (import_with_meta) {
@@ -461,6 +453,16 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
     QCOMPARE(xml.name().toString(), QString("annotation_approver"));
     QCOMPARE(xml.readElementText(), QString("some_user"));
 
+    if (export_with_content) {
+      xml.readNextStartElement();
+      QCOMPARE(xml.name().toString(), QString("text"));
+      auto text = xml.readElementText();
+      if (import_format != "txt") {
+        QCOMPARE(text, json_data[0].toString());
+      } else {
+        QCOMPARE(text, json_data[0].toString().replace("\n", "\t"));
+      }
+    }
     if (export_annotations) {
       xml.readNextStartElement();
       QCOMPARE(xml.name().toString(), QString("labels"));

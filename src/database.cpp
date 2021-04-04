@@ -277,7 +277,10 @@ bool JsonLinesDocsReader::read_next() {
   return true;
 }
 
-DocsWriter::DocsWriter(const QString& file_path) : file(file_path) {
+DocsWriter::DocsWriter(const QString& file_path, bool include_text,
+                       bool include_annotations)
+    : file(file_path), include_text_{include_text}, include_annotations_{
+                                                        include_annotations} {
   file.open(QIODevice::WriteOnly | QIODevice::Text);
 }
 
@@ -287,12 +290,16 @@ void DocsWriter::write_prefix() {}
 void DocsWriter::write_suffix() {}
 
 bool DocsWriter::is_open() const { return file.isOpen(); }
+bool DocsWriter::is_including_text() const { return include_text_; }
+bool DocsWriter::is_including_annotations() const {
+  return include_annotations_;
+}
 
 QFile* DocsWriter::get_file() { return &file; }
 
-void DocsWriter::add_document(const QString& md5, const QVariant& content,
+void DocsWriter::add_document(const QString& md5, const QString& content,
                               const QJsonObject& metadata,
-                              const QList<Annotation>* annotations,
+                              const QList<Annotation>& annotations,
                               const QString& user_name, const QString& title,
                               const QString& short_title,
                               const QString& long_title) {
@@ -306,8 +313,11 @@ void DocsWriter::add_document(const QString& md5, const QVariant& content,
   (void)long_title;
 }
 
-DocsJsonLinesWriter::DocsJsonLinesWriter(const QString& file_path)
-    : DocsWriter(file_path), stream(get_file()) {
+DocsJsonLinesWriter::DocsJsonLinesWriter(const QString& file_path,
+                                         bool include_text,
+                                         bool include_annotations)
+    : DocsWriter(file_path, include_text, include_annotations),
+      stream(get_file()) {
   stream.setCodec("UTF-8");
 }
 
@@ -316,34 +326,37 @@ int DocsJsonLinesWriter::get_n_docs() const { return n_docs; }
 QTextStream& DocsJsonLinesWriter::get_stream() { return stream; }
 
 void DocsJsonLinesWriter::add_document(
-    const QString& md5, const QVariant& content, const QJsonObject& metadata,
-    const QList<Annotation>* annotations, const QString& user_name,
+    const QString& md5, const QString& content, const QJsonObject& metadata,
+    const QList<Annotation>& annotations, const QString& user_name,
     const QString& title, const QString& short_title,
     const QString& long_title) {
   if (n_docs) {
     stream << "\n";
   }
   QJsonObject doc_json{};
+  assert(md5 != "");
   doc_json.insert("document_md5_checksum", md5);
-  if (content != QVariant()) {
-    doc_json.insert("text", content.toString());
-  }
   doc_json.insert("meta", metadata);
   if (user_name != QString()) {
     doc_json.insert("annotation_approver", user_name);
   }
-  if (title != QString()) {
-    doc_json.insert("title", title);
+
+  if (is_including_text()) {
+    if (title != QString()) {
+      doc_json.insert("title", title);
+    }
+    if (short_title != QString()) {
+      doc_json.insert("short_title", short_title);
+    }
+    if (long_title != QString()) {
+      doc_json.insert("long_title", long_title);
+    }
+    assert(content != "");
+    doc_json.insert("text", content);
   }
-  if (short_title != QString()) {
-    doc_json.insert("short_title", short_title);
-  }
-  if (long_title != QString()) {
-    doc_json.insert("long_title", long_title);
-  }
-  if (annotations != nullptr) {
+  if (is_including_annotations()) {
     QJsonArray all_annotations_json{};
-    for (const auto& annotation : *annotations) {
+    for (const auto& annotation : annotations) {
       QJsonArray annotation_json{};
       annotation_json.append(annotation.start_char);
       annotation_json.append(annotation.end_char);
@@ -366,12 +379,13 @@ void DocsJsonLinesWriter::write_suffix() {
   }
 }
 
-DocsJsonWriter::DocsJsonWriter(const QString& file_path)
-    : DocsJsonLinesWriter(file_path) {}
+DocsJsonWriter::DocsJsonWriter(const QString& file_path, bool include_text,
+                               bool include_annotations)
+    : DocsJsonLinesWriter(file_path, include_text, include_annotations) {}
 
-void DocsJsonWriter::add_document(const QString& md5, const QVariant& content,
+void DocsJsonWriter::add_document(const QString& md5, const QString& content,
                                   const QJsonObject& metadata,
-                                  const QList<Annotation>* annotations,
+                                  const QList<Annotation>& annotations,
                                   const QString& user_name,
                                   const QString& title,
                                   const QString& short_title,
@@ -389,8 +403,10 @@ void DocsJsonWriter::write_suffix() {
   get_stream() << (get_n_docs() ? "\n" : "") << "]\n";
 }
 
-DocsXmlWriter::DocsXmlWriter(const QString& file_path)
-    : DocsWriter(file_path), xml(get_file()) {
+DocsXmlWriter::DocsXmlWriter(const QString& file_path, bool include_text,
+                             bool include_annotations)
+    : DocsWriter(file_path, include_text, include_annotations),
+      xml(get_file()) {
   xml.setCodec("UTF-8");
   xml.setAutoFormatting(true);
 }
@@ -405,17 +421,14 @@ void DocsXmlWriter::write_suffix() {
   xml.writeEndDocument();
 }
 
-void DocsXmlWriter::add_document(const QString& md5, const QVariant& content,
+void DocsXmlWriter::add_document(const QString& md5, const QString& content,
                                  const QJsonObject& metadata,
-                                 const QList<Annotation>* annotations,
+                                 const QList<Annotation>& annotations,
                                  const QString& user_name, const QString& title,
                                  const QString& short_title,
                                  const QString& long_title) {
 
   xml.writeStartElement("document");
-  if (content != QVariant()) {
-    xml.writeTextElement("text", content.toString());
-  }
   xml.writeTextElement("document_md5_checksum", md5);
   xml.writeStartElement("meta");
   for (auto key_val = metadata.constBegin(); key_val != metadata.constEnd();
@@ -426,25 +439,28 @@ void DocsXmlWriter::add_document(const QString& md5, const QVariant& content,
   if (user_name != QString()) {
     xml.writeTextElement("annotation_approver", user_name);
   }
-  if (title != QString()) {
-    xml.writeTextElement("title", title);
+  if (is_including_text()) {
+    if (title != QString()) {
+      xml.writeTextElement("title", title);
+    }
+    if (short_title != QString()) {
+      xml.writeTextElement("short_title", short_title);
+    }
+    if (long_title != QString()) {
+      xml.writeTextElement("long_title", long_title);
+    }
+    assert(content != "");
+    xml.writeTextElement("text", content);
   }
-  if (short_title != QString()) {
-    xml.writeTextElement("short_title", short_title);
+  if (is_including_annotations()) {
+    add_annotations(annotations);
   }
-  if (long_title != QString()) {
-    xml.writeTextElement("long_title", long_title);
-  }
-  add_annotations(annotations);
   xml.writeEndElement();
 }
 
-void DocsXmlWriter::add_annotations(const QList<Annotation>* annotations) {
-  if (annotations == nullptr) {
-    return;
-  }
+void DocsXmlWriter::add_annotations(const QList<Annotation>& annotations) {
   xml.writeStartElement("labels");
-  for (const auto& annotation : *annotations) {
+  for (const auto& annotation : annotations) {
     xml.writeStartElement("annotation");
     xml.writeTextElement("start_char",
                          QString("%0").arg(annotation.start_char));
@@ -909,11 +925,14 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
   auto suffix = QFileInfo(file_path).suffix();
   std::unique_ptr<DocsWriter> writer{nullptr};
   if (suffix == "xml") {
-    writer.reset(new DocsXmlWriter(file_path));
+    writer.reset(
+        new DocsXmlWriter(file_path, include_text, include_annotations));
   } else if (suffix == "jsonl") {
-    writer.reset(new DocsJsonLinesWriter(file_path));
+    writer.reset(
+        new DocsJsonLinesWriter(file_path, include_text, include_annotations));
   } else {
-    writer.reset(new DocsJsonWriter(file_path));
+    writer.reset(
+        new DocsJsonWriter(file_path, include_text, include_annotations));
   }
   if (!writer->is_open()) {
     return {0, 0, ErrorCode::FileSystemError};
@@ -973,7 +992,8 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
   } else {
     doc_query.prepare(
         "select lower(hex(content_md5)) as md5, null as content, metadata, "
-        "title, short_title, long_title from document where id = :doc;");
+        "null as title, null as short_title, null as long_title from document "
+        "where id = :doc;");
   }
   doc_query.bindValue(":doc", doc_id);
   doc_query.exec();
@@ -1003,11 +1023,11 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
   auto content = doc_query.value("content").isNull()
                      ? QVariant()
                      : doc_query.value("content");
-  writer.add_document(doc_query.value("md5").toString(), content, metadata,
-                      include_annotations ? &annotations : nullptr, user_name,
-                      doc_query.value("title").toString(),
-                      doc_query.value("short_title").toString(),
-                      doc_query.value("long_title").toString());
+  writer.add_document(
+      doc_query.value("md5").toString(), doc_query.value("content").toString(),
+      metadata, annotations, user_name, doc_query.value("title").toString(),
+      doc_query.value("short_title").toString(),
+      doc_query.value("long_title").toString());
   return n_annotations;
 }
 
