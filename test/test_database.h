@@ -31,10 +31,14 @@ private:
                                  const QJsonArray& docs);
   void create_documents_file_json(const QString& file_path,
                                   const QJsonArray& docs);
+  void create_documents_file_csv(const QString& file_path,
+                                  const QJsonArray& docs);
   QString check_exported_docs(DatabaseCatalog& catalog, QTemporaryDir& tmp_dir);
   void check_exported_docs_xml(const QString& file_path,
                                const QJsonArray& docs);
   void check_exported_docs_json(const QString& file_path,
+                                const QJsonArray& docs);
+  void check_exported_docs_csv(const QString& file_path,
                                 const QJsonArray& docs);
   void check_import_back(DatabaseCatalog& catalog, const QString& export_file);
   void check_db_labels(QSqlQuery& query);

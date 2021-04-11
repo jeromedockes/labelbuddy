@@ -63,24 +63,24 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
   auto query = get_query();
   switch (new_doc_filter) {
   case DocFilter::all:
-    query.prepare("select replace(substr(coalesce(long_title, title, content), "
+    query.prepare("select replace(substr(coalesce(long_title, content), "
                   "1, 160), char(10), ' ') as head, id "
                   "from document order by id limit :lim offset :off;");
     break;
   case DocFilter::labelled:
-    query.prepare("select replace(substr(coalesce(long_title, title, content), "
+    query.prepare("select replace(substr(coalesce(long_title, content), "
                   "1, 160), char(10), ' ') as head, id "
                   "from labelled_document order by id limit :lim offset :off;");
     break;
   case DocFilter::unlabelled:
     query.prepare(
-        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "select replace(substr(coalesce(long_title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from unlabelled_document order by id limit :lim offset :off;");
     break;
   case DocFilter::has_given_label:
     query.prepare(
-        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "select replace(substr(coalesce(long_title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from document where id in (select distinct doc_id from annotation "
         "where label_id = :labelid) order by id limit :lim offset :off;");
@@ -88,7 +88,7 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
     break;
   case DocFilter::not_has_given_label:
     query.prepare(
-        "select replace(substr(coalesce(long_title, title, content), 1, 160), "
+        "select replace(substr(coalesce(long_title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from document where id not in (select distinct doc_id from annotation "
         "where label_id = :labelid) order by id limit :lim offset :off;");

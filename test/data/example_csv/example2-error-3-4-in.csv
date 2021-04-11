@@ -1,0 +1,8 @@
+first field,Ο όρος γλώσσα,,"field
+with newline and ""quotes"""
+""
+,not a quote: ″”'”»❞ !, ,
+abc,"de""fgh""ijk"err,3,4
+a,b,"\n",d
+"other
+ line","","""",","

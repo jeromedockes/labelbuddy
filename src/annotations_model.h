@@ -46,12 +46,7 @@ public:
   /// if current doc not in database (happens for example if database is empty).
   QString get_content() const;
 
-  /// title for current document
-
-  /// return:
-  /// - if it exists, `short_title`
-  /// - otherwise if it exists, `title`
-  /// - otherwise the empty string
+  /// short_title for current document if it exists else ''
   QString get_title() const;
 
   /// Insert an annotation for the current doc.

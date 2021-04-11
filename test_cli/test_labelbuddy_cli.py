@@ -8,6 +8,7 @@ import sqlite3
 import pickle
 import json
 import tempfile
+import csv
 
 from lxml import etree
 import numpy as np
@@ -84,12 +85,12 @@ def compare_dicts_excluding_keys(dict_a, dict_b, excluded):
 
 def compare_docs(db_doc, input_doc, use_meta_md5=True):
     assert "text" in input_doc
-    for k in ["text", "title", "short_title", "long_title"]:
+    for k in ["text", "id", "short_title", "long_title"]:
+        db_k = {"text": "content", "id": "user_provided_id"}.get(k, k)
         if k in input_doc:
-            db_k = {"text": "content"}.get(k, k)
             assert input_doc[k] == db_doc[db_k]
         else:
-            assert db_doc[k] is None
+            assert db_doc[db_k] is None
     if "meta" in input_doc:
         db_doc_meta = json.loads(db_doc["metadata"])
         excluded = [] if use_meta_md5 else ["md5"]
@@ -215,6 +216,37 @@ def check_exported_jsonl(
     )
 
 
+def check_exported_csv(
+    docs_f,
+    n_docs=15,
+    approver="",
+    labelled_only=False,
+    no_text=False,
+    no_annotations=False,
+):
+    with open(docs_f, "r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f, strict=True)
+        docs = list(reader)
+    # docs with annotations will be duplicated
+    if n_docs is not None:
+        if no_annotations:
+            assert (
+                len(docs) == math.ceil(n_docs / 2) if labelled_only else n_docs
+            )
+        else:
+            assert (
+                len(docs) > math.ceil(n_docs / 2) if labelled_only else n_docs
+            )
+    return check_exported_as_dict(
+        docs,
+        n_docs=None,
+        approver=approver,
+        labelled_only=labelled_only,
+        no_text=no_text,
+        no_annotations=no_annotations,
+    )
+
+
 def check_exported_as_dict(
     docs,
     n_docs=15,
@@ -226,21 +258,36 @@ def check_exported_as_dict(
     if n_docs is not None:
         assert len(docs) == math.ceil(n_docs / 2) if labelled_only else n_docs
     for i, doc in enumerate(docs):
+        assert "utf8_text_md5_checksum" in doc
         if approver is not None and approver != "":
             assert doc["annotation_approver"] == approver
         else:
             assert "annotation_approver" not in doc
         if no_annotations:
             assert "labels" not in doc
+            assert "start_char" not in doc
         else:
-            if labelled_only:
-                assert len(doc["labels"]) > 0
+            assert "start_char" in doc or "labels" in doc
+            if "start_char" in doc:
+                if labelled_only:
+                    assert int(doc["start_char"]) < int(doc["end_char"])
+                else:
+                    assert (
+                        doc["start_char"] == "" and doc["end_char"] == ""
+                    ) or (int(doc["start_char"]) < int(doc["end_char"]))
             else:
-                assert (len(doc["labels"]) > 0) == (not i % 2)
+                if labelled_only:
+                    assert len(doc["labels"]) > 0
+                else:
+                    assert (len(doc["labels"]) > 0) == (not i % 2)
         if no_text:
             assert "text" not in doc
         else:
             assert len(doc["text"]) > 0
+            assert (
+                doc["utf8_text_md5_checksum"]
+                == hashlib.md5(doc["text"].encode("utf-8")).hexdigest()
+            )
 
 
 def shuffle_docs(docs_f, seed=0):
@@ -249,7 +296,7 @@ def shuffle_docs(docs_f, seed=0):
         docs = json.loads(docs_f.read_text("utf-8"))
         rng.shuffle(docs)
         docs_f.write_text(json.dumps(docs), encoding="utf-8")
-    if docs_f.suffix == "json":
+    if docs_f.suffix == "jsonl":
         docs = [
             json.loads(doc)
             for doc in docs_f.read_text("utf-8").strip().split("\n")
@@ -258,6 +305,16 @@ def shuffle_docs(docs_f, seed=0):
         docs_f.write_text(
             "\n".join([json.dumps(doc) for doc in docs]), encoding="utf-8"
         )
+    if docs_f.suffix == "csv":
+        with open(docs_f, "r", encoding="utf-8", newline="") as f:
+            reader = csv.reader(docs_f, strict=True)
+            rows = list(reader)
+        header, data = rows[0], rows[1:]
+        rng.shuffle(data)
+        with open(docs_f, "w", encoding="utf-8", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            writer.writerows(data)
     if docs_f.suffix == "xml":
         xml = etree.parse(str(docs_f)).getroot()
         elems = xml.findall("document")
@@ -325,7 +382,8 @@ def test_import_missing_file_skipped(labelbuddy, tmp_path, ng):
 
 
 @pytest.mark.parametrize(
-    "formats", [("json", "jsonl"), ("xml", "xml"), ("txt", "txt")]
+    "formats",
+    [("json", "jsonl"), ("csv", "json"), ("xml", "xml"), ("txt", "txt")],
 )
 def test_import_docs(formats, labelbuddy, tmp_path, ng):
     db = tmp_path / "db.labelbuddy"
@@ -351,6 +409,9 @@ def test_import_docs(formats, labelbuddy, tmp_path, ng):
         ("json", "json"),
         ("json", "jsonl"),
         ("jsonl", "json"),
+        ("csv", "json"),
+        ("json", "csv"),
+        ("csv", "csv"),
         ("xml", "xml"),
         ("txt", "json"),
         ("json", "xml"),
@@ -366,24 +427,25 @@ def test_conversion_and_import_back(formats, subset, labelbuddy, tmp_path, ng):
     new_db = tmp_path / "new_db.labelbuddy"
     labelbuddy(new_db, "--import-docs", target_docs)
     ref_format = next(
-        filter(formats.__contains__, ["txt", "xml", "jsonl", "json"])
+        filter(formats.__contains__, ["txt", "xml", "csv", "jsonl", "json"])
     )
     with open(ng[f"{ref_format}_data_docs_{subset}.pkl"], "rb") as f:
         ref_docs = pickle.load(f)
+    equiv = ["json", "jsonl", "csv"]
+    use_meta_md5 = (formats[0] == formats[1]) or (
+        formats[0] in equiv and formats[1] in equiv
+    )
     check_imported_docs(
         new_db,
         ref_docs,
         n_docs=int(subset.split("-")[1]),
-        use_meta_md5=(
-            formats[0].replace("jsonl", "json")
-            == formats[1].replace("jsonl", "json")
-        ),
+        use_meta_md5=use_meta_md5,
     )
 
 
 @pytest.mark.parametrize(
     ["doc_format", "label_format"],
-    [("json", "txt"), ("xml", "json"), ("jsonl", "json")],
+    [("json", "txt"), ("xml", "json"), ("jsonl", "json"), ("csv", "csv")],
 )
 def test_import_back(doc_format, label_format, tmp_path, ng, labelbuddy):
     db = tmp_path / "db"
@@ -403,7 +465,7 @@ def test_import_back(doc_format, label_format, tmp_path, ng, labelbuddy):
     assert check_import_back(db, labelbuddy)
 
 
-@pytest.mark.parametrize("doc_format", ["json", "xml"])
+@pytest.mark.parametrize("doc_format", ["json", "jsonl", "csv", "xml"])
 @pytest.mark.parametrize("labelled_only", [True, False])
 @pytest.mark.parametrize("no_text", [True, False])
 def test_import_annotations(
@@ -445,7 +507,7 @@ def test_vacuum(preloaded_db, labelbuddy):
     assert preloaded_db.stat().st_size < original_size
 
 
-@pytest.mark.parametrize("doc_format", ["json", "jsonl", "xml"])
+@pytest.mark.parametrize("doc_format", ["json", "jsonl", "xml", "csv"])
 @pytest.mark.parametrize("approver", ["", "someone"])
 @pytest.mark.parametrize("labelled_only", [True, False])
 @pytest.mark.parametrize("no_text", [True, False])
@@ -476,6 +538,7 @@ def test_export_options(
         "json": check_exported_json,
         "jsonl": check_exported_jsonl,
         "xml": check_exported_xml,
+        "csv": check_exported_csv,
     }[doc_format]
     check(
         docs,
@@ -546,3 +609,17 @@ def test_using_relative_path(labelbuddy, ng, tmp_path, cd_to_tempdir):
     )
     con = sqlite3.connect("./db")
     assert con.execute("select count(*) from document").fetchone()[0] == 15
+
+
+def test_integer_user_id(labelbuddy, tmp_path):
+    # user "id" must be a string. for convenience other json types are also
+    # accepted in imported docs but in exported json docs the id is always a
+    # string
+    docs = [{"text": "something", "id": 123, "meta": {"id": 123}}]
+    in_docs = tmp_path.joinpath("docs.json")
+    out_docs = tmp_path.joinpath("exported_docs.json")
+    in_docs.write_text(json.dumps(docs))
+    labelbuddy(":memory:", "--import-docs", in_docs, "--export-docs", out_docs)
+    loaded = json.loads(out_docs.read_text())[0]
+    assert loaded["id"] == "123"
+    assert loaded["meta"]["id"] == 123

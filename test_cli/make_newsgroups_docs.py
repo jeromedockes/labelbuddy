@@ -5,6 +5,7 @@ import argparse
 import json
 import pickle
 import tempfile
+import csv
 
 from lxml import etree
 
@@ -18,6 +19,17 @@ def to_xml(xml_elems):
     return etree.tostring(
         xml, encoding="utf-8", xml_declaration=True, pretty_print=True
     )
+
+
+def write_csv(out_file_path, data):
+    with open(out_file_path, "w", newline="", encoding="utf-8") as out_f:
+        writer = csv.DictWriter(out_f, data[0].keys())
+        writer.writeheader()
+        for record in data:
+            if "meta" in record:
+                record = dict(record)
+                record["meta"] = json.dumps(record["meta"])
+            writer.writerow(record)
 
 
 lb_command = os.environ["LABELBUDDY_COMMAND"]
@@ -36,7 +48,7 @@ xml_elems = []
 
 for doc in data["xml"]:
     xml_doc = etree.Element("document")
-    for key in ["text", "title", "short_title", "long_title"]:
+    for key in ["text", "id", "short_title", "long_title"]:
         elem = etree.SubElement(xml_doc, key)
         elem.text = doc[key]
 
@@ -58,6 +70,10 @@ for (a, b) in [(None, None), (0, 11), (6, 15), (0, 15), (0, 300)]:
     out_dir.joinpath(f"jsonl_data_{fname}.pkl").write_bytes(
         pickle.dumps(data["json"][a:b])
     )
+    write_csv(out_dir.joinpath(f"{fname}.csv"), data["json"][a:b])
+    out_dir.joinpath(f"csv_data_{fname}.pkl").write_bytes(
+        pickle.dumps(data["json"][a:b])
+    )
     out_dir.joinpath(f"{fname}.txt").write_text("\n".join(txt_lines[a:b]))
     out_dir.joinpath(f"txt_data_{fname}.pkl").write_bytes(
         pickle.dumps(data["txt"][a:b])
@@ -69,6 +85,7 @@ for (a, b) in [(None, None), (0, 11), (6, 15), (0, 15), (0, 300)]:
 
 
 (out_dir / "labels.json").write_text(json.dumps(data["labels"]))
+write_csv(out_dir / "labels.csv", data["labels"])
 out_dir.joinpath("labels.txt").write_text(
     "\n".join(lab["text"] for lab in data["labels"])
 )

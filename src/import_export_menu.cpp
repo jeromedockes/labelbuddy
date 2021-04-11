@@ -247,9 +247,9 @@ void ImportExportMenu::import_documents() {
   auto start_dir = suggest_dir(DirRole::import_documents);
   auto file_path = QFileDialog::getOpenFileName(
       this, "Docs & annotations file", start_dir,
-      "labelbuddy documents (*.txt *.json *.jsonl *.xml);; Text files "
-      "(*.txt);; JSON files (*.json);; JSONLines files (*.jsonl);; XML files "
-      "(*.xml);; All files (*)");
+      "labelbuddy documents (*.txt *.json *.jsonl *.csv *.xml);; Text files "
+      "(*.txt);; JSON files (*.json);; JSONLines files (*.jsonl);; "
+      "CSV files (*.csv);; XML files (*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -274,8 +274,8 @@ void ImportExportMenu::import_labels() {
   auto start_dir = suggest_dir(DirRole::import_labels);
   auto file_path = QFileDialog::getOpenFileName(
       this, "Labels file", start_dir,
-      "labelbuddy labels (*.txt *.json);; JSON files (*.json);; Text files "
-      "(*.txt);; All files (*)");
+      "labelbuddy labels (*.txt *.json *.csv);; JSON files (*.json);; "
+      "CSV files (*.csv);; Text files (*.txt);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -293,8 +293,9 @@ void ImportExportMenu::export_documents() {
   auto start_dir = suggest_dir(DirRole::export_documents);
   auto file_path = QFileDialog::getSaveFileName(
       this, "Docs & annotations file", start_dir,
-      "labelbuddy documents (*.json *.jsonl *.xml);; JSON files (*.json);; "
-      "JSONLines files (*.jsonl);; XML files (*.xml);; All files (*)");
+      "labelbuddy documents (*.json *.jsonl *.csv *.xml);;"
+      " JSON files (*.json);; JSONLines files (*.jsonl);; "
+      "CSV files (*.csv);; XML files (*.xml);; All files (*)");
   if (file_path == QString()) {
     return;
   }
@@ -329,7 +330,9 @@ void ImportExportMenu::export_documents() {
 void ImportExportMenu::export_labels() {
   auto start_dir = suggest_dir(DirRole::export_labels);
   auto file_path = QFileDialog::getSaveFileName(
-      this, "Labels file", start_dir, "JSON files (*.json);; All files (*)");
+      this, "Labels file", start_dir,
+      "labelbuddy labels (*.json *.csv);; JSON files (*.json);; "
+      "CSV files (*.csv);; All files (*)");
   if (file_path == QString()) {
     return;
   }

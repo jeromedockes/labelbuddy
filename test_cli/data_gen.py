@@ -34,7 +34,7 @@ def fetch_newsgroups(n_docs=None):
             {
                 "text": doc,
                 "long_title": long_title,
-                "title": str(i),
+                "id": str(i),
                 "short_title": short_title,
                 "meta": {
                     "target": int(target),
@@ -49,7 +49,7 @@ def fetch_newsgroups(n_docs=None):
             {
                 "text": xml_doc,
                 "long_title": clean_xml(long_title),
-                "title": str(i),
+                "id": str(i),
                 "short_title": clean_xml(short_title),
                 "meta": {
                     "target": str(target),
