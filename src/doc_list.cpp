@@ -54,6 +54,11 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
       QIcon::fromTheme("go-last", QIcon(":data/icons/go-last.png")), "");
   nav_layout->addWidget(last_page_button);
 
+  add_connections();
+  update_button_states();
+}
+
+void DocListButtons::add_connections() {
   QObject::connect(next_page_button, &QPushButton::clicked, this,
                    &DocListButtons::go_to_next_page);
 
@@ -83,8 +88,6 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
                    &DocListButtons::update_filter);
   // note above could be simplified: QOverload<int>::of(&QComboBox::activated)
   // but QOverload introduced in qt 5.7 and xenial comes with 5.5
-
-  update_button_states();
 }
 
 void DocListButtons::fill_filter_choice() {

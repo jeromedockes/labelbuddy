@@ -100,10 +100,10 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   auto export_layout = new QGridLayout();
   export_frame->setLayout(export_layout);
 
-  auto import_docs_button = new QPushButton("Import docs && annotations");
+  import_docs_button = new QPushButton("Import docs && annotations");
   import_layout->addWidget(import_docs_button, Qt::AlignLeft);
   import_docs_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  auto import_labels_button = new QPushButton("Import labels");
+  import_labels_button = new QPushButton("Import labels");
   import_layout->addWidget(import_labels_button, Qt::AlignLeft);
   import_labels_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   import_layout->addStretch(1);
@@ -126,10 +126,10 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   auto export_buttons_layout = new QHBoxLayout();
   export_buttons_frame->setLayout(export_buttons_layout);
   export_buttons_layout->setContentsMargins(0, 0, 0, 0);
-  auto export_button = new QPushButton("Export docs && annotations");
-  export_buttons_layout->addWidget(export_button);
-  export_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  auto export_labels_button = new QPushButton("Export labels");
+  export_docs_button = new QPushButton("Export docs && annotations");
+  export_buttons_layout->addWidget(export_docs_button);
+  export_docs_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  export_labels_button = new QPushButton("Export labels");
   export_buttons_layout->addWidget(export_labels_button);
   export_labels_button->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   export_buttons_layout->addStretch(1);
@@ -155,7 +155,7 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
                    &ImportExportMenu::import_documents);
   QObject::connect(import_labels_button, &QPushButton::clicked, this,
                    &ImportExportMenu::import_labels);
-  QObject::connect(export_button, &QPushButton::clicked, this,
+  QObject::connect(export_docs_button, &QPushButton::clicked, this,
                    &ImportExportMenu::export_documents);
   QObject::connect(export_labels_button, &QPushButton::clicked, this,
                    &ImportExportMenu::export_labels);

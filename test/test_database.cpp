@@ -305,6 +305,29 @@ void TestDatabase::test_import_export_labels() {
   QCOMPARE(csv.header(), expected);
 }
 
+void TestDatabase::test_import_label_with_duplicate_shortcut_key() {
+  QTemporaryDir tmp_dir{};
+  DatabaseCatalog catalog{};
+  auto file_path = tmp_dir.filePath("db.sqlite");
+  catalog.open_database(file_path);
+  auto labels_file_path = tmp_dir.filePath("labels.json");
+  QFile file(labels_file_path);
+  file.open(QIODevice::WriteOnly);
+  file.write(
+      R"([{"text": "lab1", "shortcut_key": "a"},
+ {"text": "lab2", "shortcut_key": "a"}])");
+  file.close();
+  catalog.import_labels(labels_file_path);
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  query.exec("select name, shortcut_key from label order by id;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("lab1"));
+  QCOMPARE(query.value(1).toString(), QString("a"));
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("lab2"));
+  QVERIFY(query.value(1).isNull());
+}
+
 void TestDatabase::check_db_labels(QSqlQuery& query) {
   query.exec("select name, color, shortcut_key from label;");
   query.next();

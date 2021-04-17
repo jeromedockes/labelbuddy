@@ -65,7 +65,6 @@ public:
   LabelListButtons(QWidget* parent = nullptr);
   void set_model(LabelListModel* new_model);
   void set_view(QListView* new_view);
-  bool eventFilter(QObject* object, QEvent* event) override;
 
 signals:
 
@@ -85,6 +84,9 @@ public slots:
   /// current shortcut in the shortcut edit box.
   void update_button_states(int n_selected, int total,
                             const QModelIndex& first_selected);
+
+protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
 
 private:
   QPushButton* select_all_button;

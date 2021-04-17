@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QFile>
 
 #include "csv.h"

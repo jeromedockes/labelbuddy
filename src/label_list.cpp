@@ -14,6 +14,7 @@
 #include "label_list_model.h"
 #include "user_roles.h"
 #include "utils.h"
+#include "compat.h"
 
 namespace labelbuddy {
 
@@ -90,7 +91,9 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
   bottom_layout->addWidget(shortcut_edit);
   shortcut_edit->setMaxLength(1);
   shortcut_edit->setValidator(&validator);
-  shortcut_edit->setFixedWidth(shortcut_edit->fontMetrics().maxWidth());
+  shortcut_edit->setFixedWidth(
+      text_width(shortcut_edit->fontMetrics(), "[a-z]x"));
+  shortcut_edit->setPlaceholderText("[a-z]");
   bottom_layout->addStretch(1);
 
   QObject::connect(select_all_button, &QPushButton::clicked, this,

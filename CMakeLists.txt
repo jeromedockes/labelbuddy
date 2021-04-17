@@ -43,6 +43,7 @@ add_executable(labelbuddy
   src/import_export_menu.cpp
   src/utils.cpp
   src/csv.cpp
+  src/compat.cpp
   resources.qrc
   )
 

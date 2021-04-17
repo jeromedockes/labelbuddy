@@ -39,6 +39,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   search_box = new QLineEdit();
   search_bar_layout->addWidget(search_box);
   search_box->installEventFilter(this);
+  search_box->setPlaceholderText("Search in document ( / or Ctrl+F )");
   find_prev_button = new QPushButton();
   search_bar_layout->addWidget(find_prev_button);
   find_next_button = new QPushButton();

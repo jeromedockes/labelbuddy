@@ -237,7 +237,7 @@ void TestDocList::test_filters() {
   QCOMPARE(doc_model.rowCount(), 5);
   query.exec("delete from annotation;");
   doc_model.document_lost_label(1, 1);
-  doc_list.showEvent(nullptr);
+  doc_list.show();
   QCOMPARE(doc_model.rowCount(), 6);
 
   auto new_db = tmp_dir.filePath("db1");

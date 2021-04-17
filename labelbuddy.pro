@@ -16,6 +16,7 @@ src/database.h \
 src/import_export_menu.h \
 src/utils.h \
 src/csv.h \
+src/compat.h \
 
 
 SOURCES += \
@@ -34,6 +35,7 @@ src/database.cpp \
 src/import_export_menu.cpp \
 src/utils.cpp \
 src/csv.cpp \
+src/compat.cpp \
 
 QT += widgets sql
 RESOURCES = resources.qrc

@@ -17,6 +17,7 @@ private slots:
   void test_app_state_extra();
   void test_open_database_errors();
   void test_import_export_labels();
+  void test_import_label_with_duplicate_shortcut_key();
   void test_import_export_docs();
   void test_import_export_docs_data();
   void test_batch_import_export();

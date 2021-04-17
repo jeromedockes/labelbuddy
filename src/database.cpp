@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <iostream>
 #include <memory>
 
@@ -948,7 +949,7 @@ void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
   auto re = shortcut_key_pattern();
   bool valid_shortcut = re.match(shortcut_key).hasMatch();
   if (valid_shortcut) {
-    query.prepare("select id from label where keyboard_shortcut = :shortcut;");
+    query.prepare("select id from label where shortcut_key = :shortcut;");
     query.bindValue(":shortcut", shortcut_key);
     query.exec();
     if (query.next()) {

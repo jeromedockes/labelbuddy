@@ -190,7 +190,7 @@ void LabelBuddy::check_tab_focus() {
 
 void LabelBuddy::add_menubar() {
   auto file_menu = menuBar()->addMenu("File");
-  auto open_db_action = new QAction("Open...", this);
+  auto open_db_action = new QAction("Open database...", this);
   file_menu->addAction(open_db_action);
   open_db_action->setShortcut(QKeySequence::Open);
   opened_databases_submenu_ = new QMenu("Opened during this session", this);
@@ -242,10 +242,14 @@ void LabelBuddy::add_menubar() {
   auto open_doc_action = new QAction("Documentation", this);
   help_menu->addAction(open_doc_action);
   open_doc_action->setShortcut(QKeySequence::HelpContents);
+  auto open_keybindings_doc_action = new QAction("Keyboard shortcuts", this);
+  help_menu->addAction(open_keybindings_doc_action);
   QObject::connect(show_about_action, &QAction::triggered, this,
                    &LabelBuddy::show_about_info);
   QObject::connect(open_doc_action, &QAction::triggered, this,
                    &LabelBuddy::open_documentation_url);
+  QObject::connect(open_keybindings_doc_action, &QAction::triggered, this,
+                   &LabelBuddy::open_documentation_url_at_keybindings_section);
 }
 
 void LabelBuddy::add_connection_to_menu(const QString& db_name) {
@@ -451,5 +455,11 @@ void LabelBuddy::show_about_info() {
 
 void LabelBuddy::open_documentation_url() {
   QDesktopServices::openUrl(get_doc_url());
+}
+
+void LabelBuddy::open_documentation_url_at_keybindings_section() {
+  auto url = get_doc_url();
+  url.setFragment("keybindings-summary");
+  QDesktopServices::openUrl(url);
 }
 } // namespace labelbuddy

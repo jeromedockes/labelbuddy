@@ -25,7 +25,6 @@ public:
   SearchableText(QWidget* parent = nullptr);
 
   void fill(const QString& content);
-  void keyPressEvent(QKeyEvent*) override;
 
   /// start and end character positions for the currently selected text.
 
@@ -49,6 +48,7 @@ public slots:
 
 protected:
   bool eventFilter(QObject* object, QEvent* event) override;
+  void keyPressEvent(QKeyEvent*) override;
 
 private slots:
   /// set position from which next search will start to the current cursor

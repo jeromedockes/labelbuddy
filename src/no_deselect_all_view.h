@@ -15,6 +15,7 @@ namespace labelbuddy {
 /// Used for the labels list in the Annotate tab as each annotation has exactly
 /// one label.
 class NoDeselectAllView : public QListView {
+protected:
   QItemSelectionModel::SelectionFlags
   selectionCommand(const QModelIndex& index,
                    const QEvent* event = nullptr) const override;

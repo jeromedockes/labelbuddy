@@ -2,7 +2,6 @@
 #include <QElapsedTimer>
 #include <QFont>
 #include <QFontDatabase>
-#include <QFontMetrics>
 #include <QIcon>
 #include <QItemSelectionModel>
 #include <QLabel>
@@ -24,8 +23,9 @@ namespace labelbuddy {
 LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   QVBoxLayout* layout = new QVBoxLayout();
   setLayout(layout);
-  delete_button = new QPushButton("Remove");
-  layout->addWidget(delete_button);
+  instruction_label = new QLabel("Set label for selected text:");
+  layout->addWidget(instruction_label);
+  instruction_label->setWordWrap(true);
   this->setStyleSheet("QListView::item {background: transparent;}");
   labels_view = new NoDeselectAllView();
   layout->addWidget(labels_view);
@@ -40,6 +40,9 @@ LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   extra_data_edit = new QLineEdit();
   layout->addWidget(extra_data_edit);
   extra_data_label->setBuddy(extra_data_edit);
+
+  delete_button = new QPushButton("Delete annotation");
+  layout->addWidget(delete_button);
 
   QObject::connect(delete_button, &QPushButton::clicked, this,
                    &LabelChoices::on_delete_button_click);

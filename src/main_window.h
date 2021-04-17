@@ -47,9 +47,6 @@ public:
   LabelBuddy(QWidget* parent = nullptr,
              const QString& database_path = QString(),
              bool start_from_temp_db = false);
-  void closeEvent(QCloseEvent* event) override;
-  void showEvent(QShowEvent* event) override;
-
 signals:
 
   /// User selected a different database through "Open" or "Demo"
@@ -60,6 +57,10 @@ public slots:
 
   /// focus the Annotate tab
   void go_to_annotations();
+
+protected:
+  void closeEvent(QCloseEvent* event) override;
+  void showEvent(QShowEvent* event) override;
 
 private slots:
 
@@ -85,6 +86,11 @@ private slots:
   /// If it is found in /usr/share/doc/labelbuddy or in the executable's parent
   /// directory the local file is opened, otherwise the online documentation
   void open_documentation_url();
+
+  /// If it is found in /usr/share/doc/labelbuddy or in the executable's parent
+  /// directory the local file is opened, otherwise the online documentation
+  /// opens it at the "#keybindings-summary" anchor
+  void open_documentation_url_at_keybindings_section();
 
   void update_status_bar();
   void update_window_title();

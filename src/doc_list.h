@@ -85,6 +85,8 @@ private:
   QPushButton* last_page_button = nullptr;
 
   QComboBox* filter_choice_ = nullptr;
+
+  void add_connections();
 };
 
 /// document list in the Dataset tab
@@ -95,6 +97,7 @@ public:
 
   void setModel(DocListModel*);
 
+protected:
   void showEvent(QShowEvent* event) override;
 
   void keyPressEvent(QKeyEvent* event) override;

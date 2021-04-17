@@ -623,3 +623,23 @@ def test_integer_user_id(labelbuddy, tmp_path):
     loaded = json.loads(out_docs.read_text())[0]
     assert loaded["id"] == "123"
     assert loaded["meta"]["id"] == 123
+
+
+def test_import_duplicate_shortcut_key(labelbuddy, tmp_path):
+    in_f = tmp_path.joinpath("labels.json")
+    in_f.write_text(
+        json.dumps(
+            [
+                {"text": "lab1", "shortcut_key": "a"},
+                {"text": "lab2", "shortcut_key": "a"},
+            ]
+        )
+    )
+    out_f = tmp_path.joinpath("labels_out.json")
+    labelbuddy(":memory:", "--import-labels", in_f, "--export-labels", out_f)
+    exported = json.loads(out_f.read_text())
+    assert len(exported) == 2
+    assert exported[0]["text"] == "lab1"
+    assert exported[0]["shortcut_key"] == "a"
+    assert exported[1]["text"] == "lab2"
+    assert "shortcut_key" not in exported[1]

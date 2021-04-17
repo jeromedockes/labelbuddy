@@ -57,8 +57,9 @@ private slots:
   void on_delete_button_click();
 
 private:
-  QPushButton* delete_button;
-  NoDeselectAllView* labels_view;
+  QLabel* instruction_label = nullptr;
+  QPushButton* delete_button = nullptr;
+  NoDeselectAllView* labels_view = nullptr;
   LabelListModel* label_list_model = nullptr;
   std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
   QLineEdit* extra_data_edit = nullptr;
@@ -148,20 +149,7 @@ class Annotator : public QSplitter {
 
 public:
   Annotator(QWidget* parent = nullptr);
-  void keyPressEvent(QKeyEvent*) override;
 
-  /// remember that mouse was pressed
-  void mousePressEvent(QMouseEvent*) override;
-
-  /// update annotations cursorPositionChanged signal hasn't happened since
-  /// the last mousePressEvent
-  ///
-  /// cursorPositionChanged can be due to mouse press but also to keyboard
-  /// actions. Moreover, a mouse click on the same position will not trigger a
-  /// cursorPositionChanged. Therefore when the mouse is pressed we set
-  /// `need_update_active_anno_` to true, and when it is released if it hasn't
-  /// been set to false we update the active annotation and repaint annotations.
-  void mouseReleaseEvent(QMouseEvent*) override;
   void set_annotations_model(AnnotationsModel*);
   void set_label_list_model(LabelListModel*);
 
@@ -203,6 +191,20 @@ public slots:
 protected:
   /// Filter installed on the textedit to override the behaviour of Space key
   bool eventFilter(QObject* object, QEvent* event) override;
+  void keyPressEvent(QKeyEvent*) override;
+
+  /// remember that mouse was pressed
+  void mousePressEvent(QMouseEvent*) override;
+
+  /// update annotations if cursorPositionChanged signal hasn't happened since
+  /// the last mousePressEvent
+  ///
+  /// cursorPositionChanged can be due to mouse press but also to keyboard
+  /// actions. Moreover, a mouse click on the same position will not trigger a
+  /// cursorPositionChanged. Therefore when the mouse is pressed we set
+  /// `need_update_active_anno_` to true, and when it is released if it hasn't
+  /// been set to false we update the active annotation and repaint annotations.
+  void mouseReleaseEvent(QMouseEvent*) override;
 
 private slots:
   void set_default_focus();

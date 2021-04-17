@@ -73,6 +73,10 @@ private:
   QString get_report_msg(const ExportLabelsResult& result) const;
 
   DatabaseCatalog* database_catalog;
+  QPushButton* import_docs_button;
+  QPushButton* import_labels_button;
+  QPushButton* export_docs_button;
+  QPushButton* export_labels_button;
   QLineEdit* annotator_name_edit;
   QCheckBox* labelled_only_checkbox;
   QCheckBox* include_text_checkbox;
