@@ -44,6 +44,8 @@ signals:
 private slots:
 
   /// prepare the combobox
+
+  /// the items' `itemData` is a pair (label id, doc filter)
   void fill_filter_choice();
 
   /// reset filter and offset when database changes

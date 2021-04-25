@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QAbstractItemView>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -55,7 +57,6 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   nav_layout->addWidget(last_page_button);
 
   add_connections();
-  update_button_states();
 }
 
 void DocListButtons::add_connections() {
@@ -92,6 +93,7 @@ void DocListButtons::add_connections() {
 
 void DocListButtons::fill_filter_choice() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   filter_choice_->clear();
@@ -147,6 +149,7 @@ void DocListButtons::fill_filter_choice() {
     }
     break;
   default:
+    assert(false);
     filter_choice_->setCurrentIndex(0);
     break;
   }
@@ -161,6 +164,7 @@ void DocListButtons::after_database_change() {
 
 void DocListButtons::go_to_next_page() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   int total = model->total_n_docs(current_filter, current_label_id);
@@ -173,6 +177,7 @@ void DocListButtons::go_to_next_page() {
 
 void DocListButtons::go_to_prev_page() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   if (offset == 0) {
@@ -184,6 +189,7 @@ void DocListButtons::go_to_prev_page() {
 
 void DocListButtons::go_to_last_page() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   int total = model->total_n_docs(current_filter, current_label_id);
@@ -193,6 +199,7 @@ void DocListButtons::go_to_last_page() {
 
 void DocListButtons::go_to_first_page() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   offset = 0;
@@ -209,15 +216,21 @@ void DocListButtons::update_after_data_change() {
                             offset);
   }
   update_button_states();
+  assert(offset >= 0);
+  assert(!(offset % page_size));
+  assert(total == 0 || offset < total);
 }
 
 void DocListButtons::update_button_states() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
 
   int total = model->total_n_docs(current_filter, current_label_id);
   int end = offset + model->rowCount();
+  assert(total == 0 || offset < total);
+  assert(end <= total);
 
   if (total == 0) {
     current_page_label->setText("0 / 0");
@@ -267,6 +280,7 @@ void DocListButtons::update_filter() {
 }
 
 void DocListButtons::setModel(DocListModel* new_model) {
+  assert(new_model != nullptr);
   model = new_model;
   QObject::connect(this, &DocListButtons::doc_filter_changed, model,
                    &DocListModel::adjust_query);
@@ -309,7 +323,7 @@ DocList::DocList(QWidget* parent) : QFrame(parent) {
 }
 
 void DocList::setModel(DocListModel* new_model) {
-
+  assert(new_model != nullptr);
   buttons_frame->setModel(new_model);
   doc_view->setModel(new_model);
   model = new_model;
@@ -337,6 +351,7 @@ void DocList::keyPressEvent(QKeyEvent* event) {
 
 void DocList::delete_all_docs() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   int resp = QMessageBox::question(this, "labelbuddy",
@@ -362,6 +377,7 @@ void DocList::delete_all_docs() {
 
 void DocList::delete_selected_rows() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   QModelIndexList selected = doc_view->selectionModel()->selectedIndexes();
@@ -388,6 +404,7 @@ void DocList::delete_selected_rows() {
 
 void DocList::visit_doc(const QModelIndex& index) {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   if (index.isValid() && index.column() == 0) {
@@ -396,15 +413,19 @@ void DocList::visit_doc(const QModelIndex& index) {
     return;
   }
   auto selected = doc_view->selectionModel()->selectedIndexes();
+  // items outside of first (visible) column shouldn't be selectable
+  assert(!selected.size() || selected[0].column() == 0);
   if (selected.size() != 1 || selected[0].column() != 0) {
     return;
   }
   auto doc_id = model->data(selected[0], Roles::RowIdRole).toInt();
+  assert(doc_id != -1);
   emit visit_doc_requested(doc_id);
 }
 
 void DocList::update_select_delete_buttons() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   auto selected = doc_view->selectionModel()->selectedIndexes();
@@ -412,6 +433,8 @@ void DocList::update_select_delete_buttons() {
   for (const auto& sel : selected) {
     if (sel.column() == 0) {
       ++n_rows;
+    } else {
+      assert(false);
     }
   }
   buttons_frame->update_top_row_buttons(n_rows, model->rowCount(),

@@ -1,0 +1,35 @@
+= Labelbuddy example files
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:lang: en
+:webfonts!:
+:lb: pass:q[*labelbuddy*]
+
+The files listed here provide examples of formats that can be used to import documents and labels into a {lb} database.
+The files whose name contains `exported` have been exported from {lb}.
+The import and export formats are the same, which means that these exported files can also be imported into {lb}.
+All the formats are described in <<../documentation.adoc#,the documentation>>.
+
+== Documents
+
+- link:docs.json[`docs.json`]
+- link:exported_docs.json[`exported_docs.json`]
+- link:docs.jsonl[`docs.jsonl`]
+- link:exported_docs.jsonl[`exported_docs.jsonl`]
+- link:docs.xml[`docs.xml`]
+- link:exported_docs.xml[`exported_docs.xml`]
+- link:docs.csv[`docs.csv`]
+- link:exported_docs.csv[`exported_docs.csv`]
+- link:docs.txt[`docs.txt`]
+
+== Labels
+
+- link:labels.json[`labels.json`]
+- link:exported_labels.json[`exported_labels.json`]
+- link:labels.jsonl[`labels.jsonl`]
+- link:exported_labels.jsonl[`exported_labels.jsonl`]
+- link:labels.xml[`labels.xml`]
+- link:exported_labels.xml[`exported_labels.xml`]
+- link:labels.csv[`labels.csv`]
+- link:exported_labels.csv[`exported_labels.csv`]
+- link:labels.txt[`labels.txt`]

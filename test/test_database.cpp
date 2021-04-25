@@ -50,7 +50,7 @@ void TestDatabase::test_open_database() {
   QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
   query.exec("select count(*) from document;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), 5);
+  QCOMPARE(query.value(0).toInt(), 4);
   query.exec("select count(*) from label where name = 'Word';");
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
@@ -180,60 +180,38 @@ void TestDatabase::test_stored_database_path() {
 
 void TestDatabase::test_import_export_docs_data() {
   QTest::addColumn<QString>("import_format");
-  QTest::addColumn<bool>("as_json_objects");
   QTest::addColumn<bool>("import_with_meta");
   QTest::addColumn<QString>("export_format");
   QTest::addColumn<bool>("export_with_content");
   QTest::addColumn<bool>("export_annotations");
   QTest::addColumn<bool>("export_all");
 
-  QList<QString> json_import_formats{"json", "jsonl"};
-  QList<QString> export_formats{"json", "jsonl", "xml", "csv"};
+  QList<QString> formats{"json", "jsonl", "xml", "csv"};
   QList<bool> false_true{false, true};
   int i{};
   QString name{};
   QTextStream ns(&name);
-  for (const auto& export_format : export_formats) {
+  for (const auto& export_format : formats) {
     for (auto with_content : false_true) {
       for (auto export_annotations : false_true) {
         for (auto export_all : false_true) {
           name = QString();
-          ns << "txt " << 0 << " " << 0 << " " << export_format << " "
-             << int(with_content) << " " << int(export_annotations) << " "
-             << int(export_all);
+          ns << "txt " << 0 << " " << export_format << " " << int(with_content)
+             << " " << int(export_annotations) << " " << int(export_all);
           QTest::newRow(name.toUtf8().data())
-              << "txt" << false << false << export_format << with_content
+              << "txt" << false << export_format << with_content
               << export_annotations << export_all;
           ++i;
           for (auto with_meta : false_true) {
-            name = QString();
-            ns << "xml " << 0 << " " << int(with_meta) << " " << export_format
-               << " " << int(with_content) << " " << int(export_annotations)
-               << " " << int(export_all);
-            QTest::newRow(name.toUtf8().data())
-                << "xml" << false << with_meta << export_format << with_content
-                << export_annotations << export_all;
-            ++i;
-            name = QString();
-            ns << "csv " << 0 << " " << int(with_meta) << " " << export_format
-               << " " << int(with_content) << " " << int(export_annotations)
-               << " " << int(export_all);
-            QTest::newRow(name.toUtf8().data())
-                << "csv" << false << with_meta << export_format << with_content
-                << export_annotations << export_all;
-            ++i;
-            for (const auto& import_format : json_import_formats) {
-              for (auto as_objects : false_true) {
-                name = QString();
-                ns << import_format << " " << int(as_objects) << " "
-                   << int(with_meta) << " " << export_format << " "
-                   << int(with_content) << " " << int(export_annotations) << " "
-                   << int(export_all);
-                QTest::newRow(name.toUtf8().data())
-                    << import_format << as_objects << with_meta << export_format
-                    << with_content << export_annotations << export_all;
-                ++i;
-              }
+            for (const auto& import_format : formats) {
+              name = QString();
+              ns << import_format << " " << int(with_meta) << " "
+                 << export_format << " " << int(with_content) << " "
+                 << int(export_annotations) << " " << int(export_all);
+              QTest::newRow(name.toUtf8().data())
+                  << import_format << with_meta << export_format << with_content
+                  << export_annotations << export_all;
+              ++i;
             }
           }
         }
@@ -277,32 +255,48 @@ void TestDatabase::test_import_export_labels() {
   catalog.import_labels(":test/data/test_labels.json");
   QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
   check_db_labels(query);
+  for (QString format : {"xml", "jsonl", "json", "csv"}) {
+    auto labels_file_path = tmp_dir.filePath(QString("labels.%0").arg(format));
+    catalog.export_labels(labels_file_path);
+    query.exec("delete from label;");
+    query.exec("select count(*) from label;");
+    query.next();
+    QCOMPARE(query.value(0).toInt(), 0);
+    catalog.import_labels(labels_file_path);
+    check_db_labels(query);
+    if (format == "csv") {
+      QFile file(labels_file_path);
+      file.open(QIODevice::ReadOnly);
+      QTextStream stream(&file);
+      CsvMapReader csv(&stream);
+      QList<QString> expected{"ignore_this_column", "text", "color",
+                              "shortcut_key"};
+      QCOMPARE(csv.header(), expected);
+    }
+  }
+}
 
-  auto labels_file_path = tmp_dir.filePath("labels.json");
-  catalog.export_labels(labels_file_path);
-  query.exec("delete from label;");
+void TestDatabase::test_import_txt_labels() {
+  QTemporaryDir tmp_dir{};
+  DatabaseCatalog catalog{};
+  auto file_path = tmp_dir.filePath("db.sqlite");
+  catalog.open_database(file_path);
+  auto labels_file_path = tmp_dir.filePath("labels.txt");
+  {
+    QFile labels_file(labels_file_path);
+    labels_file.open(QIODevice::WriteOnly);
+    labels_file.write("First label\nSecond label");
+  }
+  catalog.import_labels(labels_file_path);
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  query.exec("select name from label order by id;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), "First label");
+  query.next();
+  QCOMPARE(query.value(0).toString(), "Second label");
   query.exec("select count(*) from label;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), 0);
-  catalog.import_labels(labels_file_path);
-  check_db_labels(query);
-
-  labels_file_path = tmp_dir.filePath("labels.csv");
-  catalog.export_labels(labels_file_path);
-  query.exec("delete from label;");
-  query.exec("select count(*) from label;");
-  query.next();
-  QCOMPARE(query.value(0).toInt(), 0);
-  catalog.import_labels(labels_file_path);
-  check_db_labels(query);
-
-  QFile file(labels_file_path);
-  file.open(QIODevice::ReadOnly);
-  QTextStream stream(&file);
-  CsvMapReader csv(&stream);
-  QList<QString> expected{"ignore_this_column", "text", "color",
-                          "shortcut_key"};
-  QCOMPARE(csv.header(), expected);
+  QCOMPARE(query.value(0).toInt(), 2);
 }
 
 void TestDatabase::test_import_label_with_duplicate_shortcut_key() {
@@ -476,8 +470,8 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
   QCOMPARE(xml.name().toString(), QString("document_set"));
 
   for (const auto& doc : docs) {
-    auto json_data = doc.toArray();
-    auto meta = json_data[1].toObject();
+    auto json_data = doc.toObject();
+    auto meta = json_data["meta"].toObject();
     while (!xml.readNextStartElement() && !xml.atEnd()) {
     }
     QCOMPARE(xml.name().toString(), QString("document"));
@@ -499,19 +493,31 @@ void TestDatabase::check_exported_docs_xml(const QString& file_path,
       QCOMPARE(xml.readElementText(), QString());
     }
     xml.readElementText();
+    if (import_format != "txt" && json_data.contains("id")) {
+      xml.readNextStartElement();
+      QCOMPARE(xml.name().toString(), QString("id"));
+      QCOMPARE(xml.readElementText(), json_data["id"].toString());
+    }
 
     xml.readNextStartElement();
     QCOMPARE(xml.name().toString(), QString("annotation_approver"));
     QCOMPARE(xml.readElementText(), QString("some_user"));
 
     if (export_with_content) {
+      for (const auto& key : {"short_title", "long_title"}) {
+        if (import_format != "txt" && json_data.contains(key)) {
+          xml.readNextStartElement();
+          QCOMPARE(xml.name().toString(), key);
+          QCOMPARE(xml.readElementText(), json_data[key].toString());
+        }
+      }
       xml.readNextStartElement();
       QCOMPARE(xml.name().toString(), QString("text"));
       auto text = xml.readElementText();
       if (import_format != "txt") {
-        QCOMPARE(text, json_data[0].toString());
+        QCOMPARE(text, json_data["text"].toString());
       } else {
-        QCOMPARE(text, json_data[0].toString().replace("\n", "\t"));
+        QCOMPARE(text, json_data["text"].toString().replace("\n", "\t"));
       }
     }
     if (export_annotations) {
@@ -588,8 +594,8 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
 
   int i{};
   for (const auto& doc : docs) {
-    auto json_data = doc.toArray();
-    auto meta = json_data[1].toObject();
+    auto json_data = doc.toObject();
+    auto meta = json_data["meta"].toObject();
     auto output_json = output_json_data[i].toObject();
     if (import_format != "txt") {
       QCOMPARE(output_json.value("utf8_text_md5_checksum").toString(),
@@ -602,12 +608,21 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
       QCOMPARE(output_json.value("meta").toObject().value("title").toString(),
                meta.value("title").toString());
     }
+    if (import_format != "txt" && json_data.contains("id")) {
+      QCOMPARE(output_json.value("id").toString(), json_data["id"].toString());
+    }
     if (export_with_content) {
+      for (const auto& key : {"short_title", "long_title"}) {
+        if (import_format != "txt" && json_data.contains(key)) {
+          QCOMPARE(output_json[key].toString(), json_data[key].toString());
+        }
+      }
       if (import_format != "txt") {
-        QCOMPARE(output_json.value("text").toString(), json_data[0].toString());
+        QCOMPARE(output_json.value("text").toString(),
+                 json_data["text"].toString());
       } else {
         QCOMPARE(output_json.value("text").toString(),
-                 json_data[0].toString().replace("\n", "\t"));
+                 json_data["text"].toString().replace("\n", "\t"));
       }
     }
     QCOMPARE(output_json.value("annotation_approver").toString(),
@@ -654,8 +669,8 @@ void TestDatabase::check_exported_docs_csv(const QString& file_path,
   CsvMapReader reader(&stream);
   int i{};
   for (const auto& doc : docs) {
-    auto json_data = doc.toArray();
-    auto meta = json_data[1].toObject();
+    auto json_data = doc.toObject();
+    auto meta = json_data["meta"].toObject();
     auto output_doc = reader.read_record();
     if (import_format != "txt") {
       QCOMPARE(output_doc.value("utf8_text_md5_checksum"),
@@ -669,12 +684,21 @@ void TestDatabase::check_exported_docs_csv(const QString& file_path,
       QCOMPARE(output_meta.value("title").toString(),
                meta.value("title").toString());
     }
+    if (import_format != "txt" && json_data.contains("id")) {
+      QCOMPARE(output_doc["id"], json_data["id"].toString());
+    }
+
     if (export_with_content) {
+      for (const auto& key : {"short_title", "long_title"}) {
+        if (import_format != "txt" && json_data.contains(key)) {
+          QCOMPARE(output_doc[key], json_data[key].toString());
+        }
+      }
       if (import_format != "txt") {
-        QCOMPARE(output_doc.value("text"), json_data[0].toString());
+        QCOMPARE(output_doc.value("text"), json_data["text"].toString());
       } else {
         QCOMPARE(output_doc.value("text"),
-                 json_data[0].toString().replace("\n", "\t"));
+                 json_data["text"].toString().replace("\n", "\t"));
       }
     }
     QCOMPARE(output_doc.value("annotation_approver"), QString("some_user"));
@@ -727,7 +751,7 @@ void TestDatabase::create_documents_file_txt(const QString& file_path,
   QTextStream out(&file);
   out.setCodec("UTF-8");
   for (const auto& doc : docs) {
-    out << doc.toArray()[0].toString().replace("\n", "\t") << "\n";
+    out << doc.toObject()["text"].toString().replace("\n", "\t") << "\n";
   }
 }
 
@@ -742,15 +766,19 @@ void TestDatabase::create_documents_file_csv(const QString& file_path,
   if (import_with_meta) {
     row << "meta";
   }
-  row << "text";
+  row << "id"
+      << "short_title"
+      << "long_title"
+      << "text";
   writer.write_record(row.constBegin(), row.constEnd());
   for (const auto& doc : docs) {
-    auto doc_array = doc.toArray();
+    auto doc_obj = doc.toObject();
     row.clear();
     if (import_with_meta) {
-      row << QJsonDocument(doc_array[1].toObject()).toJson();
+      row << QJsonDocument(doc_obj["meta"].toObject()).toJson();
     }
-    row << doc_array[0].toString();
+    row << doc_obj["id"].toString() << doc_obj["short_title"].toString()
+        << doc_obj["long_title"].toString() << doc_obj["text"].toString();
     writer.write_record(row.constBegin(), row.constEnd());
   }
 }
@@ -766,11 +794,11 @@ void TestDatabase::create_documents_file_xml(const QString& file_path,
   xml.writeStartElement("document_set");
 
   for (const auto& doc : docs) {
-    auto doc_array = doc.toArray();
+    auto doc_obj = doc.toObject();
     xml.writeStartElement("document");
     if (import_with_meta) {
       xml.writeStartElement("meta");
-      auto metadata = doc_array[1].toObject();
+      auto metadata = doc_obj["meta"].toObject();
       for (auto key_val = metadata.constBegin(); key_val != metadata.constEnd();
            ++key_val) {
         xml.writeAttribute(key_val.key(),
@@ -778,7 +806,12 @@ void TestDatabase::create_documents_file_xml(const QString& file_path,
       }
       xml.writeEndElement();
     }
-    xml.writeTextElement("text", doc_array[0].toString());
+    for (const auto& key : {"id", "short_title", "long_title"}) {
+      if (doc_obj.contains(key)) {
+        xml.writeTextElement(key, doc_obj[key].toString());
+      }
+    }
+    xml.writeTextElement("text", doc_obj["text"].toString());
     xml.writeEndElement();
   }
 
@@ -790,7 +823,6 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
                                               const QJsonArray& docs) {
   QFETCH(QString, import_format);
   QFETCH(bool, import_with_meta);
-  QFETCH(bool, as_json_objects);
   auto jsonl{import_format == "jsonl"};
   QFile file(file_path);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -806,24 +838,19 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
       }
       out << "\n";
     }
-    auto doc_array = doc.toArray();
-    if (as_json_objects) {
-      QJsonObject json{};
-      json.insert("text", doc_array[0].toString());
-      if (import_with_meta) {
-        json.insert("meta", doc_array[1].toObject());
-      }
-      out << QString::fromUtf8(
-          QJsonDocument(json).toJson(QJsonDocument::Compact));
-    } else {
-      QJsonArray json_a{};
-      json_a << doc_array[0];
-      if (import_with_meta) {
-        json_a << doc_array[1];
-      }
-      out << QString::fromUtf8(
-          QJsonDocument(json_a).toJson(QJsonDocument::Compact));
+    auto doc_obj = doc.toObject();
+    QJsonObject json{};
+    json.insert("text", doc_obj["text"].toString());
+    if (import_with_meta) {
+      json.insert("meta", doc_obj["meta"].toObject());
     }
+    for (const auto& key : {"id", "short_title", "long_title"}) {
+      if (doc_obj.contains(key)) {
+        json.insert(key, doc_obj[key].toString());
+      }
+    }
+    out << QString::fromUtf8(
+        QJsonDocument(json).toJson(QJsonDocument::Compact));
     ++i;
   }
   out << (jsonl ? "\n" : "\n]\n");
@@ -856,7 +883,7 @@ void TestDatabase::test_batch_import_export() {
   auto input_docs = QJsonDocument::fromJson(input_docs_f.readAll()).array();
 
   QCOMPARE(output_docs.size(), input_docs.size());
-  QCOMPARE(output_docs[0].toObject()["text"], input_docs[0].toArray()[0]);
+  QCOMPARE(output_docs[0].toObject()["text"], input_docs[0].toObject()["text"]);
 
   res = batch_import_export(db_path, {}, {}, "", "", false, false, false, "",
                             true);
@@ -865,6 +892,33 @@ void TestDatabase::test_batch_import_export() {
   res = batch_import_export("/does/not/exist/db.sql", {}, {}, "", "", false,
                             false, false, "", true);
   QCOMPARE(res, 1);
+}
+
+void TestDatabase::test_import_errors_data() {
+  QTest::addColumn<QString>("input_file");
+  QDir dir(":test/data/invalid_files/");
+  auto input_files = dir.entryList({"*"});
+  for (const auto& file_name : input_files) {
+    QTest::newRow(file_name.toUtf8()) << dir.filePath(file_name);
+  }
+}
+
+void TestDatabase::test_import_errors() {
+  QFETCH(QString, input_file);
+  DatabaseCatalog catalog{};
+  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  auto doc_res = catalog.import_documents(input_file);
+  QCOMPARE(static_cast<int>(doc_res.error_code),
+           static_cast<int>(ErrorCode::CriticalParsingError));
+  query.exec("select count(*) from document;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 0);
+  auto label_res = catalog.import_labels(input_file);
+  QCOMPARE(static_cast<int>(label_res.error_code),
+           static_cast<int>(ErrorCode::CriticalParsingError));
+  query.exec("select count(*) from label;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 0);
 }
 
 } // namespace labelbuddy

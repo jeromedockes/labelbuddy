@@ -21,20 +21,23 @@
 
 namespace labelbuddy {
 
-// about encoding: when reading .txt we use the Qt default (depends on locale).
-// when reading or writing json (or jsonl) we use utf-8 (json is always utf-8
-// when exchanged between systems, https://tools.ietf.org/html/rfc8259#page-9)
-// when reading xml the encoding should be specified in the xml prolog
-// when writing xml we use utf-8 (which is the Qt default on all platforms)
-// when reading csv we assume utf-8 (but qt will detect and switch to utf-16 or
-// utf-32 if there is a BOM). when writing csv we use utf-8 and also add a
-// BOM so that libreoffice (on windows) and excel recognize utf-8; see
-// `CsvWriter` doc.
+// about encoding: when reading .txt we assume utf-8 (but qt will detect and
+// switch to utf-16 or utf-32 if there is a BOM). when reading or writing json
+// (or jsonl) we use utf-8 (json is always utf-8 when exchanged between systems,
+// https://tools.ietf.org/html/rfc8259#page-9) when reading xml the encoding
+// should be specified in the xml prolog. when writing xml we use utf-8 (which
+// is the Qt default on all platforms) when reading csv we assume utf-8 (but qt
+// will detect and switch to utf-16 or utf-32 if there is a BOM). when writing
+// csv we use utf-8 and also add a BOM so that libreoffice (on windows) and
+// excel recognize utf-8; see `CsvWriter` doc.
 
 DocsReader::DocsReader(const QString& file_path, QIODevice::OpenMode mode)
     : file(file_path) {
   if (file.open(mode)) {
     file_size_ = static_cast<double>(file.size());
+  } else {
+    error_code_ = ErrorCode::FileSystemError;
+    error_message_ = "Could not open file.";
   }
 }
 
@@ -43,6 +46,10 @@ DocsReader::~DocsReader() {}
 bool DocsReader::read_next() { return false; }
 
 bool DocsReader::is_open() const { return file.isOpen(); }
+
+bool DocsReader::has_error() const { return error_code_ != ErrorCode::NoError; }
+ErrorCode DocsReader::error_code() const { return error_code_; }
+QString DocsReader::error_message() const { return error_message_; }
 
 int DocsReader::progress_max() const { return progress_range_max_; }
 
@@ -62,7 +69,9 @@ void DocsReader::set_current_record(std::unique_ptr<DocRecord> new_record) {
 }
 
 TxtDocsReader::TxtDocsReader(const QString& file_path)
-    : DocsReader(file_path), stream(get_file()) {}
+    : DocsReader(file_path), stream(get_file()) {
+  stream.setCodec("UTF-8");
+}
 
 bool TxtDocsReader::read_next() {
   if (!is_open() || stream.atEnd()) {
@@ -74,30 +83,54 @@ bool TxtDocsReader::read_next() {
   return true;
 }
 
+QString format_xml_error(const QXmlStreamReader& xml) {
+  return QString("%0 (line %1, column %2)")
+      .arg(xml.errorString())
+      .arg(xml.lineNumber())
+      .arg(xml.columnNumber());
+}
+
 XmlDocsReader::XmlDocsReader(const QString& file_path)
     : DocsReader(file_path), xml(get_file()) {
-  if (!is_open()) {
-    found_error = true;
+  if (has_error()) {
     return;
   }
   xml.readNextStartElement();
+  if (xml.hasError()) {
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = format_xml_error(xml);
+    return;
+  }
   if (xml.name() != "document_set") {
-    found_error = true;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = "Root element is not 'document_set'";
+    return;
   }
 }
 
 bool XmlDocsReader::read_next() {
-  if (!is_open() || found_error) {
+  if (has_error()) {
     return false;
   }
-  if (!xml.readNextStartElement() || xml.name() != "document") {
-    found_error = true;
+  if (!xml.readNextStartElement()) {
+    if (xml.hasError()) {
+      error_code_ = ErrorCode::CriticalParsingError;
+      error_message_ = format_xml_error(xml);
+    }
+    return false;
+  }
+  if (xml.name() != "document") {
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = QString("Unexpected element: %0 (line %1, column %2)")
+                         .arg(xml.name().toString())
+                         .arg(xml.lineNumber())
+                         .arg(xml.columnNumber());
     return false;
   }
   new_record.reset(new DocRecord);
   new_record->valid_content = false;
   read_document();
-  if (found_error) {
+  if (has_error()) {
     return false;
   }
   set_current_record(std::move(new_record));
@@ -173,20 +206,24 @@ void XmlDocsReader::read_annotation_set() {
 void XmlDocsReader::read_annotation() {
   QJsonArray annotation{};
   xml.readNextStartElement();
+  QString msg("Unexpected element while reading annotation: %0");
   if (xml.name() != "start_char") {
-    found_error = true;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = msg.arg(xml.name().toString());
     return;
   }
   annotation << xml.readElementText().toInt();
   xml.readNextStartElement();
   if (xml.name() != "end_char") {
-    found_error = true;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = msg.arg(xml.name().toString());
     return;
   }
   annotation << xml.readElementText().toInt();
   xml.readNextStartElement();
   if (xml.name() != "label") {
-    found_error = true;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = msg.arg(xml.name().toString());
     return;
   }
   annotation << xml.readElementText();
@@ -205,16 +242,20 @@ CsvDocsReader::CsvDocsReader(const QString& file_path)
       csv(&stream) {
   if ((!csv.header().contains("text")) &&
       (!csv.header().contains("utf8_text_md5_checksum"))) {
-    found_error_ = true;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = "Missing header or neither 'text' nor "
+                     "'utf8_text_md5_checksum' columns present";
   }
 }
 
 bool CsvDocsReader::read_next() {
-  if (found_error_ || !is_open() || csv.at_end()) {
+  if (has_error() || csv.at_end()) {
     return false;
   }
   auto csv_record = csv.read_record();
   if (csv.found_error()) {
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = "CSV formatting error";
     return false;
   }
   std::unique_ptr<DocRecord> doc_record(new DocRecord);
@@ -268,19 +309,11 @@ void CsvDocsReader::read_annotation(const QMap<QString, QString>& csv_record,
 }
 
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument& json) {
-  if (json.isArray()) {
-    return json_to_doc_record(json.array());
-  } else {
-    return json_to_doc_record(json.object());
-  }
+  return json_to_doc_record(json.object());
 }
 
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonValue& json) {
-  if (json.isArray()) {
-    return json_to_doc_record(json.toArray());
-  } else {
-    return json_to_doc_record(json.toObject());
-  }
+  return json_to_doc_record(json.toObject());
 }
 
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject& json) {
@@ -300,25 +333,26 @@ std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject& json) {
   return record;
 }
 
-std::unique_ptr<DocRecord> json_to_doc_record(const QJsonArray& json) {
-  std::unique_ptr<DocRecord> record(new DocRecord);
-  record->content = json[0].toString();
-  record->metadata =
-      QJsonDocument(json[1].toObject()).toJson(QJsonDocument::Compact);
-  return record;
-}
-
 JsonDocsReader::JsonDocsReader(const QString& file_path)
     : DocsReader(file_path) {
-  if (!is_open()) {
-    total_n_docs = 0;
+  if (has_error()) {
     return;
   }
   QTextStream input_stream(get_file());
   input_stream.setCodec("UTF-8");
-  all_docs = QJsonDocument::fromJson(input_stream.readAll().toUtf8()).array();
-  total_n_docs = all_docs.size();
-  current_doc = all_docs.constBegin();
+  auto json_doc = QJsonDocument::fromJson(input_stream.readAll().toUtf8());
+  if (!json_doc.isArray()) {
+    total_n_docs = 0;
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ =
+        "File does not contain a JSON array.\n(Note: if file is in JSONLines "
+        "format, please use the filename extension '.jsonl' rather than "
+        "'.json')";
+  } else {
+    all_docs = json_doc.array();
+    total_n_docs = all_docs.size();
+    current_doc = all_docs.constBegin();
+  }
 }
 
 bool JsonDocsReader::read_next() {
@@ -341,11 +375,23 @@ JsonLinesDocsReader::JsonLinesDocsReader(const QString& file_path)
 }
 
 bool JsonLinesDocsReader::read_next() {
-  if (!is_open() || stream.atEnd()) {
+  if (has_error()) {
+    return false;
+  }
+  QString line{};
+  while (line == "" && !stream.atEnd()) {
+    line = stream.readLine();
+  }
+  if (line == "") {
+    return false;
+  }
+  auto json_doc = QJsonDocument::fromJson(line.toUtf8());
+  if (!json_doc.isObject()) {
+    error_code_ = ErrorCode::CriticalParsingError;
+    error_message_ = "JSONLines error: could not parse line as a JSON object.";
     return false;
   }
   std::unique_ptr<DocRecord> new_record(new DocRecord);
-  auto json_doc = QJsonDocument::fromJson(stream.readLine().toUtf8());
   set_current_record(json_to_doc_record(json_doc));
   return true;
 }
@@ -628,22 +674,17 @@ void DocsXmlWriter::add_annotations(const QList<Annotation>& annotations) {
 
 LabelRecord json_to_label_record(const QJsonValue& json) {
   LabelRecord record;
-  if (json.isObject()) {
-    auto json_obj = json.toObject();
-    record.name = json_obj["text"].toString();
-    if (json_obj.contains("color")) {
-      record.color = json_obj["color"].toString();
-    } else {
-      record.color = json_obj["background_color"].toString();
-    }
-    if (json_obj.contains("shortcut_key")) {
-      record.shortcut_key = json_obj["shortcut_key"].toString();
-    } else {
-      record.shortcut_key = json_obj["suffix_key"].toString();
-    }
+  auto json_obj = json.toObject();
+  record.name = json_obj["text"].toString();
+  if (json_obj.contains("color")) {
+    record.color = json_obj["color"].toString();
   } else {
-    record.name = json.toArray()[0].toString();
-    record.color = json.toArray()[1].toString();
+    record.color = json_obj["background_color"].toString();
+  }
+  if (json_obj.contains("shortcut_key")) {
+    record.shortcut_key = json_obj["shortcut_key"].toString();
+  } else {
+    record.shortcut_key = json_obj["suffix_key"].toString();
   }
   return record;
 }
@@ -753,8 +794,8 @@ bool DatabaseCatalog::store_db_path(const QString& db_path) {
 QString DatabaseCatalog::open_temp_database(bool load_data) {
   open_database(tmp_db_name_, false);
   if (load_data && (!tmp_db_data_loaded_)) {
-    import_labels(":docs/example_data/example_labels.json");
-    import_documents(":docs/example_data/example_documents.json");
+    import_labels(":docs/demo_data/example_labels.json");
+    import_documents(":docs/demo_data/example_documents.json");
     set_app_state_extra("notebook_page", 0);
     tmp_db_data_loaded_ = true;
     temporary_database_filled(tmp_db_name_);
@@ -824,7 +865,7 @@ DatabaseCatalog::accepted_and_default_formats(Action action,
     case ItemKind::Document:
       return {{"txt", "json", "jsonl", "xml", "csv"}, "txt"};
     case ItemKind::Label:
-      return {{"txt", "json", "csv"}, "txt"};
+      return {{"txt", "json", "jsonl", "xml", "csv"}, "txt"};
     default:
       assert(false);
       return {{}, ""};
@@ -834,7 +875,7 @@ DatabaseCatalog::accepted_and_default_formats(Action action,
     case ItemKind::Document:
       return {{"json", "jsonl", "xml", "csv"}, "json"};
     case ItemKind::Label:
-      return {{"json", "csv"}, "json"};
+      return {{"json", "jsonl", "xml", "csv"}, "json"};
     default:
       assert(false);
       return {{}, ""};
@@ -921,7 +962,10 @@ int DatabaseCatalog::insert_doc_annotations(int doc_id,
     query.prepare("select id from label where name = :lname;");
     query.bindValue(":lname", annotation_array[2].toString());
     query.exec();
-    query.next();
+    if (!query.next()) {
+      // bad annotation (eg empty label)
+      continue;
+    }
     auto label_id = query.value(0).toInt();
     query.prepare(
         "insert into annotation (doc_id, label_id, start_char, end_char, "
@@ -973,13 +1017,8 @@ void DatabaseCatalog::insert_label(QSqlQuery& query, const QString& label_name,
   }
 }
 
-ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
-                                                   QProgressDialog* progress) {
-  QSqlQuery query(QSqlDatabase::database(current_database));
-  query.exec("select count(*) from document;");
-  query.next();
-  auto n_before = query.value(0).toInt();
-
+std::unique_ptr<DocsReader>
+DatabaseCatalog::get_docs_reader(const QString& file_path) const {
   std::unique_ptr<DocsReader> reader;
   auto suffix = QFileInfo(file_path).suffix();
   if (suffix == "xml") {
@@ -993,10 +1032,19 @@ ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
   } else {
     reader.reset(new TxtDocsReader(file_path));
   }
-  if (!reader->is_open()) {
-    return {0, 0, ErrorCode::FileSystemError};
-  }
+  return reader;
+}
 
+ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
+                                                   QProgressDialog* progress) {
+  QSqlQuery query(QSqlDatabase::database(current_database));
+  query.exec("select count(*) from document;");
+  query.next();
+  auto n_before = query.value(0).toInt();
+  auto reader = get_docs_reader(file_path);
+  if (reader->has_error()) {
+    return {0, 0, reader->error_code(), reader->error_message()};
+  }
   if (progress != nullptr) {
     progress->setMaximum(reader->progress_max() + 1);
   }
@@ -1010,6 +1058,9 @@ ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
       cancelled = true;
       break;
     }
+    if (reader->has_error()) {
+      break;
+    }
     ++n_docs_read;
     std::cout << "Read " << n_docs_read << " documents\r" << std::flush;
     n_annotations += insert_doc_record(*(reader->get_current_record()), query);
@@ -1018,7 +1069,7 @@ ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
     }
   }
   std::cout << std::endl;
-  if (cancelled) {
+  if (cancelled || reader->has_error()) {
     query.exec("rollback transaction");
   } else {
     query.exec("commit transaction");
@@ -1029,46 +1080,128 @@ ImportDocsResult DatabaseCatalog::import_documents(const QString& file_path,
   if (progress != nullptr) {
     progress->setValue(progress->maximum());
   }
-  return {n_after - n_before, n_annotations, ErrorCode::NoError};
+  return {n_after - n_before, n_annotations, reader->error_code(),
+          reader->error_message()};
 }
 
-QPair<QJsonArray, ErrorCode>
-load_labels_into_json_array(const QString& file_path) {
+QPair<QJsonArray, QPair<ErrorCode, QString>>
+read_labels(const QString& file_path) {
   QFile file(file_path);
+  if (!file.open(QIODevice::ReadOnly)) {
+    return {QJsonArray{}, {ErrorCode::FileSystemError, "Could not open file."}};
+  }
   auto suffix = QFileInfo(file).suffix();
   if (suffix == "json") {
-    if (!file.open(QIODevice::ReadOnly)) {
-      return {QJsonArray{}, ErrorCode::FileSystemError};
-    }
-    return {QJsonDocument::fromJson(file.readAll()).array(),
-            ErrorCode::NoError};
+    return read_json_labels(file);
+  }
+  if (suffix == "jsonl") {
+    return read_json_lines_labels(file);
   }
   if (suffix == "csv") {
-    if (!file.open(QIODevice::ReadOnly)) {
-      return {QJsonArray{}, ErrorCode::FileSystemError};
+    return read_csv_labels(file);
+  }
+  if (suffix == "xml") {
+    return read_xml_labels(file);
+  }
+  return read_txt_labels(file);
+}
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_json_labels(QFile& file) {
+  auto json_doc = QJsonDocument::fromJson(file.readAll());
+  if (!json_doc.isArray()) {
+    return {QJsonArray{},
+            {ErrorCode::CriticalParsingError,
+             "File does not contain a JSON array."}};
+  }
+  return {json_doc.array(), {ErrorCode::NoError, ""}};
+}
+
+QPair<QJsonArray, QPair<ErrorCode, QString>>
+read_json_lines_labels(QFile& file) {
+  QTextStream stream(&file);
+  stream.setCodec("UTF-8");
+  QJsonArray result{};
+  while (!stream.atEnd()) {
+    auto line = stream.readLine();
+    if (line == "") {
+      continue;
     }
-    QTextStream stream(&file);
-    CsvMapReader csv(&stream);
-    QJsonArray result{};
-    while (!csv.at_end()) {
-      auto record = csv.read_record();
-      QJsonObject obj{};
-      for (auto it = record.constBegin(); it != record.constEnd(); ++it) {
-        obj[it.key()] = it.value();
-      }
-      result << obj;
+    auto json_doc = QJsonDocument::fromJson(line.toUtf8());
+    if (!json_doc.isObject()) {
+      return {QJsonArray{},
+              {ErrorCode::CriticalParsingError,
+               "JSONLines error: could not parse line as a JSON object."}};
     }
-    return {result, ErrorCode::NoError};
+    result << json_doc.object();
+  }
+  return {result, {ErrorCode::NoError, ""}};
+}
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_csv_labels(QFile& file) {
+  QTextStream stream(&file);
+  CsvMapReader csv(&stream);
+  if (!csv.header().contains("text")) {
+    return {QJsonArray{},
+            {ErrorCode::CriticalParsingError,
+             "Missing header or header does not contain 'text'."}};
   }
   QJsonArray result{};
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    return {result, ErrorCode::FileSystemError};
+  while (!csv.at_end()) {
+    auto record = csv.read_record();
+    if (csv.found_error()) {
+      return {QJsonArray{},
+              {ErrorCode::CriticalParsingError, "CSV formatting error"}};
+    }
+    QJsonObject obj{};
+    for (auto it = record.constBegin(); it != record.constEnd(); ++it) {
+      obj[it.key()] = it.value();
+    }
+    result << obj;
   }
+  return {result, {ErrorCode::NoError, ""}};
+}
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_xml_labels(QFile& file) {
+  file.setTextModeEnabled(true);
+  QXmlStreamReader xml(&file);
+  xml.readNextStartElement();
+  if (xml.hasError()) {
+    return {QJsonArray{},
+            {ErrorCode::CriticalParsingError, format_xml_error(xml)}};
+  }
+  if (xml.name() != "label_set") {
+    return {
+        QJsonArray{},
+        {ErrorCode::CriticalParsingError, "Root element is not 'label_set'"}};
+  }
+  QJsonArray result{};
+  while (xml.readNextStartElement()) {
+    if (xml.name() != "label") {
+      return {QJsonArray{},
+              {ErrorCode::CriticalParsingError,
+               QString("Unexpected element: %0").arg(xml.name().toString())}};
+    }
+    QJsonObject obj{};
+    while (xml.readNextStartElement()) {
+      obj[xml.name().toString()] =
+          xml.readElementText(QXmlStreamReader::IncludeChildElements);
+    }
+    result << obj;
+  }
+  return {result, {ErrorCode::NoError, ""}};
+}
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_txt_labels(QFile& file) {
+  QJsonArray result{};
+  file.setTextModeEnabled(true);
   QTextStream stream(&file);
+  stream.setCodec("UTF-8");
+  QJsonObject obj{};
   while (!stream.atEnd()) {
-    result << QJsonArray{QJsonValue(stream.readLine())};
+    obj["text"] = stream.readLine();
+    result << obj;
   }
-  return {result, ErrorCode::NoError};
+  return {result, {ErrorCode::NoError, ""}};
 }
 
 ImportLabelsResult DatabaseCatalog::import_labels(const QString& file_path) {
@@ -1076,9 +1209,9 @@ ImportLabelsResult DatabaseCatalog::import_labels(const QString& file_path) {
   query.exec("select count(*) from label;");
   query.next();
   auto n_before = query.value(0).toInt();
-  auto read_result = load_labels_into_json_array(file_path);
-  if (read_result.second != ErrorCode::NoError) {
-    return {0, read_result.second};
+  auto read_result = read_labels(file_path);
+  if (read_result.second.first != ErrorCode::NoError) {
+    return {0, read_result.second.first, read_result.second.second};
   }
   query.exec("begin transaction;");
   for (const auto& label_info : read_result.first) {
@@ -1090,18 +1223,16 @@ ImportLabelsResult DatabaseCatalog::import_labels(const QString& file_path) {
   query.exec("select count(*) from label;");
   query.next();
   auto n_after = query.value(0).toInt();
-  return {n_after - n_before, ErrorCode::NoError};
+  return {n_after - n_before, ErrorCode::NoError, ""};
 }
 
-ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
-                                                   bool labelled_docs_only,
-                                                   bool include_text,
-                                                   bool include_annotations,
-                                                   const QString& user_name,
-                                                   QProgressDialog* progress) {
+std::unique_ptr<DocsWriter>
+DatabaseCatalog::get_docs_writer(const QString& file_path, bool include_text,
+                                 bool include_annotations,
+                                 bool include_user_name) const {
+
   auto suffix = QFileInfo(file_path).suffix();
   std::unique_ptr<DocsWriter> writer{nullptr};
-  bool include_user_name = user_name != "";
   if (suffix == "xml") {
     writer.reset(new DocsXmlWriter(file_path, include_text, include_annotations,
                                    include_user_name));
@@ -1115,8 +1246,20 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
     writer.reset(new DocsJsonWriter(file_path, include_text,
                                     include_annotations, include_user_name));
   }
+  return writer;
+}
+
+ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
+                                                   bool labelled_docs_only,
+                                                   bool include_text,
+                                                   bool include_annotations,
+                                                   const QString& user_name,
+                                                   QProgressDialog* progress) {
+  bool include_user_name = user_name != "";
+  auto writer = get_docs_writer(file_path, include_text, include_annotations,
+                                include_user_name);
   if (!writer->is_open()) {
-    return {0, 0, ErrorCode::FileSystemError};
+    return {0, 0, ErrorCode::FileSystemError, QString("Could not open file.")};
   }
 
   QSqlQuery query(QSqlDatabase::database(current_database));
@@ -1158,7 +1301,7 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
   if (progress != nullptr) {
     progress->setValue(progress->maximum());
   }
-  return {n_docs, n_annotations, ErrorCode::NoError};
+  return {n_docs, n_annotations, ErrorCode::NoError, ""};
 }
 
 int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
@@ -1228,26 +1371,79 @@ ExportLabelsResult DatabaseCatalog::export_labels(const QString& file_path) {
   }
   auto suffix = QFileInfo(file_path).suffix();
   if (suffix == "csv") {
-    return {labels.size(), write_labels_to_csv(labels, file_path)};
+    return write_labels_to_csv(labels, file_path);
   }
-  return {labels.size(), write_labels_to_json(labels, file_path)};
+  if (suffix == "xml") {
+    return write_labels_to_xml(labels, file_path);
+  }
+  if (suffix == "jsonl") {
+    return write_labels_to_json_lines(labels, file_path);
+  }
+  return write_labels_to_json(labels, file_path);
 }
 
-ErrorCode DatabaseCatalog::write_labels_to_json(const QJsonArray& labels,
-                                                const QString& file_path) {
+ExportLabelsResult
+DatabaseCatalog::write_labels_to_json(const QJsonArray& labels,
+                                      const QString& file_path) {
   QFile file(file_path);
   if (!file.open(QIODevice::WriteOnly)) {
-    return ErrorCode::FileSystemError;
+    return {0, ErrorCode::FileSystemError, QString("Could not open file.")};
   }
   file.write(QJsonDocument(labels).toJson());
-  return ErrorCode::NoError;
+
+  return {labels.size(), ErrorCode::NoError, ""};
 }
 
-ErrorCode DatabaseCatalog::write_labels_to_csv(const QJsonArray& labels,
-                                               const QString& file_path) {
+ExportLabelsResult
+DatabaseCatalog::write_labels_to_json_lines(const QJsonArray& labels,
+                                            const QString& file_path) {
   QFile file(file_path);
   if (!file.open(QIODevice::WriteOnly)) {
-    return ErrorCode::FileSystemError;
+    return {0, ErrorCode::FileSystemError, QString("Could not open file.")};
+  }
+  QTextStream stream(&file);
+  stream.setCodec("UTF-8");
+  for (const auto& label_info : labels) {
+    stream
+        << QJsonDocument(label_info.toObject()).toJson(QJsonDocument::Compact)
+        << "\n";
+  }
+  return {labels.size(), ErrorCode::NoError, ""};
+}
+
+ExportLabelsResult
+DatabaseCatalog::write_labels_to_xml(const QJsonArray& labels,
+                                     const QString& file_path) {
+  QFile file(file_path);
+  if (!file.open(QIODevice::WriteOnly)) {
+    return {0, ErrorCode::FileSystemError, QString("Could not open file.")};
+  }
+  QXmlStreamWriter xml(&file);
+  xml.setCodec("UTF-8");
+  xml.setAutoFormatting(true);
+  xml.writeStartDocument();
+  xml.writeStartElement("label_set");
+  for (const auto& label_info : labels) {
+    xml.writeStartElement("label");
+    auto li = label_info.toObject();
+    xml.writeTextElement("text", li["text"].toString());
+    xml.writeTextElement("color", li["color"].toString());
+    if (li.contains("shortcut_key")) {
+      xml.writeTextElement("shortcut_key", li["shortcut_key"].toString());
+    }
+    xml.writeEndElement();
+  }
+  xml.writeEndElement();
+  xml.writeEndDocument();
+  return {labels.size(), ErrorCode::NoError, ""};
+}
+
+ExportLabelsResult
+DatabaseCatalog::write_labels_to_csv(const QJsonArray& labels,
+                                     const QString& file_path) {
+  QFile file(file_path);
+  if (!file.open(QIODevice::WriteOnly)) {
+    return {0, ErrorCode::FileSystemError, QString("Could not open file.")};
   }
   QTextStream stream(&file);
   QList<QString> record{};
@@ -1263,7 +1459,7 @@ ErrorCode DatabaseCatalog::write_labels_to_csv(const QJsonArray& labels,
            << li["shortcut_key"].toString();
     csv.write_record(record.constBegin(), record.constEnd());
   }
-  return ErrorCode::NoError;
+  return {labels.size(), ErrorCode::NoError, ""};
 }
 
 int batch_import_export(
@@ -1396,12 +1592,13 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
   success *= query.exec("PRAGMA application_id = -14315518;");
   success *= query.exec("PRAGMA user_version = 2;");
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
-      "content_md5 BLOB UNIQUE NOT NULL, "
-      "content TEXT NOT NULL, metadata BLOB, "
-      "user_provided_id TEXT DEFAULT NULL, "
-      "long_title TEXT DEFAULT NULL, short_title TEXT DEFAULT NULL);");
+  success *=
+      query.exec("CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
+                 "content_md5 BLOB UNIQUE NOT NULL, "
+                 "content TEXT NOT NULL, metadata BLOB, "
+                 "user_provided_id TEXT DEFAULT NULL, "
+                 "long_title TEXT DEFAULT NULL, short_title TEXT DEFAULT NULL, "
+                 "CHECK (content != ''), CHECK (length(content_md5 = 128)));");
   // for some reason the auto index created for the primary key is not treated
   // as a covering index in 'count(*) from document where id < xxx' but this is:
   success *= query.exec("CREATE INDEX IF NOT EXISTS document_id_idx ON "
@@ -1410,7 +1607,7 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
   success *= query.exec(
       "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
       "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
-      "shortcut_key TEXT UNIQUE DEFAULT NULL); ");
+      "shortcut_key TEXT UNIQUE DEFAULT NULL, CHECK (name != '')); ");
 
   success *= query.exec(
       " CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "

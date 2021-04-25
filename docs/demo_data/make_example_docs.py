@@ -20,7 +20,6 @@ def get_annotations(doc, annotations):
 example_dir = Path(__file__).parent
 doc_file_names = [
     "hello_annotations.txt",
-    "documentation.txt",
     "wikipedia_language_ar.txt",
     "wikipedia_language_el.txt",
     "wikipedia_language_zh.txt",
@@ -33,16 +32,7 @@ for doc_name in doc_file_names:
     lines = doc.split("\n")
     title = lines[0].strip()
     long_title = re.sub(r"<a[^>]*>([^<]*)</a>", r"\1", title)
-    if doc_name == "documentation.txt":
-        title = (
-            "labelbuddy documentation — "
-            "<a href='https://jeromedockes.github.io/labelbuddy/"
-            "documentation.html'>online version</a>"
-        )
-        long_title = "labelbuddy documentation"
-        body = doc
-    else:
-        body = "\n".join(lines[1:])
+    body = "\n".join(lines[1:])
     if doc_name == "hello_annotations.txt":
         annotations = get_annotations(
             body,

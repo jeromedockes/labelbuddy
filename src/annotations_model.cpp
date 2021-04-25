@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QObject>
 #include <QSqlDatabase>
 #include <QVariant>
@@ -13,6 +15,7 @@ QSqlQuery AnnotationsModel::get_query() const {
 }
 
 void AnnotationsModel::set_database(const QString& new_database_name) {
+  assert(QSqlDatabase::contains(new_database_name));
   database_name = new_database_name;
   auto query = get_query();
   query.exec("select last_visited_doc from app_state;");
@@ -97,6 +100,7 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   query.bindValue(":start", start_char);
   query.bindValue(":end", end_char);
   if (!query.exec()) {
+    // fails eg if annotation is a duplicate of one already in db
     return -1;
   }
   auto new_annotation_id = query.lastInsertId().toInt();
@@ -132,6 +136,7 @@ int AnnotationsModel::delete_annotation(int annotation_id) {
   query.bindValue(":id", annotation_id);
   query.exec();
   auto n_deleted = query.numRowsAffected();
+  assert (n_deleted == 1);
   // -1 if query is not active
   if (n_deleted <= 0) {
     return 0;

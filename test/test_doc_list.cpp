@@ -6,6 +6,7 @@
 #include <QSqlQuery>
 #include <QTimer>
 
+#include "database.h"
 #include "doc_list.h"
 #include "test_doc_list.h"
 #include "testing_utils.h"
@@ -241,6 +242,7 @@ void TestDocList::test_filters() {
   QCOMPARE(doc_model.rowCount(), 6);
 
   auto new_db = tmp_dir.filePath("db1");
+  { DatabaseCatalog().open_database(new_db); }
   doc_model.set_database(new_db);
   // separators have been removed
   QCOMPARE(filter_box->count(), 3);

@@ -89,6 +89,20 @@ write_csv(out_dir / "labels.csv", data["labels"])
 out_dir.joinpath("labels.txt").write_text(
     "\n".join(lab["text"] for lab in data["labels"])
 )
+(out_dir / "labels.jsonl").write_text(
+    "\n".join([json.dumps(lab) for lab in data["labels"]])
+)
+xml_labels = etree.Element("label_set")
+for label in data["labels"]:
+    label_elem = etree.SubElement(xml_labels, "label")
+    for key in ["text", "background_color", "shortcut_key"]:
+        elem = etree.SubElement(label_elem, key)
+        elem.text = label[key]
+(out_dir / "labels.xml").write_bytes(
+    etree.tostring(
+        xml_labels, encoding="utf-8", xml_declaration=True, pretty_print=True
+    )
+)
 
 with tempfile.TemporaryDirectory() as tmp_dir:
     tmp_dir = Path(tmp_dir)

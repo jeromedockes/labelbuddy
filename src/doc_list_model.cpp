@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QSqlDatabase>
 #include <QSqlError>
 
@@ -13,6 +15,7 @@ QSqlQuery DocListModel::get_query() const {
 }
 
 void DocListModel::set_database(const QString& new_database_name) {
+  assert(QSqlDatabase::contains(new_database_name));
   database_name = new_database_name;
   doc_filter = DocFilter::all;
   filter_label_id_ = -1;
@@ -26,6 +29,7 @@ void DocListModel::set_database(const QString& new_database_name) {
 QVariant DocListModel::data(const QModelIndex& index, int role) const {
   if (role == Roles::RowIdRole) {
     if (index.column() != 0) {
+      assert(false);
       return QVariant{};
     }
     return QSqlQueryModel::data(index.sibling(index.row(), 1), Qt::DisplayRole);
@@ -99,6 +103,7 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
   query.bindValue(":lim", new_limit);
   query.bindValue(":off", new_offset);
   query.exec();
+  assert(query.isActive());
   setQuery(query);
 }
 
@@ -153,6 +158,8 @@ int DocListModel::delete_docs(const QModelIndexList& indices) {
     rowid = data(index, Roles::RowIdRole);
     if (rowid != QVariant()) {
       ids << rowid;
+    } else {
+      assert(false);
     }
   }
   query.addBindValue(ids);
@@ -183,7 +190,7 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
     }
     query.exec("delete from document limit 1000;");
     n_deleted += query.numRowsAffected();
-    if (query.lastError().type() == QSqlError::StatementError){
+    if (query.lastError().type() == QSqlError::StatementError) {
       // sqlite not compiled with SQLITE_ENABLE_UPDATE_DELETE_LIMIT
       // delete all in one go
       cancelled = !query.exec("delete from document;");

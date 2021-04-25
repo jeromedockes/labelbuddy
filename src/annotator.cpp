@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QColor>
 #include <QElapsedTimer>
 #include <QFont>
@@ -53,6 +55,7 @@ LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
 }
 
 void LabelChoices::setModel(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   label_list_model = new_model;
   labels_view->setModel(new_model);
   QObject::connect(labels_view->selectionModel(),
@@ -69,6 +72,7 @@ QModelIndexList LabelChoices::selectedIndexes() const {
 
 int LabelChoices::selected_label_id() const {
   if (label_list_model == nullptr) {
+    assert(false);
     return -1;
   }
   QModelIndexList selected_indexes =
@@ -105,11 +109,13 @@ void LabelChoices::enable_delete_and_edit() {
   extra_data_edit->setEnabled(true);
   extra_data_label->setEnabled(true);
 }
+
 void LabelChoices::disable_delete_and_edit() {
   delete_button->setDisabled(true);
   extra_data_edit->setDisabled(true);
   extra_data_label->setDisabled(true);
 }
+
 void LabelChoices::enable_label_choice() { labels_view->setEnabled(true); }
 void LabelChoices::disable_label_choice() { labels_view->setDisabled(true); }
 bool LabelChoices::is_label_choice_enabled() const {
@@ -244,12 +250,12 @@ void Annotator::set_use_bold_font(bool bold_font) {
 }
 
 void Annotator::set_annotations_model(AnnotationsModel* new_model) {
+  assert(new_model != nullptr);
   annotations_model = new_model;
   nav_buttons->setModel(new_model);
 
   QObject::connect(annotations_model, &AnnotationsModel::document_changed, this,
                    &Annotator::reset_document);
-
   QObject::connect(nav_buttons, &AnnotationsNavButtons::visit_next,
                    annotations_model, &AnnotationsModel::visit_next);
   QObject::connect(nav_buttons, &AnnotationsNavButtons::visit_prev,
@@ -290,6 +296,7 @@ void Annotator::update_annotations() {
 }
 
 void Annotator::set_label_list_model(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   label_choices->setModel(new_model);
 }
 
@@ -321,6 +328,7 @@ void Annotator::add_annotation_to_clusters(const AnnotationCursor& annotation,
 
 void Annotator::remove_annotation_from_clusters(
     const AnnotationCursor& annotation, std::list<Cluster>& clusters) {
+  // find the annotation's cluster
   auto annotation_cluster = clusters.cbegin();
   while (annotation_cluster != clusters.cend()) {
     if (annotation_cluster->start_char <= annotation.start_char &&
@@ -330,15 +338,20 @@ void Annotator::remove_annotation_from_clusters(
     ++annotation_cluster;
   }
   if (annotation_cluster == clusters.cend()) {
+    assert(false);
     return;
   }
+  // remove the annotation's cluster and re-insert the other annotations it
+  // contains.
   std::list<Cluster> new_clusters{};
   auto anno = sorted_annotations_.find(annotation_cluster->first_annotation);
+  assert(anno != sorted_annotations_.end());
   while (*anno != annotation_cluster->last_annotation) {
     if (anno->id != annotation.id) {
       add_annotation_to_clusters(annotations[anno->id], new_clusters);
     }
     ++anno;
+    assert(anno != sorted_annotations_.end());
   }
   if (anno->id != annotation.id) {
     add_annotation_to_clusters(annotations[anno->id], new_clusters);
@@ -452,12 +465,15 @@ void Annotator::delete_annotation(int annotation_id) {
     deactivate_active_annotation();
   }
   auto deleted = annotations_model->delete_annotation(annotation_id);
-  if (deleted) {
-    auto anno = annotations[annotation_id];
-    remove_annotation_from_clusters(anno, clusters_);
-    annotations.remove(annotation_id);
-    sorted_annotations_.erase({anno.start_char, anno.id});
+  if (!deleted) {
+    assert(false);
+    emit active_annotation_changed();
+    return;
   }
+  auto anno = annotations[annotation_id];
+  remove_annotation_from_clusters(anno, clusters_);
+  annotations.remove(annotation_id);
+  sorted_annotations_.erase({anno.start_char, anno.id});
   emit active_annotation_changed();
 }
 
@@ -471,11 +487,14 @@ void Annotator::set_default_focus() { text->setFocus(); }
 void Annotator::update_extra_data_for_active_annotation(
     const QString& new_data) {
   if (active_annotation == -1) {
+    assert(false);
     return;
   }
   if (annotations_model->update_annotation_extra_data(active_annotation,
                                                       new_data)) {
     annotations[active_annotation].extra_data = new_data;
+  } else {
+    assert(false);
   }
 }
 
@@ -506,6 +525,7 @@ bool Annotator::add_annotation() {
   auto start = selection_boundaries[0];
   auto end = selection_boundaries[1];
   if (start == end) {
+    assert(false);
     return false;
   }
   return add_annotation(label_id, start, end);
@@ -541,6 +561,7 @@ bool Annotator::add_annotation(int label_id, int start_char, int end_char) {
 
 void Annotator::fetch_labels_info() {
   if (annotations_model == nullptr) {
+    assert(false);
     return;
   }
   labels = annotations_model->get_labels_info();
@@ -548,6 +569,7 @@ void Annotator::fetch_labels_info() {
 
 void Annotator::fetch_annotations_info() {
   if (annotations_model == nullptr) {
+    assert(false);
     return;
   }
   int prev_active{active_annotation};
@@ -787,6 +809,7 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
 }
 
 void AnnotationsNavButtons::setModel(AnnotationsModel* new_model) {
+  assert(new_model != nullptr);
   annotations_model = new_model;
   QObject::connect(annotations_model, &AnnotationsModel::document_changed, this,
                    &AnnotationsNavButtons::update_button_states);
@@ -795,9 +818,9 @@ void AnnotationsNavButtons::setModel(AnnotationsModel* new_model) {
 
 void AnnotationsNavButtons::update_button_states() {
   if (annotations_model == nullptr) {
+    assert(false);
     return;
   }
-
   auto doc_position = annotations_model->current_doc_position();
   auto total_docs = annotations_model->total_n_docs();
   auto new_msg = QString("%0 / %1").arg(doc_position + 1).arg(total_docs);

@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
@@ -9,6 +11,7 @@
 #include <QSettings>
 #include <QSize>
 #include <QStatusBar>
+#include <QSqlDatabase>
 #include <QTabWidget>
 #include <QTimer>
 
@@ -27,6 +30,7 @@ const QString LabelBuddy::bf_setting_key_{
 const QString LabelBuddy::font_setting_key_{"LabelBuddy/annotator_font"};
 
 void LabelBuddy::warn_failed_to_open_db(const QString& database_path) {
+  assert(!QSqlDatabase::contains(database_path));
   QString db_msg(
       database_path != QString() ? QString(":\n%0").arg(database_path) : "");
   QMessageBox::critical(this, "labelbuddy",
@@ -253,6 +257,7 @@ void LabelBuddy::add_menubar() {
 }
 
 void LabelBuddy::add_connection_to_menu(const QString& db_name) {
+  assert(QSqlDatabase::contains(db_name));
   auto action = opened_databases_submenu_->addAction(
       database_name_display(db_name, true, false));
   action->setData(db_name);
@@ -314,6 +319,7 @@ void LabelBuddy::update_status_bar() {
   status_db_name_->setText(db_name);
   auto n_docs = doc_model->total_n_docs();
   auto n_labelled = doc_model->total_n_docs(DocListModel::DocFilter::labelled);
+  assert(0 <= n_labelled && n_labelled <= n_docs);
   status_db_summary_->setText(QString("%0 document%1 (%2 labelled)")
                                   .arg(n_docs)
                                   .arg(n_docs != 1 ? "s" : "")
@@ -369,6 +375,7 @@ void LabelBuddy::choose_and_open_database() {
   if (!dialog.exec() || dialog.selectedFiles().isEmpty()) {
     return;
   }
+  assert(dialog.selectedFiles().size() == 1);
   auto file_path = dialog.selectedFiles()[0];
   if (file_path != QString()) {
     open_database(file_path);

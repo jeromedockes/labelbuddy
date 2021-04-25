@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QFileDialog>
 #include <QGridLayout>
 #include <QGroupBox>
@@ -195,21 +197,19 @@ bool ImportExportMenu::ask_confirm_unknown_extension(
   return false;
 }
 
-void ImportExportMenu::warn_failed_to_open_file(const QString& file_path) {
-  QMessageBox::critical(this, "labelbuddy",
-                        QString("Could not open file: %0").arg(file_path),
-                        QMessageBox::Ok);
-}
-
 template <typename T>
 void ImportExportMenu::report_result(const T& result,
                                      const QString& file_path) {
   if (result.error_code != ErrorCode::NoError) {
-    warn_failed_to_open_file(file_path);
-    return;
+    assert(result.error_message != "");
+    QMessageBox::critical(
+        this, "labelbuddy",
+        QString("Error: file %0\n%1").arg(file_path).arg(result.error_message),
+        QMessageBox::Ok);
+  } else {
+    QMessageBox::information(this, "labelbuddy", get_report_msg(result),
+                             QMessageBox::Ok);
   }
-  QMessageBox::information(this, "labelbuddy", get_report_msg(result),
-                           QMessageBox::Ok);
 }
 
 QString ImportExportMenu::get_report_msg(const ImportDocsResult& result) const {
@@ -274,7 +274,9 @@ void ImportExportMenu::import_labels() {
   auto start_dir = suggest_dir(DirRole::import_labels);
   auto file_path = QFileDialog::getOpenFileName(
       this, "Labels file", start_dir,
-      "labelbuddy labels (*.txt *.json *.csv);; JSON files (*.json);; "
+      "labelbuddy labels (*.txt *.json *.jsonl *.xml *.csv);; "
+      "JSON files (*.json);; JSONLines files (*.jsonl);; "
+      "XML files (*.xml);; "
       "CSV files (*.csv);; Text files (*.txt);; All files (*)");
   if (file_path == QString()) {
     return;
@@ -331,7 +333,8 @@ void ImportExportMenu::export_labels() {
   auto start_dir = suggest_dir(DirRole::export_labels);
   auto file_path = QFileDialog::getSaveFileName(
       this, "Labels file", start_dir,
-      "labelbuddy labels (*.json *.csv);; JSON files (*.json);; "
+      "labelbuddy labels (*.json *.jsonl *.xml *.csv);; JSON files (*.json);; "
+      "JSONLines files (*.jsonl);; XML files (*.xml);; "
       "CSV files (*.csv);; All files (*)");
   if (file_path == QString()) {
     return;

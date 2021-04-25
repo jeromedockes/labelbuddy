@@ -11,40 +11,15 @@ Time to start annotating documents! Select some text with the mouse and click on
 
 Once you have made annotations you can select any of them by clicking it or cycle through them with the Space key. The selected annotation becomes underlined and you can then change its label or remove it. Groups of overlapping annotations are shown in gray with white text. If you click such a group several times, each of the annotations it contains is selected in turn. (You can make the selected annotation bold by checking a box in the "Preferences" menu.)
 
+To see a summary of the keybindings available in this page, go to "Help > Keyboard shortcuts".
+
 Annotations are inserted in the database as you create them so there is no need for a "Save" button.
 
 Once you are done annotating this document, you can click "Next" above to move on to another one.
 
-The next document is the labelbuddy documentation, and then a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help > Documentation".
+The other documents in this database are a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help > Documentation".
 
 To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Dataset" tab.
 
 To export your annotations or import more documents or labels, go to the "Import / Export" tab.
 
-
-Here is a summary of the keybindings available in this page:
-
-Ctrl and scroll the mouse: zoom or dezoom the text
-Ctrl+F, /: search
-Enter: next search match
-Shift+Enter: previous search match
-Ctrl+J, Ctrl+N, Down: scroll down one line
-Ctrl+K, Ctrl+P, Up: scroll up one line
-Ctrl+D: scroll down one page
-Ctrl+U: scroll up one page
-Ctrl+L: cycle between placing the cursor at the center, top and bottom of the
-a-z (label’s shortcut_key): set corresponding label for the currently selected region or annotation
-Backspace: remove selected annotation
-Space: jump to next annotation and select it
-Shift+Space: jump to previous annotation and select it
-Esc: un-select selected annotation
-]: move the end of the selection by one word to the right
-[: move the end of the selection by one word to the left
-}: move the beginning of the selection by one word to the right
-{: move the beginning of the selection by one word to the left
-Ctrl+]: move the end of the selection by one character to the right
-Ctrl+[: move the end of the selection by one character to the left
-Ctrl+}: move the beginning of the selection by one character to the right
-Ctrl+{: move the beginning of the selection by one character to the left
->: go to next document
-<: go to previous document

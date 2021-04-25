@@ -64,7 +64,6 @@ private:
                                      DatabaseCatalog::Action action,
                                      DatabaseCatalog::ItemKind kind);
 
-  void warn_failed_to_open_file(const QString& file_path);
   template <typename T>
   void report_result(const T& result, const QString& file_path);
   QString get_report_msg(const ImportDocsResult& result) const;

@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QColorDialog>
@@ -10,11 +12,11 @@
 #include <QStyle>
 #include <QVBoxLayout>
 
+#include "compat.h"
 #include "label_list.h"
 #include "label_list_model.h"
 #include "user_roles.h"
 #include "utils.h"
-#include "compat.h"
 
 namespace labelbuddy {
 
@@ -22,6 +24,7 @@ void LabelDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                           const QModelIndex& index) const {
   QStyleOptionViewItem new_option(option);
   auto label_color = index.data(Qt::BackgroundRole).value<QColor>();
+  assert(label_color.isValid());
   painter->fillRect(option.rect, label_color);
   new_option.showDecorationSelected = false;
   auto button_size = option.rect.height();
@@ -136,10 +139,12 @@ void LabelListButtons::update_button_states(int n_selected, int total,
 }
 
 void LabelListButtons::set_model(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   validator.setModel(new_model);
 }
 
 void LabelListButtons::set_view(QListView* new_view) {
+  assert(new_view != nullptr);
   label_list_view_ = new_view;
   validator.setView(new_view);
 }
@@ -192,6 +197,7 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
 }
 
 void LabelList::setModel(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   labels_view->setModel(new_model);
   buttons_frame->set_model(new_model);
   model = new_model;
@@ -205,6 +211,7 @@ void LabelList::setModel(LabelListModel* new_model) {
 
 void LabelList::delete_selected_rows() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   QModelIndexList selected = labels_view->selectionModel()->selectedIndexes();
@@ -234,6 +241,7 @@ void LabelList::delete_selected_rows() {
 
 void LabelList::update_button_states() {
   if (model == nullptr) {
+    assert(false);
     return;
   }
   auto selected = labels_view->selectionModel()->selectedIndexes();
@@ -241,6 +249,8 @@ void LabelList::update_button_states() {
   for (const auto& sel : selected) {
     if (sel.column() == 0) {
       ++n_rows;
+    } else {
+      assert(false);
     }
   }
   auto first_selected = find_first_in_col_0(selected);
@@ -261,6 +271,7 @@ void LabelList::set_label_color() {
   auto label_name = model->data(*selected, Qt::DisplayRole).toString();
   auto current_color =
       model->data(*selected, Qt::BackgroundRole).value<QColor>();
+  assert(current_color.isValid());
   auto color = QColorDialog::getColor(
       current_color, this, QString("Set color for '%0'").arg(label_name));
   model->set_label_color(*selected, color);
@@ -282,6 +293,7 @@ void LabelList::add_label(const QString& name) {
   }
   labels_view->reset();
   auto model_index = model->label_id_to_model_index(label_id);
+  assert(model_index.isValid());
   labels_view->setCurrentIndex(model_index);
 }
 
@@ -304,8 +316,15 @@ QValidator::State ShortcutValidator::validate(QString& input, int& pos) const {
   }
   return State::Acceptable;
 }
+
 void ShortcutValidator::setModel(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   model = new_model;
 }
-void ShortcutValidator::setView(QListView* new_view) { view = new_view; }
+
+void ShortcutValidator::setView(QListView* new_view) {
+  assert(new_view != nullptr);
+  view = new_view;
+}
+
 } // namespace labelbuddy

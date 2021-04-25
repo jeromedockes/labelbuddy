@@ -1,0 +1,9 @@
+text,short_title,long_title,id
+"the text of document 1
+some text
+the end
+",,,
+"the text of document 2
+more text
+the end
+",title 2,the title of document 2,doc-2

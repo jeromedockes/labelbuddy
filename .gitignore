@@ -1,5 +1,6 @@
 doxygen_output/
 docs/*.html
+docs/example_data/*.html
 !docs/docinfo.html
 docs/gh-pages-site/
 

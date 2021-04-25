@@ -74,6 +74,18 @@ def preloaded_db(tmp_path, labelbuddy, ng):
     return db
 
 
+def assert_valid_xml(xml_file, schema_name):
+    schemas_dir = os.environ.get("LABELBUDDY_SCHEMAS_DIR")
+    if schemas_dir is None:
+        schemas_dir = Path(__file__).parents[1].joinpath("docs", "schema")
+    else:
+        schemas_dir = Path(schemas_dir)
+    schema_file = schemas_dir.joinpath(schema_name)
+    schema_tree = etree.parse(str(schema_file))
+    schema = etree.RelaxNG(schema_tree)
+    schema.assertValid(etree.parse(str(xml_file)))
+
+
 def compare_dicts_excluding_keys(dict_a, dict_b, excluded):
     dict_a = dict(dict_a)
     dict_b = dict(dict_b)
@@ -154,6 +166,7 @@ def check_exported_xml(
     no_text=False,
     no_annotations=False,
 ):
+    assert_valid_xml(str(docs_f), "documents.rng")
     xml = etree.parse(str(docs_f)).getroot()
     for i, doc in enumerate(xml.iterfind("document")):
         if approver is not None and approver != "":
@@ -445,7 +458,14 @@ def test_conversion_and_import_back(formats, subset, labelbuddy, tmp_path, ng):
 
 @pytest.mark.parametrize(
     ["doc_format", "label_format"],
-    [("json", "txt"), ("xml", "json"), ("jsonl", "json"), ("csv", "csv")],
+    [
+        ("json", "txt"),
+        ("xml", "json"),
+        ("jsonl", "json"),
+        ("csv", "csv"),
+        ("json", "xml"),
+        ("csv", "jsonl"),
+    ],
 )
 def test_import_back(doc_format, label_format, tmp_path, ng, labelbuddy):
     db = tmp_path / "db"
@@ -463,6 +483,18 @@ def test_import_back(doc_format, label_format, tmp_path, ng, labelbuddy):
         == 1500
     )
     assert check_import_back(db, labelbuddy)
+
+
+def test_exported_xml_labels_valid(labelbuddy, ng, tmp_path):
+    out_f = tmp_path / "labels.xml"
+    labelbuddy(
+        ":memory:",
+        "--import-labels",
+        ng["labels.xml"],
+        "--export-labels",
+        out_f,
+    )
+    assert_valid_xml(out_f, "labels.rng")
 
 
 @pytest.mark.parametrize("doc_format", ["json", "jsonl", "csv", "xml"])

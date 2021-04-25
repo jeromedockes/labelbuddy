@@ -46,8 +46,6 @@ void TestLabelListModel::test_getdata_data() {
   QTest::newRow("1 0 id") << 1 << 0 << rowid << QVariant("2");
   QTest::newRow("2 0 id") << 2 << 0 << rowid << QVariant("3");
 
-  QTest::newRow("0 1 id") << 0 << 1 << rowid << QVariant();
-
   auto shortcut = static_cast<int>(Roles::ShortcutKeyRole);
   QTest::newRow("0 0 shortcut") << 0 << 0 << shortcut << QVariant("p");
   QTest::newRow("1 0 shortcut") << 1 << 0 << shortcut << QVariant("");

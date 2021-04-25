@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include <QSettings>
 
 #include "dataset_menu.h"
@@ -28,6 +30,7 @@ DatasetMenu::DatasetMenu(QWidget* parent) : QSplitter(parent) {
 }
 
 void DatasetMenu::set_doc_list_model(DocListModel* new_model) {
+  assert(new_model != nullptr);
   doc_list_model = new_model;
   doc_list->setModel(new_model);
   if (label_list_model != nullptr) {
@@ -41,6 +44,7 @@ void DatasetMenu::set_doc_list_model(DocListModel* new_model) {
 }
 
 void DatasetMenu::set_label_list_model(LabelListModel* new_model) {
+  assert(new_model != nullptr);
   label_list_model = new_model;
   label_list->setModel(new_model);
   if (doc_list_model != nullptr) {

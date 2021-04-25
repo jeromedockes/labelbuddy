@@ -24,6 +24,8 @@
 
 namespace labelbuddy {
 
+enum class ErrorCode { NoError = 0, CriticalParsingError, FileSystemError };
+
 struct DocRecord {
   QString content{};
   QByteArray metadata{};
@@ -42,6 +44,9 @@ public:
              QIODevice::OpenMode mode = QIODevice::ReadOnly | QIODevice::Text);
   virtual ~DocsReader();
   bool is_open() const;
+  bool has_error() const;
+  ErrorCode error_code() const;
+  QString error_message() const;
   virtual bool read_next();
   const DocRecord* get_current_record() const;
   virtual int progress_max() const;
@@ -51,6 +56,8 @@ protected:
   QFile* get_file();
   void set_current_record(std::unique_ptr<DocRecord>);
   static const int progress_range_max_{1000};
+  ErrorCode error_code_ = ErrorCode::NoError;
+  QString error_message_{};
 
 private:
   QFile file;
@@ -68,6 +75,8 @@ private:
   QTextStream stream;
 };
 
+QString format_xml_error(const QXmlStreamReader& xml);
+
 class XmlDocsReader : public DocsReader {
 
 public:
@@ -76,7 +85,6 @@ public:
 
 private:
   QXmlStreamReader xml;
-  bool found_error{};
   void read_document();
   void read_document_text();
   void read_md5();
@@ -97,7 +105,6 @@ public:
 private:
   QTextStream stream;
   CsvMapReader csv;
-  bool found_error_{};
   void read_annotation(const QMap<QString, QString>& csv_record,
                        QJsonArray& annotations);
 };
@@ -105,7 +112,6 @@ private:
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument&);
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonValue&);
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject&);
-std::unique_ptr<DocRecord> json_to_doc_record(const QJsonArray&);
 
 class JsonDocsReader : public DocsReader {
 
@@ -254,34 +260,56 @@ struct LabelRecord {
   QString shortcut_key{};
 };
 
-enum class ErrorCode { NoError = 0, FileSystemError };
-
 struct ImportDocsResult {
   int n_docs;
   int n_annotations;
   ErrorCode error_code;
+  QString error_message;
 };
 
 struct ExportDocsResult {
   int n_docs;
   int n_annotations;
   ErrorCode error_code;
+  QString error_message;
 };
 
 struct ImportLabelsResult {
   int n_labels;
   ErrorCode error_code;
+  QString error_message;
 };
 
 struct ExportLabelsResult {
   int n_labels;
   ErrorCode error_code;
+  QString error_message;
 };
 
 LabelRecord json_to_label_record(const QJsonValue& json);
-QPair<QJsonArray, ErrorCode>
-load_labels_into_json_array(const QString& file_path);
 
+/// read labels into a json array
+
+/// returns the array and a (error code, error message) pair
+QPair<QJsonArray, QPair<ErrorCode, QString>>
+read_labels(const QString& file_path);
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_json_labels(QFile& file);
+QPair<QJsonArray, QPair<ErrorCode, QString>>
+read_json_lines_labels(QFile& file);
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_csv_labels(QFile& file);
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_xml_labels(QFile& file);
+
+QPair<QJsonArray, QPair<ErrorCode, QString>> read_txt_labels(QFile& file);
+
+/// remove a connection from the qt databases
+
+/// unless `cancel` is called, removes the connection from qt database list when
+/// deleted or when `execute` is called. used to clean up the added connection
+/// if database cannot be used (eg if it is not a labelbuddy database).
+/// if cancelled `execute` and the destructor do nothing.
 class RemoveConnection {
   QString connection_name_;
   bool cancelled_;
@@ -433,6 +461,16 @@ private:
   /// transform to absolute path unless it is the temp db, :memory:, or ""
   QString absolute_database_path(const QString& database_path) const;
 
+  /// return a reader appropriate for the filename extension
+  std::unique_ptr<DocsReader> get_docs_reader(const QString& file_path) const;
+
+  /// return a writer appropriate for the filename extension
+  std::unique_ptr<DocsWriter> get_docs_writer(const QString& file_path,
+                                              bool include_text,
+                                              bool include_annotations,
+                                              bool include_user_name) const;
+
+
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   int insert_doc_annotations(int doc_id, const QJsonArray& annotations,
                              QSqlQuery& query);
@@ -444,10 +482,14 @@ private:
   int write_doc(DocsWriter& writer, int doc_id, bool include_text,
                 bool include_annotations, const QString& user_name);
 
-  ErrorCode write_labels_to_json(const QJsonArray& labels,
-                                 const QString& file_path);
-  ErrorCode write_labels_to_csv(const QJsonArray& labels,
-                                const QString& file_path);
+  ExportLabelsResult write_labels_to_json(const QJsonArray& labels,
+                                          const QString& file_path);
+  ExportLabelsResult write_labels_to_json_lines(const QJsonArray& labels,
+                                                const QString& file_path);
+  ExportLabelsResult write_labels_to_xml(const QJsonArray& labels,
+                                         const QString& file_path);
+  ExportLabelsResult write_labels_to_csv(const QJsonArray& labels,
+                                         const QString& file_path);
 
   int color_index{};
   bool tmp_db_data_loaded_{};

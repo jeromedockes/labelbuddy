@@ -1,5 +1,8 @@
+#include <assert.h>
+
 #include <QColor>
 #include <QSqlDatabase>
+#include <QSqlError>
 
 #include "label_list_model.h"
 #include "user_roles.h"
@@ -10,6 +13,7 @@ namespace labelbuddy {
 LabelListModel::LabelListModel(QObject* parent) : QSqlQueryModel(parent) {}
 
 void LabelListModel::set_database(const QString& new_database_name) {
+  assert(QSqlDatabase::contains(new_database_name));
   database_name = new_database_name;
   setQuery(select_query_text, QSqlDatabase::database(database_name));
 }
@@ -29,6 +33,7 @@ QVariant LabelListModel::data(const QModelIndex& index, int role) const {
   }
   if (role == Roles::RowIdRole) {
     if (index.column() != 0) {
+      assert(!index.isValid());
       return QVariant{};
     }
     return QSqlQueryModel::data(index.sibling(index.row(), 1), Qt::DisplayRole);
@@ -50,6 +55,7 @@ QVariant LabelListModel::data(const QModelIndex& index, int role) const {
     query.exec();
     query.next();
     auto color = query.value(0).toString();
+    assert(color != "");
     return QColor(color);
   }
   return QSqlQueryModel::data(index, role);
@@ -68,6 +74,7 @@ QModelIndex LabelListModel::label_id_to_model_index(int label_id) const {
   auto matches =
       match(start, Roles::RowIdRole, QVariant(label_id), 1, Qt::MatchExactly);
   if (matches.length() == 0) {
+    assert(false);
     return QModelIndex();
   }
   return matches[0].sibling(matches[0].row(), 0);
@@ -112,6 +119,7 @@ void LabelListModel::set_label_color(const QModelIndex& index,
   }
   auto label_id = data(index, Roles::RowIdRole);
   if (label_id == QVariant()) {
+    assert(false);
     return;
   }
   auto query = get_query();
@@ -119,6 +127,7 @@ void LabelListModel::set_label_color(const QModelIndex& index,
   query.bindValue(":col", color.name());
   query.bindValue(":labelid", label_id.toInt());
   query.exec();
+  assert(query.numRowsAffected() == 1);
   emit dataChanged(index, index, {Qt::BackgroundRole});
   emit labels_changed();
 }
@@ -150,6 +159,7 @@ void LabelListModel::set_label_shortcut(const QModelIndex& index,
                                         const QString& shortcut) {
   auto label_id = data(index, Roles::RowIdRole);
   if (label_id == QVariant()) {
+    assert(false);
     return;
   }
   if (!re.match(shortcut).hasMatch()) {
@@ -162,6 +172,10 @@ void LabelListModel::set_label_shortcut(const QModelIndex& index,
                   shortcut != "" ? shortcut : QVariant(QVariant::String));
   query.bindValue(":labelid", label_id.toInt());
   query.exec();
+  // 19 = constraint violation (here, unique shortcut)
+  // https://sqlite.org/rescode.html#constraint
+  assert(query.numRowsAffected() == 1 ||
+         query.lastError().nativeErrorCode() == "19");
   emit dataChanged(index, index, {Qt::DisplayRole});
   emit labels_changed();
 }
@@ -178,6 +192,7 @@ int LabelListModel::add_label(const QString& name) {
   query.bindValue(":name", name);
   query.bindValue(":color", suggest_label_color());
   if (!query.exec()) {
+    assert(false);
     return -1;
   }
   auto label_id = query.lastInsertId().toInt();

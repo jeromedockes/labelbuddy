@@ -40,7 +40,7 @@ public:
   /// Items in the second (hidden) column that contains id cannot be selected.
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-  /// label names in the database sorted by id
+  /// label names in the database sorted by id, used to filter docs
   QList<QPair<QString, int>> get_label_names() const;
 
   /// Delete specified docs, reset query and emit `docs_deleted`
