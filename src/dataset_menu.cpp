@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QSettings>
 
@@ -40,6 +40,8 @@ void DatasetMenu::set_doc_list_model(DocListModel* new_model) {
                      doc_list_model, &DocListModel::labels_changed);
     QObject::connect(label_list_model, &LabelListModel::labels_deleted,
                      doc_list_model, &DocListModel::labels_changed);
+    QObject::connect(label_list_model, &LabelListModel::labels_order_changed,
+                     doc_list_model, &DocListModel::labels_changed);
   }
 }
 
@@ -53,6 +55,8 @@ void DatasetMenu::set_label_list_model(LabelListModel* new_model) {
     QObject::connect(label_list_model, &LabelListModel::labels_added,
                      doc_list_model, &DocListModel::labels_changed);
     QObject::connect(label_list_model, &LabelListModel::labels_deleted,
+                     doc_list_model, &DocListModel::labels_changed);
+    QObject::connect(label_list_model, &LabelListModel::labels_order_changed,
                      doc_list_model, &DocListModel::labels_changed);
   }
 }

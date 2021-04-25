@@ -34,13 +34,13 @@ The import and export operations are executed in the order in which they appear 
 This means that the same command can for example import a new document and then export it.
 
 *--import-labels* _labelsfile_::
-  Import labels contained in the (.json, .csv or .txt) file _labelsfile_ into the database.
+  Import labels contained in the (.json, .jsonl, .xml, .csv or .txt) file _labelsfile_ into the database.
   Can be used several times.
 *--import-docs* _docsfile_::
   Import documents and annotations contained in the (.json, .jsonl, .xml, .csv or .txt) file _docsfile_ into the database.
   Can be used several times.
 *--export-labels* _labelsfile_::
-  Export labels in the database to the .json or .csv file _labelsfile_.
+  Export labels in the database to the (.json, .jsonl, .xml or .csv) file _labelsfile_.
 *--export-docs* _docsfile_::
   Export documents and annotations in the database to the (.json, .jsonl, .csv or .xml) file _docsfile_.
   Some options described below control what is exported.

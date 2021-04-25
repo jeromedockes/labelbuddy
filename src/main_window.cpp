@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QAction>
 #include <QApplication>
@@ -10,8 +10,8 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QSize>
-#include <QStatusBar>
 #include <QSqlDatabase>
+#include <QStatusBar>
 #include <QTabWidget>
 #include <QTimer>
 
@@ -117,6 +117,8 @@ void LabelBuddy::add_connections() {
                    &Annotator::update_annotations);
   QObject::connect(label_model, &LabelListModel::labels_changed, annotator,
                    &Annotator::update_nav_buttons);
+  QObject::connect(label_model, &LabelListModel::labels_order_changed,
+                   annotator, &Annotator::update_annotations);
   QObject::connect(doc_model, &DocListModel::docs_deleted, annotator,
                    &Annotator::update_nav_buttons);
   QObject::connect(import_export_menu, &ImportExportMenu::documents_added,

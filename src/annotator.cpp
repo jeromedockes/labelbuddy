@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QColor>
 #include <QElapsedTimer>
@@ -31,7 +31,7 @@ LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   this->setStyleSheet("QListView::item {background: transparent;}");
   labels_view = new NoDeselectAllView();
   layout->addWidget(labels_view);
-  labels_view->setSpacing(3);
+  // labels_view->setSpacing(3);
   labels_view->setFocusPolicy(Qt::NoFocus);
   label_delegate_.reset(new LabelDelegate);
   labels_view->setItemDelegate(label_delegate_.get());

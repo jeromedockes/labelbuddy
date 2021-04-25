@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <memory>
 
@@ -1356,7 +1356,7 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
 ExportLabelsResult DatabaseCatalog::export_labels(const QString& file_path) {
   QJsonArray labels{};
   QSqlQuery query(QSqlDatabase::database(current_database));
-  query.exec("select name, color, shortcut_key from label order by id;");
+  query.exec("select name, color, shortcut_key from sorted_label;");
   while (query.next()) {
     QJsonObject label_info{};
     label_info["text"] = query.value(0).toString();
@@ -1607,7 +1607,12 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
   success *= query.exec(
       "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
       "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
-      "shortcut_key TEXT UNIQUE DEFAULT NULL, CHECK (name != '')); ");
+      "shortcut_key TEXT UNIQUE DEFAULT NULL, "
+      "display_position INTEGER DEFAULT NULL, CHECK (name != '')); ");
+  // NULLS LAST only available from sqlite 3.30
+  success *= query.exec(
+      "CREATE VIEW IF NOT EXISTS sorted_label AS SELECT * FROM label ORDER BY "
+      "display_position IS NULL, display_position, id;");
 
   success *= query.exec(
       " CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "

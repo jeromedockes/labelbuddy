@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QAbstractItemView>
 #include <QApplication>
@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QSize>
 #include <QStyle>
+#include <QStyleFactory>
 #include <QVBoxLayout>
 
 #include "compat.h"
@@ -20,14 +21,29 @@
 
 namespace labelbuddy {
 
-void LabelDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
-                          const QModelIndex& index) const {
+LabelDelegate::LabelDelegate(bool with_drag_handles, QObject* parent)
+    : QStyledItemDelegate{parent}, with_drag_handles_{with_drag_handles} {
+  line_width_ = QFontMetrics(QFont()).lineWidth();
+  margin_ = 2 * line_width_;
+}
+
+int LabelDelegate::radio_button_width() const {
+  QStyleOptionButton opt{};
+  return QApplication::style()
+             ->sizeFromContents(QStyle::CT_RadioButton, &opt, QSize(0, 0))
+             .width() +
+         2 * line_width_;
+}
+
+int LabelDelegate::handle_width() const {
+  return with_drag_handles_ ? 16 * line_width_ : 0;
+}
+
+QStyleOptionViewItem
+LabelDelegate::text_style_option(const QStyleOptionViewItem& option,
+                                 QRect rect) const {
   QStyleOptionViewItem new_option(option);
-  auto label_color = index.data(Qt::BackgroundRole).value<QColor>();
-  assert(label_color.isValid());
-  painter->fillRect(option.rect, label_color);
   new_option.showDecorationSelected = false;
-  auto button_size = option.rect.height();
   auto text_palette = option.palette;
   text_palette.setColor(QPalette::Text, QColor("black"));
   text_palette.setColor(QPalette::Background, QColor(0, 0, 0, 0));
@@ -36,33 +52,72 @@ void LabelDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
   text_palette.setColor(QPalette::Disabled, QPalette::Text, QColor("#444444"));
   new_option.palette = text_palette;
   new_option.rect = QRect(
-      QPoint(option.rect.left() + int(button_size * .8), option.rect.top()),
-      option.rect.bottomRight());
-  QStyledItemDelegate::paint(painter, new_option, index);
-  QStyleOptionButton checkbox_opt;
-  checkbox_opt.rect = QRect(QPoint(option.rect.left() + 2, option.rect.top()),
-                            option.rect.bottomRight());
+      QPoint(rect.left() + handle_width() + radio_button_width(), rect.top()),
+      QPoint(rect.right(), rect.bottom()));
+  return new_option;
+}
+
+void LabelDelegate::paint_radio_button(QPainter* painter,
+                                       const QStyleOptionViewItem& option,
+                                       const QColor& label_color) const {
+  QStyleOptionButton button_opt{};
+  button_opt.rect =
+      QRect(QPoint(option.rect.left() + handle_width() + 2 * line_width_,
+                   option.rect.top()),
+            option.rect.bottomRight());
   if (option.state & QStyle::State_Selected) {
-    checkbox_opt.state |= QStyle::State_On;
+    button_opt.state |= QStyle::State_On;
   } else {
-    checkbox_opt.state |= QStyle::State_Off;
+    button_opt.state |= QStyle::State_Off;
   }
   if (option.state & QStyle::State_Enabled) {
-    checkbox_opt.state |= QStyle::State_Enabled;
+    button_opt.state |= QStyle::State_Enabled;
   } else {
-    checkbox_opt.state = QStyle::State_NoChange;
-    auto palette = checkbox_opt.palette;
+    button_opt.state = QStyle::State_NoChange;
+    auto palette = button_opt.palette;
     palette.setColor(QPalette::Base, label_color.lighter(100));
-    checkbox_opt.palette = palette;
+    button_opt.palette = palette;
   }
-  QApplication::style()->drawControl(QStyle::CE_RadioButton, &checkbox_opt,
+  QApplication::style()->drawControl(QStyle::CE_RadioButton, &button_opt,
                                      painter);
+}
+
+void LabelDelegate::paint_drag_handle(QPainter* painter,
+                                      const QStyleOptionViewItem& option,
+                                      const QColor& label_color) const {
+  (void)label_color;
+  int lw = line_width_;
+  if (!with_drag_handles_) {
+    return;
+  }
+  QRect rect(QPoint(option.rect.left() + 2 * lw, option.rect.top() + 2),
+             QPoint(option.rect.left() + 14 * lw, option.rect.bottom() - 2));
+  for (int i = -5; i < 7; i += 3) {
+    painter->fillRect(rect.left(), rect.center().y() + i * lw, rect.width(),
+                      2 * lw, QColor(255, 255, 255, 90));
+    painter->fillRect(rect.left(), rect.center().y() + i * lw, rect.width(), lw,
+                      QColor(0, 0, 0, 60));
+  }
+}
+
+void LabelDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
+                          const QModelIndex& index) const {
+  auto label_color = index.data(Qt::BackgroundRole).value<QColor>();
+  assert(label_color.isValid());
+  QRect inner_rect(option.rect);
+  inner_rect.adjust(0, margin_, 0, -margin_);
+  painter->fillRect(inner_rect, label_color);
+  paint_radio_button(painter, option, label_color);
+  auto text_option = text_style_option(option, inner_rect);
+  QStyledItemDelegate::paint(painter, text_option, index);
+  paint_drag_handle(painter, option, label_color);
 }
 
 QSize LabelDelegate::sizeHint(const QStyleOptionViewItem& option,
                               const QModelIndex& index) const {
   auto size = QStyledItemDelegate::sizeHint(option, index);
-  return QSize(size.width() + size.height(), size.height() + 6);
+  return QSize(size.width() + radio_button_width() + handle_width(),
+               size.height() + 4 * margin_);
 }
 
 LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
@@ -176,8 +231,12 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
   this->setStyleSheet("QListView::item {background: transparent;}");
   labels_view = new QListView();
   layout->addWidget(labels_view);
-  labels_view->setSpacing(3);
-  label_delegate_.reset(new LabelDelegate);
+  labels_view->setDragEnabled(true);
+  labels_view->setAcceptDrops(true);
+  labels_view->setDropIndicatorShown(true);
+  labels_view->setDragDropMode(QAbstractItemView::InternalMove);
+  // labels_view->setSpacing(3);
+  label_delegate_.reset(new LabelDelegate(true));
   labels_view->setItemDelegate(label_delegate_.get());
   labels_view->setFocusPolicy(Qt::NoFocus);
   buttons_frame->set_view(labels_view);
@@ -268,7 +327,7 @@ void LabelList::set_label_color() {
   if (selected == all_selected.constEnd()) {
     return;
   }
-  auto label_name = model->data(*selected, Qt::DisplayRole).toString();
+  auto label_name = model->data(*selected, LabelNameRole).toString();
   auto current_color =
       model->data(*selected, Qt::BackgroundRole).value<QColor>();
   assert(current_color.isValid());

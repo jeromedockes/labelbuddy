@@ -1,8 +1,11 @@
+#include <memory>
+
+#include <QMimeData>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTemporaryDir>
 
-#include "label_list_model.h"
+#include "database.h"
 #include "test_label_list_model.h"
 #include "testing_utils.h"
 #include "user_roles.h"
@@ -40,6 +43,14 @@ void TestLabelListModel::test_getdata_data() {
   QTest::newRow("0 1 display") << 0 << 1 << display << QVariant("1");
   QTest::newRow("1 1 display") << 1 << 1 << display << QVariant("2");
   QTest::newRow("0 1 display") << 2 << 1 << display << QVariant("3");
+
+  auto label_name = static_cast<int>(Roles::LabelNameRole);
+  QTest::newRow("0 0 label_name")
+      << 0 << 0 << label_name << QVariant("label: Reinício da sessão");
+  QTest::newRow("1 0 label_name")
+      << 1 << 0 << label_name << QVariant("label: Resumption of the session");
+  QTest::newRow("2 0 label_name")
+      << 2 << 0 << label_name << QVariant("label: Επαvάληψη της συvσδoυ");
 
   auto rowid = static_cast<int>(Roles::RowIdRole);
   QTest::newRow("0 0 id") << 0 << 0 << rowid << QVariant("1");
@@ -143,4 +154,59 @@ void TestLabelListModel::test_is_valid_shortcut() {
   QCOMPARE(model.is_valid_shortcut("p", idx1), true);
 }
 
+void TestLabelListModel::test_add_label() {
+  DatabaseCatalog catalog{};
+  LabelListModel model{};
+  model.set_database(catalog.get_current_database());
+  model.add_label("label 1");
+  QList<QString> expected{"label 1"};
+  QCOMPARE(get_label_names(model), expected);
+  model.add_label("label 1");
+  QCOMPARE(get_label_names(model), expected);
+  model.add_label("label 2");
+  expected << "label 2";
+  QCOMPARE(get_label_names(model), expected);
+}
+
+void TestLabelListModel::test_mime_drop() {
+  QTemporaryDir tmp_dir{};
+  auto db_name = prepare_db(tmp_dir);
+  LabelListModel model{};
+  model.set_database(db_name);
+  QList<int> expected{1, 2, 3};
+  QCOMPARE(get_label_ids(model), expected);
+
+  QModelIndexList selected{model.index(0, 0), model.index(2, 0)};
+  std::unique_ptr<QMimeData> encoded{};
+  encoded.reset(model.mimeData(selected));
+  model.dropMimeData(encoded.get(), Qt::MoveAction, -1, 0, QModelIndex());
+  expected = {2, 1, 3};
+  QCOMPARE(get_label_ids(model), expected);
+
+  selected.clear();
+  selected << model.index(2, 0);
+  encoded.reset(model.mimeData(selected));
+  model.dropMimeData(encoded.get(), Qt::MoveAction, 0, 0, QModelIndex());
+  expected = {3, 2, 1};
+  QCOMPARE(get_label_ids(model), expected);
+
+  selected.clear();
+  selected << model.index(1, 0);
+  encoded.reset(model.mimeData(selected));
+  // drop before itself
+  model.dropMimeData(encoded.get(), Qt::MoveAction, 1, 0, QModelIndex());
+  expected = {3, 2, 1};
+  QCOMPARE(get_label_ids(model), expected);
+  // drop after itself
+  model.dropMimeData(encoded.get(), Qt::MoveAction, 2, 0, QModelIndex());
+  QCOMPARE(get_label_ids(model), expected);
+}
+
+QList<QString> get_label_names(const LabelListModel& model) {
+  QList<QString> result{};
+  for (int i = 0; i != model.rowCount(); ++i) {
+    result << model.data(model.index(i, 0), Roles::LabelNameRole).toString();
+  }
+  return result;
+}
 } // namespace labelbuddy

@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -47,7 +47,7 @@ Qt::ItemFlags DocListModel::flags(const QModelIndex& index) const {
 
 QList<QPair<QString, int>> DocListModel::get_label_names() const {
   auto query = get_query();
-  query.exec("select name, id from label order by id;");
+  query.exec("select name, id from sorted_label;");
   QList<QPair<QString, int>> result{};
   while (query.next()) {
     result << QPair<QString, int>{query.value(0).toString(),

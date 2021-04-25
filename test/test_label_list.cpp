@@ -33,7 +33,6 @@ void TestLabelList::test_label_list() {
                                QItemSelectionModel::Clear);
   lv->selectionModel()->select(label_model.index(1, 0),
                                QItemSelectionModel::Select);
-  return;
   QCOMPARE(sc_edit->text(), QString(""));
   QTest::keyClicks(sc_edit, "x");
   QCOMPARE(sc_edit->text(), QString(""));

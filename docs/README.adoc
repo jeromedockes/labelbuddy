@@ -167,11 +167,14 @@ Labels can also be imported using the <<command-line-interface,command line>>, f
 labelbuddy mydatabase.labelbuddy --import-labels mylabels.json
 ----
 
+In the {dstab}, labels can be reordered by dragging and dropping them.
+
 === Annotating documents
 
 Once you have imported labels and documents you can see them in the {dstab}.
 You can filter which documents are shown by the labels they have been annotated with.
 You can delete labels or documents, add labels and change the color and shortcut associated with each label.
+You can drag and drop labels to change their order.
 You then go to the {annotab}.
 (If you double-click a document or press kbd:[Enter] after selecting it it will be opened in the {annotab}.)
 
@@ -303,8 +306,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 | go to previous document
 |===
 
-Moreover, you can use kbd:[Alt+A], kbd:[Alt+D] and kbd:[Alt+I] to jump to the {annot}, {dst} and {iet} tabs respectively.
-More generally underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
+Underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
 
 === Exporting documents and annotations
 

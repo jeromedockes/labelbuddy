@@ -8,7 +8,7 @@
 
 namespace labelbuddy {
 
-enum Roles { RowIdRole = Qt::UserRole, ShortcutKeyRole };
+enum Roles { RowIdRole = Qt::UserRole, ShortcutKeyRole, LabelNameRole };
 
 enum class DocumentStatus { Unlabelled, Labelled };
 

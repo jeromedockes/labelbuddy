@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 
 #include <QObject>
 #include <QSqlDatabase>
@@ -64,7 +64,7 @@ QString AnnotationsModel::get_content() const {
 
 QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
   auto query = get_query();
-  query.prepare("select id, color, name from label order by id;");
+  query.prepare("select id, color, name from sorted_label;");
   query.exec();
   QMap<int, LabelInfo> result{};
   while (query.next()) {

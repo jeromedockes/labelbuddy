@@ -29,10 +29,25 @@ namespace labelbuddy {
 class LabelDelegate : public QStyledItemDelegate {
 
 public:
+  LabelDelegate(bool with_drag_handles = false, QObject* parent = nullptr);
   void paint(QPainter* painter, const QStyleOptionViewItem& option,
              const QModelIndex& index) const override;
   QSize sizeHint(const QStyleOptionViewItem& option,
                  const QModelIndex& index) const override;
+
+private:
+  bool with_drag_handles_ = false;
+  int line_width_ = 1;
+  int margin_ = 2;
+
+  int radio_button_width() const;
+  int handle_width() const;
+  QStyleOptionViewItem text_style_option(const QStyleOptionViewItem& option,
+                                         QRect rect) const;
+  void paint_radio_button(QPainter* painter, const QStyleOptionViewItem& option,
+                          const QColor& label_color) const;
+  void paint_drag_handle(QPainter* painter, const QStyleOptionViewItem& option,
+                         const QColor& label_color) const;
 };
 
 /// Validator for shortcut entered in the shortcut QLineEdit

@@ -2,12 +2,12 @@
 .\"     Title: labelbuddy
 .\"    Author: [see the "AUTHOR(S)" section]
 .\" Generator: Asciidoctor 2.0.10
-.\"      Date: 2021-04-11
+.\"      Date: 2021-04-25
 .\"    Manual: labelbuddy Manual
 .\"    Source: labelbuddy 0.0.7
 .\"  Language: English
 .\"
-.TH "LABELBUDDY" "1" "2021-04-11" "labelbuddy 0.0.7" "labelbuddy Manual"
+.TH "LABELBUDDY" "1" "2021-04-25" "labelbuddy 0.0.7" "labelbuddy Manual"
 .ie \n(.g .ds Aq \(aq
 .el       .ds Aq '
 .ss \n[.ss] 0
@@ -61,7 +61,7 @@ This means that the same command can for example import a new document and then 
 .sp
 \fB\-\-import\-labels\fP \fIlabelsfile\fP
 .RS 4
-Import labels contained in the (.json, .csv or .txt) file \fIlabelsfile\fP into the database.
+Import labels contained in the (.json, .jsonl, .xml, .csv or .txt) file \fIlabelsfile\fP into the database.
 Can be used several times.
 .RE
 .sp
@@ -73,7 +73,7 @@ Can be used several times.
 .sp
 \fB\-\-export\-labels\fP \fIlabelsfile\fP
 .RS 4
-Export labels in the database to the .json or .csv file \fIlabelsfile\fP.
+Export labels in the database to the (.json, .jsonl, .xml or .csv) file \fIlabelsfile\fP.
 .RE
 .sp
 \fB\-\-export\-docs\fP \fIdocsfile\fP
