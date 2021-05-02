@@ -237,7 +237,7 @@ void LabelBuddy::add_menubar() {
       new QAction("Show selected annotation in bold font", this);
   set_use_bold_action->setCheckable(true);
   set_use_bold_action->setChecked(
-      settings.value(bf_setting_key_, false).toBool());
+      settings.value(bf_setting_key_, bf_default_).toBool());
   preferences_menu->addAction(set_use_bold_action);
   QObject::connect(set_use_bold_action, &QAction::triggered, this,
                    &LabelBuddy::set_use_bold_font);
@@ -370,7 +370,8 @@ void LabelBuddy::update_current_doc_info() {
     return;
   }
   status_current_annotation_info_->setText(status.annotation_info);
-  status_current_annotation_label_->setText(status.annotation_label);
+  status_current_annotation_label_->setText(
+      QString("<b>%0</b>").arg(status.annotation_label.toHtmlEscaped()));
   status_current_annotation_info_->show();
   status_current_annotation_label_->show();
 }
@@ -472,7 +473,8 @@ void LabelBuddy::set_geometry() {
 
 void LabelBuddy::init_annotator_settings() {
   QSettings settings("labelbuddy", "labelbuddy");
-  annotator->set_use_bold_font(settings.value(bf_setting_key_, false).toBool());
+  annotator->set_use_bold_font(
+      settings.value(bf_setting_key_, bf_default_).toBool());
   if (settings.contains(font_setting_key_)) {
     annotator->set_font(settings.value(font_setting_key_).value<QFont>());
   }

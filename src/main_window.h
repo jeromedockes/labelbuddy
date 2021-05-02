@@ -162,6 +162,7 @@ private:
   void warn_failed_to_open_db(const QString& database_path);
 
   static const QString bf_setting_key_;
+  static const bool bf_default_ = true;
   static const QString font_setting_key_;
 };
 } // namespace labelbuddy

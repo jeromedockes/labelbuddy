@@ -46,7 +46,7 @@ Jérôme Dockès <jerome@dockes.org>
 :iet: pass:q[*"`Import / Export`"*]
 :annot: pass:q[*"`Annotate`"*]
 :dst: pass:q[*"`Dataset`"*]
-:extra-edit: pass:q["`Extra annotation data`"]
+:extra-edit: pass:q[*"`Extra annotation data`"*]
 
 
 ifndef::env-github[]
@@ -203,10 +203,10 @@ You can also use the extra data for free-form labelling.
 For example, you can enter a number, the normalized name of an entity, a URI, etc. -- anything that an Information Extraction system should find in the labelled region.
 
 Once you have created annotations, you can select any of them by clicking it.
-It becomes [.blue-bg.active-anno]#underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+It becomes [.blue-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
-TIP: If the selected annotation is not visible enough you can also make it *bold* by selecting  menu:Preferences[Show selected annotation in bold font].
+TIP: You can control whether the selected annotation is displayed in a bold font by checking or unchecking  menu:Preferences[Show selected annotation in bold font].
 
 TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
 If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
@@ -216,7 +216,7 @@ If you need free-form labels, use a generic label name and type the free-form an
 ==== Overlapping annotations
 
 When two or more annotations overlap, the whole group is shown in [.annotation-cluster]##white text on a gray background##.
-As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno.blue-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
+As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno-bold.blue-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
 
 The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
 

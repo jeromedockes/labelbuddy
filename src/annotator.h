@@ -261,7 +261,7 @@ private:
   AnnotationsModel* annotations_model = nullptr;
   AnnotationsNavButtons* nav_buttons = nullptr;
   QTextCharFormat default_format;
-  bool use_bold_font{};
+  bool use_bold_font = true;
 };
 
 } // namespace labelbuddy
