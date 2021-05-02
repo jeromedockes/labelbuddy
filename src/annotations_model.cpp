@@ -62,6 +62,50 @@ QString AnnotationsModel::get_content() const {
   }
 }
 
+void AnnotationsModel::fill_index_converters(const QString& text) {
+  surrogate_indices_in_qstring_.clear();
+  surrogate_indices_in_unicode_string_.clear();
+  int q_pos{};
+  int u_pos{};
+  for (auto qchar : text) {
+    if (!qchar.isSurrogate()) {
+      ++q_pos;
+      ++u_pos;
+    } else if (qchar.isHighSurrogate()) {
+      surrogate_indices_in_qstring_ << q_pos;
+      ++q_pos;
+      surrogate_indices_in_unicode_string_ << u_pos;
+      ++u_pos;
+    } else {
+      assert(qchar.isLowSurrogate());
+      ++q_pos;
+    }
+  }
+}
+
+int AnnotationsModel::code_point_idx_to_utf16_idx(int cp_idx) const {
+  assert(cp_idx >= 0);
+  int utf_idx = cp_idx;
+  auto it = surrogate_indices_in_unicode_string_.cbegin();
+  while (it != surrogate_indices_in_unicode_string_.cend() && *it < cp_idx) {
+    ++utf_idx;
+    ++it;
+  }
+  return utf_idx;
+}
+
+int AnnotationsModel::utf16_idx_to_code_point_idx(int utf_idx) const {
+  assert(utf_idx >= 0);
+  int cp_idx = utf_idx;
+  auto it = surrogate_indices_in_qstring_.cbegin();
+  while (it != surrogate_indices_in_qstring_.cend() && *it < utf_idx) {
+    --cp_idx;
+    ++it;
+  }
+  assert(utf_idx >= 0);
+  return cp_idx;
+}
+
 QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
   auto query = get_query();
   query.prepare("select id, color, name from sorted_label;");
@@ -83,9 +127,11 @@ QMap<int, AnnotationInfo> AnnotationsModel::get_annotations_info() const {
   query.exec();
   QMap<int, AnnotationInfo> result{};
   while (query.next()) {
-    result[query.value(0).toInt()] = AnnotationInfo{
-        query.value(0).toInt(), query.value(1).toInt(), query.value(2).toInt(),
-        query.value(3).toInt(), query.value(4).toString()};
+    result[query.value(0).toInt()] =
+        AnnotationInfo{query.value(0).toInt(), query.value(1).toInt(),
+                       code_point_idx_to_utf16_idx(query.value(2).toInt()),
+                       code_point_idx_to_utf16_idx(query.value(3).toInt()),
+                       query.value(4).toString()};
   }
   return result;
 }
@@ -97,8 +143,8 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
                 "end_char) values (:doc, :label, :start, :end);");
   query.bindValue(":doc", current_doc_id);
   query.bindValue(":label", label_id);
-  query.bindValue(":start", start_char);
-  query.bindValue(":end", end_char);
+  query.bindValue(":start", utf16_idx_to_code_point_idx(start_char));
+  query.bindValue(":end", utf16_idx_to_code_point_idx(end_char));
   if (!query.exec()) {
     // fails eg if annotation is a duplicate of one already in db
     return -1;
@@ -136,7 +182,7 @@ int AnnotationsModel::delete_annotation(int annotation_id) {
   query.bindValue(":id", annotation_id);
   query.exec();
   auto n_deleted = query.numRowsAffected();
-  assert (n_deleted == 1);
+  assert(n_deleted == 1);
   // -1 if query is not active
   if (n_deleted <= 0) {
     return 0;
@@ -185,8 +231,7 @@ void AnnotationsModel::check_current_doc() {
 void AnnotationsModel::visit_first_doc() {
   auto success = visit_query_result("select min(id) from document;");
   if (!success) {
-    current_doc_id = -1;
-    emit document_changed();
+    visit_doc(-1);
   }
 }
 
@@ -231,10 +276,15 @@ bool AnnotationsModel::visit_query_result(const QString& query_text) {
 
 void AnnotationsModel::visit_doc(int doc_id) {
   current_doc_id = doc_id;
-  auto query = get_query();
-  query.prepare("update app_state set last_visited_doc = :doc;");
-  query.bindValue(":doc", doc_id);
-  query.exec();
+  if (doc_id == -1) {
+    fill_index_converters("");
+  } else {
+    auto query = get_query();
+    query.prepare("update app_state set last_visited_doc = :doc;");
+    query.bindValue(":doc", doc_id);
+    query.exec();
+    fill_index_converters(get_content());
+  }
   emit document_changed();
 }
 

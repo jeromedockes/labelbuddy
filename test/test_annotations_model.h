@@ -9,6 +9,7 @@ namespace labelbuddy {
   private slots:
     void test_add_and_delete_annotations();
     void test_navigation();
+    void test_surrogate_pairs();
   };
 }
 #endif

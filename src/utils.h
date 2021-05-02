@@ -5,6 +5,7 @@
 #include <QFont>
 #include <QModelIndexList>
 #include <QRegularExpression>
+#include <QSet>
 #include <QString>
 #include <QUrl>
 #include <QWidget>
@@ -64,5 +65,19 @@ const QString& suggest_label_color();
 
 int cast_progress_to_range(double current, double maximum,
                            double range_max = 1000);
+
+/// compare sequences as sets ie irrespective of order or duplicates
+template <typename C1, typename C2>
+bool set_compare(const C1& container_1, const C2& container_2) {
+  QSet<typename C1::value_type> set_1{};
+  for (const auto& val_1 : container_1) {
+    set_1 << val_1;
+  }
+  QSet<typename C2::value_type> set_2{};
+  for (const auto& val_2 : container_2) {
+    set_2 << val_2;
+  }
+  return set_1 == set_2;
+}
 } // namespace labelbuddy
 #endif

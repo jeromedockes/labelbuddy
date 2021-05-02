@@ -1,7 +1,11 @@
 = labelbuddy screenshots
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
 :figure-caption!:
+:lang: en
+:webfonts!:
 
-<<index.adoc#,Back to labelbuddy home>>
+<<index.adoc#,labelbuddy home>>
 
 .Annotating a document
 image::screenshots/annotate.png[Annotate tab]
@@ -12,4 +16,4 @@ image::screenshots/dataset.png[Dataset tab]
 .Importing (exporting) documents and labels from (to) plain text files
 image::screenshots/import_export.png[Import / Export tab]
 
-<<index.adoc#,Back to labelbuddy home>>
+<<index.adoc#,labelbuddy home>>

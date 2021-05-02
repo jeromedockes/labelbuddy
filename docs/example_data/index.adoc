@@ -5,12 +5,16 @@ Jérôme Dockès <jerome@dockes.org>
 :webfonts!:
 :lb: pass:q[*labelbuddy*]
 
+<<../index.adoc#,labelbuddy home>> +
+ +
 The files listed here provide examples of formats that can be used to import documents and labels into a {lb} database.
 The files whose name contains `exported` have been exported from {lb}.
 The import and export formats are the same, which means that these exported files can also be imported into {lb}.
 All the formats are described in <<../documentation.adoc#,the documentation>>.
 
-== Documents
+== Documents and annotations
+
+The files whose name starts with `exported` contain annotations in addition to the document text and attributes.
 
 - link:docs.json[`docs.json`]
 - link:exported_docs.json[`exported_docs.json`]

@@ -4,7 +4,6 @@
 
 #include <QColor>
 #include <QMimeData>
-#include <QSet>
 #include <QSqlDatabase>
 #include <QSqlError>
 
@@ -142,8 +141,7 @@ bool LabelListModel::dropMimeData(const QMimeData* data, Qt::DropAction action,
   std::list<int> all_labels{};
   get_reordered_labels_into(moved_labels, row, all_labels);
   assert(all_labels.size() == static_cast<size_t>(rowCount()));
-  assert(QSet<int>::fromList(QList<int>::fromStdList(all_labels)) ==
-         QSet<int>::fromList(get_label_ids(*this)));
+  assert (set_compare(all_labels, get_label_ids(*this)));
   update_labels_order(all_labels);
   return true;
 }

@@ -1,0 +1,14 @@
+= Schema for labelbuddy XML formats
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:lang: en
+:webfonts!:
+:nofooter:
+:lb: pass:q[*labelbuddy*]
+
+<<../index.adoc#,labelbuddy home>> +
+ +
+RELAX NG schema for documents and labels files that can be imported into {lb}:
+
+- link:documents.rng[`documents.rng`]
+- link:labels.rng[`labels.rng`]

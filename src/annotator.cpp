@@ -229,8 +229,10 @@ StatusBarInfo Annotator::current_status_info() const {
         QString("%0%1 %2, %3")
             .arg(is_first_in_group ? "^" : "")
             .arg(is_first ? "^" : "")
-            .arg(annotations[active_annotation].start_char)
-            .arg(annotations[active_annotation].end_char);
+            .arg(annotations_model->utf16_idx_to_code_point_idx(
+                annotations[active_annotation].start_char))
+            .arg(annotations_model->utf16_idx_to_code_point_idx(
+                annotations[active_annotation].end_char));
     status_info.annotation_label =
         labels[annotations[active_annotation].label_id].name;
   }

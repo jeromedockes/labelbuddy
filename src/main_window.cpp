@@ -390,8 +390,8 @@ void LabelBuddy::choose_and_open_database() {
   QFileDialog dialog(this, "Open database");
   dialog.setOption(QFileDialog::DontUseNativeDialog);
   dialog.setFileMode(QFileDialog::AnyFile);
-  dialog.setNameFilter("labelbuddy databases (*.labelbuddy *.sqlite3 *.sqlite "
-                       "*.db);; All files (*)");
+  dialog.setNameFilter("labelbuddy databases (*.labelbuddy *.lb *.sqlite3 "
+                       "*.sqlite *.db);; All files (*)");
   dialog.setViewMode(QFileDialog::Detail);
   dialog.setOption(QFileDialog::HideNameFilterDetails, false);
   dialog.setOption(QFileDialog::DontUseCustomDirectoryIcons, true);

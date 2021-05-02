@@ -1,10 +1,12 @@
 html := $(patsubst %.adoc,%.html,$(wildcard *.adoc))
 html := $(subst README.html,documentation.html,$(html))
+html += readme-as-seen-on-github.html
 webhtml := $(patsubst %,gh-pages-site/%,$(html))
 examples :=$(filter-out %.py %annotations.json, $(wildcard example_data/*))
 examples := $(patsubst %.adoc,%.html,$(examples))
 webexamples := $(patsubst %,gh-pages-site/%, $(examples))
 schemas := $(wildcard schema/*)
+schemas := $(patsubst %.adoc,%.html,$(schemas))
 webschemas := $(patsubst %,gh-pages-site/%, $(schemas))
 demo := $(wildcard demo_data/*.txt)
 screenshots := $(wildcard screenshots/*.png)
@@ -44,6 +46,10 @@ example_data/exported_docs.json: example_data/make_examples.py
 
 documentation.html: README.adoc docinfo.html ../data/VERSION.txt example_data/exported_docs.json
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
+
+readme-as-seen-on-github.html: README.adoc docinfo.html ../data/VERSION.txt example_data/exported_docs.json
+	asciidoctor -b xhtml -a env-github -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
+
 
 demo_data/example_documents.json: $(examples) demo_data/example_labels.json demo_data/make_example_docs.py
 	python3 demo_data/make_example_docs.py

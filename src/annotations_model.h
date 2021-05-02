@@ -99,6 +99,12 @@ public:
   /// returns -1 if no label has that shortcut.
   int shortcut_to_id(const QString& shortcut) const;
 
+  /// QString (utf-16) index to index in unicode sequence
+  int utf16_idx_to_code_point_idx(int utf16_idx) const;
+
+  /// convert index in unicode sequence to QString (utf-16) index
+  int code_point_idx_to_utf16_idx(int cp_idx) const;
+
 public slots:
 
   void visit_next();
@@ -132,12 +138,17 @@ private:
   int current_doc_id = -1;
   QString database_name;
 
+  QList<int> surrogate_indices_in_unicode_string_{};
+  QList<int> surrogate_indices_in_qstring_{};
+
   QSqlQuery get_query() const;
 
   /// query must return the id of a document to visit
   /// if there are no results, returns false
   bool visit_query_result(const QString& query_text);
   int get_query_result(const QString& query_text) const;
+
+  void fill_index_converters(const QString& text);
 
   int last_doc_id() const;
   int first_doc_id() const;

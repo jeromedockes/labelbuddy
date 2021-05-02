@@ -1,3 +1,11 @@
+labelbuddy (0.0.7) unstable; urgency=medium
+
+  * Reordering labels
+  * CSV formats
+  * Attaching extra data to annotations
+
+ -- jerome dockes <jerome@dockes.org>  Fri, 26 Mar 2021 13:17:19 -0400
+
 labelbuddy (0.0.6) unstable; urgency=medium
 
   * Filtering docs by label
