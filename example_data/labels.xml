@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<label_set>
+  <label>
+    <text>Word</text>
+  </label>
+  <label>
+    <shortcut_key>n</shortcut_key>
+    <text>Number</text>
+    <color>orange</color>
+  </label>
+</label_set>

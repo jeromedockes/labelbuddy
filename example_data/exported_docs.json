@@ -1,0 +1,4 @@
+[
+{"labels":[[4,8,"Word"],[21,22,"Number","1"]],"meta":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"},
+{"labels":[[12,20,"Word"]],"long_title":"the title of document 2","meta":{"id":"doc-2","source":"example.org"},"short_title":"title 2","text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
+]

@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<document_set>
+  <document>
+    <text>the text of document 1
+some text
+the end
+</text>
+  </document>
+  <document>
+    <meta id="doc-2" source="example.org"/>
+    <text>the text of document 2
+more text
+the end
+</text>
+    <short_title>title 2</short_title>
+    <long_title>the title of document 2</long_title>
+  </document>
+</document_set>

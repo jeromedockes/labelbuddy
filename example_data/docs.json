@@ -1,0 +1,14 @@
+[
+  {
+    "text": "the text of document 1\nsome text\nthe end\n"
+  },
+  {
+    "text": "the text of document 2\nmore text\nthe end\n",
+    "short_title": "title 2",
+    "long_title": "the title of document 2",
+    "meta": {
+      "id": "doc-2",
+      "source": "example.org"
+    }
+  }
+]

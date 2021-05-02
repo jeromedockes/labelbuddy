@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<label_set>
+    <label>
+        <text>Word</text>
+        <color>#aec7e8</color>
+    </label>
+    <label>
+        <text>Number</text>
+        <color>#ffa500</color>
+        <shortcut_key>n</shortcut_key>
+    </label>
+</label_set>
