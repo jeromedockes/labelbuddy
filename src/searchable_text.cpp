@@ -26,6 +26,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
 
   text_edit = new QPlainTextEdit();
   top_layout->addWidget(text_edit);
+  text_edit->installEventFilter(this);
   auto palette = text_edit->palette();
   palette.setColor(QPalette::Inactive, QPalette::Highlight,
                    palette.color(QPalette::Active, QPalette::Highlight));
@@ -125,13 +126,25 @@ void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
 }
 
 void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
-                                      Side side) {
+                                      SelectionSide side) {
   auto cursor = text_edit->textCursor();
   bool swapped{};
   auto anchor = cursor.anchor();
   auto pos = cursor.position();
-  if ((anchor > pos && side == Side::Right) ||
-      (anchor < pos && side == Side::Left)) {
+  if (anchor == pos) {
+    if (side == SelectionSide::Right &&
+        (move_op == QTextCursor::PreviousWord ||
+         move_op == QTextCursor::PreviousCharacter)) {
+      return;
+    }
+    if (side == SelectionSide::Left &&
+        (move_op == QTextCursor::NextWord ||
+         move_op == QTextCursor::NextCharacter)) {
+      return;
+    }
+  }
+  if ((anchor > pos && side == SelectionSide::Right) ||
+      (anchor < pos && side == SelectionSide::Left)) {
     swap_pos_anchor(cursor);
     swapped = true;
   }
@@ -143,12 +156,17 @@ void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
 }
 
 bool SearchableText::eventFilter(QObject* object, QEvent* event) {
-  if (object == search_box) {
-    if (event->type() == QEvent::KeyPress) {
-      auto key_event = static_cast<QKeyEvent*>(event);
-      if ((nav_keys_nomodif.contains(key_event->key())) ||
-          ((key_event->modifiers() & Qt::ControlModifier) &&
+  if (event->type() == QEvent::KeyPress) {
+    auto key_event = static_cast<QKeyEvent*>(event);
+    if (object == search_box) {
+      if (((key_event->modifiers() & Qt::ControlModifier) &&
            (nav_keys.contains(key_event->key())))) {
+        handle_nav_event(key_event);
+        return true;
+      }
+    }
+    for (auto seq : selection_sequences) {
+      if (key_event->matches(seq)) {
         handle_nav_event(key_event);
         return true;
       }
@@ -236,7 +254,7 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
        (event->modifiers() & Qt::ControlModifier)) ||
       ((event->key() == Qt::Key_N) &&
        (event->modifiers() & Qt::ControlModifier)) ||
-      (event->key() == Qt::Key_Down)) {
+      (event->matches(QKeySequence::MoveToNextLine))) {
     text_edit->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderSingleStepAdd);
     return;
@@ -245,21 +263,35 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
        (event->modifiers() & Qt::ControlModifier)) ||
       ((event->key() == Qt::Key_P) &&
        (event->modifiers() & Qt::ControlModifier)) ||
-      (event->key() == Qt::Key_Up)) {
+      (event->matches(QKeySequence::MoveToPreviousLine))) {
     text_edit->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderSingleStepSub);
     return;
   }
-  if ((event->key() == Qt::Key_D) &&
-      (event->modifiers() & Qt::ControlModifier)) {
+  if (((event->key() == Qt::Key_D) &&
+       (event->modifiers() & Qt::ControlModifier)) ||
+      event->matches(QKeySequence::MoveToNextPage)) {
     text_edit->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderPageStepAdd);
     return;
   }
-  if ((event->key() == Qt::Key_U) &&
-      (event->modifiers() & Qt::ControlModifier)) {
+  if (((event->key() == Qt::Key_U) &&
+       (event->modifiers() & Qt::ControlModifier)) ||
+      event->matches(QKeySequence::MoveToPreviousPage)) {
     text_edit->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderPageStepSub);
+    return;
+  }
+  if (event->key() == Qt::Key_End ||
+      event->matches(QKeySequence::MoveToEndOfDocument)) {
+    text_edit->verticalScrollBar()->triggerAction(
+        QAbstractSlider::SliderToMaximum);
+    return;
+  }
+  if (event->key() == Qt::Key_Home ||
+      event->matches(QKeySequence::MoveToStartOfDocument)) {
+    text_edit->verticalScrollBar()->triggerAction(
+        QAbstractSlider::SliderToMinimum);
     return;
   }
   if ((event->key() == Qt::Key_L) &&
@@ -269,39 +301,63 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
   }
   if ((event->key() == Qt::Key_BracketRight) &&
       (event->modifiers() & Qt::ControlModifier)) {
-    extend_selection(QTextCursor::NextCharacter, Side::Right);
+    extend_selection(QTextCursor::NextCharacter, SelectionSide::Right);
     return;
   }
   if ((event->key() == Qt::Key_BracketLeft) &&
       (event->modifiers() & Qt::ControlModifier)) {
-    extend_selection(QTextCursor::PreviousCharacter, Side::Right);
+    extend_selection(QTextCursor::PreviousCharacter, SelectionSide::Right);
     return;
   }
   if ((event->key() == Qt::Key_BraceRight) &&
       (event->modifiers() & Qt::ControlModifier)) {
-    extend_selection(QTextCursor::NextCharacter, Side::Left);
+    extend_selection(QTextCursor::NextCharacter, SelectionSide::Left);
     return;
   }
   if ((event->key() == Qt::Key_BraceLeft) &&
       (event->modifiers() & Qt::ControlModifier)) {
-    extend_selection(QTextCursor::PreviousCharacter, Side::Left);
+    extend_selection(QTextCursor::PreviousCharacter, SelectionSide::Left);
     return;
   }
 
   if ((event->key() == Qt::Key_BracketRight)) {
-    extend_selection(QTextCursor::NextWord, Side::Right);
+    extend_selection(QTextCursor::NextWord, SelectionSide::Right);
     return;
   }
   if ((event->key() == Qt::Key_BracketLeft)) {
-    extend_selection(QTextCursor::PreviousWord, Side::Right);
+    extend_selection(QTextCursor::PreviousWord, SelectionSide::Right);
     return;
   }
   if ((event->key() == Qt::Key_BraceRight)) {
-    extend_selection(QTextCursor::NextWord, Side::Left);
+    extend_selection(QTextCursor::NextWord, SelectionSide::Left);
     return;
   }
   if ((event->key() == Qt::Key_BraceLeft)) {
-    extend_selection(QTextCursor::PreviousWord, Side::Left);
+    extend_selection(QTextCursor::PreviousWord, SelectionSide::Left);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectNextChar)) {
+    extend_selection(QTextCursor::NextCharacter, SelectionSide::Cursor);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectPreviousChar)) {
+    extend_selection(QTextCursor::PreviousCharacter, SelectionSide::Cursor);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectNextWord)) {
+    extend_selection(QTextCursor::NextWord, SelectionSide::Cursor);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectPreviousWord)) {
+    extend_selection(QTextCursor::PreviousWord, SelectionSide::Cursor);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectNextLine)) {
+    extend_selection(QTextCursor::Down, SelectionSide::Cursor);
+    return;
+  }
+  if (event->matches(QKeySequence::SelectPreviousLine)) {
+    extend_selection(QTextCursor::Up, SelectionSide::Cursor);
     return;
   }
   QWidget::keyPressEvent(event);

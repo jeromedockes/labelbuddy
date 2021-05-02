@@ -12,7 +12,7 @@ Jérôme Dockès <jerome@dockes.org>
 :docinfo: shared
 :prewrap!:
 :source-highlighter: pygments
-:pygments-style: lovelace
+:pygments-style: friendly
 :exampledir: example_data
 :homepage: https://jeromedockes.github.io/labelbuddy/
 :downloadspage: https://jeromedockes.github.io/labelbuddy/installation.html
@@ -68,6 +68,8 @@ In this case, it may be easier to rely on a desktop application such as {lb}, wh
 A <<managing-projects,labelbuddy database>> is just an ordinary file that you can copy, share or delete like any other file.
 Therefore managing annotations with {lb} is just as simple as if the annotations were stored in plain text formats or {libreoffice-calc} or {excel} spreadsheets.
 However {lb} is a more convenient tool for creating and editing the annotations.
+
+{lb} works completely offline, making it suitable to annotate confidential data.
 
 {lb} supports the input and output formats of {doca} so it is <<compatibility-with-doccano,possible>> to switch from one to the other or to combine the work of annotators that use either.
 
@@ -233,14 +235,21 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 | kbd:[Ctrl+K], kbd:[Ctrl+P], kbd:[Up]
 | scroll up one line
 
-| kbd:[Ctrl+D]
+| kbd:[Ctrl+D], kbd:[PageDown]
 | scroll down one page
 
-| kbd:[Ctrl+U]
+| kbd:[Ctrl+U], kbd:[PageUp]
 | scroll up one page
 
 | kbd:[Ctrl+L]
 | cycle between placing the cursor at the center, top and bottom of the window
+
+| kbd:[Home]
+| go to start of document
+
+| kbd:[End]
+| go to end of document
+
 |===
 
 [cols="1,2"]
@@ -293,6 +302,25 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 
 | kbd:[Ctrl+{]
 | move the *beginning* of the selection by one *character* to the *left*
+
+| kbd:[Shift+Right]
+| select next character
+
+| kbd:[Shift+Left]
+| select previous character
+
+| kbd:[Ctrl+Shift+Right]
+| select next word
+
+| kbd:[Ctrl+Shift+Left]
+| select previous word
+
+| kbd:[Shift+Down]
+| select next line
+
+| kbd:[Shift+Up]
+| select previous line
+
 |===
 
 [cols="1,2"]
@@ -306,7 +334,7 @@ The status bar on the bottom of the window shows a caret ("`^`") next to the lab
 | go to previous document
 |===
 
-Underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
+Underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example in the {dstab} "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
 
 === Exporting documents and annotations
 
@@ -373,7 +401,8 @@ For example, you can break down the annotations into several files to reflect th
 {lb} can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
 See the `labelbuddy(1)` <<manpage#,*man* page>>, or `labelbuddy -h` for a short list of options reproduced here:
 
-....
+[source]
+----
 Usage: labelbuddy [options] [database]
 Annotate documents.
 
@@ -398,7 +427,7 @@ Options:
 
 Arguments:
   database                                Database to open.
-....
+----
 
 If any of the `import` or `export` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
@@ -527,7 +556,7 @@ The other import formats do not have these limitations.
 
 Here is an example of a `.txt` file we can use to import documents into a {lb} database:
 [source,txt]
-.Importing two documents from a `.txt` file
+.Importing 2 documents from a `.txt` file
 ----
 include::{exampledir}/docs.txt[]
 ----
@@ -543,7 +572,7 @@ If provided, `meta` must be a JSON object (mapping) containing user data about t
 Here is an example of a `.json` file we can use to import documents into a {lb} database:
 
 [source,json]
-.Importing two documents from a `.json` file.
+.Importing 2 documents from a `.json` file.
 ----
 include::{exampledir}/docs.json[]
 ----
@@ -554,7 +583,7 @@ Each document is always on a separate line.
 This makes it easy to read the file incrementally.
 Moreover, as the documents are always in the same order (the order in which they were imported), this gives line-oriented tools such as *diff* or *git* a better chance of producing useful output.
 [source,json]
-.Two documents and their annotations in a `.json` file.
+.Another example of 2 documents in a `.json` file, with annotations (exported by {lb})
 ----
 include::{exampledir}/exported_docs.json[]
 ----
@@ -571,7 +600,7 @@ To read documents one by one and reduce memory usage, you can use https://jsonli
 It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:
 [source,json]
-.Importing two documents from a `.jsonl` file.
+.Importing 2 documents from a `.jsonl` file.
 ----
 include::{exampledir}/docs.jsonl[]
 ----
@@ -579,7 +608,7 @@ include::{exampledir}/docs.jsonl[]
 
 It is also possible to export documents and annotations to a `.jsonl` file:
 [source,json]
-.Two documents and their annotations in a `.jsonl` file.
+.Another example of 2 documents in a `.jsonl` file, with annotations (exported by {lb})
 ----
 include::{exampledir}/exported_docs.jsonl[]
 ----
@@ -598,14 +627,14 @@ The children of an `annotation` must respect the order: `start_char`, `end_char`
 
 For example:
 [source,xml]
-.Importing two documents from a `.xml` file.
+.Importing 2 documents from a `.xml` file.
 ----
 include::{exampledir}/docs.xml[]
 ----
 
 Here are the same documents exported with some annotations:
 [source,xml]
-.Two documents and their annotations in a `.xml` file.
+.Another example of 2 documents in a `.xml` file, with annotations (exported by {lb})
 ----
 include::{exampledir}/exported_docs.xml[]
 ----
@@ -641,7 +670,7 @@ If present (and not empty), `meta` must be the JSON serialization of the metadat
 Here is an example:
 
 [source,csv]
-.Importing two documents from a `.csv` file.
+.Importing 2 documents from a `.csv` file.
 ----
 include::{exampledir}/docs.csv[]
 ----
@@ -649,7 +678,7 @@ include::{exampledir}/docs.csv[]
 And here is the same file represented as a table:
 
 [format="csv",options="header,autowidth",cols="4*l"]
-.Importing two documents from a `.csv` file.
+.Importing 2 documents from a `.csv` file.
 |===
 include::{exampledir}/docs.csv[]
 |===
@@ -665,13 +694,13 @@ That is,
 
 The two resulting tables can then be joined on the `utf8_text_md5_checksum` column (or on the `id` column if you provided a distinct `id` for each document when importing them).
 [source,csv]
-.Two documents and their annotations in a `.csv` file.
+.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
 ----
 include::{exampledir}/exported_docs.csv[]
 ----
 
 [.hscrollable]
-.Two documents and their annotations in a `.csv` file.
+.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
 --
 [format="csv",options="header,autowidth",cols="11*l"]
 |===
@@ -708,7 +737,9 @@ Note the exported file is in the same format, thus can also be imported into a {
 
 ==== Import only: plain text (`.txt`)
 Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):
+
 [source,txt]
+.Importing 2 labels from a `.txt` file
 ----
 include::{exampledir}/labels.txt[]
 ----
@@ -726,7 +757,7 @@ If both are present, `color` has higher precedence than `background_color` and `
 
 For example:
 [source,json]
-.Importing two labels from a `.json` file
+.Importing 2 labels from a `.json` file
 ----
 include::{exampledir}/labels.json[]
 ----
@@ -736,7 +767,7 @@ Both keys `shortcut_key` and `suffix_key` are set to the label's shortcut key if
 Unlike documents, each exported label is not on a single line:
 
 [source,json]
-.Two labels in a `.json` file
+.Another example of 2 labels in a `.json` file (exported by {lb})
 ----
 include::{exampledir}/exported_labels.json[]
 ----
@@ -746,14 +777,14 @@ include::{exampledir}/exported_labels.json[]
 In the JSON Lines format, each line in the file contains a JSON document: the JSON object representing a label.
 For example:
 [source,json]
-.Importing two labels from a `.jsonl` file.
+.Importing 2 labels from a `.jsonl` file.
 ----
 include::{exampledir}/labels.jsonl[]
 ----
 
 And here are the same labels exported by {lb}:
 [source,json]
-.Two labels in a `.jsonl` file
+.Another example of 2 labels in a `.jsonl` file (exported by {lb})
 ----
 include::{exampledir}/exported_labels.jsonl[]
 ----
@@ -764,7 +795,7 @@ Labels can also be stored in XML.
 As for documents, a RELAX NG schema is provided on the {homepage}[{lb} website].
 Here is an example:
 [source,xml]
-.Importing two labels from a `.xml` file.
+.Importing 2 labels from a `.xml` file.
 ----
 include::{exampledir}/labels.xml[]
 ----
@@ -772,7 +803,7 @@ include::{exampledir}/labels.xml[]
 Labels exported by {lb}:
 
 [source,xml]
-.Two labels in a `.xml` file
+.Another example of 2 labels in a `.xml` file (exported by {lb})
 ----
 include::{exampledir}/exported_labels.xml[]
 ----
@@ -793,14 +824,15 @@ This is the default format used by many tools including {excel}, {libreoffice-ca
 
 Here is an example:
 [source,csv]
-.Importing two labels from CSV
+.Importing 2 labels from a `.csv` file
 ----
 include::{exampledir}/labels.csv[]
 ----
 
 Here is the same file presented as a table:
+
+.Importing 2 labels from a `.csv` file
 [format="csv",options="header,autowidth",cols="3*l"]
-.Importing two labels from CSV
 |===
 include::{exampledir}/labels.csv[]
 |===
@@ -811,7 +843,7 @@ This allows inserting a {wikipedia-bom}[Byte Order Mark (BOM)], so that tools su
 For example:
 
 [source,csv]
-.Two labels in a CSV file
+.Another example of 2 labels in a `.csv` file (exported by {lb})
 ----
 include::{exampledir}/exported_labels.csv[]
 ----
@@ -819,7 +851,7 @@ include::{exampledir}/exported_labels.csv[]
 Here is the same file presented as a table:
 
 [format="csv",options="header,autowidth",cols="4*l"]
-.Two labels in a CSV file
+.Another example of 2 labels in a `.csv` file (exported by {lb})
 |===
 include::{exampledir}/exported_labels.csv[]
 |===

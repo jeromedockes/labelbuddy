@@ -8,12 +8,15 @@ import re
 
 def get_annotations(doc, annotations):
     result = []
-    for pattern, label in annotations:
+    for pattern, label, *extra_data in annotations:
         match = re.search(pattern, doc)
         if match is not None:
             start = match.start(1)
             end = match.end(1)
-            result.append([start, end, label])
+            if extra_data:
+                result.append([start, end, label, extra_data[0]])
+            else:
+                result.append([start, end, label])
     return result
 
 
@@ -37,9 +40,13 @@ for doc_name in doc_file_names:
         annotations = get_annotations(
             body,
             [
-                (r"(You) don't", "Word"),
+                (r"(You) don't", "Word", "(optional) free-form annotation"),
                 (r"(annotating) it instead", "Mot"),
-                (r"read this (text)", "Palavra"),
+                (
+                    r"read this (text)",
+                    "Palavra",
+                    "https://en.wiktionary.org/wiki/text",
+                ),
                 (r"Gro(ups of overlap.*?with white te)xt", "In progress"),
                 (
                     r"Groups of (overlapping) annotations",

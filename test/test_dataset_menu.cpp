@@ -26,6 +26,9 @@ void TestDatasetMenu::test_dataset_menu() {
   filter_box->setCurrentIndex(1);
   filter_box->activated(1);
   QCOMPARE(doc_model.rowCount(), 1);
+  QCOMPARE(menu.n_selected_docs(), 0);
+  doc_list->findChildren<QPushButton*>()[0]->click();
+  QCOMPARE(menu.n_selected_docs(), 1);
   auto lbuttons = menu.findChild<LabelListButtons*>();
   lbuttons->findChildren<QPushButton*>()[0]->click();
   QTimer::singleShot(1000, this, [&]() {

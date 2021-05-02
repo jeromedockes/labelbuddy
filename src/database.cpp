@@ -1608,11 +1608,11 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
       "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
       "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
       "shortcut_key TEXT UNIQUE DEFAULT NULL, "
-      "display_position INTEGER DEFAULT NULL, CHECK (name != '')); ");
+      "display_order INTEGER DEFAULT NULL, CHECK (name != '')); ");
   // NULLS LAST only available from sqlite 3.30
   success *= query.exec(
       "CREATE VIEW IF NOT EXISTS sorted_label AS SELECT * FROM label ORDER BY "
-      "display_position IS NULL, display_position, id;");
+      "display_order IS NULL, display_order, id;");
 
   success *= query.exec(
       " CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "

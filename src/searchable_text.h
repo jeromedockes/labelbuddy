@@ -71,6 +71,7 @@ private:
   void swap_pos_anchor(QTextCursor& cursor) const;
   void handle_nav_event(QKeyEvent* event);
 
+  enum class SelectionSide { Left, Right, Cursor };
   enum class TopOrBottom { Top, Bottom };
 
   /// scroll until cursor reaches the target position (approximately)
@@ -103,17 +104,19 @@ private:
   const QList<int> nav_keys{Qt::Key_K, Qt::Key_J, Qt::Key_N,
                             Qt::Key_P, Qt::Key_U, Qt::Key_D};
 
-  /// Key events that are always filtered (handled by this object and not the
-  /// search bar)
-  const QList<int> nav_keys_nomodif{Qt::Key_BracketLeft, Qt::Key_BracketRight,
-                                    Qt::Key_BraceLeft, Qt::Key_BraceRight};
+  /// Filtered both for the search bar and the text edit
+  const QList<QKeySequence::StandardKey> selection_sequences{
+      QKeySequence::SelectNextChar, QKeySequence::SelectPreviousChar,
+      QKeySequence::SelectNextWord, QKeySequence::SelectPreviousWord,
+      QKeySequence::SelectNextLine, QKeySequence::SelectPreviousLine};
+
   enum class CursorHeight { Center, Top, Bottom };
   CursorHeight last_cursor_height{};
   int last_cursor_pos{};
 
 private slots:
 
-  void extend_selection(QTextCursor::MoveOperation move_op, Side side);
+  void extend_selection(QTextCursor::MoveOperation move_op, SelectionSide side);
 };
 } // namespace labelbuddy
 

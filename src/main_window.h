@@ -94,6 +94,8 @@ private slots:
 
   void update_status_bar();
   void update_window_title();
+  void set_n_selected_docs(int n_docs);
+  void update_n_selected_docs();
   void update_current_doc_info();
 
   /// message box when the db given in command line failed to open
@@ -120,6 +122,7 @@ private:
   // QLabels in the status bar
   QLabel* status_db_name_;
   QLabel* status_db_summary_;
+  QLabel* status_n_selected_docs_;
   QLabel* status_current_doc_info_;
   QLabel* status_current_annotation_info_;
   // having the label in its own widget means it doesn't affect the rest if it
@@ -147,6 +150,7 @@ private:
   void display_notebook();
   void store_notebook_page();
   void add_connections();
+  void add_status_bar();
   void add_menubar();
   void add_connection_to_menu(const QString& db_name);
   void set_geometry();

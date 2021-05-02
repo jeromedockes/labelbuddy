@@ -180,7 +180,7 @@ void LabelListModel::update_labels_order(const std::list<int>& labels) {
   int new_pos = 0;
   query.exec("begin transaction;");
   for (auto label_id : labels) {
-    query.prepare("update label set display_position = :pos where id = :id;");
+    query.prepare("update label set display_order = :pos where id = :id;");
     query.bindValue(":pos", new_pos);
     query.bindValue(":id", label_id);
     query.exec();

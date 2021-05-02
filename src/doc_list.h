@@ -99,6 +99,8 @@ public:
 
   void setModel(DocListModel*);
 
+  int n_selected_docs() const;
+
 protected:
   void showEvent(QShowEvent* event) override;
 
@@ -117,6 +119,7 @@ private slots:
 signals:
 
   void visit_doc_requested(int doc_id);
+  void n_selected_docs_changed(int n_docs);
 
 private:
   DocListButtons* buttons_frame;

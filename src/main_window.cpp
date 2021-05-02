@@ -62,24 +62,7 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
   annotator->set_annotations_model(annotations_model);
   annotator->set_label_list_model(label_model);
 
-  statusBar()->hide();
-  statusBar()->setSizeGripEnabled(false);
-  statusBar()->setStyleSheet(
-      "QStatusBar::item {border: none; border-right: 1px solid black;} "
-      "QStatusBar QLabel {margin-left: 1px; margin-right: 1px}");
-  status_db_name_ = new QLabel();
-  statusBar()->addWidget(status_db_name_);
-  status_db_summary_ = new QLabel();
-  statusBar()->addWidget(status_db_summary_);
-  status_current_annotation_label_ = new QLabel();
-  statusBar()->addWidget(status_current_annotation_label_);
-  status_current_annotation_info_ = new QLabel();
-  statusBar()->addWidget(status_current_annotation_info_);
-  status_current_doc_info_ = new QLabel();
-  statusBar()->addWidget(status_current_doc_info_);
-
-  update_status_bar();
-
+  add_status_bar();
   add_menubar();
   set_geometry();
   init_annotator_settings();
@@ -178,12 +161,38 @@ void LabelBuddy::add_connections() {
                    &AnnotationsModel::document_status_changed, this,
                    &LabelBuddy::update_status_bar);
   QObject::connect(notebook, &QTabWidget::currentChanged, this,
+                   &LabelBuddy::update_n_selected_docs);
+  QObject::connect(dataset_menu, &DatasetMenu::n_selected_docs_changed, this,
+                   &LabelBuddy::set_n_selected_docs);
+  QObject::connect(notebook, &QTabWidget::currentChanged, this,
                    &LabelBuddy::update_current_doc_info);
   QObject::connect(annotator, &Annotator::current_status_display_changed, this,
                    &LabelBuddy::update_current_doc_info);
 
   QObject::connect(notebook, &QTabWidget::currentChanged, this,
                    &LabelBuddy::check_tab_focus);
+}
+
+void LabelBuddy::add_status_bar() {
+  statusBar()->hide();
+  statusBar()->setSizeGripEnabled(false);
+  statusBar()->setStyleSheet(
+      "QStatusBar::item {border: none; border-right: 1px solid black;} "
+      "QStatusBar QLabel {margin-left: 1px; margin-right: 1px}");
+  status_db_name_ = new QLabel();
+  statusBar()->addWidget(status_db_name_);
+  status_db_summary_ = new QLabel();
+  statusBar()->addWidget(status_db_summary_);
+  status_n_selected_docs_ = new QLabel();
+  statusBar()->addWidget(status_n_selected_docs_);
+  status_current_annotation_label_ = new QLabel();
+  statusBar()->addWidget(status_current_annotation_label_);
+  status_current_annotation_info_ = new QLabel();
+  statusBar()->addWidget(status_current_annotation_info_);
+  status_current_doc_info_ = new QLabel();
+  statusBar()->addWidget(status_current_doc_info_);
+
+  update_status_bar();
 }
 
 void LabelBuddy::go_to_annotations() { notebook->setCurrentIndex(0); }
@@ -326,7 +335,22 @@ void LabelBuddy::update_status_bar() {
                                   .arg(n_docs)
                                   .arg(n_docs != 1 ? "s" : "")
                                   .arg(n_labelled));
+  update_n_selected_docs();
   update_current_doc_info();
+}
+
+void LabelBuddy::update_n_selected_docs() {
+  if (notebook->currentIndex() != 1) {
+    status_n_selected_docs_->hide();
+    return;
+  }
+  set_n_selected_docs(dataset_menu->n_selected_docs());
+  status_n_selected_docs_->show();
+}
+
+void LabelBuddy::set_n_selected_docs(int n_docs) {
+  status_n_selected_docs_->setText(
+      QString("%0 doc%1 selected").arg(n_docs).arg(n_docs != 1 ? "s" : ""));
 }
 
 void LabelBuddy::update_current_doc_info() {

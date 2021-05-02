@@ -27,6 +27,8 @@ DatasetMenu::DatasetMenu(QWidget* parent) : QSplitter(parent) {
 
   QObject::connect(doc_list, &DocList::visit_doc_requested, this,
                    &DatasetMenu::visit_doc_requested);
+  QObject::connect(doc_list, &DocList::n_selected_docs_changed, this,
+                   &DatasetMenu::n_selected_docs_changed);
 }
 
 void DatasetMenu::set_doc_list_model(DocListModel* new_model) {
@@ -60,6 +62,9 @@ void DatasetMenu::set_label_list_model(LabelListModel* new_model) {
                      doc_list_model, &DocListModel::labels_changed);
   }
 }
+
+int DatasetMenu::n_selected_docs() const { return doc_list->n_selected_docs(); }
+
 void DatasetMenu::store_state() {
   QSettings settings("labelbuddy", "labelbuddy");
   settings.setValue("DatasetMenu/state", saveState());

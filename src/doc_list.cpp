@@ -335,6 +335,10 @@ void DocList::setModel(DocListModel* new_model) {
   update_select_delete_buttons();
 }
 
+int DocList::n_selected_docs() const {
+  return doc_view->selectionModel()->selectedIndexes().size();
+}
+
 void DocList::showEvent(QShowEvent* event) {
   if (model != nullptr) {
     model->refresh_current_query_if_outdated();
@@ -439,5 +443,6 @@ void DocList::update_select_delete_buttons() {
   }
   buttons_frame->update_top_row_buttons(n_rows, model->rowCount(),
                                         model->total_n_docs());
+  emit n_selected_docs_changed(n_rows);
 }
 } // namespace labelbuddy

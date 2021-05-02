@@ -48,13 +48,19 @@ void TestDocList::test_delete_selected_docs() {
   DocList doc_list{};
   doc_list.setModel(&doc_model);
 
+  QSignalSpy spy(&doc_list, SIGNAL(n_selected_docs_changed(int)));
+
   QCOMPARE(doc_model.total_n_docs(), 6);
+  QCOMPARE(doc_list.n_selected_docs(), 0);
 
   auto lv = doc_list.findChild<QListView*>();
   lv->selectionModel()->select(doc_model.index(0, 0),
                                QItemSelectionModel::Select);
   lv->selectionModel()->select(doc_model.index(2, 0),
                                QItemSelectionModel::Select);
+  QCOMPARE(spy.count(), 2);
+  QVERIFY(spy[1].at(0).toInt() == 2);
+  QCOMPARE(doc_list.n_selected_docs(), 2);
   QTimer::singleShot(1000, this, [&]() {
     doc_list.findChild<QMessageBox*>()
         ->findChildren<QPushButton*>()[0]
@@ -69,7 +75,15 @@ void TestDocList::test_delete_selected_docs() {
       ->findChildren<QPushButton*>()[1]
       ->click();
   QCOMPARE(doc_model.total_n_docs(), 4);
+  QCOMPARE(doc_list.n_selected_docs(), 0);
+  QCOMPARE(spy.count(), 3);
+  QVERIFY(spy[2].at(0).toInt() == 0);
+
   lv->selectAll();
+  QCOMPARE(doc_list.n_selected_docs(), 4);
+  QCOMPARE(spy.count(), 4);
+  QVERIFY(spy[3].at(0).toInt() == 4);
+
   QTimer::singleShot(1000, this, [&]() {
     doc_list.findChild<QMessageBox*>()
         ->findChildren<QPushButton*>()[0]
@@ -84,6 +98,9 @@ void TestDocList::test_delete_selected_docs() {
       ->findChildren<QPushButton*>()[1]
       ->click();
   QCOMPARE(doc_model.total_n_docs(), 0);
+  QCOMPARE(doc_list.n_selected_docs(), 0);
+  QCOMPARE(spy.count(), 5);
+  QVERIFY(spy[4].at(0).toInt() == 0);
 }
 
 void TestDocList::test_visit_document() {
