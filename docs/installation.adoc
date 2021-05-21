@@ -88,7 +88,12 @@ cmake /path/to/labelbuddy
 cmake --build .
 ....
 
-It can also be built with https://doc.qt.io/qt-5/qmake-manual.html[qmake]:
+Then {lb} can (optionally) be installed with:
+....
+sudo make install
+....
+
+{lb} can also be built with https://doc.qt.io/qt-5/qmake-manual.html[qmake]:
 ....
 qmake /path/to/labelbuddy
 make

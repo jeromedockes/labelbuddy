@@ -19,7 +19,7 @@ Jérôme Dockès <jerome@dockes.org>
 :doca: pass:q[*doccano*]
 
 
-{lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or Part Of Speech tagging.
+{lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or document classification.
 
 To get started, <<installation.adoc#,install>> {lb}, and have a look at the <<documentation.adoc#,documentation>>.
 You can also see some <<screenshots.adoc#,screenshots>>.

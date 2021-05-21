@@ -96,9 +96,10 @@ data_dir.joinpath("labels.jsonl").write_text(
 xml_labels = etree.Element("label_set")
 for label in all_labels:
     label_elem = etree.SubElement(xml_labels, "label")
-    for key in {"text", "color", "shortcut_key"}.intersection(label.keys()):
-        elem = etree.SubElement(label_elem, key)
-        elem.text = label[key]
+    for key in ("text", "shortcut_key", "color"):
+        if key in label:
+            elem = etree.SubElement(label_elem, key)
+            elem.text = label[key]
 data_dir.joinpath("labels.xml").write_bytes(
     etree.tostring(
         xml_labels, encoding="utf-8", xml_declaration=True, pretty_print=True

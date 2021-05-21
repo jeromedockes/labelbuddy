@@ -23,12 +23,14 @@ def get_annotations(doc, annotations):
 example_dir = Path(__file__).parent
 doc_file_names = [
     "hello_annotations.txt",
+    "wikipedia_language_en.txt",
     "wikipedia_language_ar.txt",
     "wikipedia_language_el.txt",
     "wikipedia_language_zh.txt",
 ]
 
-all_docs = []
+demo_docs = []
+website_docs = []
 
 for doc_name in doc_file_names:
     doc = example_dir.joinpath(doc_name).read_text(encoding="utf-8")
@@ -62,13 +64,27 @@ for doc_name in doc_file_names:
         "title": doc_name,
         "md5": hashlib.md5(body.encode("utf-8")).hexdigest(),
     }
-    all_docs.append(
-        {
-            "text": body,
-            "meta": meta,
-            "short_title": title,
-            "long_title": long_title,
-            "labels": annotations,
-        }
-    )
-example_dir.joinpath("example_documents.json").write_text(json.dumps(all_docs))
+    if doc_name != "wikipedia_language_en.txt":
+        demo_docs.append(
+            {
+                "text": body,
+                "meta": meta,
+                "short_title": title,
+                "long_title": long_title,
+                "labels": annotations,
+            }
+        )
+    if doc_name != "hello_annotations.txt":
+        website_docs.append(
+            {
+                "text": body,
+                "meta": {"source": "https://en.wikipedia.org"},
+                "short_title": title,
+                "long_title": long_title,
+            }
+        )
+
+example_dir.joinpath("example_documents.json").write_text(json.dumps(demo_docs))
+example_dir.joinpath("example_documents_for_website.json").write_text(
+    json.dumps(website_docs)
+)

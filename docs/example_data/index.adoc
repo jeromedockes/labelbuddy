@@ -12,7 +12,19 @@ The files whose name contains `exported` have been exported from {lb}.
 The import and export formats are the same, which means that these exported files can also be imported into {lb}.
 All the formats are described in <<../documentation.adoc#,the documentation>>.
 
-== Documents and annotations
+== Demo documents and labels
+
+These are copies (in `json` format) of some of the documents and labels used to fill the demo database when you start {lb} with the `--demo` option or select menu:File[Demo] in the GUI.
+The documents are short extracts from https://en.wikipedia.org[Wikipedia].
+
+- link:wiki_extracts_documents.json[documents]
+- link:pos_labels.json[labels]
+
+== Toy examples in all formats
+
+These are copies of the inline examples shown in <<../documentation.adoc#,the documentation>>.
+
+=== Documents and annotations
 
 The files whose name starts with `exported` contain annotations in addition to the document text and attributes.
 
@@ -26,7 +38,7 @@ The files whose name starts with `exported` contain annotations in addition to t
 - link:exported_docs.csv[`exported_docs.csv`]
 - link:docs.txt[`docs.txt`]
 
-== Labels
+=== Labels
 
 - link:labels.json[`labels.json`]
 - link:exported_labels.json[`exported_labels.json`]

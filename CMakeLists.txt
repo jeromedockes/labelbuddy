@@ -84,18 +84,27 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_SOURCE_GENERATOR "TGZ")
 set(CPACK_SOURCE_IGNORE_FILES
   [.]git/
+  [.]gitignore
+  [.]gitattributes
   cmake_build/
+  cmake_release_build/
   qmake_build/
-  Makefile
   test/labelbuddy_tests
   test_build
   test_cli/data/newsgroups/
   test_cli/__pycache__/
+  [.]pytest_cache/
   test_cli/.*[.]pyc
   doxygen_output/
   docs/gh-pages-site/
-  docs/screenshots/
-  docs/README[.]rst
+  docs/screenshots/.*[.]png
+  docs/index[.]html
+  docs/installation[.]html
+  docs/manpage[.]html
+  docs/readme-as-seen-on-github[.]html
+  docs/screenshots[.]html
+  docs/example_data/index.html
+  docs/schema/index.html
   moc_.*
   src/moc_.*
   test/moc_.*
@@ -116,7 +125,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   .*[.]smod
   .*[.]lai
   .*[.]la
-  .*[.]a
+  .*[.]a$
   .*[.]lib
   .*[.]exe
   .*[.]out

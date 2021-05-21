@@ -62,9 +62,9 @@ endif::[]
 == Introduction
 
 {lb} is an {lblicense}[open-source] desktop Graphical User Interface (GUI) application for annotating documents.
-It can be used for example for Named Entity Recognition, Part Of Speech tagging, sentiment analysis and document classification ...
+It can be used for example for Named Entity Recognition, sentiment analysis, document classification, etc.
 
-It aims to be easy to {downloadspage}[install] and use, and can efficiently handle many documents and annotations.
+It is easy to {downloadspage}[install] and use, and can efficiently handle many documents and annotations.
 
 === labelbuddy compared to other annotation tools
 
@@ -72,7 +72,7 @@ There exist several tools for annotating documents.
 Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio], are meant to run on a web server and be used online.
 If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.
 
-However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install one of these rather complex programs and run a local server and database management system on their own machine in order to annotate documents.
+However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install a rather complex program and run a local server and database management system on their own machine.
 In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
 
 A <<managing-projects,labelbuddy database>> is just an ordinary file that you can copy, share or delete like any other file.
@@ -131,6 +131,7 @@ Documents, labels and annotations that are already in the database are skipped i
 === Importing documents (and annotations)
 
 In the {ietab}, click btn:[Import docs & annotations] and select a file containing the documents you plan to annotate.
+If you want try this before creating your own, you can download example documents from the link:{examples-url}/[{lb} website].
 
 When importing a new document into {lb}, several attributes can be specified:
 
@@ -166,12 +167,14 @@ labelbuddy mydatabase.labelbuddy --import-docs mydocs.jsonl
 === Importing or creating labels
 
 To import labels, click btn:[Import labels] in the {ietab} and select a file.
+If you want try this before creating your own labels, you can download example labels from the link:{examples-url}/[{lb} website].
+
 Labels have three attributes: a mandatory `text` (label name), and an optional `color` and `shortcut_key`.
-The `shortcut_key` is a lower-case ASCII letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+The `shortcut_key` is a lower-case letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
 
 As for documents, the format is deduced from the filename extension when importing labels, and is described in <<formats-sec>>.
 
-It is also possible to manually enter a new label or to change the labels' color and shortcut key from within the GUI application, in the {dstab}.
+It is also possible to manually enter a new label or to change the labels`' color and shortcut key from within the GUI application, in the {dstab}.
 
 Labels can also be imported using the <<command-line-interface,command line>>, for example:
 
@@ -445,7 +448,7 @@ It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.
 
 Labels are imported first, then documents, then export operations are performed.
-Therefore it is possible to export documents and then export them in one execution of {lb}.
+Therefore it is possible to import documents and then export them in one execution of {lb}.
 As an example, to strip the annotations from previously exported documents you could run:
 [source,sh]
 ----
@@ -1050,8 +1053,8 @@ ifdef::env-github[]
     <text>Word</text>
   </label>
   <label>
-    <shortcut_key>n</shortcut_key>
     <text>Number</text>
+    <shortcut_key>n</shortcut_key>
     <color>orange</color>
   </label>
 </label_set>
@@ -1157,7 +1160,7 @@ endif::[]
 [#compatibility-with-doccano]
 === Compatibility with doccano
 Labels exported from {lb} in the JSON format can be imported into {doca}.
-Labels exported from {doca} and saved in a `.json` file can be imported into {lb}
+Labels exported from {doca} and saved in a `.json` file can be imported into {lb}.
 
 Documents and annotations exported from {doca} can also be imported into a {lb} database.
 To do so, when exporting from {doca} select the format "`jsonl (text label)`".
