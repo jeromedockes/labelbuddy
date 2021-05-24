@@ -4,8 +4,8 @@
     <text>Word</text>
   </label>
   <label>
-    <shortcut_key>n</shortcut_key>
     <text>Number</text>
+    <shortcut_key>n</shortcut_key>
     <color>orange</color>
   </label>
 </label_set>
