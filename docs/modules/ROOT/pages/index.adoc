@@ -1,0 +1,38 @@
+= labelbuddy
+Jérôme Dockès <jerome@dockes.org>
+:homepage: https://jeromedockes.github.io/labelbuddy
+:lang: en
+:idprefix:
+:idseparator: -
+:ghrepo: https://github.com/jeromedockes/labelbuddy/
+:lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
+:polinelab-home: https://neurodatascience.github.io/
+:lb: pass:q[*labelbuddy*]
+:downloads-link: link:https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation
+
+
+{lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or document classification.
+
+To get started, {downloads-link}[install] {lb}, and have a look at the xref:documentation.adoc[documentation].
+You can also see some xref:screenshots.adoc[screenshots].
+
+{lb} is {lblicense}[open-source], and the source code is hosted on {ghrepo}[GitHub].
+
+{lb} was created to support text-mining and meta-analysis research projects in the {polinelab-home}[ORIGAMI lab] at McGill University.
+It should be suitable for a wide variety of text annotation projects.
+
+.Some features of {lb}
+****
+- *Open source.* It is completely free and always will be.
+- *Easy to install.* Install {lb} in less than 2 minutes on Linux, Windows or MacOS.
+No docker containers, nothing to configure -- start labelling right away!
+- *Sequence labelling* with predefined labels or free-form annotations.
+A simple interface and keyboard shortcuts help annotate documents quickly.
+- *Overlapping annotations* are supported.
+- *Simple file formats* to import your data from.
+Choose between JSON, CSV, JSON lines, XML, or plain text.
+Export your annotations to these same formats.
+- *Native application* -- not a web application running on a server.
+An annotation database is a single ordinary file.
+Data can be imported and exported with a command-line interface.
+****

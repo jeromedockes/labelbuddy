@@ -1,0 +1,55 @@
+= labelbuddy example files
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:lang: en
+ifndef::site-gen-antora[]
+:webfonts!:
+endif::[]
+:lb: pass:q[*labelbuddy*]
+
+ifndef::site-gen-antora[]
+<<../index.adoc#,labelbuddy home>> +
+ +
+endif::[]
+The files listed here provide examples of formats that can be used to import documents and labels into a {lb} database.
+The files whose name contains `exported` have been exported from {lb}.
+The import and export formats are the same, which means that these exported files can also be imported into {lb}.
+All the formats are described in <<../documentation.adoc#,the documentation>>.
+
+== Demo documents and labels
+
+These are copies (in `json` format) of some of the documents and labels used to fill the demo database when you start {lb} with the `--demo` option or select menu:File[Demo] in the GUI.
+The documents are short extracts from https://en.wikipedia.org[Wikipedia].
+
+- link:{attachmentsdir}/wiki_extracts_documents.json[documents]
+- link:{attachmentsdir}/pos_labels.json[labels]
+
+== Toy examples in all formats
+
+These are copies of the inline examples shown in <<../documentation.adoc#,the documentation>>.
+
+=== Documents and annotations
+
+The files whose name starts with `exported` contain annotations in addition to the document text and attributes.
+
+- link:{attachmentsdir}/docs.json[`docs.json`]
+- link:{attachmentsdir}/exported_docs.json[`exported_docs.json`]
+- link:{attachmentsdir}/docs.jsonl[`docs.jsonl`]
+- link:{attachmentsdir}/exported_docs.jsonl[`exported_docs.jsonl`]
+- link:{attachmentsdir}/docs.xml[`docs.xml`]
+- link:{attachmentsdir}/exported_docs.xml[`exported_docs.xml`]
+- link:{attachmentsdir}/docs.csv[`docs.csv`]
+- link:{attachmentsdir}/exported_docs.csv[`exported_docs.csv`]
+- link:{attachmentsdir}/docs.txt[`docs.txt`]
+
+=== Labels
+
+- link:{attachmentsdir}/labels.json[`labels.json`]
+- link:{attachmentsdir}/exported_labels.json[`exported_labels.json`]
+- link:{attachmentsdir}/labels.jsonl[`labels.jsonl`]
+- link:{attachmentsdir}/exported_labels.jsonl[`exported_labels.jsonl`]
+- link:{attachmentsdir}/labels.xml[`labels.xml`]
+- link:{attachmentsdir}/exported_labels.xml[`exported_labels.xml`]
+- link:{attachmentsdir}/labels.csv[`labels.csv`]
+- link:{attachmentsdir}/exported_labels.csv[`exported_labels.csv`]
+- link:{attachmentsdir}/labels.txt[`labels.txt`]

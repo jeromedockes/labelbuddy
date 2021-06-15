@@ -1,0 +1,1216 @@
+= labelbuddy documentation
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:lang: en
+ifndef::site-gen-antora[]
+:toc: left
+:webfonts!:
+:prewrap!:
+:docinfo: shared
+:source-highlighter: pygments
+:pygments-style: friendly
+endif::[]
+:sectnums:
+:idprefix:
+:idseparator: -
+:toclevels: 3
+:xrefstyle: short
+:hide-uri-scheme:
+ifdef::site-gen-antora[]
+:exampledir: example$
+endif::[]
+ifndef::site-gen-antora[]
+:exampledir: ../examples/
+endif::[]
+:homepage-no-scheme: jeromedockes.github.io/labelbuddy
+:homepage: https://jeromedockes.github.io/labelbuddy
+:homepage-current: https://jeromedockes.github.io/labelbuddy/labelbuddy/current
+ifndef::site-gen-antora[]
+:examples-link: link:{homepage-current}/examples
+:schemas-link: link:{homepage-current}/xml_schema
+:manpage-link: link:{homepage-current}/manpage/
+:downloads-link: link:{homepage-current}/installation
+endif::[]
+ifdef::site-gen-antora[]
+:examples-link: xref:examples.adoc
+:schemas-link: xref:xml_schema.adoc
+:manpage-link: xref:manpage.adoc
+:downloads-link: link:{homepage-current}/installation
+// :downloads-link: xref:labelbuddy:ROOT:installation.adoc
+endif::[]
+:lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
+:lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
+:ghreleases: https://github.com/jeromedockes/labelbuddy/releases
+:ghrepo: https://github.com/jeromedockes/labelbuddy
+:lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
+:sqlitehome: https://www.sqlite.org
+:csv-rfc: https://tools.ietf.org/html/rfc4180
+:wikipedia-unicode: https://en.wikipedia.org/wiki/Unicode
+:unicode-home: https://home.unicode.org
+:wikipedia-bom: https://en.wikipedia.org/wiki/Byte_order_mark
+:wikipedia-utf8: https://en.wikipedia.org/wiki/UTF-8
+:wikipedia-xslt: https://en.wikipedia.org/wiki/XSLT
+:wikipedia-md5: https://en.wikipedia.org/wiki/MD5
+:xslt: pass:q[*XSLT*]
+:sqlite: pass:q[*SQLite*]
+:lb: pass:q[*labelbuddy*]
+:doca: pass:q[*doccano*]
+:libreoffice-calc: pass:q[*LibreOffice Calc*]
+:excel: pass:q[*Microsoft Excel*]
+:google-sheets: pass:q[*Google Sheets*]
+:ietab: pass:q[*"`Import / Export`"* tab]
+:annotab: pass:q[*"`Annotate`"* tab]
+:dstab: pass:q[*"`Dataset`"* tab]
+:iet: pass:q[*"`Import / Export`"*]
+:annot: pass:q[*"`Annotate`"*]
+:dst: pass:q[*"`Dataset`"*]
+:extra-edit: pass:q[*"`Extra annotation data`"*]
+
+
+ifndef::env-github[]
+ifdef::lbversion[]
+This document describes
+ifndef::site-gen-antora[]
+{homepage}[{lb}]
+endif::[]
+ifdef::site-gen-antora[]
+{lb}
+endif::[]
+version *{lbversion}*.
+endif::[]
+endif::[]
+ifdef::env-github[]
+- {homepage}[Website]
+- {homepage-current}/documentation[Documentation for latest release]
+endif::[]
+
+== Introduction
+
+{lb} is an {lblicense}[open-source] desktop Graphical User Interface (GUI) application for annotating documents.
+It can be used for example for Named Entity Recognition, sentiment analysis, document classification, etc.
+
+It is easy to {downloads-link}[install] and use, and can efficiently handle many documents and annotations.
+
+=== labelbuddy compared to other annotation tools
+
+There exist several tools for annotating documents.
+Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio], are meant to run on a web server and be used online.
+If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.
+
+However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install a rather complex program and run a local server and database management system on their own machine.
+In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
+
+A <<managing-projects,labelbuddy database>> is just an ordinary file that you can copy, share or delete like any other file.
+Therefore managing annotations created with {lb} is just as simple as if the annotations were stored in plain text formats or {libreoffice-calc} or {excel} spreadsheets.
+But being a dedicated tool, {lb} provides a convenient interface for creating and editing the annotations.
+
+{lb} works completely offline, making it suitable to annotate confidential data.
+
+{lb} supports the input and output formats of {doca} so it is <<compatibility-with-doccano,possible>> to switch from one to the other or to combine the work of annotators that use either.
+
+=== Quick start
+
+Start by {downloads-link}[installing] {lb}.
+Then to give it a try, start {lb} and select menu:File[Demo] in the menu.
+This will open a temporary demo database pre-loaded with a few example documents and labels.
+You can play around with {lb}’s features in this temporary database.
+If you decide to start creating annotations that you want to keep, read on to the next section.
+It explains how to open a new (persistent) database and import your documents and labels.
+
+If you start {lb} from the <<command-line-interface,command line>>, you can also open the demo database at startup with the `--demo` option:
+
+[source,sh]
+----
+labelbuddy --demo
+----
+
+== Using labelbuddy
+
+This section describes how to annotate text with {lb}.
+We start with a list of terms used in the rest of the documentation:
+
+[horizontal]
+Document:: A piece of text that we want to annotate, along with optional attributes such as a `short_title` or an `id`.
+Label:: A term that can be used to annotate (tag) documents or portions of text.
+Labels can be for example types of named entities such as "`City`", Part-Of-Speech tags such as "`Verb`", etc.
+Labels can also be given a `color` and a `shortcut_key`.
+Character:: A {unicode-home}[Unicode] code point.
+Annotation:: A label attached to a specific portion of text in a document.
+For example, the first 5 characters of document #2 tagged with the label "`City`" constitute an annotation.
+Additional free-form text can also be attached to annotations.
+Database:: A binary file, created and modified by {lb}, containing documents, labels and annotations.
+Importing and exporting data:: Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON, XML or CSV.
+
+The labelbuddy interface is organized around three tabs: the {ietab} for importing and exporting documents, labels and annotations, the {dstab} to get an overview and manage documents and labels in the database, and the {annotab} is where annotations are edited.
+
+Documents and labels can be imported into a {lb} database from several simple formats such as JSON or CSV, described in <<formats-sec>>.
+Once they are imported, you can annotate the documents.
+Finally, you can export your annotations.
+
+The import and export formats are the same, meaning that exported labels, documents or annotations can readily be imported back into the same or another {lb} database.
+
+Importing and exporting data can be done from the graphical or the <<command-line-interface,command line>> interface.
+Documents, labels and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).
+
+
+=== Importing documents (and annotations)
+
+In the {ietab}, click btn:[Import docs & annotations] and select a file containing the documents you plan to annotate.
+If you want try this before creating your own, you can download example documents from the {examples-link}[{lb} website].
+
+When importing a new document into {lb}, several attributes can be specified:
+
+[horizontal]
+`text`:: The text (content) of the document -- mandatory.
+
+All other attributes are optional:
+
+[horizontal]
+`meta`:: A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author...
+This data is not used by {lb}.
+It is stored and bundled with the document when you export it.
+`id`:: A string attached to the document -- a simpler alternative to `meta` if you only need a way to identify exported documents.
+Just as `meta`, `id` is stored but not used internally by {lb}.
+`short_title`:: Displayed in the {annotab} when annotating the document.
+`long_title`:: Displayed in the document list in the {dstab}.
+
+TIP: You can use the `short_title` to display essential metadata or short instructions specific to a document.
+It can contain links by using an html `<a>` tag.
+
+This information can be provided in <<formats-sec,several formats>>.
+The format is deduced from the filename extension.
+
+Moreover, annotations (previously exported from {lb} or {doca}) can also be imported into a database as described in <<formats-sec>>.
+
+Importing documents and annotations can also be done from the <<command-line-interface,command line>>, for example:
+
+[source,sh]
+----
+labelbuddy mydatabase.labelbuddy --import-docs mydocs.jsonl
+----
+
+=== Importing or creating labels
+
+To import labels, click btn:[Import labels] in the {ietab} and select a file.
+If you want try this before creating your own labels, you can download example labels from the {examples-link}[{lb} examples page].
+
+Labels have three attributes: a mandatory `text` (label name), and an optional `color` and `shortcut_key`.
+The `shortcut_key` is a lower-case letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+
+As for documents, the format is deduced from the filename extension when importing labels, and is described in <<formats-sec>>.
+
+It is also possible to manually enter a new label or to change the labels`' color and shortcut key from within the GUI application, in the {dstab}.
+
+Labels can also be imported using the <<command-line-interface,command line>>, for example:
+
+[source,sh]
+----
+labelbuddy mydatabase.labelbuddy --import-labels mylabels.json
+----
+
+In the {dstab}, labels can be reordered by dragging and dropping them.
+
+=== Annotating documents
+
+Once you have imported labels and documents you can see them in the {dstab}.
+You can filter which documents are shown by the labels they have been annotated with.
+You can delete labels or documents, add labels and change the color and shortcut associated with each label.
+You can drag and drop labels to change their order.
+You then go to the {annotab}.
+(If you double-click a document or press kbd:[Enter] after selecting it it will be opened in the {annotab}.)
+
+To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
+It is also possible to do the same thing with the keyboard.
+Press kbd:[/] or kbd:[Ctrl+F] to search for the term you want to annotate and the first match will be selected.
+The selection can be adusted with the keyboard using the bindings described <<keybindings-summary,below>>.
+Then press the shortcut key associated with the label you want to set.
+
+You can also attach additional information to the annotation by typing it in the {extra-edit} box.
+You can use this to add a comment to the annotation.
+You can also use the extra data for free-form labelling.
+For example, you can enter a number, the normalized name of an entity, a URI, etc. -- anything that an Information Extraction system should find in the labelled region.
+
+Once you have created annotations, you can select any of them by clicking it.
+It becomes [.blue-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
+
+TIP: You can control whether the selected annotation is displayed in a bold font by checking or unchecking  menu:Preferences[Show selected annotation in bold font].
+
+TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
+If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
+You can then use it to filter documents in the {annotab}.
+If you need free-form labels, use a generic label name and type the free-form annotation in the {extra-edit} box.
+
+==== Overlapping annotations
+
+When two or more annotations overlap, the whole group is shown in [.annotation-cluster]##white text on a gray background##.
+As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno-bold.blue-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
+
+The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
+
+
+[#keybindings-summary]
+==== Summary of key bindings in the "`Annotate`" tab
+
+[cols="1,2"]
+|===
+2+| Searching and navigation
+
+| kbd:[Ctrl] and scroll the mouse
+| zoom or dezoom the text (for persistent settings, use menu:Preferences[Choose font] )
+
+| kbd:[Ctrl+F], kbd:[/]
+| search
+
+| kbd:[Enter]
+| next search match
+
+| kbd:[Shift+Enter]
+| previous search match
+
+| kbd:[Ctrl+J], kbd:[Ctrl+N], kbd:[Down]
+| scroll down one line
+
+| kbd:[Ctrl+K], kbd:[Ctrl+P], kbd:[Up]
+| scroll up one line
+
+| kbd:[Ctrl+D], kbd:[PageDown]
+| scroll down one page
+
+| kbd:[Ctrl+U], kbd:[PageUp]
+| scroll up one page
+
+| kbd:[Ctrl+L]
+| cycle between placing the cursor at the center, top and bottom of the window
+
+| kbd:[Home]
+| go to start of document
+
+| kbd:[End]
+| go to end of document
+
+|===
+
+[cols="1,2"]
+|===
+2+| Manipulating annotations
+
+| kbd:[A-Z] (label's `shortcut_key`)
+| set corresponding label for the currently selected region or annotation
+
+| kbd:[Backspace]
+| remove selected annotation
+
+| kbd:[Alt+E]
+| edit the extra annotation data (then press kbd:[Enter] to return focus to the text)
+
+| kbd:[Space]
+| jump to next annotation and select it
+
+| kbd:[Shift+Space]
+| jump to previous annotation and select it
+
+| kbd:[Esc]
+| un-select selected annotation
+|===
+
+[cols="1,2"]
+|===
+2+| Manipulating the text selection
+
+| kbd:[\]]
+| move the *end* of the selection by one *word* to the *right*
+
+| kbd:[[]
+| move the *end* of the selection by one *word* to the *left*
+
+| kbd:[}]
+| move the *beginning* of the selection by one *word* to the *right*
+
+| kbd:[{]
+| move the *beginning* of the selection by one *word* to the *left*
+
+| kbd:[Ctrl+\]]
+| move the *end* of the selection by one *character* to the *right*
+
+| kbd:[Ctrl+[]
+| move the *end* of the selection by one *character* to the *left*
+
+| kbd:[Ctrl+}]
+| move the *beginning* of the selection by one *character* to the *right*
+
+| kbd:[Ctrl+{]
+| move the *beginning* of the selection by one *character* to the *left*
+
+| kbd:[Shift+Right]
+| select next character
+
+| kbd:[Shift+Left]
+| select previous character
+
+| kbd:[Ctrl+Shift+Right]
+| select next word
+
+| kbd:[Ctrl+Shift+Left]
+| select previous word
+
+| kbd:[Shift+Down]
+| select next line
+
+| kbd:[Shift+Up]
+| select previous line
+
+|===
+
+[cols="1,2"]
+|===
+2+| Navigating documents
+
+| kbd:[>]
+| go to next document
+
+| kbd:[<]
+| go to previous document
+|===
+
+Underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example in the {dstab} "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
+
+=== Exporting documents and annotations
+
+Once you are satisfied with your annotations you can export them in order to share them or use them in other applications.
+
+Back in the {ietab}, click btn:[Export docs & annotations].
+You can choose to export all documents or only those that have annotations.
+You can choose to export the text of the documents or not.
+If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the {wikipedia-md5}[MD5] checksum of the text that is always exported.
+You can also provide an "`annotation approver`" (user name), that will be exported as the `annotation_approver` (used by {doca}).
+You can also choose to only export the documents, without the annotations.
+
+When clicking btn:[Export docs & annotations] you are asked to select a file and the resulting format will depend on the filename extension.
+The export format is the same as the import format.
+Exported documents and annotations can thus be imported back into a {lb} database.
+See <<formats-sec>> for details.
+
+Exporting documents and annotations can also be done from the <<command-line-interface,command line>>, for example:
+
+[source,sh]
+----
+labelbuddy mydatabase.labelbuddy --export-docs my-annotated-docs.jsonl
+----
+
+=== Exporting labels
+
+You may also want to export labels, especially if you created them or edited their colors or shortcut keys within {lb}.
+In the {ietab}, click btn:[Export labels].
+Here also, the <<formats-sec,format>> is deduced from the filename extension.
+
+This can also be done from the <<command-line-interface,command line>>:
+
+[source,sh]
+----
+labelbuddy mydatabase.labelbuddy --export-labels mylabels.json
+----
+
+=== Managing projects
+
+Each {lb} database (containing documents, labels and annotations) is an {sqlitehome}[SQLite] database.
+That is a single regular file on your disk that you can copy, backup, or share, like any other file.
+Therefore managing {lb} data is as simple as if you were storing annotations in a {libreoffice-calc} or {excel} spreadsheet, for example.
+
+TIP: Using {sqlite} (with the https://sqlite.org/cli.html[SQLite command-line interface] or one of the https://en.wikipedia.org/wiki/SQLite#Programming_language_support[many programming languages] that provide {sqlite} bindings) you can also open a connection directly to the database to query it or even modify it.
+If you do so, set `PRAGMA foreign_keys = ON`.
+
+After starting {lb}, you can create a new database or open an existing one by selecting menu:File[Open].
+If you used {lb} before, by default at startup it opens the last database that you used.
+The database to open can also be specified when invoking {lb} from the command line:
+[source,sh]
+----
+labelbuddy /path/to/my_project.labelbuddy
+----
+
+The path to the current database is displayed in the {ietab}.
+
+If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
+
+As it is easy to create, copy and delete databases (an empty {lb} database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each {lb} file.
+
+=== Command-line interface
+
+{lb} can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
+See the `labelbuddy(1)` {manpage-link}[*man* page], or `labelbuddy -h` for a short list of options reproduced here:
+
+[source]
+----
+Usage: labelbuddy [options] [database]
+Annotate documents.
+
+Options:
+  -h, --help                              Displays this help.
+  -v, --version                           Displays version information.
+  --demo                                  Open a temporary demo database with
+                                          pre-loaded docs
+  --import-labels <labels file>           Labels file to import in database.
+  --import-docs <docs file>               Docs & annotations file to import in
+                                          database.
+  --export-labels <exported labels file>  Labels file to export to.
+  --export-docs <exported docs file>      Docs & annotations file to export to.
+  --labelled-only                         Export only labelled documents
+  --no-text                               Do not include doc text when
+                                          exporting
+  --no-annotations                        Do not include annotations when
+                                          exporting
+  --approver <name>                       User or 'annotations approver' name
+  --vacuum                                Repack database into minimal amount
+                                          of disk space.
+
+Arguments:
+  database                                Database to open.
+----
+
+If any of the `import` or `export` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
+It is possible to specify these options several times.
+To use these options, the database path must be provided explicitly.
+
+Labels are imported first, then documents, then export operations are performed.
+Therefore it is possible to import documents and then export them in one execution of {lb}.
+As an example, to strip the annotations from previously exported documents you could run:
+[source,sh]
+----
+labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations; rm tempdb
+----
+Or even (using {sqlite}'s in-memory database):
+[source,sh]
+----
+labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations
+----
+
+Regarding `vacuum`: when data is deleted from an {sqlite} database, the file doesn’t shrink.
+The freed up space is not lost; it is kept and reused when new data is added to the database.
+To shrink the database to occupy a minimal amount of disk space, we can use:
+[source,sh]
+----
+labelbuddy --vacuum /path/to/db.labelbuddy
+----
+or equivalently:
+[source,sh]
+----
+sqlite3 /path/to/db.labelbuddy 'VACUUM;'
+----
+See more details https://sqlite.org/lang_vacuum.html[here].
+When the `vacuum` option is used, other options are ignored and {lb} shrinks the database then exits without starting the GUI.
+
+== Conclusion
+
+{lb} was created using C++, https://www.qt.io/[Qt], {sqlitehome}[SQLite], tools from the https://www.gnu.org/[GNU project], and more.
+The documentation relies on https://asciidoctor.org/[asciidoctor] and https://antora.org/[antora].
+
+If you find a bug or have suggestions to improve {lb}, kindly open an issue on the {ghrepo}[labelbuddy GitHub repository].
+
+[appendix,id=formats-sec]
+== Documents and labels file formats
+
+=== General remarks
+
+Documents, annotations and labels can be imported (exported) from (to) several simple formats, described below.
+In all cases, the format is deduced from the filename extension.
+
+Several formats are supported to facilitate integrating {lb} in your project.
+For example, if you work with spreadsheet software such as {excel} or {libreoffice-calc}, you may want to use the <<docs-csv-format,CSV>> format.
+If your documents are in XML you can easily transform them into the {lb} <<docs-xml-format,XML>> format with {xslt}.
+Of course, you can import data from several files in any formats into the same database.
+If you are not sure which format to choose, use <<docs-jsonl-format,JSONL>> for documents and <<labels-json-format,JSON>> for labels.
+
+The examples shown in this section can be found as separate files on the {examples-link}[{lb} examples page].
+Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <<file-formats-for-documents-and-annotations,the next section>>.
+However note that it is possible to export document metadata and annotations without the documents' text to save storage space.
+
+At the moment, {lb} expects all the files it imports to be encoded with {wikipedia-utf8}[UTF-8] (or UTF-16, or UTF-32).
+Note that https://en.wikipedia.org/wiki/ASCII[ASCII] files are also valid UTF-8.
+One exception is that if you use the XML format, you can specify a different encoding in the XML prolog.
+
+All files produced by {lb} are UTF-8 encoded.
+
+The import and export formats of {lb} are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any {lb} database.
+Some formats are also compatible with {doca}; see <<compatibility-with-doccano>>.
+
+Note that the content (text) of the documents must be in plain text.
+Other formats will need to be converted to text, for example using https://www.xpdfreader.com/pdftotext-man.html[pdftotext] if they are in PDF, or https://pandoc.org/[pandoc] (specifying the target format as "plain") for many other formats.
+
+=== File formats for documents and annotations
+
+Documents and annotations are kept together in imported or exported files.
+When importing new documents (and possibly their annotations), each document will have a `text` attribute containing its content.
+For documents that are already in the database, it is possible to import new annotations from a file where the `text` is omitted, if the documents have the `utf8_text_md5_checksum` attribute instead.
+The associated value must be the hexadecimal representation of the {wikipedia-md5}[MD5] checksum of the (UTF-8 encoded) text of the document.
+Typically, you will not add this attribute yourself.
+It is added by {lb} when exporting documents and annotations.
+It allows you to export annotations without the document's text (or titles), and then import them into a database that already contains the document.
+
+When exporting documents and annotations, the document's metadata (`meta` and `id`, if you provided them), and `utf8_text_md5_checksum` are always included.
+You can choose not to include the document's `text` (in which case `short_title` and `long_title` are not included either).
+This is useful to export annotations while avoiding to store the text several times.
+Exported annotations can be linked to the original text using the MD5 checksum, or information you stored in the documents`' `id` or `meta`.
+You can also choose not to include the annotations, and export only the documents.
+
+Here is a full list of attributes a document can have:
+
+[horizontal]
+`text`:: The text (content) of the document
+`meta`:: A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author...
+This data is not used by {lb}.
+It is stored and bundled with the document when you export it.
+`id`:: A string attached to the document -- a simpler alternative to `meta` if you only need a way to identify exported documents.
+Just as `meta`, `id` is stored but not used internally by {lb}.
+`short_title`:: Displayed in the {annotab} when annotating the document.
+`long_title`:: Displayed in the document list in the {dstab}.
+`labels`:: A list of annotations.
+
+A document can can have a `labels` attribute, which is a list of annotations (the name is `labels` and not `annotations` for compatibility with {doca}).
+Each annotation is a list of 3 or 4 elements (the last one, `extra_data`, is optional):
+
+[horizontal]
+`start_char`:: the position of the first character (Unicode code point), starting from 0 at the begining of the text
+`end_char`::  the position of one past the last character
+`label`:: the label name
+`extra_data`:: additional text associated with the annotation.
+
+For example if the text starts with "`hello &#x1F600;`" and you highlighted exactly that phrase, and labelled it with `label_1`, the associated annotation will be `[0, 7, "label_1"]`.
+If you also typed "`some more info`" in the {extra-edit} box, the annotation will be `[0, 7, "label_1", "some more info"]`.
+Here, a "`character`" means a {unicode-home}[Unicode] code point.
+Note this does not correspond to byte offsets in the encoded text, nor necessarily to graphemes in the displayed text -- a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.
+
+
+Below, two examples are shown for each format (except `.txt` which has only one).
+The first illustrates a file that you may create from your data to import it into {lb}.
+The second one is a file exported from {lb}.
+It is also a valid input file that can be imported into {lb}, and it additionnally contains annotations.
+
+There is no exported example for `.txt` because this format is only available for importing.
+
+==== Import only: plain text (`.txt`)
+The simplest format you can use is `.txt`.
+In this case, the file must contain the text of one document per line.
+The newlines that separate documents are not considered part of the document and are discarded.
+
+While convenient, this format has some limitations: you cannot specify any other document attributes than the text, and the documents cannot contain newlines.
+The other import formats do not have these limitations.
+
+Here is an example of a `.txt` file we can use to import documents into a {lb} database:
+[source,txt]
+.Importing 2 documents from a `.txt` file
+ifndef::env-github[]
+----
+include::{exampledir}docs.txt[]
+----
+endif::[]
+ifdef::env-github[]
+----
+the text of document 1 some text the end
+the text of document 2 more text the end
+----
+endif::[]
+
+Exporting to `.txt` is not supported.
+
+==== JSON (`.json`)
+
+When using this format, the import or export file is a JSON file containing one JSON array.
+Each element of the array is a JSON object representing a document and its attributes.
+If provided, `meta` must be a JSON object (mapping) containing user data about the document.
+
+Here is an example of a `.json` file we can use to import documents into a {lb} database:
+
+[source,json]
+.Importing 2 documents from a `.json` file.
+ifndef::env-github[]
+----
+include::{exampledir}docs.json[]
+----
+endif::[]
+ifdef::env-github[]
+----
+[
+  {
+    "text": "the text of document 1\nsome text\nthe end\n"
+  },
+  {
+    "text": "the text of document 2\nmore text\nthe end\n",
+    "short_title": "title 2",
+    "long_title": "the title of document 2",
+    "meta": {
+      "id": "doc-2",
+      "source": "example.org"
+    }
+  }
+]
+----
+endif::[]
+
+Note that `short_title`, `long_title`, `meta` are optional -- and indeed the first document does not provide them.
+
+Below are the same documents, exported by {lb} after being annotated.
+Each document is always on a separate line.
+This makes it easy to read the file incrementally.
+Moreover, as the documents are always in the same order (the order in which they were imported), this gives line-oriented tools such as *diff* or *git* a better chance of producing useful output.
+[source,json]
+.Another example of 2 documents in a `.json` file, with annotations (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_docs.json[]
+----
+endif::[]
+ifdef::env-github[]
+----
+[
+{"labels":[[4,8,"Word"],[21,22,"Number","1"]],"meta":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"},
+{"labels":[[12,20,"Word"]],"long_title":"the title of document 2","meta":{"id":"doc-2","source":"example.org"},"short_title":"title 2","text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
+]
+----
+endif::[]
+
+Here, the `text` and titles are included, but {lb} provides the option to omit them.
+Note that as the export format is the same as the import format, this file can be imported into a {lb} database.
+
+For large files (containing many documents or large documents), the JSONL format described in the next section is very similar to JSON but more memory-efficient.
+
+[#docs-jsonl-format]
+==== JSON Lines (`.jsonl`)
+
+When importing a JSON file the whole file is read into memory before inserting the documents in the database.
+To read documents one by one and reduce memory usage, you can use https://jsonlines.org/[JSON Lines] format.
+It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
+For example:
+[source,json]
+.Importing 2 documents from a `.jsonl` file.
+ifndef::env-github[]
+----
+include::{exampledir}docs.jsonl[]
+----
+endif::[]
+ifdef::env-github[]
+----
+{"text": "the text of document 1\nsome text\nthe end\n"}
+{"text": "the text of document 2\nmore text\nthe end\n", "short_title": "title 2", "long_title": "the title of document 2", "meta": {"id": "doc-2", "source": "example.org"}}
+----
+endif::[]
+
+(We can see that the first document omits the optional `short_title`, `long_title` and `meta`.)
+
+It is also possible to export documents and annotations to a `.jsonl` file:
+[source,json]
+.Another example of 2 documents in a `.jsonl` file, with annotations (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_docs.jsonl[]
+----
+endif::[]
+ifdef::env-github[]
+----
+{"labels":[[4,8,"Word"],[21,22,"Number","1"]],"meta":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"}
+{"labels":[[12,20,"Word"]],"long_title":"the title of document 2","meta":{"id":"doc-2","source":"example.org"},"short_title":"title 2","text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
+----
+endif::[]
+
+Note that JSON Lines is _not_ valid JSON.
+If you exported your annotations in a JSON Lines file, when parsing it each _line_ must be parsed separately as a JSON document -- not the whole file.
+
+[#docs-xml-format]
+==== XML (`.xml`)
+
+If your source documents are stored in XML, it may be easier to transform them to {lb}'s XML format than to JSON.
+A RELAX NG schema is provided on the {schemas-link}[{lb} XML schema page].
+The root element must be `document_set` and contain any number of `document` elements.
+Each `document` contains children that have the names of the attributes described above: `text`, `short_title`, etc.
+User metadata is provided in the attributes of an element named `meta` or by using the `id` element's text.
+A `document`’s children can appear in any order.
+The children of an `annotation` must respect the order: `start_char`, `end_char`, `label`, and optionally `extra_data`.
+
+For example:
+[source,xml]
+.Importing 2 documents from a `.xml` file.
+ifndef::env-github[]
+----
+include::{exampledir}docs.xml[]
+----
+endif::[]
+ifdef::env-github[]
+----
+<?xml version='1.0' encoding='utf-8'?>
+<document_set>
+  <document>
+    <text>the text of document 1
+some text
+the end
+</text>
+  </document>
+  <document>
+    <meta id="doc-2" source="example.org"/>
+    <text>the text of document 2
+more text
+the end
+</text>
+    <short_title>title 2</short_title>
+    <long_title>the title of document 2</long_title>
+  </document>
+</document_set>
+----
+endif::[]
+
+Here are the same documents exported with some annotations:
+[source,xml]
+.Another example of 2 documents in a `.xml` file, with annotations (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_docs.xml[]
+----
+endif::[]
+ifdef::env-github[]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<document_set>
+    <document>
+        <utf8_text_md5_checksum>872edcd008dee45d894d5d3c9143f96b</utf8_text_md5_checksum>
+        <meta/>
+        <text>the text of document 1
+some text
+the end
+</text>
+        <labels>
+            <annotation>
+                <start_char>4</start_char>
+                <end_char>8</end_char>
+                <label>Word</label>
+            </annotation>
+            <annotation>
+                <start_char>21</start_char>
+                <end_char>22</end_char>
+                <label>Number</label>
+                <extra_data>1</extra_data>
+            </annotation>
+        </labels>
+    </document>
+    <document>
+        <utf8_text_md5_checksum>c27b0dbfabf831afaf8bafa0c727cf97</utf8_text_md5_checksum>
+        <meta id="doc-2" source="example.org"/>
+        <short_title>title 2</short_title>
+        <long_title>the title of document 2</long_title>
+        <text>the text of document 2
+more text
+the end
+</text>
+        <labels>
+            <annotation>
+                <start_char>12</start_char>
+                <end_char>20</end_char>
+                <label>Word</label>
+            </annotation>
+        </labels>
+    </document>
+</document_set>
+----
+endif::[]
+
+[CAUTION]
+.Caveats when importing from Text, JSON, JSONL or CSV and exporting to XML
+====
+In the XML format, the document's metadata is stored as attributes of the `meta` element.
+This means the values in `meta` must be literal values (ie not arrays or objects).
+Therefore, if you plan to export documents and annotations to XML, do not use arrays or objects for values in the `meta` attribute of documents imported from other formats.
+For example, if you import a document from JSON with `meta` equal to `{"authors": ["author 1", "author 2"], "id": "doc-1"}`, `"authors"` will not be correctly exported to XML (but `"id"` will, and both would be correctly exported to other formats than XML).
+
+JSON and other formats can represent some characters that are invalid in XML.
+https://en.wikipedia.org/wiki/Valid_characters_in_XML[Invalid characters] (for example form feed, `0xC`) are not allowed to appear at all in XML (unlike special characters such as `<` that simply need to be escaped), and they will not be written to the output.
+Thus if you imported documents from another format and there is a chance that they contain invalid XML characters, it is safer to choose something else than XML as the export format so that no characters are omitted in the output.
+====
+
+
+[#docs-csv-format]
+==== CSV (`.csv`)
+Documents and annotations can also be imported and exported using CSV files.
+
+The file must be in the default format produced by most tools.
+More precisely, it must respect the conventions described in {csv-rfc}[rfc4180]: `,` is the separator, fields that contain newlines (`\r\n` or `\n`) or double quotes (`"`) must be enclosed in double quotes, and `"` must be escaped by doubling it (replacing it with `""`).
+Line endings can be either `\r\n` or `\n` (in files exported by {lb} they will always be `\r\n`, as specified by rfc4180).
+This is the default CSV format used by tools such as {excel}, {libreoffice-calc}, {google-sheets}, `write.csv` in *R*, *the `csv` Python* standard library module or `DataFrame.to_csv` in the *Pandas* library, etc. so most likely you will not need to configure anything.
+
+The file should be encoded with UTF-8 (or UTF-16, or UTF-32).
+
+The CSV file must start with a header row and the column names must correspond to the document attributes described above (other columns will be ignored).
+If present (and not empty), `meta` must be the JSON serialization of the metadata (eg `{"key": "value"}`, which is why it may be more convenient to rely only on `id` instead, as shown below.
+
+Here is an example:
+
+[source,csv]
+.Importing 2 documents from a `.csv` file.
+ifndef::env-github[]
+----
+include::{exampledir}docs.csv[]
+----
+endif::[]
+ifdef::env-github[]
+----
+text,short_title,long_title,id
+"the text of document 1
+some text
+the end
+",,,
+"the text of document 2
+more text
+the end
+",title 2,the title of document 2,doc-2
+----
+endif::[]
+
+ifndef::env-github[]
+And here is the same file represented as a table:
+
+[format="csv",options="header,autowidth",cols="4*l"]
+.Importing 2 documents from a `.csv` file.
+|===
+include::{exampledir}docs.csv[]
+|===
+endif::[]
+
+When documents contain annotations, their representation is slightly different than in the JSON, JSONL or XML formats.
+Documents do not have a `labels` attribute.
+Instead, each row corresponds to one annotation and contains the attributes of both the document and the annotation, as shown in the examples below.
+To avoid storing multiple copies of the documents`' text and titles, it is recommended to export the text and annotations separately.
+That is,
+
+- export the documents _with_ the text but _without_ the annotations,
+- then export to a different file _without_ the text but _with_ the annotations.
+
+The two resulting tables can then be joined on the `utf8_text_md5_checksum` column (or on the `id` column if you provided a distinct `id` for each document when importing them).
+[source,csv]
+.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_docs.csv[]
+----
+endif::[]
+ifdef::env-github[]
+----
+ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",4,8,Word,
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",21,22,Number,1
+,c27b0dbfabf831afaf8bafa0c727cf97,{},doc-2,title 2,the title of document 2,"the text of document 2
+more text
+the end
+",12,20,Word,
+----
+endif::[]
+
+ifndef::env-github[]
+[.hscrollable]
+.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
+--
+[format="csv",options="header,autowidth",cols="11*l"]
+|===
+include::{exampledir}exported_docs.csv[]
+|===
+--
+endif::[]
+
+When exporting with annotations, any unlabelled document will produce one row in which the annotation-related columns `start_char`, `end_char`, `label` and `extra_data` are empty.
+
+When reading exported `.csv` files, you should rely on the header row to identify columns, rather than on column positions, which may change in future versions of {lb}.
+
+Note the csv starts with and empty column that you can ignore.
+This is because the document starts with a {wikipedia-bom}[Byte Order Mark (BOM)], so that {libreoffice-calc}, {excel} and some other tools correctly detect that it is UTF-8 encoded.
+By inserting an empty column, the data will still be read correctly by tools that do not expect or skip the BOM.
+When parsing the csv with such a tool the name of the first column will be `\0xef\0xbb\0xbfignore_this_column` instead of `ignore_this_column`, but the rest of the data will be unchanged.
+
+
+=== File formats for labels
+Labels can have the following attributes:
+
+[horizontal]
+`text`:: the label's name, mandatory
+`color`:: A hexadecimal color string, such as `"#aec7e8"`, or an https://www.w3.org/TR/SVG11/types.html#ColorKeywords[SVG color name], such as `"yellow"`.
+If missing, a default color will be assigned to the label.
+// https://doc.qt.io/qt-5/qcolor.html#setNamedColor
+`shortcut_key`:: A lower-case ASCII letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+If missing or already used by another label, the label will not have any `shortcut_key`.
+
+`color` and `shortcut_key` are optional.
+Both can be set from within the {lb} GUI.
+
+As for documents, each section below except for `.txt` shows two examples: a simple manually created labels file that can be imported, and a file containing labels exported by {lb}.
+Note the exported file is in the same format, thus can also be imported into a {lb} database.
+
+==== Import only: plain text (`.txt`)
+Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):
+
+[source,txt]
+.Importing 2 labels from a `.txt` file
+ifndef::env-github[]
+----
+include::{exampledir}labels.txt[]
+----
+endif::[]
+ifdef::env-github[]
+----
+Word
+Number
+----
+endif::[]
+
+This format does not allow specifying `color` nor `shortcut_key`.
+Exporting labels to `.txt` is not possible.
+
+[#labels-json-format]
+==== JSON (`.json`)
+
+When labels are stored in a JSON file, the file must contain a JSON array containing one JSON object per label.
+Each label's object must have the key `text` and optionally `color` and `shortcut_key`.
+For compatibility with {doca}, `color` and `shortcut_key` can also be specified as `background_color` and `suffix_key`.
+If both are present, `color` has higher precedence than `background_color` and `shortcut_key` has higher precedence than `suffix_key`.
+
+For example:
+[source,json]
+.Importing 2 labels from a `.json` file
+ifndef::env-github[]
+----
+include::{exampledir}labels.json[]
+----
+endif::[]
+ifdef::env-github[]
+----
+[
+  {
+    "text": "Word"
+  },
+  {
+    "text": "Number",
+    "shortcut_key": "n",
+    "color": "orange"
+  }
+]
+----
+endif::[]
+
+When exporting labels to JSON, Both keys `color` and `background_color` are set to the label's color.
+Both keys `shortcut_key` and `suffix_key` are set to the label's shortcut key if it has one.
+Unlike documents, each exported label is not on a single line:
+
+[source,json]
+.Another example of 2 labels in a `.json` file (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_labels.json[]
+----
+endif::[]
+ifdef::env-github[]
+----
+[
+    {
+        "background_color": "#aec7e8",
+        "color": "#aec7e8",
+        "text": "Word"
+    },
+    {
+        "background_color": "#ffa500",
+        "color": "#ffa500",
+        "shortcut_key": "n",
+        "suffix_key": "n",
+        "text": "Number"
+    }
+]
+----
+endif::[]
+
+==== JSON Lines (`.jsonl`)
+
+In the JSON Lines format, each line in the file contains a JSON document: the JSON object representing a label.
+For example:
+[source,json]
+.Importing 2 labels from a `.jsonl` file.
+ifndef::env-github[]
+----
+include::{exampledir}labels.jsonl[]
+----
+endif::[]
+ifdef::env-github[]
+----
+{"text": "Word"}
+{"text": "Number", "shortcut_key": "n", "color": "orange"}
+----
+endif::[]
+
+And here are the same labels exported by {lb}:
+[source,json]
+.Another example of 2 labels in a `.jsonl` file (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_labels.jsonl[]
+----
+endif::[]
+ifdef::env-github[]
+----
+{"background_color":"#aec7e8","color":"#aec7e8","text":"Word"}
+{"background_color":"#ffa500","color":"#ffa500","shortcut_key":"n","suffix_key":"n","text":"Number"}
+----
+endif::[]
+
+==== XML (`.xml`)
+
+Labels can also be stored in XML.
+As for documents, a RELAX NG schema is provided on the {schemas-link}[{lb} XML schema page].
+Here is an example:
+[source,xml]
+.Importing 2 labels from a `.xml` file.
+ifndef::env-github[]
+----
+include::{exampledir}labels.xml[]
+----
+endif::[]
+ifdef::env-github[]
+----
+<?xml version='1.0' encoding='utf-8'?>
+<label_set>
+  <label>
+    <text>Word</text>
+  </label>
+  <label>
+    <text>Number</text>
+    <shortcut_key>n</shortcut_key>
+    <color>orange</color>
+  </label>
+</label_set>
+----
+endif::[]
+
+Labels exported by {lb}:
+
+[source,xml]
+.Another example of 2 labels in a `.xml` file (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_labels.xml[]
+----
+endif::[]
+ifdef::env-github[]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<label_set>
+    <label>
+        <text>Word</text>
+        <color>#aec7e8</color>
+    </label>
+    <label>
+        <text>Number</text>
+        <color>#ffa500</color>
+        <shortcut_key>n</shortcut_key>
+    </label>
+</label_set>
+----
+endif::[]
+
+[CAUTION]
+.Caveat when exporting labels to XML
+====
+The same caveat as for documents applies: if the label names contain https://en.wikipedia.org/wiki/Valid_characters_in_XML[invalid characters] (for example form feed, `0xC`), they cannot be correctly exported to XML.
+====
+
+[#labels-csv-format]
+==== CSV (`.csv`)
+Labels can also be imported and exported from and to CSV.
+The CSV format is the same as for <<docs-csv-format,documents>>, ie the one
+described in {csv-rfc}[rfc4180]: `,` is the separator, fields that contain newlines (`\r\n` or `\n`) or double quotes (`"`) must be enclosed in double quotes, and `"` must be escaped by doubling it (replacing it with `""`).
+Line endings can be either `\r\n` or `\n` (they are always `\r\n` in CSV files created by {lb}).
+This is the default format used by many tools including {excel}, {libreoffice-calc}, and {google-sheets}.
+
+Here is an example:
+[source,csv]
+.Importing 2 labels from a `.csv` file
+ifndef::env-github[]
+----
+include::{exampledir}labels.csv[]
+----
+endif::[]
+ifdef::env-github[]
+----
+text,shortcut_key,color
+Word,,
+Number,n,orange
+----
+endif::[]
+
+ifndef::env-github[]
+Here is the same file presented as a table:
+
+.Importing 2 labels from a `.csv` file
+[format="csv",options="header,autowidth",cols="3*l"]
+|===
+include::{exampledir}labels.csv[]
+|===
+endif::[]
+
+
+As for documents, when exporting labels to CSV the first column is empty and can be ignored.
+This allows inserting a {wikipedia-bom}[Byte Order Mark (BOM)], so that tools such as {excel} or {libreoffice-calc} that need it to detect UTF-8 can parse the file correctly, while at the same time ensuring that the file will also be parsed correctly by tools that do not expect or do not skip the BOM.
+For example:
+
+[source,csv]
+.Another example of 2 labels in a `.csv` file (exported by {lb})
+ifndef::env-github[]
+----
+include::{exampledir}exported_labels.csv[]
+----
+endif::[]
+ifdef::env-github[]
+----
+ignore_this_column,text,color,shortcut_key
+,Word,#aec7e8,
+,Number,#ffa500,n
+----
+endif::[]
+
+ifndef::env-github[]
+Here is the same file presented as a table:
+
+[format="csv",options="header,autowidth",cols="4*l"]
+.Another example of 2 labels in a `.csv` file (exported by {lb})
+|===
+include::{exampledir}exported_labels.csv[]
+|===
+endif::[]
+
+[#compatibility-with-doccano]
+=== Compatibility with doccano
+Labels exported from {lb} in the JSON format can be imported into {doca}.
+Labels exported from {doca} and saved in a `.json` file can be imported into {lb}.
+
+Documents and annotations exported from {doca} can also be imported into a {lb} database.
+To do so, when exporting from {doca} select the format "`jsonl (text label)`".
+Make sure to save them in a file with the `.jsonl` extension (not `.json`, otherwise {lb} will try to parse it as JSON and JSON Lines is not valid JSON).
+
+[CAUTION]
+.Caveats when importing {doca} documents and annotations into {lb}
+====
+{doca} strips leading and trailing whitespace from documents when importing them.
+Therefore if you import the result into a {lb} database that already contains the original documents, it may not be recognized as being the same ({lb} doesn’t modify the imported documents) and you might end up with (near) duplicate documents in the database.
+====
+
+Annotations exported from {lb} in the `.jsonl` format together with the document’s text can also be imported into {doca} (selecting the "`jsonl`" import format).
+
+[CAUTION]
+.Caveats when importing {lb} documents and annotations into {doca}
+====
+If the original document contained leading whitespace, {lb} annotations will appear shifted when {doca} removes the whitespace.
+Moreover, {doca} allows duplicate documents so if the documents were already in the {doca} database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
+
+If you used {lb} features that do not exist in {doca}, you will not be able to import the resulting annotations into {doca}:
+
+- if you have attached extra data to the annotations, {doca} will not recognize the format and will not import the annotations.
+- {doca} does not allow overlapping annotations.
+Therefore if you try to import overlapping annotations (created with {lb}) into {doca} the results will be incorrect; annotated text will appear duplicated and jumbled.
+====
+

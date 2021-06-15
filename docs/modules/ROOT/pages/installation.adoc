@@ -3,12 +3,14 @@ Jérôme Dockès <jerome@dockes.org>
 :experimental:
 :homepage: https://jeromedockes.github.io/labelbuddy/
 :lang: en
+ifndef::site-gen-antora[]
 :webfonts!:
 :toc: left
-:idprefix:
-:idseparator: -
 :prewrap!:
 :source-highlighter: pygments
+endif::[]
+:idprefix:
+:idseparator: -
 :lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
 :lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
 :ghreleases: https://github.com/jeromedockes/labelbuddy/releases
@@ -20,7 +22,9 @@ Jérôme Dockès <jerome@dockes.org>
 :dstab: pass:q["`Dataset`" tab]
 
 
+ifndef::site-gen-antora[]
 This document describes how to install <<index#,{lb}>>.
+endif::[]
 
 
 == Installing a binary copy

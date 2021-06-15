@@ -117,7 +117,7 @@ data_dir.joinpath("labels.txt").write_text(
 
 lb_command = os.environ.get(
     "LABELBUDDY_COMMAND",
-    str(data_dir.parents[1].joinpath("cmake_build", "labelbuddy")),
+    str(data_dir.parents[3].joinpath("cmake_build", "labelbuddy")),
 )
 for doc_format in ["json", "jsonl", "xml", "csv"]:
     subprocess.run(
@@ -144,7 +144,7 @@ for label_format in ["json", "jsonl", "xml", "csv"]:
         ]
     )
 
-schema_dir = Path(__file__).resolve().parents[1].joinpath("schema")
+schema_dir = Path(__file__).resolve().parent
 labels_schema = etree.RelaxNG(etree.parse(str(schema_dir / "labels.rng")))
 for lfile in ["labels.xml", "exported_labels.xml"]:
     labels_schema.assertValid(etree.parse(str(data_dir.joinpath(lfile))))

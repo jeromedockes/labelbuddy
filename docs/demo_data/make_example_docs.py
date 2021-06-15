@@ -30,7 +30,7 @@ doc_file_names = [
 ]
 
 demo_docs = []
-website_docs = []
+wiki_docs = []
 
 for doc_name in doc_file_names:
     doc = example_dir.joinpath(doc_name).read_text(encoding="utf-8")
@@ -75,7 +75,7 @@ for doc_name in doc_file_names:
             }
         )
     if doc_name != "hello_annotations.txt":
-        website_docs.append(
+        wiki_docs.append(
             {
                 "text": body,
                 "meta": {"source": "https://en.wikipedia.org"},
@@ -84,7 +84,9 @@ for doc_name in doc_file_names:
             }
         )
 
-example_dir.joinpath("example_documents.json").write_text(json.dumps(demo_docs))
-example_dir.joinpath("example_documents_for_website.json").write_text(
-    json.dumps(website_docs)
+example_dir.joinpath("example_documents.json").write_text(
+    json.dumps(demo_docs)
+)
+example_dir.joinpath("wiki_extracts_documents.json").write_text(
+    json.dumps(wiki_docs)
 )

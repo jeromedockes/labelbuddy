@@ -1,9 +1,12 @@
 = labelbuddy(1)
+ifndef::site-gen-antora[]
 :doctype: manpage
+endif::[]
 :manmanual: labelbuddy Manual
-:mansource: labelbuddy {version}
+:mansource: labelbuddy {lbversion}
 :homepage: https://jeromedockes.github.io/labelbuddy/
 :ghrepo: https://github.com/jeromedockes/labelbuddy/
+
 
 == Name
 

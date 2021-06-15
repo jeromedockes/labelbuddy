@@ -96,15 +96,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   [.]pytest_cache/
   test_cli/.*[.]pyc
   doxygen_output/
-  docs/gh-pages-site/
-  docs/screenshots/.*[.]png
-  docs/index[.]html
-  docs/installation[.]html
-  docs/manpage[.]html
-  docs/readme-as-seen-on-github[.]html
-  docs/screenshots[.]html
-  docs/example_data/index.html
-  docs/schema/index.html
+  docs/modules/ROOT/images/.*[.]png
   moc_.*
   src/moc_.*
   test/moc_.*

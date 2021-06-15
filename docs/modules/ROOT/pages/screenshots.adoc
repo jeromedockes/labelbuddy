@@ -3,17 +3,23 @@ Jérôme Dockès <jerome@dockes.org>
 :experimental:
 :figure-caption!:
 :lang: en
+ifndef::site-gen-antora[]
 :webfonts!:
+endif::[]
 
+ifndef::site-gen-antora[]
 <<index.adoc#,labelbuddy home>>
+endif::[]
 
 .Annotating a document
-image::screenshots/annotate.png[Annotate tab]
+image::annotate.png[Annotate tab]
 
 .Managing the documents and labels; choosing a document to annotate
-image::screenshots/dataset.png[Dataset tab]
+image::dataset.png[Dataset tab]
 
 .Importing (exporting) documents and labels from (to) plain text files
-image::screenshots/import_export.png[Import / Export tab]
+image::import_export.png[Import / Export tab]
 
+ifndef::site-gen-antora[]
 <<index.adoc#,labelbuddy home>>
+endif::[]

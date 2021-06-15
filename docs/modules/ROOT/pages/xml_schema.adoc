@@ -2,13 +2,17 @@
 Jérôme Dockès <jerome@dockes.org>
 :experimental:
 :lang: en
+ifndef::site-gen-antora[]
 :webfonts!:
+endif::[]
 :nofooter:
 :lb: pass:q[*labelbuddy*]
 
+ifndef::site-gen-antora[]
 <<../index.adoc#,labelbuddy home>> +
  +
+endif::[]
 RELAX NG schema for documents and labels files that can be imported into {lb}:
 
-- link:documents.rng[`documents.rng`]
-- link:labels.rng[`labels.rng`]
+- link:{attachmentsdir}/documents.rng[`documents.rng`]
+- link:{attachmentsdir}/labels.rng[`labels.rng`]

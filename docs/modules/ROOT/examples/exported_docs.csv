@@ -1,0 +1,13 @@
+﻿ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",4,8,Word,
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",21,22,Number,1
+,c27b0dbfabf831afaf8bafa0c727cf97,{},doc-2,title 2,the title of document 2,"the text of document 2
+more text
+the end
+",12,20,Word,

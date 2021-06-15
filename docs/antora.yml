@@ -1,0 +1,7 @@
+name: labelbuddy
+version: '0.0.7'
+asciidoc:
+  attributes:
+    lbversion: '0.0.7'
+nav:
+  - modules/ROOT/pages/nav.adoc

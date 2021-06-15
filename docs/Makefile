@@ -1,75 +1,41 @@
-html := $(patsubst %.adoc,%.html,$(wildcard *.adoc))
-html := $(subst README.html,documentation.html,$(html))
-html += readme-as-seen-on-github.html
-webhtml := $(patsubst %,gh-pages-site/%,$(html))
-examples :=$(filter-out %.py %annotations.json, $(wildcard example_data/*))
-examples := $(patsubst %.adoc,%.html,$(examples))
-examples += example_data/wiki_extracts_documents.json
-examples += example_data/pos_labels.json
-webexamples := $(patsubst %,gh-pages-site/%, $(examples))
-schemas := $(wildcard schema/*)
-schemas := $(patsubst %.adoc,%.html,$(schemas))
-webschemas := $(patsubst %,gh-pages-site/%, $(schemas))
-demo := $(wildcard demo_data/*.txt)
-screenshots := $(wildcard screenshots/*.png)
+demo_docs := $(wildcard demo_data/*.txt)
+examples := $(shell ./list_examples.sh)
+examples += modules/ROOT/examples/annotations.json
+gen-attachments := $(patsubst modules/ROOT/examples/%, modules/ROOT/attachments/%, $(examples))
+gen-attachments += modules/ROOT/attachments/wiki_extracts_documents.json modules/ROOT/attachments/pos_labels.json
 
-.PHONY: all clean web
+.PHONY: all clean
 
-all: $(html) labelbuddy.1 demo_data/example_documents.json $(examples) $(schemas)
+all: labelbuddy.1 documentation.html antora.yml $(gen-attachments) demo_data/example_documents.json
 
-web: $(webhtml) $(webexamples) $(webschemas)
+antora.yml: antora.yml.template ../data/VERSION.txt
+	sed 's/LABELBUDDY_VERSION/'"$$(cat ../data/VERSION.txt)"'/g' $< > $@
 
-%.html: %.adoc docinfo.html ../data/VERSION.txt
-	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $<
-
-labelbuddy.1: manpage.adoc ../data/VERSION.txt
-	asciidoctor -a version="$$(cat ../data/VERSION.txt)" -b manpage $<
-
-gh-pages-site/example_data/%: example_data/%
-	mkdir -p gh-pages-site/example_data
-	cp $< $@
-
-gh-pages-site/schema/%: schema/%
-	mkdir -p gh-pages-site/schema
-	cp $< $@
-
-gh-pages-site/%.html: %.html
-	mkdir -p gh-pages-site
-	xsltproc add_nav.xsl $< > $@
-
-gh-pages-site/screenshots.html: screenshots.html $(screenshots)
-	mkdir -p gh-pages-site
-	xsltproc add_nav.xsl $< > $@
-	mkdir -p gh-pages-site/screenshots
-	cp screenshots/* gh-pages-site/screenshots/ 2>/dev/null || :
-
-example_data/exported_docs.json: example_data/make_examples.py
-	$<
-
-documentation.html: README.adoc docinfo.html ../data/VERSION.txt example_data/exported_docs.json
+documentation.html: modules/ROOT/pages/documentation.adoc modules/ROOT/pages/docinfo.html ../data/VERSION.txt $(examples)
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
-readme-as-seen-on-github.html: README.adoc docinfo.html ../data/VERSION.txt example_data/exported_docs.json
-	asciidoctor -b xhtml -a env-github -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
+labelbuddy.1: modules/ROOT/pages/manpage.adoc ../data/VERSION.txt
+	asciidoctor -a lbversion="$$(cat ../data/VERSION.txt)" -b manpage $< -o $@
 
+demo_data/%.json: demo_data/make_example_docs.py $(demo_docs)
+	$<
 
-demo_data/example_documents.json: $(demo) demo_data/example_labels.json demo_data/make_example_docs.py
-	python3 demo_data/make_example_docs.py
+modules/ROOT/examples/%: modules/ROOT/examples/make_examples.py
+	$<
 
-demo_data/example_documents_for_website.json: $(demo) demo_data/make_example_docs.py
-	python3 demo_data/make_example_docs.py
+modules/ROOT/examples/make_examples.py:
+	pass
 
-example_data/wiki_extracts_documents.json: demo_data/example_documents_for_website.json
+modules/ROOT/attachments/wiki_extracts_documents.json: demo_data/wiki_extracts_documents.json
 	cp $< $@
 
-example_data/pos_labels.json: demo_data/example_labels.json
+modules/ROOT/attachments/pos_labels.json: demo_data/example_labels.json
+	cp $< $@
+
+modules/ROOT/attachments/%: modules/ROOT/examples/%
 	cp $< $@
 
 clean:
-	rm -f documentation.html  index.html  installation.html  manpage.html \
-    demo_data/example_documents.json demo_data/example_documents_for_website.json \
-    labelbuddy.1 readme-as-seen-on-github.html \
-    screenshots.html example_data/*.xml example_data/*.json \
-    example_data/*.jsonl example_data/*.csv example_data/*.txt example_data/*.html \
-    schema/*.html
-	rm -rf gh-pages-site
+	rm -f documentation.html labelbuddy.1 antora.yml \
+    demo_data/example_documents.json demo_data/wiki_extracts_documents.json \
+		$(examples) $(gen-attachments)
