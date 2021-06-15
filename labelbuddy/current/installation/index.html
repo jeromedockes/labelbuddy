@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Installing labelbuddy :: labelbuddy</title>
+    <link rel="canonical" href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation/">
+    <meta name="generator" content="Antora 3.0.0-alpha.6">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="https://jeromedockes.github.io/labelbuddy">labelbuddy</a>
+      </div>
+      <div class="navbar-end">
+          <!-- <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy"><img src="../../../_/img/gh-light.png"></a> -->
+          <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy">labelbuddy on GitHub</a>
+      </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.7">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../">labelbuddy</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="./">Installation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../documentation/">Documentation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../manpage/">man page</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../screenshots/">Screenshots</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../examples/">Examples</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../xml_schema/">XML Schema</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">labelbuddy</span>
+    <span class="version">0.0.7</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../">labelbuddy</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../">0.0.7</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../">labelbuddy</a></li>
+    <li><a href="./">Installation</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="3">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Installing labelbuddy</h1>
+<div class="sect1">
+<h2 id="installing-a-binary-copy"><a class="anchor" href="#installing-a-binary-copy"></a>Installing a binary copy</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="on-ubuntu"><a class="anchor" href="#on-ubuntu"></a>On Ubuntu</h3>
+<div class="paragraph">
+<p>Packages built for different Ubuntu distributions are published on <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy">this Personal Package Archive</a>.
+Add it to your system by executing:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo add-apt-repository -y ppa:jdockes/labelbuddy
+sudo apt-get update</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then the latest release of <strong>labelbuddy</strong> (and any future releases) can be installed with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt-get install labelbuddy</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-debian"><a class="anchor" href="#on-debian"></a>On Debian</h3>
+<div class="paragraph">
+<p>Binary packages can be downloaded from <a href="https://github.com/jeromedockes/labelbuddy/releases">the releases page on GitHub</a>.
+Once you have downloaded the package, you can install it with <code>apt</code>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt install ./labelbuddy_&lt;version&gt;.deb</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-windows"><a class="anchor" href="#on-windows"></a>On Windows</h3>
+<div class="paragraph">
+<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download and run <code>labelbuddy_&lt;version&gt;_windows_installer.exe</code> (ignore Windows’ security warnings).
+<strong>labelbuddy</strong> can be uninstalled from the Windows applications menu, or by running the <code>maintenancetool.exe</code> executable found in the <strong>labelbuddy</strong> installation folder.</p>
+</div>
+<div class="paragraph">
+<p>An alternative to using the installer is to download <code>labelbuddy_windows.zip</code>, unzip it anywhere, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-macos"><a class="anchor" href="#on-macos"></a>On MacOS</h3>
+<div class="paragraph">
+<p>Select the latest release from <a href="https://github.com/jeromedockes/labelbuddy/releases">here</a>, and download <code>labelbuddy_&lt;version&gt;.dmg</code>.
+Double-click the downloaded file, and from the window that opens drag <code>labelbuddy</code> into the <code>/Applications</code> folder in <strong>Finder</strong>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="building-from-source"><a class="anchor" href="#building-from-source"></a>Building from source</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Download a source distribution from <a href="https://github.com/jeromedockes/labelbuddy/releases">GitHub</a>, the <strong>labelbuddy</strong> <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">PPA</a>, or get the latest code by cloning or downloading the <strong>labelbuddy</strong> <a href="https://github.com/jeromedockes/labelbuddy/">git repository</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> uses <a href="https://www.qt.io/">Qt 5</a>. Qt can probably be installed with your package manager, for example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>apt-get install qt5-default</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>yum install qt5-qtbase
+yum install qt5-qtbase-devel</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Otherwise you can get it from the <a href="https://www.qt.io/download-qt-installer">Qt downloads page</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can be built with <a href="https://cmake.org/">CMake</a>. In an empty directory run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cmake /path/to/labelbuddy
+cmake --build .</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then <strong>labelbuddy</strong> can (optionally) be installed with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo make install</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can also be built with <a href="https://doc.qt.io/qt-5/qmake-manual.html">qmake</a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>qmake /path/to/labelbuddy
+make</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Building <strong>labelbuddy</strong> should be straightforward, so if you run into any difficulties please open a <a href="https://github.com/jeromedockes/labelbuddy/issues">GitHub issue</a>.</p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+    <!-- <p>This page was built using <a href="https://asciidoctor.org/">asciidoctor</a> and <a href="https://antora.org/">antora</a>.</p> -->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

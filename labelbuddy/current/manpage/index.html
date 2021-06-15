@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>labelbuddy(1) :: labelbuddy</title>
+    <link rel="canonical" href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/manpage/">
+    <meta name="generator" content="Antora 3.0.0-alpha.6">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="https://jeromedockes.github.io/labelbuddy">labelbuddy</a>
+      </div>
+      <div class="navbar-end">
+          <!-- <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy"><img src="../../../_/img/gh-light.png"></a> -->
+          <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy">labelbuddy on GitHub</a>
+      </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.7">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../">labelbuddy</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../installation/">Installation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../documentation/">Documentation</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="./">man page</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../screenshots/">Screenshots</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../examples/">Examples</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../xml_schema/">XML Schema</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">labelbuddy</span>
+    <span class="version">0.0.7</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../">labelbuddy</a>
+      <ul class="versions">
+        <li class="version is-current is-latest">
+          <a href="../">0.0.7</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../">labelbuddy</a></li>
+    <li><a href="./">man page</a></li>
+  </ul>
+</nav>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="3">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">labelbuddy(1)</h1>
+<div class="sect1">
+<h2 id="_name"><a class="anchor" href="#_name"></a>Name</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>labelbuddy - application for annotating text documents</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_synopsis"><a class="anchor" href="#_synopsis"></a>Synopsis</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>labelbuddy</strong> [ <em>OPTIONS</em> ]&#8230;&#8203; [ <em>FILE</em> ]</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_description"><a class="anchor" href="#_description"></a>Description</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Without any options, the <strong>labelbuddy</strong> command will start the <strong>labelbuddy</strong> GUI to annotate documents in the database <em>FILE</em>.
+If neither <em>FILE</em> nor <strong>--demo</strong> is used, <strong>labelbuddy</strong> will open the last database that was opened if it exists.
+With the option <strong>--demo</strong>, <strong>labelbuddy</strong> will open a temporary database pre-loaded with some example documents and labels.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_options"><a class="anchor" href="#_options"></a>Options</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>-h, --help</strong></dt>
+<dd>
+<p>Output a usage message and exit.</p>
+</dd>
+<dt class="hdlist1"><strong>-v, --version</strong></dt>
+<dd>
+<p>Display the <strong>labelbuddy</strong> version and exit.</p>
+</dd>
+<dt class="hdlist1"><strong>--demo</strong></dt>
+<dd>
+<p>Open a temporary database pre-loaded with some example documents and labels.</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The options below allow executing batch operations on the database without opening the GUI.
+These actions will only be executed if the database <em>FILE</em> is specified explicitly.
+The import and export operations are executed in the order in which they appear here: import labels, import documents, export labels, export documents.
+This means that the same command can for example import a new document and then export it.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>--import-labels</strong> <em>labelsfile</em></dt>
+<dd>
+<p>Import labels contained in the (.json, .jsonl, .xml, .csv or .txt) file <em>labelsfile</em> into the database.
+Can be used several times.</p>
+</dd>
+<dt class="hdlist1"><strong>--import-docs</strong> <em>docsfile</em></dt>
+<dd>
+<p>Import documents and annotations contained in the (.json, .jsonl, .xml, .csv or .txt) file <em>docsfile</em> into the database.
+Can be used several times.</p>
+</dd>
+<dt class="hdlist1"><strong>--export-labels</strong> <em>labelsfile</em></dt>
+<dd>
+<p>Export labels in the database to the (.json, .jsonl, .xml or .csv) file <em>labelsfile</em>.</p>
+</dd>
+<dt class="hdlist1"><strong>--export-docs</strong> <em>docsfile</em></dt>
+<dd>
+<p>Export documents and annotations in the database to the (.json, .jsonl, .csv or .xml) file <em>docsfile</em>.
+Some options described below control what is exported.</p>
+</dd>
+<dt class="hdlist1"><strong>--labelled-only</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, only export documents that contain at least one annotation.</p>
+</dd>
+<dt class="hdlist1"><strong>--no-text</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, do not include the document&#8217;s text in the output.
+When the text is not exported, the documents can be identified from the MD5 checksum found in the output, or from any user metadata that was imported with the documents.</p>
+</dd>
+<dt class="hdlist1">--<strong>no-annotations</strong></dt>
+<dd>
+<p>When using the <strong>--export-docs</strong> option, do not include annotations in the output.</p>
+</dd>
+<dt class="hdlist1"><strong>--approver</strong> <em>name</em></dt>
+<dd>
+<p>Use <em>name</em> as the annotation_approver.
+If not specified, the output will not contain an annotation_approver.</p>
+</dd>
+<dt class="hdlist1"><strong>--vacuum</strong></dt>
+<dd>
+<p>Repack the database so that it occupies a minimal amount of disk space (the database can contain some empty pages if data has been deleted from it, that it normally keeps and re-uses when new data is inserted).
+See SQlite3 documentation for details.
+If this option is used, <strong>labelbuddy</strong> vacuums the database and exits without doing anything else (and the options starting with <strong>--import-</strong> or <strong>--export-</strong> are ignored).</p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources"><a class="anchor" href="#_resources"></a>Resources</h2>
+<div class="sectionbody">
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>project website</strong></dt>
+<dd>
+<p><a href="https://jeromedockes.github.io/labelbuddy/" class="bare">https://jeromedockes.github.io/labelbuddy/</a></p>
+</dd>
+<dt class="hdlist1"><strong>git repository</strong></dt>
+<dd>
+<p><a href="https://github.com/jeromedockes/labelbuddy/" class="bare">https://github.com/jeromedockes/labelbuddy/</a></p>
+</dd>
+</dl>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_author"><a class="anchor" href="#_author"></a>Author</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Jerome Dockes &lt;<a href="mailto:jerome@dockes.org">jerome@dockes.org</a>&gt;</p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+    <!-- <p>This page was built using <a href="https://asciidoctor.org/">asciidoctor</a> and <a href="https://antora.org/">antora</a>.</p> -->
+</footer>
+<script src="../../../_/js/site.js"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
