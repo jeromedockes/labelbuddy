@@ -463,6 +463,9 @@ void Annotator::activate_cluster_at_cursor_pos() {
 }
 
 void Annotator::delete_annotation(int annotation_id) {
+  if (annotation_id == -1){
+    return;
+  }
   if (active_annotation == annotation_id) {
     deactivate_active_annotation();
   }

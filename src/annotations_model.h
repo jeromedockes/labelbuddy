@@ -72,9 +72,13 @@ public:
   bool update_annotation_extra_data(int annotation_id, const QString& new_data);
 
   /// Info for all labels in the database
+
+  /// Mapping label id -> annotation info
   QMap<int, LabelInfo> get_labels_info() const;
 
   /// Info for annotations on the current document.
+
+  /// Mapping annotation id -> annotation info
   QMap<int, AnnotationInfo> get_annotations_info() const;
 
   /// false when db is empty

@@ -34,6 +34,8 @@ void TestAnnotator::test_annotator() {
   QVERIFY(lv->isEnabled());
   auto del = labels->findChild<QPushButton*>();
   QVERIFY(!del->isEnabled());
+  // does nothing if no active annotation
+  QTest::keyClick(&annotator, Qt::Key_Backspace);
   // set label using label list button
   lv->selectionModel()->select(labels_model.index(1, 0),
                                QItemSelectionModel::SelectCurrent);
@@ -43,8 +45,17 @@ void TestAnnotator::test_annotator() {
   // set label using shortcut
   QTest::keyClicks(&annotator, "p");
   QCOMPARE(annotations_model.get_annotations_info()[2].label_id, 1);
+  //delete with button
   del->click();
   QCOMPARE(annotations_model.get_annotations_info().size(), 0);
+
+  // create other annotation and delete with backspace
+  text->search_forward();
+  QTest::keyClicks(&annotator, "p");
+  QCOMPARE(annotations_model.get_annotations_info()[2].label_id, 1);
+  QTest::keyClick(&annotator, Qt::Key_Backspace);
+  QCOMPARE(annotations_model.get_annotations_info().size(), 0);
+
   nav->findChildren<QPushButton*>()[4]->click();
   QCOMPARE(annotations_model.current_doc_position(), 2);
   search->setText("document 2");
