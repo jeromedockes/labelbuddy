@@ -77,7 +77,8 @@ def preloaded_db(tmp_path, labelbuddy, ng):
 def assert_valid_xml(xml_file, schema_name):
     schemas_dir = os.environ.get("LABELBUDDY_SCHEMAS_DIR")
     if schemas_dir is None:
-        schemas_dir = Path(__file__).parents[1].joinpath("docs", "schema")
+        schemas_dir = Path(__file__).parents[1].joinpath(
+            "docs", "modules", "ROOT", "attachments")
     else:
         schemas_dir = Path(schemas_dir)
     schema_file = schemas_dir.joinpath(schema_name)
