@@ -102,6 +102,7 @@ void LabelChoices::set_selected_label_id(int label_id) {
 
 void LabelChoices::set_extra_data(const QString& new_data) {
   extra_data_edit->setText(new_data);
+  extra_data_edit->setCursorPosition(0);
 }
 
 void LabelChoices::enable_delete_and_edit() {
