@@ -11,12 +11,12 @@ namespace labelbuddy {
 AnnotationsModel::AnnotationsModel(QObject* parent) : QObject(parent) {}
 
 QSqlQuery AnnotationsModel::get_query() const {
-  return QSqlQuery(QSqlDatabase::database(database_name));
+  return QSqlQuery(QSqlDatabase::database(database_name_));
 }
 
 void AnnotationsModel::set_database(const QString& new_database_name) {
   assert(QSqlDatabase::contains(new_database_name));
-  database_name = new_database_name;
+  database_name_ = new_database_name;
   auto query = get_query();
   query.exec("select last_visited_doc from app_state;");
   query.next();
@@ -41,7 +41,7 @@ QString AnnotationsModel::get_title() const {
   auto query = get_query();
   query.prepare("select coalesce(short_title, '') "
                 "as title from document where id = :docid ;");
-  query.bindValue(":docid", current_doc_id);
+  query.bindValue(":docid", current_doc_id_);
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
@@ -53,7 +53,7 @@ QString AnnotationsModel::get_title() const {
 QString AnnotationsModel::get_content() const {
   auto query = get_query();
   query.prepare("select content from document where id = :docid ;");
-  query.bindValue(":docid", current_doc_id);
+  query.bindValue(":docid", current_doc_id_);
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
@@ -123,7 +123,7 @@ QMap<int, AnnotationInfo> AnnotationsModel::get_annotations_info() const {
   auto query = get_query();
   query.prepare("select rowid, label_id, start_char, end_char, extra_data from "
                 "annotation where doc_id = :doc order by rowid;");
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.exec();
   QMap<int, AnnotationInfo> result{};
   while (query.next()) {
@@ -141,7 +141,7 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   auto query = get_query();
   query.prepare("insert into annotation (doc_id, label_id, start_char, "
                 "end_char) values (:doc, :label, :start, :end);");
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.bindValue(":label", label_id);
   query.bindValue(":start", utf16_idx_to_code_point_idx(start_char));
   query.bindValue(":end", utf16_idx_to_code_point_idx(end_char));
@@ -151,21 +151,21 @@ int AnnotationsModel::add_annotation(int label_id, int start_char,
   }
   auto new_annotation_id = query.lastInsertId().toInt();
   query.prepare("select count(*) from annotation where doc_id = :doc;");
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.exec();
   query.next();
   if (query.value(0).toInt() == 1) {
     emit document_status_changed(DocumentStatus::Labelled);
-    emit document_gained_label(label_id, current_doc_id);
+    emit document_gained_label(label_id, current_doc_id_);
   } else {
     query.prepare("select count(*) from annotation where doc_id = :doc and "
                   "label_id = :label;");
-    query.bindValue(":doc", current_doc_id);
+    query.bindValue(":doc", current_doc_id_);
     query.bindValue(":label", label_id);
     query.exec();
     query.next();
     if (query.value(0).toInt() == 1) {
-      emit document_gained_label(label_id, current_doc_id);
+      emit document_gained_label(label_id, current_doc_id_);
     }
   }
   return new_annotation_id;
@@ -188,21 +188,21 @@ int AnnotationsModel::delete_annotation(int annotation_id) {
     return 0;
   }
   query.prepare("select count(*) from annotation where doc_id = :doc;");
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.exec();
   query.next();
   if (query.value(0).toInt() == 0) {
     emit document_status_changed(DocumentStatus::Unlabelled);
-    emit document_lost_label(label_id, current_doc_id);
+    emit document_lost_label(label_id, current_doc_id_);
   } else {
     query.prepare("select count(*) from annotation where doc_id = :doc and "
                   "label_id = :label;");
-    query.bindValue(":doc", current_doc_id);
+    query.bindValue(":doc", current_doc_id_);
     query.bindValue(":label", label_id);
     query.exec();
     query.next();
     if (query.value(0).toInt() == 0) {
-      emit document_lost_label(label_id, current_doc_id);
+      emit document_lost_label(label_id, current_doc_id_);
     }
   }
   return n_deleted;
@@ -220,7 +220,7 @@ bool AnnotationsModel::update_annotation_extra_data(int annotation_id,
 void AnnotationsModel::check_current_doc() {
   auto query = get_query();
   query.prepare("select count(*) from document where id = :doc;");
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.exec();
   query.next();
   if (query.value(0) != 1) {
@@ -264,7 +264,7 @@ void AnnotationsModel::visit_prev_unlabelled() {
 bool AnnotationsModel::visit_query_result(const QString& query_text) {
   auto query = get_query();
   query.prepare(query_text);
-  query.bindValue(":doc", current_doc_id);
+  query.bindValue(":doc", current_doc_id_);
   query.exec();
   query.next();
   if (query.isNull(0)) {
@@ -275,7 +275,7 @@ bool AnnotationsModel::visit_query_result(const QString& query_text) {
 }
 
 void AnnotationsModel::visit_doc(int doc_id) {
-  current_doc_id = doc_id;
+  current_doc_id_ = doc_id;
   if (doc_id == -1) {
     fill_index_converters("");
   } else {
@@ -300,13 +300,13 @@ int AnnotationsModel::get_query_result(const QString& query_text) const {
 }
 
 bool AnnotationsModel::is_positioned_on_valid_doc() const {
-  return current_doc_id != -1;
+  return current_doc_id_ != -1;
 }
 
 int AnnotationsModel::current_doc_position() const {
   auto query = get_query();
   query.prepare("select count(*) from document where id < :docid;");
-  query.bindValue(":docid", current_doc_id);
+  query.bindValue(":docid", current_doc_id_);
   query.exec();
   query.next();
   return query.value(0).toInt();
@@ -340,31 +340,31 @@ int AnnotationsModel::total_n_docs() const {
 }
 
 bool AnnotationsModel::has_next() const {
-  return current_doc_id < last_doc_id();
+  return current_doc_id_ < last_doc_id();
 }
 
 bool AnnotationsModel::has_prev() const {
   auto first = first_doc_id();
-  return (first != -1) && (current_doc_id > first);
+  return (first != -1) && (current_doc_id_ > first);
 }
 
 bool AnnotationsModel::has_next_labelled() const {
-  return current_doc_id < last_labelled_doc_id();
+  return current_doc_id_ < last_labelled_doc_id();
 }
 
 bool AnnotationsModel::has_prev_labelled() const {
 
   auto first = first_labelled_doc_id();
-  return (first != -1) && (current_doc_id > first);
+  return (first != -1) && (current_doc_id_ > first);
 }
 
 bool AnnotationsModel::has_next_unlabelled() const {
-  return current_doc_id < last_unlabelled_doc_id();
+  return current_doc_id_ < last_unlabelled_doc_id();
 }
 
 bool AnnotationsModel::has_prev_unlabelled() const {
   auto first = first_unlabelled_doc_id();
-  return (first != -1) && (current_doc_id > first);
+  return (first != -1) && (current_doc_id_ > first);
 }
 
 int AnnotationsModel::shortcut_to_id(const QString& shortcut) const {

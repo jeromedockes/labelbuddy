@@ -110,14 +110,14 @@ private slots:
   void set_use_bold_font(bool use_bold);
 
 private:
-  DocListModel* doc_model;
-  LabelListModel* label_model;
-  AnnotationsModel* annotations_model;
-  QTabWidget* notebook;
-  Annotator* annotator;
-  DatasetMenu* dataset_menu;
-  ImportExportMenu* import_export_menu;
-  DatabaseCatalog database_catalog;
+  DocListModel* doc_model_;
+  LabelListModel* label_model_;
+  AnnotationsModel* annotations_model_;
+  QTabWidget* notebook_;
+  Annotator* annotator_;
+  DatasetMenu* dataset_menu_;
+  ImportExportMenu* import_export_menu_;
+  DatabaseCatalog database_catalog_;
 
   // QLabels in the status bar
   QLabel* status_db_name_;

@@ -71,16 +71,16 @@ private:
   QString get_report_msg(const ExportDocsResult& result) const;
   QString get_report_msg(const ExportLabelsResult& result) const;
 
-  DatabaseCatalog* database_catalog;
-  QPushButton* import_docs_button;
-  QPushButton* import_labels_button;
-  QPushButton* export_docs_button;
-  QPushButton* export_labels_button;
-  QLineEdit* annotator_name_edit;
-  QCheckBox* labelled_only_checkbox;
-  QCheckBox* include_text_checkbox;
-  QCheckBox* include_annotations_checkbox;
-  QLabel* db_path_line;
+  DatabaseCatalog* database_catalog_;
+  QPushButton* import_docs_button_;
+  QPushButton* import_labels_button_;
+  QPushButton* export_docs_button_;
+  QPushButton* export_labels_button_;
+  QLineEdit* annotator_name_edit_;
+  QCheckBox* labelled_only_checkbox_;
+  QCheckBox* include_text_checkbox_;
+  QCheckBox* include_annotations_checkbox_;
+  QLabel* db_path_line_;
 };
 } // namespace labelbuddy
 

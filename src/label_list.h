@@ -68,8 +68,8 @@ public:
   void setView(QListView* new_view);
 
 private:
-  LabelListModel* model = nullptr;
-  QListView* view = nullptr;
+  LabelListModel* model_ = nullptr;
+  QListView* view_ = nullptr;
 };
 
 /// Buttons above the label list in the Dataset tab
@@ -104,13 +104,13 @@ protected:
   bool eventFilter(QObject* object, QEvent* event) override;
 
 private:
-  QPushButton* select_all_button;
-  QPushButton* delete_button;
-  QLineEdit* add_label_edit;
-  QPushButton* set_color_button;
-  QLineEdit* shortcut_edit;
-  QLabel* shortcut_label;
-  ShortcutValidator validator;
+  QPushButton* select_all_button_;
+  QPushButton* delete_button_;
+  QLineEdit* add_label_edit_;
+  QPushButton* set_color_button_;
+  QLineEdit* shortcut_edit_;
+  QLabel* shortcut_label_;
+  ShortcutValidator validator_;
   QListView* label_list_view_ = nullptr;
 
 private slots:
@@ -144,9 +144,9 @@ private slots:
   void add_label(const QString& name);
 
 private:
-  LabelListButtons* buttons_frame;
-  QListView* labels_view;
-  LabelListModel* model = nullptr;
+  LabelListButtons* buttons_frame_;
+  QListView* labels_view_;
+  LabelListModel* model_ = nullptr;
   std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
 };
 

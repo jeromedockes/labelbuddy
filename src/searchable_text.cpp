@@ -24,30 +24,30 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   QVBoxLayout* top_layout = new QVBoxLayout();
   setLayout(top_layout);
 
-  text_edit = new QPlainTextEdit();
-  top_layout->addWidget(text_edit);
-  text_edit->installEventFilter(this);
-  auto palette = text_edit->palette();
+  text_edit_ = new QPlainTextEdit();
+  top_layout->addWidget(text_edit_);
+  text_edit_->installEventFilter(this);
+  auto palette = text_edit_->palette();
   palette.setColor(QPalette::Inactive, QPalette::Highlight,
                    palette.color(QPalette::Active, QPalette::Highlight));
   palette.setColor(QPalette::Inactive, QPalette::HighlightedText,
                    palette.color(QPalette::Active, QPalette::HighlightedText));
-  text_edit->setPalette(palette);
+  text_edit_->setPalette(palette);
 
   QHBoxLayout* search_bar_layout = new QHBoxLayout();
   top_layout->addLayout(search_bar_layout);
 
-  search_box = new QLineEdit();
-  search_bar_layout->addWidget(search_box);
-  search_box->installEventFilter(this);
-  search_box->setPlaceholderText("Search in document ( / or Ctrl+F )");
-  find_prev_button = new QPushButton();
-  search_bar_layout->addWidget(find_prev_button);
-  find_next_button = new QPushButton();
-  search_bar_layout->addWidget(find_next_button);
-  find_prev_button->setIcon(
+  search_box_ = new QLineEdit();
+  search_bar_layout->addWidget(search_box_);
+  search_box_->installEventFilter(this);
+  search_box_->setPlaceholderText("Search in document ( / or Ctrl+F )");
+  find_prev_button_ = new QPushButton();
+  search_bar_layout->addWidget(find_prev_button_);
+  find_next_button_ = new QPushButton();
+  search_bar_layout->addWidget(find_next_button_);
+  find_prev_button_->setIcon(
       QIcon::fromTheme("go-up", QIcon(":data/icons/go-up.png")));
-  find_next_button->setIcon(
+  find_next_button_->setIcon(
       QIcon::fromTheme("go-down", QIcon(":data/icons/go-down.png")));
 
   QAction* search_action = new QAction(this);
@@ -56,28 +56,28 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   QObject::connect(search_action, &QAction::triggered, this,
                    &SearchableText::search_forward);
 
-  QObject::connect(find_next_button, &QPushButton::clicked, this,
+  QObject::connect(find_next_button_, &QPushButton::clicked, this,
                    &SearchableText::search_forward);
-  QObject::connect(find_prev_button, &QPushButton::clicked, this,
+  QObject::connect(find_prev_button_, &QPushButton::clicked, this,
                    &SearchableText::search_backward);
-  QObject::connect(search_box, &QLineEdit::textChanged, this,
+  QObject::connect(search_box_, &QLineEdit::textChanged, this,
                    &SearchableText::update_search_button_states);
 
-  QObject::connect(text_edit, &QPlainTextEdit::selectionChanged, this,
+  QObject::connect(text_edit_, &QPlainTextEdit::selectionChanged, this,
                    &SearchableText::set_cursor_position);
   update_search_button_states();
 }
 
 void SearchableText::fill(const QString& content) {
-  text_edit->setPlainText(content);
-  text_edit->setProperty("readOnly", true);
+  text_edit_->setPlainText(content);
+  text_edit_->setProperty("readOnly", true);
   this->setFocus();
 }
 
 void SearchableText::update_search_button_states() {
-  auto has_pattern = search_box->text() != QString();
-  find_next_button->setEnabled(has_pattern);
-  find_prev_button->setEnabled(has_pattern);
+  auto has_pattern = search_box_->text() != QString();
+  find_next_button_->setEnabled(has_pattern);
+  find_prev_button_->setEnabled(has_pattern);
 }
 
 void SearchableText::search_forward() { search(); }
@@ -85,22 +85,22 @@ void SearchableText::search_backward() { search(QTextDocument::FindBackward); }
 
 void SearchableText::search(QTextDocument::FindFlags flags) {
   this->setFocus();
-  auto pattern = search_box->text();
+  auto pattern = search_box_->text();
   if (pattern.isEmpty()) {
     return;
   }
-  auto document = text_edit->document();
-  current_search_flags = flags;
-  auto top_left = text_edit->cursorForPosition(text_edit->rect().topLeft());
+  auto document = text_edit_->document();
+  current_search_flags_ = flags;
+  auto top_left = text_edit_->cursorForPosition(text_edit_->rect().topLeft());
   auto bottom_right =
-      text_edit->cursorForPosition(text_edit->rect().bottomRight());
-  if (last_match < top_left || last_match >= bottom_right) {
-    last_match =
+      text_edit_->cursorForPosition(text_edit_->rect().bottomRight());
+  if (last_match_ < top_left || last_match_ >= bottom_right) {
+    last_match_ =
         (flags & QTextDocument::FindBackward) ? bottom_right : top_left;
   }
-  auto found = document->find(pattern, last_match, flags);
+  auto found = document->find(pattern, last_match_, flags);
   if (found.isNull()) {
-    auto new_cursor = text_edit->textCursor();
+    auto new_cursor = text_edit_->textCursor();
     if (flags & QTextDocument::FindBackward) {
       new_cursor.movePosition(QTextCursor::End);
     } else {
@@ -109,13 +109,13 @@ void SearchableText::search(QTextDocument::FindFlags flags) {
     found = document->find(pattern, new_cursor, flags);
   }
   if (!found.isNull()) {
-    last_match = found;
-    text_edit->setTextCursor(last_match);
+    last_match_ = found;
+    text_edit_->setTextCursor(last_match_);
   }
 }
 
 void SearchableText::set_cursor_position() {
-  last_match = text_edit->textCursor();
+  last_match_ = text_edit_->textCursor();
 }
 
 void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
@@ -127,7 +127,7 @@ void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
 
 void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
                                       SelectionSide side) {
-  auto cursor = text_edit->textCursor();
+  auto cursor = text_edit_->textCursor();
   bool swapped{};
   auto anchor = cursor.anchor();
   auto pos = cursor.position();
@@ -152,20 +152,20 @@ void SearchableText::extend_selection(QTextCursor::MoveOperation move_op,
   if (swapped) {
     swap_pos_anchor(cursor);
   }
-  text_edit->setTextCursor(cursor);
+  text_edit_->setTextCursor(cursor);
 }
 
 bool SearchableText::eventFilter(QObject* object, QEvent* event) {
   if (event->type() == QEvent::KeyPress) {
     auto key_event = static_cast<QKeyEvent*>(event);
-    if (object == search_box) {
+    if (object == search_box_) {
       if (((key_event->modifiers() & Qt::ControlModifier) &&
-           (nav_keys.contains(key_event->key())))) {
+           (nav_keys_.contains(key_event->key())))) {
         handle_nav_event(key_event);
         return true;
       }
     }
-    for (auto seq : selection_sequences) {
+    for (auto seq : selection_sequences_) {
       if (key_event->matches(seq)) {
         handle_nav_event(key_event);
         return true;
@@ -176,30 +176,30 @@ bool SearchableText::eventFilter(QObject* object, QEvent* event) {
 }
 
 void SearchableText::cycle_cursor_height() {
-  auto top = text_edit->cursorRect().top();
+  auto top = text_edit_->cursorRect().top();
   for (int i = 0; i < 3; ++i) {
     cycle_cursor_height_once();
-    if (text_edit->cursorRect().top() != top) {
+    if (text_edit_->cursorRect().top() != top) {
       return;
     }
   }
 }
 
 void SearchableText::cycle_cursor_height_once() {
-  text_edit->ensureCursorVisible();
+  text_edit_->ensureCursorVisible();
 
-  auto pos = text_edit->textCursor().position();
-  auto bottom = text_edit->rect().bottom();
-  auto top = text_edit->rect().top();
+  auto pos = text_edit_->textCursor().position();
+  auto bottom = text_edit_->rect().bottom();
+  auto top = text_edit_->rect().top();
   auto center = (bottom + top) / 2;
 
   CursorHeight target_height;
-  if (pos != last_cursor_pos) {
+  if (pos != last_cursor_pos_) {
     target_height = CursorHeight::Center;
-    last_cursor_pos = pos;
+    last_cursor_pos_ = pos;
   } else {
     target_height = static_cast<CursorHeight>(
-        (static_cast<int>(last_cursor_height) + 1) % 3);
+        (static_cast<int>(last_cursor_height_) + 1) % 3);
   }
   switch (target_height) {
   case CursorHeight::Center:
@@ -212,16 +212,16 @@ void SearchableText::cycle_cursor_height_once() {
     scroll_to_position(bottom, TopOrBottom::Bottom);
     break;
   }
-  last_cursor_height = target_height;
+  last_cursor_height_ = target_height;
 }
 
 bool SearchableText::scroll_to_position(int target, TopOrBottom cursor_side) {
-  auto crect = text_edit->cursorRect();
+  auto crect = text_edit_->cursorRect();
   auto line_height = (crect.bottom() - crect.top());
   auto pos = get_cursor_pos(cursor_side);
   auto prev_pos = pos;
   auto initial_pos = pos;
-  auto scroll_bar = text_edit->verticalScrollBar();
+  auto scroll_bar = text_edit_->verticalScrollBar();
   if (pos <= target - line_height) {
     // scroll up ie move cursor down on the screen
     do {
@@ -245,8 +245,8 @@ bool SearchableText::scroll_to_position(int target, TopOrBottom cursor_side) {
 }
 
 int SearchableText::get_cursor_pos(TopOrBottom top_bottom) {
-  return top_bottom == TopOrBottom::Top ? text_edit->cursorRect().top()
-                                        : text_edit->cursorRect().bottom();
+  return top_bottom == TopOrBottom::Top ? text_edit_->cursorRect().top()
+                                        : text_edit_->cursorRect().bottom();
 }
 
 void SearchableText::handle_nav_event(QKeyEvent* event) {
@@ -255,7 +255,7 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
       ((event->key() == Qt::Key_N) &&
        (event->modifiers() & Qt::ControlModifier)) ||
       (event->matches(QKeySequence::MoveToNextLine))) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderSingleStepAdd);
     return;
   }
@@ -264,33 +264,33 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
       ((event->key() == Qt::Key_P) &&
        (event->modifiers() & Qt::ControlModifier)) ||
       (event->matches(QKeySequence::MoveToPreviousLine))) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderSingleStepSub);
     return;
   }
   if (((event->key() == Qt::Key_D) &&
        (event->modifiers() & Qt::ControlModifier)) ||
       event->matches(QKeySequence::MoveToNextPage)) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderPageStepAdd);
     return;
   }
   if (((event->key() == Qt::Key_U) &&
        (event->modifiers() & Qt::ControlModifier)) ||
       event->matches(QKeySequence::MoveToPreviousPage)) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderPageStepSub);
     return;
   }
   if (event->key() == Qt::Key_End ||
       event->matches(QKeySequence::MoveToEndOfDocument)) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderToMaximum);
     return;
   }
   if (event->key() == Qt::Key_Home ||
       event->matches(QKeySequence::MoveToStartOfDocument)) {
-    text_edit->verticalScrollBar()->triggerAction(
+    text_edit_->verticalScrollBar()->triggerAction(
         QAbstractSlider::SliderToMinimum);
     return;
   }
@@ -365,8 +365,8 @@ void SearchableText::handle_nav_event(QKeyEvent* event) {
 
 void SearchableText::keyPressEvent(QKeyEvent* event) {
   if (event->matches(QKeySequence::Find) || event->key() == Qt::Key_Slash) {
-    search_box->setFocus();
-    search_box->selectAll();
+    search_box_->setFocus();
+    search_box_->selectAll();
     return;
   }
   if (event->matches(QKeySequence::InsertParagraphSeparator)) {
@@ -381,13 +381,13 @@ void SearchableText::keyPressEvent(QKeyEvent* event) {
 }
 
 QTextCursor SearchableText::textCursor() const {
-  return text_edit->textCursor();
+  return text_edit_->textCursor();
 }
-QPlainTextEdit* SearchableText::get_text_edit() { return text_edit; }
-QLineEdit* SearchableText::get_search_box() { return search_box; }
+QPlainTextEdit* SearchableText::get_text_edit() { return text_edit_; }
+QLineEdit* SearchableText::get_search_box() { return search_box_; }
 
 QList<int> SearchableText::current_selection() const {
-  QTextCursor cursor = text_edit->textCursor();
+  QTextCursor cursor = text_edit_->textCursor();
   return QList<int>{cursor.selectionStart(), cursor.selectionEnd()};
 }
 } // namespace labelbuddy

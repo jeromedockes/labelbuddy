@@ -1,3 +1,8 @@
+.cache/
+GPATH
+GRTAGS
+GTAGS
+
 doxygen_output/
 docs/modules/ROOT/pages/*.html
 !docs/modules/ROOT/pages/docinfo.html
@@ -6,8 +11,10 @@ docs/modules/ROOT/pages/*.html
 __pycache__/
 test_cli/data/newsgroups/
 
+build/
 cmake_build/
 cmake_release_build/
+cmake_debug_build/
 qmake_build/
 
 test/labelbuddy_tests

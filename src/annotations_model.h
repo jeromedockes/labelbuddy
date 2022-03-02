@@ -139,8 +139,8 @@ signals:
   void document_lost_label(int label_id, int doc_id);
 
 private:
-  int current_doc_id = -1;
-  QString database_name;
+  int current_doc_id_ = -1;
+  QString database_name_;
 
   QList<int> surrogate_indices_in_unicode_string_{};
   QList<int> surrogate_indices_in_qstring_{};

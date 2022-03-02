@@ -57,13 +57,13 @@ private slots:
   void on_delete_button_click();
 
 private:
-  QLabel* instruction_label = nullptr;
-  QPushButton* delete_button = nullptr;
-  NoDeselectAllView* labels_view = nullptr;
-  LabelListModel* label_list_model = nullptr;
+  QLabel* instruction_label_ = nullptr;
+  QPushButton* delete_button_ = nullptr;
+  NoDeselectAllView* labels_view_ = nullptr;
+  LabelListModel* label_list_model_ = nullptr;
   std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
-  QLineEdit* extra_data_edit = nullptr;
-  QLabel* extra_data_label = nullptr;
+  QLineEdit* extra_data_edit_ = nullptr;
+  QLabel* extra_data_label_ = nullptr;
 };
 
 /// Navigation buttons above the text: next, next labelled etc.
@@ -79,16 +79,16 @@ public slots:
   void set_skip_updating(bool skip);
 
 private:
-  AnnotationsModel* annotations_model = nullptr;
-  QPushButton* prev_labelled_button;
-  QPushButton* prev_unlabelled_button;
-  QPushButton* prev_button;
+  AnnotationsModel* annotations_model_ = nullptr;
+  QPushButton* prev_labelled_button_;
+  QPushButton* prev_unlabelled_button_;
+  QPushButton* prev_button_;
 
-  QLabel* current_doc_label;
+  QLabel* current_doc_label_;
 
-  QPushButton* next_button;
-  QPushButton* next_unlabelled_button;
-  QPushButton* next_labelled_button;
+  QPushButton* next_button_;
+  QPushButton* next_unlabelled_button_;
+  QPushButton* next_labelled_button_;
 
   bool skip_updating_buttons_{};
 
@@ -243,25 +243,25 @@ private:
   void remove_annotation_from_clusters(const AnnotationCursor& annotation,
                                        std::list<Cluster>& clusters);
 
-  int active_annotation = -1;
+  int active_annotation_ = -1;
   bool need_update_active_anno_{};
   bool active_anno_format_is_set_{};
 
   /// clusters of overlapping annotations
   std::list<Cluster> clusters_{};
-  QMap<int, AnnotationCursor> annotations{};
-  QMap<int, LabelInfo> labels{};
+  QMap<int, AnnotationCursor> annotations_{};
+  QMap<int, LabelInfo> labels_{};
 
   /// Sorting annotations by {start_char, id}
   std::set<AnnotationIndex> sorted_annotations_{};
 
-  QLabel* title_label;
-  SearchableText* text;
-  LabelChoices* label_choices;
-  AnnotationsModel* annotations_model = nullptr;
-  AnnotationsNavButtons* nav_buttons = nullptr;
-  QTextCharFormat default_format;
-  bool use_bold_font = true;
+  QLabel* title_label_;
+  SearchableText* text_;
+  LabelChoices* label_choices_;
+  AnnotationsModel* annotations_model_ = nullptr;
+  AnnotationsNavButtons* nav_buttons_ = nullptr;
+  QTextCharFormat default_format_;
+  bool use_bold_font_ = true;
 };
 
 } // namespace labelbuddy

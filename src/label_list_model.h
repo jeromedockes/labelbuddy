@@ -99,9 +99,9 @@ private:
 
   void update_labels_order(const std::list<int>& labels);
 
-  QString database_name;
-  const QString select_query_text = ("select name, id from sorted_label;");
-  QRegularExpression re = shortcut_key_pattern(true);
+  QString database_name_;
+  const QString select_query_text_ = ("select name, id from sorted_label;");
+  QRegularExpression re_ = shortcut_key_pattern(true);
 };
 
 QList<int> get_label_ids(const LabelListModel& model);

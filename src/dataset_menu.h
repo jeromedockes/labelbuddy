@@ -34,10 +34,10 @@ signals:
   void n_selected_docs_changed(int n_docs);
 
 private:
-  LabelList* label_list;
-  DocList* doc_list;
-  LabelListModel* label_list_model = nullptr;
-  DocListModel* doc_list_model = nullptr;
+  LabelList* label_list_;
+  DocList* doc_list_;
+  LabelListModel* label_list_model_ = nullptr;
+  DocListModel* doc_list_model_ = nullptr;
 };
 } // namespace labelbuddy
 #endif

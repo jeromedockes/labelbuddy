@@ -40,27 +40,27 @@ void LabelBuddy::warn_failed_to_open_db(const QString& database_path) {
 
 LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
                        bool start_from_temp_db)
-    : QMainWindow(parent), database_catalog{} {
+    : QMainWindow(parent), database_catalog_{} {
 
   notebook_owner_.reset(new QTabWidget());
-  notebook = notebook_owner_.get();
-  annotator = new Annotator();
-  notebook->addTab(annotator, "&Annotate");
-  dataset_menu = new DatasetMenu();
-  notebook->addTab(dataset_menu, "&Dataset");
-  import_export_menu = new ImportExportMenu(&database_catalog);
-  notebook->addTab(import_export_menu, "&Import / Export");
+  notebook_ = notebook_owner_.get();
+  annotator_ = new Annotator();
+  notebook_->addTab(annotator_, "&Annotate");
+  dataset_menu_ = new DatasetMenu();
+  notebook_->addTab(dataset_menu_, "&Dataset");
+  import_export_menu_ = new ImportExportMenu(&database_catalog_);
+  notebook_->addTab(import_export_menu_, "&Import / Export");
 
-  doc_model = new DocListModel(this);
-  doc_model->set_database(database_catalog.get_current_database());
-  label_model = new LabelListModel(this);
-  label_model->set_database(database_catalog.get_current_database());
-  annotations_model = new AnnotationsModel(this);
-  annotations_model->set_database(database_catalog.get_current_database());
-  dataset_menu->set_doc_list_model(doc_model);
-  dataset_menu->set_label_list_model(label_model);
-  annotator->set_annotations_model(annotations_model);
-  annotator->set_label_list_model(label_model);
+  doc_model_ = new DocListModel(this);
+  doc_model_->set_database(database_catalog_.get_current_database());
+  label_model_ = new LabelListModel(this);
+  label_model_->set_database(database_catalog_.get_current_database());
+  annotations_model_ = new AnnotationsModel(this);
+  annotations_model_->set_database(database_catalog_.get_current_database());
+  dataset_menu_->set_doc_list_model(doc_model_);
+  dataset_menu_->set_label_list_model(label_model_);
+  annotator_->set_annotations_model(annotations_model_);
+  annotator_->set_label_list_model(label_model_);
 
   add_status_bar();
   add_menubar();
@@ -71,13 +71,13 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
 
   bool opened{};
   if (start_from_temp_db) {
-    database_catalog.open_temp_database();
+    database_catalog_.open_temp_database();
     opened = true;
   } else {
-    opened = database_catalog.open_database(database_path);
+    opened = database_catalog_.open_database(database_path);
   }
   if (opened) {
-    emit database_changed(database_catalog.get_current_database());
+    emit database_changed(database_catalog_.get_current_database());
     display_notebook();
   } else if (database_path != QString()) {
     need_warn_failed_to_open_init_db_ = true;
@@ -89,87 +89,87 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
 
 void LabelBuddy::add_connections() {
 
-  QObject::connect(dataset_menu, &DatasetMenu::visit_doc_requested,
-                   annotations_model, &AnnotationsModel::visit_doc);
-  QObject::connect(dataset_menu, &DatasetMenu::visit_doc_requested, this,
+  QObject::connect(dataset_menu_, &DatasetMenu::visit_doc_requested,
+                   annotations_model_, &AnnotationsModel::visit_doc);
+  QObject::connect(dataset_menu_, &DatasetMenu::visit_doc_requested, this,
                    &LabelBuddy::go_to_annotations);
 
-  QObject::connect(doc_model, &DocListModel::docs_deleted, annotations_model,
+  QObject::connect(doc_model_, &DocListModel::docs_deleted, annotations_model_,
                    &AnnotationsModel::check_current_doc);
-  QObject::connect(label_model, &LabelListModel::labels_changed, annotator,
+  QObject::connect(label_model_, &LabelListModel::labels_changed, annotator_,
                    &Annotator::update_annotations);
-  QObject::connect(label_model, &LabelListModel::labels_changed, annotator,
+  QObject::connect(label_model_, &LabelListModel::labels_changed, annotator_,
                    &Annotator::update_nav_buttons);
-  QObject::connect(label_model, &LabelListModel::labels_order_changed,
-                   annotator, &Annotator::update_annotations);
-  QObject::connect(doc_model, &DocListModel::docs_deleted, annotator,
+  QObject::connect(label_model_, &LabelListModel::labels_order_changed,
+                   annotator_, &Annotator::update_annotations);
+  QObject::connect(doc_model_, &DocListModel::docs_deleted, annotator_,
                    &Annotator::update_nav_buttons);
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
-                   annotator, &Annotator::update_nav_buttons);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   annotator_, &Annotator::update_nav_buttons);
 
-  QObject::connect(annotations_model,
-                   &AnnotationsModel::document_status_changed, doc_model,
+  QObject::connect(annotations_model_,
+                   &AnnotationsModel::document_status_changed, doc_model_,
                    &DocListModel::document_status_changed);
-  QObject::connect(annotations_model, &AnnotationsModel::document_gained_label,
-                   doc_model, &DocListModel::document_gained_label);
-  QObject::connect(annotations_model, &AnnotationsModel::document_lost_label,
-                   doc_model, &DocListModel::document_lost_label);
+  QObject::connect(annotations_model_, &AnnotationsModel::document_gained_label,
+                   doc_model_, &DocListModel::document_gained_label);
+  QObject::connect(annotations_model_, &AnnotationsModel::document_lost_label,
+                   doc_model_, &DocListModel::document_lost_label);
 
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
-                   doc_model, &DocListModel::refresh_current_query);
-  QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
-                   doc_model, &DocListModel::labels_changed);
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
-                   doc_model, &DocListModel::labels_changed);
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
-                   annotations_model, &AnnotationsModel::check_current_doc);
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added,
-                   annotator, &Annotator::update_annotations);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   doc_model_, &DocListModel::refresh_current_query);
+  QObject::connect(import_export_menu_, &ImportExportMenu::labels_added,
+                   doc_model_, &DocListModel::labels_changed);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   doc_model_, &DocListModel::labels_changed);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   annotations_model_, &AnnotationsModel::check_current_doc);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   annotator_, &Annotator::update_annotations);
 
-  QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
-                   label_model, &LabelListModel::refresh_current_query);
-  QObject::connect(import_export_menu, &ImportExportMenu::labels_added,
-                   annotator, &Annotator::update_annotations);
+  QObject::connect(import_export_menu_, &ImportExportMenu::labels_added,
+                   label_model_, &LabelListModel::refresh_current_query);
+  QObject::connect(import_export_menu_, &ImportExportMenu::labels_added,
+                   annotator_, &Annotator::update_annotations);
 
-  QObject::connect(this, &LabelBuddy::database_changed, annotator,
+  QObject::connect(this, &LabelBuddy::database_changed, annotator_,
                    &Annotator::reset_skip_updating_nav_buttons);
-  QObject::connect(this, &LabelBuddy::database_changed, doc_model,
+  QObject::connect(this, &LabelBuddy::database_changed, doc_model_,
                    &DocListModel::set_database);
-  QObject::connect(this, &LabelBuddy::database_changed, label_model,
+  QObject::connect(this, &LabelBuddy::database_changed, label_model_,
                    &LabelListModel::set_database);
-  QObject::connect(this, &LabelBuddy::database_changed, annotations_model,
+  QObject::connect(this, &LabelBuddy::database_changed, annotations_model_,
                    &AnnotationsModel::set_database);
-  QObject::connect(this, &LabelBuddy::database_changed, import_export_menu,
+  QObject::connect(this, &LabelBuddy::database_changed, import_export_menu_,
                    &ImportExportMenu::update_database_info);
 
-  QObject::connect(this, &LabelBuddy::about_to_close, dataset_menu,
+  QObject::connect(this, &LabelBuddy::about_to_close, dataset_menu_,
                    &DatasetMenu::store_state, Qt::DirectConnection);
-  QObject::connect(this, &LabelBuddy::about_to_close, annotator,
+  QObject::connect(this, &LabelBuddy::about_to_close, annotator_,
                    &Annotator::store_state, Qt::DirectConnection);
 
   QObject::connect(this, &LabelBuddy::database_changed, this,
                    &LabelBuddy::update_status_bar);
   QObject::connect(this, &LabelBuddy::database_changed, this,
                    &LabelBuddy::update_window_title);
-  QObject::connect(doc_model, &DocListModel::docs_deleted, this,
+  QObject::connect(doc_model_, &DocListModel::docs_deleted, this,
                    &LabelBuddy::update_status_bar);
-  QObject::connect(label_model, &LabelListModel::labels_deleted, this,
+  QObject::connect(label_model_, &LabelListModel::labels_deleted, this,
                    &LabelBuddy::update_status_bar);
-  QObject::connect(import_export_menu, &ImportExportMenu::documents_added, this,
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added, this,
                    &LabelBuddy::update_status_bar);
-  QObject::connect(annotations_model,
+  QObject::connect(annotations_model_,
                    &AnnotationsModel::document_status_changed, this,
                    &LabelBuddy::update_status_bar);
-  QObject::connect(notebook, &QTabWidget::currentChanged, this,
+  QObject::connect(notebook_, &QTabWidget::currentChanged, this,
                    &LabelBuddy::update_n_selected_docs);
-  QObject::connect(dataset_menu, &DatasetMenu::n_selected_docs_changed, this,
+  QObject::connect(dataset_menu_, &DatasetMenu::n_selected_docs_changed, this,
                    &LabelBuddy::set_n_selected_docs);
-  QObject::connect(notebook, &QTabWidget::currentChanged, this,
+  QObject::connect(notebook_, &QTabWidget::currentChanged, this,
                    &LabelBuddy::update_current_doc_info);
-  QObject::connect(annotator, &Annotator::current_status_display_changed, this,
+  QObject::connect(annotator_, &Annotator::current_status_display_changed, this,
                    &LabelBuddy::update_current_doc_info);
 
-  QObject::connect(notebook, &QTabWidget::currentChanged, this,
+  QObject::connect(notebook_, &QTabWidget::currentChanged, this,
                    &LabelBuddy::check_tab_focus);
 }
 
@@ -195,11 +195,11 @@ void LabelBuddy::add_status_bar() {
   update_status_bar();
 }
 
-void LabelBuddy::go_to_annotations() { notebook->setCurrentIndex(0); }
+void LabelBuddy::go_to_annotations() { notebook_->setCurrentIndex(0); }
 
 void LabelBuddy::check_tab_focus() {
-  if (notebook->currentIndex() == 0) {
-    annotator->setFocus();
+  if (notebook_->currentIndex() == 0) {
+    annotator_->setFocus();
   }
 }
 
@@ -212,12 +212,12 @@ void LabelBuddy::add_menubar() {
   file_menu->addMenu(opened_databases_submenu_);
   QObject::connect(opened_databases_submenu_, &QMenu::triggered, this,
                    &LabelBuddy::open_database_from_action);
-  QObject::connect(&database_catalog, &DatabaseCatalog::new_database_opened,
+  QObject::connect(&database_catalog_, &DatabaseCatalog::new_database_opened,
                    this, &LabelBuddy::add_connection_to_menu);
   // we connect to new_database_opened after catalog construction so the temp db
   // only shows up in the if we explicitly ask to open it and fill it with
   // example docs, which emits `temporary_database_filled`.
-  QObject::connect(&database_catalog,
+  QObject::connect(&database_catalog_,
                    &DatabaseCatalog::temporary_database_filled, this,
                    &LabelBuddy::add_connection_to_menu);
   auto temp_db_action = new QAction("Demo", this);
@@ -290,7 +290,7 @@ void LabelBuddy::update_window_title() {
     setWindowTitle("labelbuddy");
   } else {
     auto db_name = database_name_display(
-        database_catalog.get_current_database(), false, false);
+        database_catalog_.get_current_database(), false, false);
     setWindowTitle(QString("labelbuddy — %0").arg(db_name));
   }
 }
@@ -298,7 +298,7 @@ void LabelBuddy::update_window_title() {
 void LabelBuddy::set_use_bold_font(bool use_bold) {
   QSettings settings("labelbuddy", "labelbuddy");
   settings.setValue(bf_setting_key_, use_bold);
-  annotator->set_use_bold_font(use_bold);
+  annotator_->set_use_bold_font(use_bold);
 }
 
 void LabelBuddy::choose_font() {
@@ -315,21 +315,21 @@ void LabelBuddy::choose_font() {
     return;
   }
   settings.setValue(font_setting_key_, new_font);
-  annotator->set_font(new_font);
+  annotator_->set_font(new_font);
 }
 
 void LabelBuddy::reset_font() {
   QSettings settings("labelbuddy", "labelbuddy");
   settings.remove(font_setting_key_);
-  annotator->set_font(QFont());
+  annotator_->set_font(QFont());
 }
 
 void LabelBuddy::update_status_bar() {
-  auto db_name = database_name_display(database_catalog.get_current_database(),
+  auto db_name = database_name_display(database_catalog_.get_current_database(),
                                        false, false);
   status_db_name_->setText(db_name);
-  auto n_docs = doc_model->total_n_docs();
-  auto n_labelled = doc_model->total_n_docs(DocListModel::DocFilter::labelled);
+  auto n_docs = doc_model_->total_n_docs();
+  auto n_labelled = doc_model_->total_n_docs(DocListModel::DocFilter::labelled);
   assert(0 <= n_labelled && n_labelled <= n_docs);
   status_db_summary_->setText(QString("%0 document%1 (%2 labelled)")
                                   .arg(n_docs)
@@ -340,11 +340,11 @@ void LabelBuddy::update_status_bar() {
 }
 
 void LabelBuddy::update_n_selected_docs() {
-  if (notebook->currentIndex() != 1) {
+  if (notebook_->currentIndex() != 1) {
     status_n_selected_docs_->hide();
     return;
   }
-  set_n_selected_docs(dataset_menu->n_selected_docs());
+  set_n_selected_docs(dataset_menu_->n_selected_docs());
   status_n_selected_docs_->show();
 }
 
@@ -354,14 +354,14 @@ void LabelBuddy::set_n_selected_docs(int n_docs) {
 }
 
 void LabelBuddy::update_current_doc_info() {
-  if ((notebook->currentIndex() != 0) ||
-      (!annotations_model->is_positioned_on_valid_doc())) {
+  if ((notebook_->currentIndex() != 0) ||
+      (!annotations_model_->is_positioned_on_valid_doc())) {
     status_current_doc_info_->hide();
     status_current_annotation_info_->hide();
     status_current_annotation_label_->hide();
     return;
   }
-  auto status = annotator->current_status_info();
+  auto status = annotator_->current_status_info();
   status_current_doc_info_->setText(status.doc_info);
   status_current_doc_info_->show();
   if (status.annotation_label == "") {
@@ -378,7 +378,7 @@ void LabelBuddy::update_current_doc_info() {
 
 void LabelBuddy::open_database(const QString& db_name) {
   store_notebook_page();
-  bool opened = database_catalog.open_database(db_name);
+  bool opened = database_catalog_.open_database(db_name);
   if (opened) {
     display_notebook();
     emit database_changed(db_name);
@@ -397,7 +397,7 @@ void LabelBuddy::choose_and_open_database() {
   dialog.setOption(QFileDialog::HideNameFilterDetails, false);
   dialog.setOption(QFileDialog::DontUseCustomDirectoryIcons, true);
   dialog.setOption(QFileDialog::DontConfirmOverwrite, true);
-  dialog.setDirectory(database_catalog.get_last_opened_directory());
+  dialog.setDirectory(database_catalog_.get_last_opened_directory());
   dialog.setAcceptMode(QFileDialog::AcceptOpen);
   if (!dialog.exec() || dialog.selectedFiles().isEmpty()) {
     return;
@@ -420,8 +420,8 @@ void LabelBuddy::display_notebook() {
   if (notebook_owner_ == nullptr) {
     return;
   }
-  notebook->setCurrentIndex(
-      database_catalog.get_app_state_extra("notebook_page", 2).toInt());
+  notebook_->setCurrentIndex(
+      database_catalog_.get_app_state_extra("notebook_page", 2).toInt());
   setCentralWidget(notebook_owner_.release());
   statusBar()->show();
   check_tab_focus();
@@ -429,14 +429,14 @@ void LabelBuddy::display_notebook() {
 
 void LabelBuddy::open_temp_database() {
   store_notebook_page();
-  auto db_path = database_catalog.open_temp_database();
+  auto db_path = database_catalog_.open_temp_database();
   emit database_changed(db_path);
   display_notebook();
 }
 
 void LabelBuddy::store_notebook_page() {
-  database_catalog.set_app_state_extra("notebook_page",
-                                       notebook->currentIndex());
+  database_catalog_.set_app_state_extra("notebook_page",
+                                       notebook_->currentIndex());
 }
 
 void LabelBuddy::showEvent(QShowEvent* event) {
@@ -473,10 +473,10 @@ void LabelBuddy::set_geometry() {
 
 void LabelBuddy::init_annotator_settings() {
   QSettings settings("labelbuddy", "labelbuddy");
-  annotator->set_use_bold_font(
+  annotator_->set_use_bold_font(
       settings.value(bf_setting_key_, bf_default_).toBool());
   if (settings.contains(font_setting_key_)) {
-    annotator->set_font(settings.value(font_setting_key_).value<QFont>());
+    annotator_->set_font(settings.value(font_setting_key_).value<QFont>());
   }
 }
 

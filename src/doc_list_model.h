@@ -79,11 +79,11 @@ private:
   void refresh_n_labelled_docs();
   int total_n_docs_no_filter();
 
-  DocFilter doc_filter = DocFilter::all;
+  DocFilter doc_filter_ = DocFilter::all;
   int filter_label_id_ = -1;
-  int offset = 0;
-  int limit = 100;
-  QString database_name;
+  int offset_ = 0;
+  int limit_ = 100;
+  QString database_name_;
   bool result_set_outdated_{};
 
   int n_labelled_docs_{};

@@ -60,8 +60,8 @@ protected:
   QString error_message_{};
 
 private:
-  QFile file;
-  std::unique_ptr<DocRecord> current_record{nullptr};
+  QFile file_;
+  std::unique_ptr<DocRecord> current_record_{nullptr};
   double file_size_{};
 };
 
@@ -72,7 +72,7 @@ public:
   bool read_next() override;
 
 private:
-  QTextStream stream;
+  QTextStream stream_;
 };
 
 QString format_xml_error(const QXmlStreamReader& xml);
@@ -84,7 +84,7 @@ public:
   bool read_next() override;
 
 private:
-  QXmlStreamReader xml;
+  QXmlStreamReader xml_;
   void read_document();
   void read_document_text();
   void read_md5();
@@ -94,7 +94,7 @@ private:
   void read_user_provided_id();
   void read_short_title();
   void read_long_title();
-  std::unique_ptr<DocRecord> new_record{};
+  std::unique_ptr<DocRecord> new_record_{};
 };
 
 class CsvDocsReader : public DocsReader {
@@ -103,8 +103,8 @@ public:
   bool read_next() override;
 
 private:
-  QTextStream stream;
-  CsvMapReader csv;
+  QTextStream stream_;
+  CsvMapReader csv_;
   void read_annotation(const QMap<QString, QString>& csv_record,
                        QJsonArray& annotations);
 };
@@ -122,10 +122,10 @@ public:
   int current_progress() const override;
 
 private:
-  QJsonArray all_docs;
-  QJsonArray::const_iterator current_doc;
-  int total_n_docs;
-  int n_seen{};
+  QJsonArray all_docs_;
+  QJsonArray::const_iterator current_doc_;
+  int total_n_docs_;
+  int n_seen_{};
 };
 
 class JsonLinesDocsReader : public DocsReader {
@@ -135,7 +135,7 @@ public:
   bool read_next() override;
 
 private:
-  QTextStream stream;
+  QTextStream stream_;
 };
 
 class DocsWriter {
@@ -175,7 +175,7 @@ protected:
   QFile* get_file();
 
 private:
-  QFile file;
+  QFile file_;
   bool include_text_;
   bool include_annotations_;
   bool include_user_name_;
@@ -199,8 +199,8 @@ protected:
   QTextStream& get_stream();
 
 private:
-  QTextStream stream;
-  int n_docs{};
+  QTextStream stream_;
+  int n_docs_{};
 };
 
 class DocsJsonWriter : public DocsJsonLinesWriter {
@@ -231,8 +231,8 @@ public:
   void write_prefix() override;
 
 private:
-  QTextStream stream;
-  CsvWriter csv;
+  QTextStream stream_;
+  CsvWriter csv_;
 };
 
 class DocsXmlWriter : public DocsWriter {
@@ -249,7 +249,7 @@ public:
   void write_suffix() override;
 
 private:
-  QXmlStreamWriter xml;
+  QXmlStreamWriter xml_;
 
   void add_annotations(const QList<Annotation>& annotations);
 };
@@ -444,7 +444,7 @@ signals:
   void temporary_database_filled(const QString& database_name);
 
 private:
-  QString current_database;
+  QString current_database_;
 
   bool store_db_path(const QString& db_path);
 
@@ -491,7 +491,7 @@ private:
   ExportLabelsResult write_labels_to_csv(const QJsonArray& labels,
                                          const QString& file_path);
 
-  int color_index{};
+  int color_index_{};
   bool tmp_db_data_loaded_{};
   static const QString tmp_db_name_;
 };

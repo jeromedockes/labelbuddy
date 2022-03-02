@@ -17,12 +17,12 @@ LabelListModel::LabelListModel(QObject* parent) : QSqlQueryModel(parent) {}
 
 void LabelListModel::set_database(const QString& new_database_name) {
   assert(QSqlDatabase::contains(new_database_name));
-  database_name = new_database_name;
-  setQuery(select_query_text, QSqlDatabase::database(database_name));
+  database_name_ = new_database_name;
+  setQuery(select_query_text_, QSqlDatabase::database(database_name_));
 }
 
 QSqlQuery LabelListModel::get_query() const {
-  return QSqlQuery(QSqlDatabase::database(database_name));
+  return QSqlQuery(QSqlDatabase::database(database_name_));
 }
 
 QVariant LabelListModel::data(const QModelIndex& index, int role) const {
@@ -233,7 +233,7 @@ int LabelListModel::delete_labels(const QModelIndexList& indices) {
 }
 
 void LabelListModel::refresh_current_query() {
-  setQuery(select_query_text, QSqlDatabase::database(database_name));
+  setQuery(select_query_text_, QSqlDatabase::database(database_name_));
 }
 
 void LabelListModel::set_label_color(const QModelIndex& index,
@@ -265,7 +265,7 @@ bool LabelListModel::is_valid_shortcut(const QString& shortcut,
 
 bool LabelListModel::is_valid_shortcut(const QString& shortcut,
                                        int label_id) const {
-  if (!re.match(shortcut).hasMatch()) {
+  if (!re_.match(shortcut).hasMatch()) {
     return false;
   }
   auto query = get_query();
@@ -287,7 +287,7 @@ void LabelListModel::set_label_shortcut(const QModelIndex& index,
     assert(false);
     return;
   }
-  if (!re.match(shortcut).hasMatch()) {
+  if (!re_.match(shortcut).hasMatch()) {
     return;
   }
   auto query = get_query();

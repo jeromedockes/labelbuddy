@@ -11,16 +11,16 @@ namespace labelbuddy {
 DocListModel::DocListModel(QObject* parent) : QSqlQueryModel(parent) {}
 
 QSqlQuery DocListModel::get_query() const {
-  return QSqlQuery(QSqlDatabase::database(database_name));
+  return QSqlQuery(QSqlDatabase::database(database_name_));
 }
 
 void DocListModel::set_database(const QString& new_database_name) {
   assert(QSqlDatabase::contains(new_database_name));
-  database_name = new_database_name;
-  doc_filter = DocFilter::all;
+  database_name_ = new_database_name;
+  doc_filter_ = DocFilter::all;
   filter_label_id_ = -1;
-  limit = 100;
-  offset = 0;
+  limit_ = 100;
+  offset_ = 0;
   emit database_changed();
   refresh_current_query();
   emit labels_changed();
@@ -58,9 +58,9 @@ QList<QPair<QString, int>> DocListModel::get_label_names() const {
 
 void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
                                 int new_limit, int new_offset) {
-  limit = new_limit;
-  offset = new_offset;
-  doc_filter = new_doc_filter;
+  limit_ = new_limit;
+  offset_ = new_offset;
+  doc_filter_ = new_doc_filter;
   filter_label_id_ = filter_label_id;
   result_set_outdated_ = false;
 
@@ -218,11 +218,11 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
 
 void DocListModel::refresh_current_query() {
   refresh_n_labelled_docs();
-  adjust_query(doc_filter, filter_label_id_, limit, offset);
+  adjust_query(doc_filter_, filter_label_id_, limit_, offset_);
 }
 
 void DocListModel::document_status_changed(DocumentStatus new_status) {
-  if (doc_filter != DocFilter::all) {
+  if (doc_filter_ != DocFilter::all) {
     result_set_outdated_ = true;
   }
   if (new_status == DocumentStatus::Labelled) {
@@ -234,8 +234,8 @@ void DocListModel::document_status_changed(DocumentStatus new_status) {
 
 void DocListModel::document_gained_label(int label_id, int doc_id) {
   (void)doc_id;
-  if ((doc_filter == DocFilter::has_given_label ||
-       doc_filter == DocFilter::not_has_given_label) &&
+  if ((doc_filter_ == DocFilter::has_given_label ||
+       doc_filter_ == DocFilter::not_has_given_label) &&
       filter_label_id_ == label_id) {
     result_set_outdated_ = true;
   }
@@ -243,8 +243,8 @@ void DocListModel::document_gained_label(int label_id, int doc_id) {
 
 void DocListModel::document_lost_label(int label_id, int doc_id) {
   (void)doc_id;
-  if ((doc_filter == DocFilter::has_given_label ||
-       doc_filter == DocFilter::not_has_given_label) &&
+  if ((doc_filter_ == DocFilter::has_given_label ||
+       doc_filter_ == DocFilter::not_has_given_label) &&
       filter_label_id_ == label_id) {
     result_set_outdated_ = true;
   }

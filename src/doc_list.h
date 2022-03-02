@@ -68,23 +68,23 @@ private slots:
   void update_filter();
 
 private:
-  int offset = 0;
-  int page_size = 100;
-  DocListModel::DocFilter current_filter = DocListModel::DocFilter::all;
+  int offset_ = 0;
+  int page_size_ = 100;
+  DocListModel::DocFilter current_filter_ = DocListModel::DocFilter::all;
   // label used to either include or exclude docs
-  int current_label_id = -1;
-  DocListModel* model = nullptr;
-  QLabel* current_page_label = nullptr;
+  int current_label_id_ = -1;
+  DocListModel* model_ = nullptr;
+  QLabel* current_page_label_ = nullptr;
 
-  QPushButton* select_all_button = nullptr;
-  QPushButton* delete_button = nullptr;
-  QPushButton* delete_all_button = nullptr;
-  QPushButton* annotate_button = nullptr;
+  QPushButton* select_all_button_ = nullptr;
+  QPushButton* delete_button_ = nullptr;
+  QPushButton* delete_all_button_ = nullptr;
+  QPushButton* annotate_button_ = nullptr;
 
-  QPushButton* prev_page_button = nullptr;
-  QPushButton* next_page_button = nullptr;
-  QPushButton* first_page_button = nullptr;
-  QPushButton* last_page_button = nullptr;
+  QPushButton* prev_page_button_ = nullptr;
+  QPushButton* next_page_button_ = nullptr;
+  QPushButton* first_page_button_ = nullptr;
+  QPushButton* last_page_button_ = nullptr;
 
   QComboBox* filter_choice_ = nullptr;
 
@@ -122,9 +122,9 @@ signals:
   void n_selected_docs_changed(int n_docs);
 
 private:
-  DocListButtons* buttons_frame;
-  QListView* doc_view;
-  DocListModel* model = nullptr;
+  DocListButtons* buttons_frame_;
+  QListView* doc_view_;
+  DocListModel* model_ = nullptr;
 };
 } // namespace labelbuddy
 

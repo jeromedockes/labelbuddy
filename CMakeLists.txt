@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 file(READ "${CMAKE_SOURCE_DIR}/data/VERSION.txt" LABELBUDDY_VERSION)
 string(REGEX REPLACE "\n" "" LABELBUDDY_VERSION "${LABELBUDDY_VERSION}")
 
@@ -86,13 +88,20 @@ set(CPACK_SOURCE_IGNORE_FILES
   [.]git/
   [.]gitignore
   [.]gitattributes
+  [.]cache/
+  build/
   cmake_build/
+  cmake_debug_build/
   cmake_release_build/
   qmake_build/
+  GPATH
+  GRTAGS
+  GTAGS
   test/labelbuddy_tests
   test_build
   test_cli/data/newsgroups/
   test_cli/__pycache__/
+  test_cli/[.]mypy_cache/
   [.]pytest_cache/
   test_cli/.*[.]pyc
   doxygen_output/

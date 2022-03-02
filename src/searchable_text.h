@@ -59,13 +59,13 @@ private slots:
   void update_search_button_states();
 
 private:
-  QPlainTextEdit* text_edit;
-  QLineEdit* search_box;
-  QPushButton* find_prev_button;
-  QPushButton* find_next_button;
+  QPlainTextEdit* text_edit_;
+  QLineEdit* search_box_;
+  QPushButton* find_prev_button_;
+  QPushButton* find_next_button_;
 
-  QTextCursor last_match;
-  QTextDocument::FindFlags current_search_flags;
+  QTextCursor last_match_;
+  QTextDocument::FindFlags current_search_flags_;
 
   /// swap the cursor's position and anchor
   void swap_pos_anchor(QTextCursor& cursor) const;
@@ -101,18 +101,18 @@ private:
 
   /// Key events filtered (handled by this object and not the search bar) when
   /// Ctrl is pressed
-  const QList<int> nav_keys{Qt::Key_K, Qt::Key_J, Qt::Key_N,
+  const QList<int> nav_keys_{Qt::Key_K, Qt::Key_J, Qt::Key_N,
                             Qt::Key_P, Qt::Key_U, Qt::Key_D};
 
   /// Filtered both for the search bar and the text edit
-  const QList<QKeySequence::StandardKey> selection_sequences{
+  const QList<QKeySequence::StandardKey> selection_sequences_{
       QKeySequence::SelectNextChar, QKeySequence::SelectPreviousChar,
       QKeySequence::SelectNextWord, QKeySequence::SelectPreviousWord,
       QKeySequence::SelectNextLine, QKeySequence::SelectPreviousLine};
 
   enum class CursorHeight { Center, Top, Bottom };
-  CursorHeight last_cursor_height{};
-  int last_cursor_pos{};
+  CursorHeight last_cursor_height_{};
+  int last_cursor_pos_{};
 
 private slots:
 
