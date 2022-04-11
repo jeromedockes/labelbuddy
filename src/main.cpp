@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
     return labelbuddy::batch_import_export(
         db_path, labels_files, docs_files, export_labels_file, export_docs_file,
         parser.isSet("labelled-only"), !parser.isSet("no-text"),
-        !parser.isSet("no-annotations"), parser.value("approver"),
+        !parser.isSet("no-annotations"),
         parser.isSet("vacuum"));
   }
 

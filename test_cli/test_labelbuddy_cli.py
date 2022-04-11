@@ -146,7 +146,6 @@ def check_import_back(db, labelbuddy):
 def check_exported_json(
     docs_f,
     n_docs=15,
-    approver="",
     labelled_only=False,
     no_text=False,
     no_annotations=False,
@@ -155,7 +154,6 @@ def check_exported_json(
     return check_exported_as_dict(
         docs,
         n_docs=n_docs,
-        approver=approver,
         labelled_only=labelled_only,
         no_text=no_text,
         no_annotations=no_annotations,
@@ -165,7 +163,6 @@ def check_exported_json(
 def check_exported_jsonl(
     docs_f,
     n_docs=15,
-    approver="",
     labelled_only=False,
     no_text=False,
     no_annotations=False,
@@ -177,7 +174,6 @@ def check_exported_jsonl(
     return check_exported_as_dict(
         docs,
         n_docs=n_docs,
-        approver=approver,
         labelled_only=labelled_only,
         no_text=no_text,
         no_annotations=no_annotations,
@@ -187,7 +183,6 @@ def check_exported_jsonl(
 def check_exported_as_dict(
     docs,
     n_docs=15,
-    approver="",
     labelled_only=False,
     no_text=False,
     no_annotations=False,
@@ -196,10 +191,6 @@ def check_exported_as_dict(
         assert len(docs) == math.ceil(n_docs / 2) if labelled_only else n_docs
     for i, doc in enumerate(docs):
         assert "utf8_text_md5_checksum" in doc
-        if approver is not None and approver != "":
-            assert doc["annotation_approver"] == approver
-        else:
-            assert "annotation_approver" not in doc
         if no_annotations:
             assert "labels" not in doc
             assert "start_char" not in doc
@@ -416,13 +407,11 @@ def test_vacuum(preloaded_db, labelbuddy):
 
 
 @pytest.mark.parametrize("doc_format", ["json", "jsonl"])
-@pytest.mark.parametrize("approver", ["", "someone"])
 @pytest.mark.parametrize("labelled_only", [True, False])
 @pytest.mark.parametrize("no_text", [True, False])
 @pytest.mark.parametrize("no_annotations", [True, False])
 def test_export_options(
     doc_format,
-    approver,
     labelled_only,
     no_text,
     no_annotations,
@@ -439,16 +428,13 @@ def test_export_options(
     if labelled_only:
         args.append("--labelled-only")
 
-    labelbuddy(
-        preloaded_db, "--approver", approver, "--export-docs", docs, *args
-    )
+    labelbuddy(preloaded_db, "--export-docs", docs, *args)
     check = {
         "json": check_exported_json,
         "jsonl": check_exported_jsonl,
     }[doc_format]
     check(
         docs,
-        approver=approver,
         labelled_only=labelled_only,
         no_text=no_text,
         no_annotations=no_annotations,

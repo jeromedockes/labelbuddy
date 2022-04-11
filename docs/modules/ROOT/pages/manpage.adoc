@@ -54,9 +54,6 @@ This means that the same command can for example import a new document and then 
   When the text is not exported, the documents can be identified from the MD5 checksum found in the output, or from any user metadata that was imported with the documents.
 --*no-annotations*::
   When using the *--export-docs* option, do not include annotations in the output.
-*--approver* _name_::
-  Use _name_ as the annotation_approver.
-  If not specified, the output will not contain an annotation_approver.
 *--vacuum*::
   Repack the database so that it occupies a minimal amount of disk space (the database can contain some empty pages if data has been deleted from it, that it normally keeps and re-uses when new data is inserted).
   See SQlite3 documentation for details.

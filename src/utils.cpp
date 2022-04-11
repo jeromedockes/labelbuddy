@@ -73,8 +73,6 @@ void prepare_parser(QCommandLineParser& parser) {
   parser.addOption(
       {"no-annotations", "Do not include annotations when exporting"});
   parser.addOption(
-      {"approver", "User or 'annotations approver' name", "name", ""});
-  parser.addOption(
       {"vacuum", "Repack database into minimal amount of disk space."});
 }
 

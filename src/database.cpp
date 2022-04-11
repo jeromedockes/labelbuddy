@@ -163,11 +163,10 @@ bool JsonLinesDocsReader::read_next() {
 }
 
 DocsWriter::DocsWriter(const QString& file_path, bool include_text,
-                       bool include_annotations, bool include_user_name,
+                       bool include_annotations,
                        QIODevice::OpenMode mode)
     : file_(file_path), include_text_{include_text},
-      include_annotations_{include_annotations}, include_user_name_{
-                                                     include_user_name} {
+      include_annotations_{include_annotations}  {
   file_.open(mode);
 }
 
@@ -181,16 +180,13 @@ bool DocsWriter::is_including_text() const { return include_text_; }
 bool DocsWriter::is_including_annotations() const {
   return include_annotations_;
 }
-bool DocsWriter::is_including_user_name() const { return include_user_name_; }
 
 QFile* DocsWriter::get_file() { return &file_; }
 
 JsonLinesDocsWriter::JsonLinesDocsWriter(const QString& file_path,
                                          bool include_text,
-                                         bool include_annotations,
-                                         bool include_user_name)
-    : DocsWriter(file_path, include_text, include_annotations,
-                 include_user_name),
+                                         bool include_annotations)
+    : DocsWriter(file_path, include_text, include_annotations),
       stream_(get_file()) {
   stream_.setCodec("UTF-8");
 }
@@ -201,7 +197,7 @@ QTextStream& JsonLinesDocsWriter::get_stream() { return stream_; }
 
 void JsonLinesDocsWriter::add_document(
     const QString& md5, const QString& content, const QJsonObject& metadata,
-    const QList<Annotation>& annotations, const QString& user_name,
+    const QList<Annotation>& annotations,
     const QString& short_title, const QString& long_title) {
   if (n_docs_) {
     stream_ << "\n";
@@ -210,9 +206,6 @@ void JsonLinesDocsWriter::add_document(
   assert(md5 != "");
   doc_json.insert("utf8_text_md5_checksum", md5);
   doc_json.insert("meta", metadata);
-  if (is_including_user_name() && user_name != QString()) {
-    doc_json.insert("annotation_approver", user_name);
-  }
   if (is_including_text()) {
     if (short_title != QString()) {
       doc_json.insert("short_title", short_title);
@@ -250,21 +243,19 @@ void JsonLinesDocsWriter::write_suffix() {
 }
 
 JsonDocsWriter::JsonDocsWriter(const QString& file_path, bool include_text,
-                               bool include_annotations, bool include_user_name)
-    : JsonLinesDocsWriter(file_path, include_text, include_annotations,
-                          include_user_name) {}
+                               bool include_annotations)
+    : JsonLinesDocsWriter(file_path, include_text, include_annotations) {}
 
 void JsonDocsWriter::add_document(const QString& md5, const QString& content,
                                   const QJsonObject& metadata,
                                   const QList<Annotation>& annotations,
-                                  const QString& user_name,
                                   const QString& short_title,
                                   const QString& long_title) {
   if (get_n_docs()) {
     get_stream() << ",";
   }
   JsonLinesDocsWriter::add_document(md5, content, metadata, annotations,
-                                    user_name, short_title, long_title);
+                                    short_title, long_title);
 }
 
 void JsonDocsWriter::write_prefix() { get_stream() << "[\n"; }
@@ -762,17 +753,16 @@ ImportLabelsResult DatabaseCatalog::import_labels(const QString& file_path) {
 
 std::unique_ptr<DocsWriter>
 DatabaseCatalog::get_docs_writer(const QString& file_path, bool include_text,
-                                 bool include_annotations,
-                                 bool include_user_name) const {
+                                 bool include_annotations) const {
 
   auto suffix = QFileInfo(file_path).suffix();
   std::unique_ptr<DocsWriter> writer{nullptr};
   if (suffix == "jsonl") {
     writer.reset(new JsonLinesDocsWriter(
-        file_path, include_text, include_annotations, include_user_name));
+        file_path, include_text, include_annotations));
   } else {
     writer.reset(new JsonDocsWriter(file_path, include_text,
-                                    include_annotations, include_user_name));
+                                    include_annotations));
   }
   return writer;
 }
@@ -781,11 +771,8 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
                                                    bool labelled_docs_only,
                                                    bool include_text,
                                                    bool include_annotations,
-                                                   const QString& user_name,
                                                    QProgressDialog* progress) {
-  bool include_user_name = user_name != "";
-  auto writer = get_docs_writer(file_path, include_text, include_annotations,
-                                include_user_name);
+  auto writer = get_docs_writer(file_path, include_text, include_annotations);
   if (!writer->is_open()) {
     return {0, 0, ErrorCode::FileSystemError, QString("Could not open file.")};
   }
@@ -818,7 +805,7 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
     ++n_docs;
     auto doc_id = query.value(0).toInt();
     n_annotations += write_doc(*writer, doc_id, include_text,
-                               include_annotations, user_name);
+                               include_annotations);
     if (progress != nullptr) {
       progress->setValue(n_docs);
     }
@@ -833,8 +820,7 @@ ExportDocsResult DatabaseCatalog::export_documents(const QString& file_path,
 }
 
 int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
-                               bool include_text, bool include_annotations,
-                               const QString& user_name) {
+                               bool include_text, bool include_annotations) {
   QSqlQuery doc_query(QSqlDatabase::database(current_database_));
 
   if (include_text) {
@@ -874,7 +860,7 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
   }
   writer.add_document(doc_query.value("md5").toString(),
                       doc_query.value("content").toString(), metadata,
-                      annotations, user_name,
+                      annotations,
                       doc_query.value("short_title").toString(),
                       doc_query.value("long_title").toString());
   return n_annotations;
@@ -936,7 +922,7 @@ int batch_import_export(
     const QString& db_path, const QList<QString>& labels_files,
     const QList<QString>& docs_files, const QString& export_labels_file,
     const QString& export_docs_file, bool labelled_docs_only, bool include_text,
-    bool include_annotations, const QString& user_name, bool vacuum) {
+    bool include_annotations, bool vacuum) {
   DatabaseCatalog catalog{};
   if (!catalog.open_database(db_path, false)) {
     std::cerr << "Could not open database: " << db_path.toStdString()
@@ -1000,7 +986,7 @@ int batch_import_export(
     }
     auto res =
         catalog.export_documents(export_docs_file, labelled_docs_only,
-                                 include_text, include_annotations, user_name);
+                                 include_text, include_annotations);
     if (res.error_code != ErrorCode::NoError) {
       errors = 1;
     }

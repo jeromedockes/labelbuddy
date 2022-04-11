@@ -451,7 +451,6 @@ Options:
                                           exporting
   --no-annotations                        Do not include annotations when
                                           exporting
-  --approver <name>                       User or 'annotations approver' name
   --vacuum                                Repack database into minimal amount
                                           of disk space.
 

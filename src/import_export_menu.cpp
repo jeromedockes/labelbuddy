@@ -18,15 +18,6 @@
 
 namespace labelbuddy {
 
-QString ImportExportMenu::default_user_name() {
-  auto name = QString::fromUtf8(qgetenv("USER"));
-  if (name == QString()) {
-    name = QString::fromUtf8(qgetenv("USERNAME"));
-  }
-  return database_catalog_->get_app_state_extra("approver_name", name)
-      .toString();
-}
-
 void ImportExportMenu::store_parent_dir(const QString& file_path,
                                         DirRole role) {
   QString name;
@@ -83,7 +74,6 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
 }
 
 void ImportExportMenu::update_database_info() {
-  annotator_name_edit_->setText(default_user_name());
   db_path_line_->setText(
       database_name_display(database_catalog_->get_current_database()));
   init_checkbox_states();
@@ -117,14 +107,8 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
   include_annotations_checkbox_ = new QCheckBox("Include annotations");
   export_layout->addWidget(include_annotations_checkbox_, 2, 0, 1, 2);
 
-  auto annotator_name_label = new QLabel("A&nnotation approver (optional): ");
-  export_layout->addWidget(annotator_name_label, 3, 0, 1, 1);
-  annotator_name_edit_ = new QLineEdit();
-  export_layout->addWidget(annotator_name_edit_, 3, 1, 1, 1);
-  annotator_name_label->setBuddy(annotator_name_edit_);
-  annotator_name_edit_->setFixedWidth(annotator_name_label->sizeHint().width());
   auto export_buttons_frame = new QFrame();
-  export_layout->addWidget(export_buttons_frame, 4, 0, 1, 2);
+  export_layout->addWidget(export_buttons_frame, 3, 0, 1, 2);
   auto export_buttons_layout = new QHBoxLayout();
   export_buttons_frame->setLayout(export_buttons_layout);
   export_buttons_layout->setContentsMargins(0, 0, 0, 0);
@@ -305,8 +289,6 @@ void ImportExportMenu::export_documents() {
     return;
   }
   store_parent_dir(file_path, DirRole::export_documents);
-  database_catalog_->set_app_state_extra("approver_name",
-                                        annotator_name_edit_->text());
   ExportDocsResult result;
   {
     QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
@@ -316,8 +298,7 @@ void ImportExportMenu::export_documents() {
     result = database_catalog_->export_documents(
         file_path, labelled_only_checkbox_->isChecked(),
         include_text_checkbox_->isChecked(),
-        include_annotations_checkbox_->isChecked(), annotator_name_edit_->text(),
-        &progress);
+        include_annotations_checkbox_->isChecked(), &progress);
   }
   database_catalog_->set_app_state_extra("export_labelled_only",
                                         labelled_only_checkbox_->isChecked());

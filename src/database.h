@@ -109,7 +109,7 @@ public:
   };
 
   DocsWriter(const QString& file_path, bool include_text,
-             bool include_annotations, bool include_user_name,
+             bool include_annotations,
              QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text);
   virtual ~DocsWriter();
 
@@ -117,12 +117,10 @@ public:
   bool is_open() const;
   bool is_including_text() const;
   bool is_including_annotations() const;
-  bool is_including_user_name() const;
 
   virtual void add_document(const QString& md5, const QString& content,
                             const QJsonObject& metadata,
                             const QList<Annotation>& annotations,
-                            const QString& user_name,
                             const QString& short_title,
                             const QString& long_title) = 0;
   /// at the start of the output file
@@ -138,17 +136,16 @@ private:
   QFile file_;
   bool include_text_;
   bool include_annotations_;
-  bool include_user_name_;
 };
 
 class JsonLinesDocsWriter : public DocsWriter {
 public:
   JsonLinesDocsWriter(const QString& file_path, bool include_text,
-                      bool include_annotations, bool include_user_name);
+                      bool include_annotations);
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& short_title,
+                     const QString& short_title,
                     const QString& long_title) override;
 
   void write_suffix() override;
@@ -165,12 +162,12 @@ private:
 class JsonDocsWriter : public JsonLinesDocsWriter {
 public:
   JsonDocsWriter(const QString& file_path, bool include_text,
-                 bool include_annotations, bool include_user_name);
+                 bool include_annotations);
 
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& short_title,
+                    const QString& short_title,
                     const QString& long_title) override;
   void write_prefix() override;
   void write_suffix() override;
@@ -317,14 +314,11 @@ public:
   /// data -- ie exported docs will have a `text` key.
   /// \param include_annotations the annotations are included -- exported docs
   /// will have a `labels` key.
-  /// \param user_name value for the `annotation_approver` key. If an empty
-  /// string this key won't be added.
   /// \param progress if not `nullptr`, used to display the export progress
   ExportDocsResult export_documents(const QString& file_path,
                                     bool labelled_docs_only = true,
                                     bool include_text = true,
                                     bool include_annotations = true,
-                                    const QString& user_name = "",
                                     QProgressDialog* progress = nullptr);
 
   /// Exports labels to a .json file.
@@ -390,8 +384,7 @@ private:
   /// return a writer appropriate for the filename extension
   std::unique_ptr<DocsWriter> get_docs_writer(const QString& file_path,
                                               bool include_text,
-                                              bool include_annotations,
-                                              bool include_user_name) const;
+                                              bool include_annotations) const;
 
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   int insert_doc_annotations(int doc_id, const QJsonArray& annotations,
@@ -402,7 +395,7 @@ private:
                     const QString& shortcut_key = QString());
 
   int write_doc(DocsWriter& writer, int doc_id, bool include_text,
-                bool include_annotations, const QString& user_name);
+                bool include_annotations);
 
   ExportLabelsResult write_labels_to_json(const QJsonArray& labels,
                                           const QString& file_path);
@@ -430,7 +423,7 @@ int batch_import_export(
     const QString& db_path, const QList<QString>& labels_files,
     const QList<QString>& docs_files, const QString& export_labels_file,
     const QString& export_docs_file, bool labelled_docs_only, bool include_text,
-    bool include_annotations, const QString& user_name, bool vacuum);
+    bool include_annotations, bool vacuum);
 
 } // namespace labelbuddy
 

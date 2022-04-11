@@ -22,7 +22,7 @@ public:
   ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent = nullptr);
 
 public slots:
-  /// Update db path and user name when current database changes
+  /// Update db path when current database changes
   void update_database_info();
 
 signals:
@@ -43,7 +43,6 @@ private:
     export_documents,
     export_labels
   };
-  QString default_user_name();
 
   /// Find a directory from which to start a filedialog
 
@@ -76,7 +75,6 @@ private:
   QPushButton* import_labels_button_;
   QPushButton* export_docs_button_;
   QPushButton* export_labels_button_;
-  QLineEdit* annotator_name_edit_;
   QCheckBox* labelled_only_checkbox_;
   QCheckBox* include_text_checkbox_;
   QCheckBox* include_annotations_checkbox_;

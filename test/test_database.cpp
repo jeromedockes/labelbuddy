@@ -434,7 +434,7 @@ QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
 
   auto out_file = tmp_dir.filePath(QString("exported.%0").arg(export_format));
   catalog.export_documents(out_file, !export_all, export_with_content,
-                           export_annotations, "some_user");
+                           export_annotations);
   check_exported_docs_json(out_file, docs);
   return out_file;
 }
@@ -494,8 +494,6 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
                  json_data["text"].toString().replace("\n", "\t"));
       }
     }
-    QCOMPARE(output_json.value("annotation_approver").toString(),
-             QString("some_user"));
 
     if (export_annotations) {
       if (meta.value("title").toString() == "document 1") {
@@ -601,7 +599,7 @@ void TestDatabase::test_batch_import_export() {
   auto res = batch_import_export(
       db_path, {labels_file},
       {docs_file, "/some/file/does/not/exist.json", docs_file_bad_ext},
-      labels_out, docs_out, false, true, true, "someone", false);
+      labels_out, docs_out, false, true, true, false);
   QCOMPARE(res, 1);
 
   QJsonArray output_docs;
@@ -616,12 +614,11 @@ void TestDatabase::test_batch_import_export() {
   QCOMPARE(output_docs.size(), input_docs.size());
   QCOMPARE(output_docs[0].toObject()["text"], input_docs[0].toObject()["text"]);
 
-  res = batch_import_export(db_path, {}, {}, "", "", false, false, false, "",
-                            true);
+  res = batch_import_export(db_path, {}, {}, "", "", false, false, false, true);
   QCOMPARE(res, 0);
 
   res = batch_import_export("/does/not/exist/db.sql", {}, {}, "", "", false,
-                            false, false, "", true);
+                            false, false, true);
   QCOMPARE(res, 1);
 }
 
