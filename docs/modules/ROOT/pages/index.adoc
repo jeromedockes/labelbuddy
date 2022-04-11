@@ -30,7 +30,7 @@ No docker containers, nothing to configure -- start labelling right away!
 A simple interface and keyboard shortcuts help annotate documents quickly.
 - *Overlapping annotations* are supported.
 - *Simple file formats* to import your data from.
-Choose between JSON, CSV, JSON lines, XML, or plain text.
+Choose between JSON, JSON lines or plain text.
 Export your annotations to these same formats.
 - *Native application* -- not a web application running on a server.
 An annotation database is a single ordinary file.

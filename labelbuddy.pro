@@ -15,7 +15,6 @@ src/no_deselect_all_view.h \
 src/database.h \
 src/import_export_menu.h \
 src/utils.h \
-src/csv.h \
 src/compat.h \
 
 
@@ -34,7 +33,6 @@ src/no_deselect_all_view.cpp \
 src/database.cpp \
 src/import_export_menu.cpp \
 src/utils.cpp \
-src/csv.cpp \
 src/compat.cpp \
 
 QT += widgets sql
@@ -69,7 +67,6 @@ test/test_main_window.h \
 test/test_utils.h \
 test/test_label_list.h \
 test/test_import_export_menu.h \
-test/test_csv.h \
 
 SOURCES += \
 test/main.cpp \
@@ -86,7 +83,6 @@ test/test_main_window.cpp \
 test/test_utils.cpp \
 test/test_label_list.cpp \
 test/test_import_export_menu.cpp \
-test/test_csv.cpp \
 
 SOURCES -= src/main.cpp
 }

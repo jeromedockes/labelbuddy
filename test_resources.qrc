@@ -2,24 +2,8 @@
 <qresource>
   <file>test/data/test_documents.json</file>
   <file>test/data/test_labels.json</file>
-  <file>test/data/example_csv/example1-noerror-5-4-in.csv</file>
-  <file>test/data/example_csv/example1-out.csv</file>
-  <file>test/data/example_csv/example1dos-noerror-5-4-in.csv</file>
-  <file>test/data/example_csv/example1dos-out.csv</file>
-  <file>test/data/example_csv/example2-error-3-4-in.csv</file>
-  <file>test/data/example_csv/example2-out.csv</file>
-  <file>test/data/example_csv/nonewline-noerror-2-2-in.csv</file>
-  <file>test/data/example_csv/nonewline-out.csv</file>
-  <file>test/data/example_csv/nonewlinequoted-noerror-2-2-in.csv</file>
-  <file>test/data/example_csv/nonewlinequoted-out.csv</file>
-  <file>test/data/invalid_files/docs_1.csv</file>
-  <file>test/data/invalid_files/docs_2.csv</file>
   <file>test/data/invalid_files/docs_3.json</file>
   <file>test/data/invalid_files/docs_4.jsonl</file>
-  <file>test/data/invalid_files/docs_5.xml</file>
-  <file>test/data/invalid_files/docs_6.xml</file>
-  <file>test/data/invalid_files/docs_7.xml</file>
-  <file>test/data/invalid_files/docs_8.xml</file>
   <file>test/data/invalid_files/docs_9.jsonl</file>
 </qresource>
 </RCC>

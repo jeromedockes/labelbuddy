@@ -3,4 +3,3 @@
 * xref:manpage.adoc[man page]
 * xref:screenshots.adoc[Screenshots]
 * xref:examples.adoc[Examples]
-* xref:xml_schema.adoc[XML Schema]

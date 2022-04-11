@@ -27,13 +27,12 @@ void add_many_docs(const QString& db_name) {
   QSqlQuery query(QSqlDatabase::database(db_name));
   query.exec("begin transaction;");
   for (int i = 0; i != 360; ++i) {
-    query.prepare("insert into document (content, content_md5, "
-                  "user_provided_id) values (:content, :md5, :user_id);");
+    query.prepare("insert into document (content, content_md5) "
+                  "values (:content, :md5);");
     auto content = QString("content of document %0").arg(i);
     query.bindValue(":content", content);
     query.bindValue(":md5", QCryptographicHash::hash(content.toUtf8(),
                                                      QCryptographicHash::Md5));
-    query.bindValue(":user_id", QString("doc #%0").arg(i));
     query.exec();
   }
   query.exec("commit;");

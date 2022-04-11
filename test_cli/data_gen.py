@@ -8,13 +8,6 @@ import numpy as np
 from sklearn.datasets import fetch_20newsgroups
 
 
-def clean_xml(text):
-    illegal_xml_re = re.compile(
-        "[\x00-\x08\x0b-\x1f\x7f-\x84\x86-\x9f"
-        "\ud800-\udfff\ufdd0-\ufddf\ufffe-\uffff]"
-    )
-    return illegal_xml_re.sub("", text)
-
 
 def fetch_newsgroups(n_docs=None):
     newsgroups = fetch_20newsgroups(shuffle=False, subset="all")
@@ -23,7 +16,6 @@ def fetch_newsgroups(n_docs=None):
         all_docs, all_targets = all_docs[:n_docs], all_targets[:n_docs]
 
     json_ready = []
-    xml_ready = []
     txt_ready = []
     for i, (doc, target) in enumerate(zip(all_docs, all_targets)):
         target_name = newsgroups["target_names"][target]
@@ -34,7 +26,6 @@ def fetch_newsgroups(n_docs=None):
             {
                 "text": doc,
                 "long_title": long_title,
-                "id": str(i),
                 "short_title": short_title,
                 "meta": {
                     "target": int(target),
@@ -44,27 +35,11 @@ def fetch_newsgroups(n_docs=None):
                 },
             }
         )
-        xml_doc = clean_xml(doc)
-        xml_ready.append(
-            {
-                "text": xml_doc,
-                "long_title": clean_xml(long_title),
-                "id": str(i),
-                "short_title": clean_xml(short_title),
-                "meta": {
-                    "target": str(target),
-                    "target_name": clean_xml(target_name),
-                    "md5": hashlib.md5(xml_doc.encode("utf-8")).hexdigest(),
-                    "pos_in_dataset": str(i),
-                },
-            }
-        )
         txt_ready.append({"text": doc.replace("\n", r"\n")})
 
     return {
         "json": json_ready,
         "txt": txt_ready,
-        "xml": xml_ready,
         "target_names": newsgroups["target_names"],
         "labels": get_labels(newsgroups["target_names"]),
     }

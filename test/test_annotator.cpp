@@ -52,7 +52,7 @@ void TestAnnotator::test_annotator() {
   // create other annotation and delete with backspace
   text->search_forward();
   QTest::keyClicks(&annotator, "p");
-  QCOMPARE(annotations_model.get_annotations_info()[2].label_id, 1);
+  QCOMPARE(annotations_model.get_annotations_info()[1].label_id, 1);
   QTest::keyClick(&annotator, Qt::Key_Backspace);
   QCOMPARE(annotations_model.get_annotations_info().size(), 0);
 

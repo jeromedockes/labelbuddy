@@ -16,7 +16,6 @@ endif::[]
 :ghreleases: https://github.com/jeromedockes/labelbuddy/releases
 :ghrepo: https://github.com/jeromedockes/labelbuddy/
 :lb: pass:q[*labelbuddy*]
-:doca: pass:q[*doccano*]
 :ietab: pass:q["`Import / Export`" tab]
 :annotab: pass:q["`Annotate`" tab]
 :dstab: pass:q["`Dataset`" tab]

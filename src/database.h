@@ -14,10 +14,6 @@
 #include <QString>
 #include <QTextStream>
 #include <QVariant>
-#include <QXmlStreamReader>
-#include <QXmlStreamWriter>
-
-#include "csv.h"
 
 /// \file
 /// Utilities for manipulating databases.
@@ -29,7 +25,6 @@ enum class ErrorCode { NoError = 0, CriticalParsingError, FileSystemError };
 struct DocRecord {
   QString content{};
   QByteArray metadata{};
-  QString user_provided_id{};
   QString declared_md5{};
   QJsonArray annotations{};
   bool valid_content = true;
@@ -47,7 +42,7 @@ public:
   bool has_error() const;
   ErrorCode error_code() const;
   QString error_message() const;
-  virtual bool read_next();
+  virtual bool read_next() = 0;
   const DocRecord* get_current_record() const;
   virtual int progress_max() const;
   virtual int current_progress() const;
@@ -73,40 +68,6 @@ public:
 
 private:
   QTextStream stream_;
-};
-
-QString format_xml_error(const QXmlStreamReader& xml);
-
-class XmlDocsReader : public DocsReader {
-
-public:
-  XmlDocsReader(const QString& file_path);
-  bool read_next() override;
-
-private:
-  QXmlStreamReader xml_;
-  void read_document();
-  void read_document_text();
-  void read_md5();
-  void read_meta();
-  void read_annotation_set();
-  void read_annotation();
-  void read_user_provided_id();
-  void read_short_title();
-  void read_long_title();
-  std::unique_ptr<DocRecord> new_record_{};
-};
-
-class CsvDocsReader : public DocsReader {
-public:
-  CsvDocsReader(const QString& file_path);
-  bool read_next() override;
-
-private:
-  QTextStream stream_;
-  CsvMapReader csv_;
-  void read_annotation(const QMap<QString, QString>& csv_record,
-                       QJsonArray& annotations);
 };
 
 std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument&);
@@ -162,9 +123,8 @@ public:
                             const QJsonObject& metadata,
                             const QList<Annotation>& annotations,
                             const QString& user_name,
-                            const QString& user_provided_id,
                             const QString& short_title,
-                            const QString& long_title);
+                            const QString& long_title) = 0;
   /// at the start of the output file
   virtual void write_prefix();
 
@@ -181,15 +141,14 @@ private:
   bool include_user_name_;
 };
 
-class DocsJsonLinesWriter : public DocsWriter {
+class JsonLinesDocsWriter : public DocsWriter {
 public:
-  DocsJsonLinesWriter(const QString& file_path, bool include_text,
+  JsonLinesDocsWriter(const QString& file_path, bool include_text,
                       bool include_annotations, bool include_user_name);
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& user_provided_id,
-                    const QString& short_title,
+                    const QString& user_name, const QString& short_title,
                     const QString& long_title) override;
 
   void write_suffix() override;
@@ -203,55 +162,18 @@ private:
   int n_docs_{};
 };
 
-class DocsJsonWriter : public DocsJsonLinesWriter {
+class JsonDocsWriter : public JsonLinesDocsWriter {
 public:
-  DocsJsonWriter(const QString& file_path, bool include_text,
+  JsonDocsWriter(const QString& file_path, bool include_text,
                  bool include_annotations, bool include_user_name);
 
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& user_provided_id,
-                    const QString& short_title,
+                    const QString& user_name, const QString& short_title,
                     const QString& long_title) override;
   void write_prefix() override;
   void write_suffix() override;
-};
-
-class DocsCsvWriter : public DocsWriter {
-public:
-  DocsCsvWriter(const QString& file_path, bool include_text,
-                bool include_annotations, bool include_user_name);
-  void add_document(const QString& md5, const QString& content,
-                    const QJsonObject& metadata,
-                    const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& user_provided_id,
-                    const QString& short_title,
-                    const QString& long_title) override;
-  void write_prefix() override;
-
-private:
-  QTextStream stream_;
-  CsvWriter csv_;
-};
-
-class DocsXmlWriter : public DocsWriter {
-public:
-  DocsXmlWriter(const QString& file_path, bool include_text,
-                bool include_annotations, bool include_user_name);
-  void add_document(const QString& md5, const QString& content,
-                    const QJsonObject& metadata,
-                    const QList<Annotation>& annotations,
-                    const QString& user_name, const QString& user_provided_id,
-                    const QString& short_title,
-                    const QString& long_title) override;
-  void write_prefix() override;
-  void write_suffix() override;
-
-private:
-  QXmlStreamWriter xml_;
-
-  void add_annotations(const QList<Annotation>& annotations);
 };
 
 struct LabelRecord {
@@ -297,10 +219,6 @@ read_labels(const QString& file_path);
 QPair<QJsonArray, QPair<ErrorCode, QString>> read_json_labels(QFile& file);
 QPair<QJsonArray, QPair<ErrorCode, QString>>
 read_json_lines_labels(QFile& file);
-
-QPair<QJsonArray, QPair<ErrorCode, QString>> read_csv_labels(QFile& file);
-
-QPair<QJsonArray, QPair<ErrorCode, QString>> read_xml_labels(QFile& file);
 
 QPair<QJsonArray, QPair<ErrorCode, QString>> read_txt_labels(QFile& file);
 
@@ -380,17 +298,17 @@ public:
                                        ItemKind kind,
                                        bool accept_default) const;
 
-  /// Imports documents in .json, .jsonl, .csv, .xml or .txt format
+  /// Imports documents in .json, .jsonl, or .txt format
 
   /// If `progress` is not `nullptr`, used to display current progress.
   ImportDocsResult import_documents(const QString& file_path,
                                     QProgressDialog* progress = nullptr);
 
-  /// Imports labels in .txt, .csv or .json format
+  /// Imports labels in .txt or .json format
 
   ImportLabelsResult import_labels(const QString& file_path);
 
-  /// Exports annotations to .xml, .csv, .jsonl or .json formats.
+  /// Exports annotations to .jsonl or .json formats.
 
   /// \param file_path file in which to write the exported docs and annotations
   /// \param labelled_docs_only only documents with at least one annotation are
@@ -409,7 +327,7 @@ public:
                                     const QString& user_name = "",
                                     QProgressDialog* progress = nullptr);
 
-  /// Exports labels to a .json or .csv file.
+  /// Exports labels to a .json file.
   ExportLabelsResult export_labels(const QString& file_path);
 
   /// Return the name of the currently used database
@@ -444,6 +362,11 @@ signals:
   void temporary_database_filled(const QString& database_name);
 
 private:
+  // first 4 bytes of the md5 checksum of "labelbuddy" (ascii-encoded) read as a
+  // big-endian signed int
+  static constexpr int32_t sqlite_application_id_ = -14315518;
+  static constexpr int32_t sqlite_user_version_ = 3;
+
   QString current_database_;
 
   bool store_db_path(const QString& db_path);
@@ -470,7 +393,6 @@ private:
                                               bool include_annotations,
                                               bool include_user_name) const;
 
-
   int insert_doc_record(const DocRecord& record, QSqlQuery& query);
   int insert_doc_annotations(int doc_id, const QJsonArray& annotations,
                              QSqlQuery& query);
@@ -486,10 +408,6 @@ private:
                                           const QString& file_path);
   ExportLabelsResult write_labels_to_json_lines(const QJsonArray& labels,
                                                 const QString& file_path);
-  ExportLabelsResult write_labels_to_xml(const QJsonArray& labels,
-                                         const QString& file_path);
-  ExportLabelsResult write_labels_to_csv(const QJsonArray& labels,
-                                         const QString& file_path);
 
   int color_index_{};
   bool tmp_db_data_loaded_{};

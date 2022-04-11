@@ -27,13 +27,11 @@ endif::[]
 :homepage-current: https://jeromedockes.github.io/labelbuddy/labelbuddy/current
 ifndef::site-gen-antora[]
 :examples-link: link:{homepage-current}/examples
-:schemas-link: link:{homepage-current}/xml_schema
 :manpage-link: link:{homepage-current}/manpage/
 :downloads-link: link:{homepage-current}/installation
 endif::[]
 ifdef::site-gen-antora[]
 :examples-link: xref:examples.adoc
-:schemas-link: xref:xml_schema.adoc
 :manpage-link: xref:manpage.adoc
 :downloads-link: link:{homepage-current}/installation
 // :downloads-link: xref:labelbuddy:ROOT:installation.adoc
@@ -44,7 +42,6 @@ endif::[]
 :ghrepo: https://github.com/jeromedockes/labelbuddy
 :lblicense: https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt
 :sqlitehome: https://www.sqlite.org
-:csv-rfc: https://tools.ietf.org/html/rfc4180
 :wikipedia-unicode: https://en.wikipedia.org/wiki/Unicode
 :unicode-home: https://home.unicode.org
 :wikipedia-bom: https://en.wikipedia.org/wiki/Byte_order_mark
@@ -54,7 +51,6 @@ endif::[]
 :xslt: pass:q[*XSLT*]
 :sqlite: pass:q[*SQLite*]
 :lb: pass:q[*labelbuddy*]
-:doca: pass:q[*doccano*]
 :libreoffice-calc: pass:q[*LibreOffice Calc*]
 :excel: pass:q[*Microsoft Excel*]
 :google-sheets: pass:q[*Google Sheets*]
@@ -106,8 +102,6 @@ But being a dedicated tool, {lb} provides a convenient interface for creating an
 
 {lb} works completely offline, making it suitable to annotate confidential data.
 
-{lb} supports the input and output formats of {doca} so it is <<compatibility-with-doccano,possible>> to switch from one to the other or to combine the work of annotators that use either.
-
 === Quick start
 
 Start by {downloads-link}[installing] {lb}.
@@ -139,11 +133,11 @@ Annotation:: A label attached to a specific portion of text in a document.
 For example, the first 5 characters of document #2 tagged with the label "`City`" constitute an annotation.
 Additional free-form text can also be attached to annotations.
 Database:: A binary file, created and modified by {lb}, containing documents, labels and annotations.
-Importing and exporting data:: Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON, XML or CSV.
+Importing and exporting data:: Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON.
 
 The labelbuddy interface is organized around three tabs: the {ietab} for importing and exporting documents, labels and annotations, the {dstab} to get an overview and manage documents and labels in the database, and the {annotab} is where annotations are edited.
 
-Documents and labels can be imported into a {lb} database from several simple formats such as JSON or CSV, described in <<formats-sec>>.
+Documents and labels can be imported into a {lb} database from several simple formats such as JSON, described in <<formats-sec>>.
 Once they are imported, you can annotate the documents.
 Finally, you can export your annotations.
 
@@ -179,8 +173,6 @@ It can contain links by using an html `<a>` tag.
 
 This information can be provided in <<formats-sec,several formats>>.
 The format is deduced from the filename extension.
-
-Moreover, annotations (previously exported from {lb} or {doca}) can also be imported into a database as described in <<formats-sec>>.
 
 Importing documents and annotations can also be done from the <<command-line-interface,command line>>, for example:
 
@@ -383,7 +375,6 @@ Back in the {ietab}, click btn:[Export docs & annotations].
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
 If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the {wikipedia-md5}[MD5] checksum of the text that is always exported.
-You can also provide an "`annotation approver`" (user name), that will be exported as the `annotation_approver` (used by {doca}).
 You can also choose to only export the documents, without the annotations.
 
 When clicking btn:[Export docs & annotations] you are asked to select a file and the resulting format will depend on the filename extension.
@@ -515,24 +506,16 @@ If you find a bug or have suggestions to improve {lb}, kindly open an issue on t
 Documents, annotations and labels can be imported (exported) from (to) several simple formats, described below.
 In all cases, the format is deduced from the filename extension.
 
-Several formats are supported to facilitate integrating {lb} in your project.
-For example, if you work with spreadsheet software such as {excel} or {libreoffice-calc}, you may want to use the <<docs-csv-format,CSV>> format.
-If your documents are in XML you can easily transform them into the {lb} <<docs-xml-format,XML>> format with {xslt}.
-Of course, you can import data from several files in any formats into the same database.
-If you are not sure which format to choose, use <<docs-jsonl-format,JSONL>> for documents and <<labels-json-format,JSON>> for labels.
-
 The examples shown in this section can be found as separate files on the {examples-link}[{lb} examples page].
 Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <<file-formats-for-documents-and-annotations,the next section>>.
 However note that it is possible to export document metadata and annotations without the documents' text to save storage space.
 
 At the moment, {lb} expects all the files it imports to be encoded with {wikipedia-utf8}[UTF-8] (or UTF-16, or UTF-32).
 Note that https://en.wikipedia.org/wiki/ASCII[ASCII] files are also valid UTF-8.
-One exception is that if you use the XML format, you can specify a different encoding in the XML prolog.
 
 All files produced by {lb} are UTF-8 encoded.
 
 The import and export formats of {lb} are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any {lb} database.
-Some formats are also compatible with {doca}; see <<compatibility-with-doccano>>.
 
 Note that the content (text) of the documents must be in plain text.
 Other formats will need to be converted to text, for example using https://www.xpdfreader.com/pdftotext-man.html[pdftotext] if they are in PDF, or https://pandoc.org/[pandoc] (specifying the target format as "plain") for many other formats.
@@ -566,7 +549,7 @@ Just as `meta`, `id` is stored but not used internally by {lb}.
 `long_title`:: Displayed in the document list in the {dstab}.
 `labels`:: A list of annotations.
 
-A document can can have a `labels` attribute, which is a list of annotations (the name is `labels` and not `annotations` for compatibility with {doca}).
+A document can can have a `labels` attribute, which is a list of annotations.
 Each annotation is a list of 3 or 4 elements (the last one, `extra_data`, is optional):
 
 [horizontal]
@@ -715,219 +698,6 @@ endif::[]
 Note that JSON Lines is _not_ valid JSON.
 If you exported your annotations in a JSON Lines file, when parsing it each _line_ must be parsed separately as a JSON document -- not the whole file.
 
-[#docs-xml-format]
-==== XML (`.xml`)
-
-If your source documents are stored in XML, it may be easier to transform them to {lb}'s XML format than to JSON.
-A RELAX NG schema is provided on the {schemas-link}[{lb} XML schema page].
-The root element must be `document_set` and contain any number of `document` elements.
-Each `document` contains children that have the names of the attributes described above: `text`, `short_title`, etc.
-User metadata is provided in the attributes of an element named `meta` or by using the `id` element's text.
-A `document`’s children can appear in any order.
-The children of an `annotation` must respect the order: `start_char`, `end_char`, `label`, and optionally `extra_data`.
-
-For example:
-[source,xml]
-.Importing 2 documents from a `.xml` file.
-ifndef::env-github[]
-----
-include::{exampledir}docs.xml[]
-----
-endif::[]
-ifdef::env-github[]
-----
-<?xml version='1.0' encoding='utf-8'?>
-<document_set>
-  <document>
-    <text>the text of document 1
-some text
-the end
-</text>
-  </document>
-  <document>
-    <meta id="doc-2" source="example.org"/>
-    <text>the text of document 2
-more text
-the end
-</text>
-    <short_title>title 2</short_title>
-    <long_title>the title of document 2</long_title>
-  </document>
-</document_set>
-----
-endif::[]
-
-Here are the same documents exported with some annotations:
-[source,xml]
-.Another example of 2 documents in a `.xml` file, with annotations (exported by {lb})
-ifndef::env-github[]
-----
-include::{exampledir}exported_docs.xml[]
-----
-endif::[]
-ifdef::env-github[]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<document_set>
-    <document>
-        <utf8_text_md5_checksum>872edcd008dee45d894d5d3c9143f96b</utf8_text_md5_checksum>
-        <meta/>
-        <text>the text of document 1
-some text
-the end
-</text>
-        <labels>
-            <annotation>
-                <start_char>4</start_char>
-                <end_char>8</end_char>
-                <label>Word</label>
-            </annotation>
-            <annotation>
-                <start_char>21</start_char>
-                <end_char>22</end_char>
-                <label>Number</label>
-                <extra_data>1</extra_data>
-            </annotation>
-        </labels>
-    </document>
-    <document>
-        <utf8_text_md5_checksum>c27b0dbfabf831afaf8bafa0c727cf97</utf8_text_md5_checksum>
-        <meta id="doc-2" source="example.org"/>
-        <short_title>title 2</short_title>
-        <long_title>the title of document 2</long_title>
-        <text>the text of document 2
-more text
-the end
-</text>
-        <labels>
-            <annotation>
-                <start_char>12</start_char>
-                <end_char>20</end_char>
-                <label>Word</label>
-            </annotation>
-        </labels>
-    </document>
-</document_set>
-----
-endif::[]
-
-[CAUTION]
-.Caveats when importing from Text, JSON, JSONL or CSV and exporting to XML
-====
-In the XML format, the document's metadata is stored as attributes of the `meta` element.
-This means the values in `meta` must be literal values (ie not arrays or objects).
-Therefore, if you plan to export documents and annotations to XML, do not use arrays or objects for values in the `meta` attribute of documents imported from other formats.
-For example, if you import a document from JSON with `meta` equal to `{"authors": ["author 1", "author 2"], "id": "doc-1"}`, `"authors"` will not be correctly exported to XML (but `"id"` will, and both would be correctly exported to other formats than XML).
-
-JSON and other formats can represent some characters that are invalid in XML.
-https://en.wikipedia.org/wiki/Valid_characters_in_XML[Invalid characters] (for example form feed, `0xC`) are not allowed to appear at all in XML (unlike special characters such as `<` that simply need to be escaped), and they will not be written to the output.
-Thus if you imported documents from another format and there is a chance that they contain invalid XML characters, it is safer to choose something else than XML as the export format so that no characters are omitted in the output.
-====
-
-
-[#docs-csv-format]
-==== CSV (`.csv`)
-Documents and annotations can also be imported and exported using CSV files.
-
-The file must be in the default format produced by most tools.
-More precisely, it must respect the conventions described in {csv-rfc}[rfc4180]: `,` is the separator, fields that contain newlines (`\r\n` or `\n`) or double quotes (`"`) must be enclosed in double quotes, and `"` must be escaped by doubling it (replacing it with `""`).
-Line endings can be either `\r\n` or `\n` (in files exported by {lb} they will always be `\r\n`, as specified by rfc4180).
-This is the default CSV format used by tools such as {excel}, {libreoffice-calc}, {google-sheets}, `write.csv` in *R*, *the `csv` Python* standard library module or `DataFrame.to_csv` in the *Pandas* library, etc. so most likely you will not need to configure anything.
-
-The file should be encoded with UTF-8 (or UTF-16, or UTF-32).
-
-The CSV file must start with a header row and the column names must correspond to the document attributes described above (other columns will be ignored).
-If present (and not empty), `meta` must be the JSON serialization of the metadata (eg `{"key": "value"}`, which is why it may be more convenient to rely only on `id` instead, as shown below.
-
-Here is an example:
-
-[source,csv]
-.Importing 2 documents from a `.csv` file.
-ifndef::env-github[]
-----
-include::{exampledir}docs.csv[]
-----
-endif::[]
-ifdef::env-github[]
-----
-text,short_title,long_title,id
-"the text of document 1
-some text
-the end
-",,,
-"the text of document 2
-more text
-the end
-",title 2,the title of document 2,doc-2
-----
-endif::[]
-
-ifndef::env-github[]
-And here is the same file represented as a table:
-
-[format="csv",options="header,autowidth",cols="4*l"]
-.Importing 2 documents from a `.csv` file.
-|===
-include::{exampledir}docs.csv[]
-|===
-endif::[]
-
-When documents contain annotations, their representation is slightly different than in the JSON, JSONL or XML formats.
-Documents do not have a `labels` attribute.
-Instead, each row corresponds to one annotation and contains the attributes of both the document and the annotation, as shown in the examples below.
-To avoid storing multiple copies of the documents`' text and titles, it is recommended to export the text and annotations separately.
-That is,
-
-- export the documents _with_ the text but _without_ the annotations,
-- then export to a different file _without_ the text but _with_ the annotations.
-
-The two resulting tables can then be joined on the `utf8_text_md5_checksum` column (or on the `id` column if you provided a distinct `id` for each document when importing them).
-[source,csv]
-.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
-ifndef::env-github[]
-----
-include::{exampledir}exported_docs.csv[]
-----
-endif::[]
-ifdef::env-github[]
-----
-ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
-,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
-some text
-the end
-",4,8,Word,
-,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
-some text
-the end
-",21,22,Number,1
-,c27b0dbfabf831afaf8bafa0c727cf97,{},doc-2,title 2,the title of document 2,"the text of document 2
-more text
-the end
-",12,20,Word,
-----
-endif::[]
-
-ifndef::env-github[]
-[.hscrollable]
-.Another example of 2 documents in a `.csv` file, with annotations (exported by {lb})
---
-[format="csv",options="header,autowidth",cols="11*l"]
-|===
-include::{exampledir}exported_docs.csv[]
-|===
---
-endif::[]
-
-When exporting with annotations, any unlabelled document will produce one row in which the annotation-related columns `start_char`, `end_char`, `label` and `extra_data` are empty.
-
-When reading exported `.csv` files, you should rely on the header row to identify columns, rather than on column positions, which may change in future versions of {lb}.
-
-Note the csv starts with and empty column that you can ignore.
-This is because the document starts with a {wikipedia-bom}[Byte Order Mark (BOM)], so that {libreoffice-calc}, {excel} and some other tools correctly detect that it is UTF-8 encoded.
-By inserting an empty column, the data will still be read correctly by tools that do not expect or skip the BOM.
-When parsing the csv with such a tool the name of the first column will be `\0xef\0xbb\0xbfignore_this_column` instead of `ignore_this_column`, but the rest of the data will be unchanged.
-
-
 === File formats for labels
 Labels can have the following attributes:
 
@@ -970,8 +740,6 @@ Exporting labels to `.txt` is not possible.
 
 When labels are stored in a JSON file, the file must contain a JSON array containing one JSON object per label.
 Each label's object must have the key `text` and optionally `color` and `shortcut_key`.
-For compatibility with {doca}, `color` and `shortcut_key` can also be specified as `background_color` and `suffix_key`.
-If both are present, `color` has higher precedence than `background_color` and `shortcut_key` has higher precedence than `suffix_key`.
 
 For example:
 [source,json]
@@ -1058,159 +826,4 @@ ifdef::env-github[]
 {"background_color":"#ffa500","color":"#ffa500","shortcut_key":"n","suffix_key":"n","text":"Number"}
 ----
 endif::[]
-
-==== XML (`.xml`)
-
-Labels can also be stored in XML.
-As for documents, a RELAX NG schema is provided on the {schemas-link}[{lb} XML schema page].
-Here is an example:
-[source,xml]
-.Importing 2 labels from a `.xml` file.
-ifndef::env-github[]
-----
-include::{exampledir}labels.xml[]
-----
-endif::[]
-ifdef::env-github[]
-----
-<?xml version='1.0' encoding='utf-8'?>
-<label_set>
-  <label>
-    <text>Word</text>
-  </label>
-  <label>
-    <text>Number</text>
-    <shortcut_key>n</shortcut_key>
-    <color>orange</color>
-  </label>
-</label_set>
-----
-endif::[]
-
-Labels exported by {lb}:
-
-[source,xml]
-.Another example of 2 labels in a `.xml` file (exported by {lb})
-ifndef::env-github[]
-----
-include::{exampledir}exported_labels.xml[]
-----
-endif::[]
-ifdef::env-github[]
-----
-<?xml version="1.0" encoding="UTF-8"?>
-<label_set>
-    <label>
-        <text>Word</text>
-        <color>#aec7e8</color>
-    </label>
-    <label>
-        <text>Number</text>
-        <color>#ffa500</color>
-        <shortcut_key>n</shortcut_key>
-    </label>
-</label_set>
-----
-endif::[]
-
-[CAUTION]
-.Caveat when exporting labels to XML
-====
-The same caveat as for documents applies: if the label names contain https://en.wikipedia.org/wiki/Valid_characters_in_XML[invalid characters] (for example form feed, `0xC`), they cannot be correctly exported to XML.
-====
-
-[#labels-csv-format]
-==== CSV (`.csv`)
-Labels can also be imported and exported from and to CSV.
-The CSV format is the same as for <<docs-csv-format,documents>>, ie the one
-described in {csv-rfc}[rfc4180]: `,` is the separator, fields that contain newlines (`\r\n` or `\n`) or double quotes (`"`) must be enclosed in double quotes, and `"` must be escaped by doubling it (replacing it with `""`).
-Line endings can be either `\r\n` or `\n` (they are always `\r\n` in CSV files created by {lb}).
-This is the default format used by many tools including {excel}, {libreoffice-calc}, and {google-sheets}.
-
-Here is an example:
-[source,csv]
-.Importing 2 labels from a `.csv` file
-ifndef::env-github[]
-----
-include::{exampledir}labels.csv[]
-----
-endif::[]
-ifdef::env-github[]
-----
-text,shortcut_key,color
-Word,,
-Number,n,orange
-----
-endif::[]
-
-ifndef::env-github[]
-Here is the same file presented as a table:
-
-.Importing 2 labels from a `.csv` file
-[format="csv",options="header,autowidth",cols="3*l"]
-|===
-include::{exampledir}labels.csv[]
-|===
-endif::[]
-
-
-As for documents, when exporting labels to CSV the first column is empty and can be ignored.
-This allows inserting a {wikipedia-bom}[Byte Order Mark (BOM)], so that tools such as {excel} or {libreoffice-calc} that need it to detect UTF-8 can parse the file correctly, while at the same time ensuring that the file will also be parsed correctly by tools that do not expect or do not skip the BOM.
-For example:
-
-[source,csv]
-.Another example of 2 labels in a `.csv` file (exported by {lb})
-ifndef::env-github[]
-----
-include::{exampledir}exported_labels.csv[]
-----
-endif::[]
-ifdef::env-github[]
-----
-ignore_this_column,text,color,shortcut_key
-,Word,#aec7e8,
-,Number,#ffa500,n
-----
-endif::[]
-
-ifndef::env-github[]
-Here is the same file presented as a table:
-
-[format="csv",options="header,autowidth",cols="4*l"]
-.Another example of 2 labels in a `.csv` file (exported by {lb})
-|===
-include::{exampledir}exported_labels.csv[]
-|===
-endif::[]
-
-[#compatibility-with-doccano]
-=== Compatibility with doccano
-Labels exported from {lb} in the JSON format can be imported into {doca}.
-Labels exported from {doca} and saved in a `.json` file can be imported into {lb}.
-
-Documents and annotations exported from {doca} can also be imported into a {lb} database.
-To do so, when exporting from {doca} select the format "`jsonl (text label)`".
-Make sure to save them in a file with the `.jsonl` extension (not `.json`, otherwise {lb} will try to parse it as JSON and JSON Lines is not valid JSON).
-
-[CAUTION]
-.Caveats when importing {doca} documents and annotations into {lb}
-====
-{doca} strips leading and trailing whitespace from documents when importing them.
-Therefore if you import the result into a {lb} database that already contains the original documents, it may not be recognized as being the same ({lb} doesn’t modify the imported documents) and you might end up with (near) duplicate documents in the database.
-====
-
-Annotations exported from {lb} in the `.jsonl` format together with the document’s text can also be imported into {doca} (selecting the "`jsonl`" import format).
-
-[CAUTION]
-.Caveats when importing {lb} documents and annotations into {doca}
-====
-If the original document contained leading whitespace, {lb} annotations will appear shifted when {doca} removes the whitespace.
-Moreover, {doca} allows duplicate documents so if the documents were already in the {doca} database, they will appear as new (duplicate) documents rather than new annotations for existing documents.
-
-If you used {lb} features that do not exist in {doca}, you will not be able to import the resulting annotations into {doca}:
-
-- if you have attached extra data to the annotations, {doca} will not recognize the format and will not import the annotations.
-- {doca} does not allow overlapping annotations.
-Therefore if you try to import overlapping annotations (created with {lb}) into {doca} the results will be incorrect; annotated text will appear duplicated and jumbled.
-====
 

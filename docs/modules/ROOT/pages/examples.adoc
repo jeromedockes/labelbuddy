@@ -36,10 +36,6 @@ The files whose name starts with `exported` contain annotations in addition to t
 - link:{attachmentsdir}/exported_docs.json[`exported_docs.json`]
 - link:{attachmentsdir}/docs.jsonl[`docs.jsonl`]
 - link:{attachmentsdir}/exported_docs.jsonl[`exported_docs.jsonl`]
-- link:{attachmentsdir}/docs.xml[`docs.xml`]
-- link:{attachmentsdir}/exported_docs.xml[`exported_docs.xml`]
-- link:{attachmentsdir}/docs.csv[`docs.csv`]
-- link:{attachmentsdir}/exported_docs.csv[`exported_docs.csv`]
 - link:{attachmentsdir}/docs.txt[`docs.txt`]
 
 === Labels
@@ -48,8 +44,4 @@ The files whose name starts with `exported` contain annotations in addition to t
 - link:{attachmentsdir}/exported_labels.json[`exported_labels.json`]
 - link:{attachmentsdir}/labels.jsonl[`labels.jsonl`]
 - link:{attachmentsdir}/exported_labels.jsonl[`exported_labels.jsonl`]
-- link:{attachmentsdir}/labels.xml[`labels.xml`]
-- link:{attachmentsdir}/exported_labels.xml[`exported_labels.xml`]
-- link:{attachmentsdir}/labels.csv[`labels.csv`]
-- link:{attachmentsdir}/exported_labels.csv[`exported_labels.csv`]
 - link:{attachmentsdir}/labels.txt[`labels.txt`]
