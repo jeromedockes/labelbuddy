@@ -58,7 +58,7 @@ void prepare_parser(QCommandLineParser& parser) {
   parser.addVersionOption();
   parser.addPositionalArgument("database", "Database to open.", "[database]");
   parser.addOption(
-      {"demo", "Open a temporary demo database with pre-loaded docs"});
+      {"demo", "Open a temporary demo database with pre-loaded docs."});
   parser.addOption(
       {"import-labels", "Labels file to import in database.", "labels file"});
   parser.addOption({"import-docs",
@@ -68,10 +68,10 @@ void prepare_parser(QCommandLineParser& parser) {
       {"export-labels", "Labels file to export to.", "exported labels file"});
   parser.addOption({"export-docs", "Docs & annotations file to export to.",
                     "exported docs file"});
-  parser.addOption({"labelled-only", "Export only labelled documents"});
-  parser.addOption({"no-text", "Do not include doc text when exporting"});
+  parser.addOption({"labelled-only", "Export only labelled documents."});
+  parser.addOption({"no-text", "Do not include doc text when exporting."});
   parser.addOption(
-      {"no-annotations", "Do not include annotations when exporting"});
+      {"no-annotations", "Do not include annotations when exporting."});
   parser.addOption(
       {"vacuum", "Repack database into minimal amount of disk space."});
 }

@@ -1,2 +1,2 @@
-{"background_color":"#aec7e8","color":"#aec7e8","text":"Word"}
-{"background_color":"#ffa500","color":"#ffa500","shortcut_key":"n","suffix_key":"n","text":"Number"}
+{"color":"#aec7e8","name":"Word"}
+{"color":"#ffa500","name":"Number","shortcut_key":"n"}

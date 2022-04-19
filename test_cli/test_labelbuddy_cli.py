@@ -82,20 +82,20 @@ def compare_dicts_excluding_keys(dict_a, dict_b, excluded):
 
 def compare_docs(db_doc, input_doc, use_meta_md5=True):
     assert "text" in input_doc
-    for k in ["text", "short_title", "long_title"]:
+    for k in ["text", "display_title", "list_title"]:
         db_k = {"text": "content"}.get(k, k)
         if k in input_doc:
             assert input_doc[k] == db_doc[db_k]
         else:
             assert db_doc[db_k] is None
-    if "meta" in input_doc:
+    if "metadata" in input_doc:
         db_doc_meta = json.loads(db_doc["metadata"])
         excluded = [] if use_meta_md5 else ["md5"]
         assert compare_dicts_excluding_keys(
-            input_doc["meta"], db_doc_meta, excluded
+            input_doc["metadata"], db_doc_meta, excluded
         )
         if use_meta_md5:
-            assert db_doc["content_md5"].hex() == input_doc["meta"]["md5"]
+            assert db_doc["content_md5"].hex() == input_doc["metadata"]["md5"]
     assert (
         db_doc["content_md5"].hex()
         == hashlib.md5(input_doc["text"].encode("utf-8")).hexdigest()
@@ -192,10 +192,10 @@ def check_exported_as_dict(
     for i, doc in enumerate(docs):
         assert "utf8_text_md5_checksum" in doc
         if no_annotations:
-            assert "labels" not in doc
+            assert "annotations" not in doc
             assert "start_char" not in doc
         else:
-            assert "start_char" in doc or "labels" in doc
+            assert "start_char" in doc or "annotations" in doc
             if "start_char" in doc:
                 if labelled_only:
                     assert int(doc["start_char"]) < int(doc["end_char"])
@@ -205,9 +205,9 @@ def check_exported_as_dict(
                     ) or (int(doc["start_char"]) < int(doc["end_char"]))
             else:
                 if labelled_only:
-                    assert len(doc["labels"]) > 0
+                    assert len(doc["annotations"]) > 0
                 else:
-                    assert (len(doc["labels"]) > 0) == (not i % 2)
+                    assert (len(doc["annotations"]) > 0) == (not i % 2)
         if no_text:
             assert "text" not in doc
         else:
@@ -486,8 +486,8 @@ def test_import_duplicate_shortcut_key(labelbuddy, tmp_path):
     in_f.write_text(
         json.dumps(
             [
-                {"text": "lab1", "shortcut_key": "a"},
-                {"text": "lab2", "shortcut_key": "a"},
+                {"name": "lab1", "shortcut_key": "a"},
+                {"name": "lab2", "shortcut_key": "a"},
             ]
         )
     )
@@ -495,7 +495,7 @@ def test_import_duplicate_shortcut_key(labelbuddy, tmp_path):
     labelbuddy(":memory:", "--import-labels", in_f, "--export-labels", out_f)
     exported = json.loads(out_f.read_text())
     assert len(exported) == 2
-    assert exported[0]["text"] == "lab1"
+    assert exported[0]["name"] == "lab1"
     assert exported[0]["shortcut_key"] == "a"
-    assert exported[1]["text"] == "lab2"
+    assert exported[1]["name"] == "lab2"
     assert "shortcut_key" not in exported[1]

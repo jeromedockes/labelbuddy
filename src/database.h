@@ -28,8 +28,8 @@ struct DocRecord {
   QString declared_md5{};
   QJsonArray annotations{};
   bool valid_content = true;
-  QString short_title{};
-  QString long_title{};
+  QString display_title{};
+  QString list_title{};
 };
 
 class DocsReader {
@@ -121,8 +121,8 @@ public:
   virtual void add_document(const QString& md5, const QString& content,
                             const QJsonObject& metadata,
                             const QList<Annotation>& annotations,
-                            const QString& short_title,
-                            const QString& long_title) = 0;
+                            const QString& display_title,
+                            const QString& list_title) = 0;
   /// at the start of the output file
   virtual void write_prefix();
 
@@ -145,8 +145,8 @@ public:
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                     const QString& short_title,
-                    const QString& long_title) override;
+                     const QString& display_title,
+                    const QString& list_title) override;
 
   void write_suffix() override;
 
@@ -167,15 +167,15 @@ public:
   void add_document(const QString& md5, const QString& content,
                     const QJsonObject& metadata,
                     const QList<Annotation>& annotations,
-                    const QString& short_title,
-                    const QString& long_title) override;
+                    const QString& display_title,
+                    const QString& list_title) override;
   void write_prefix() override;
   void write_suffix() override;
 };
 
 struct LabelRecord {
   QString name;
-  QString color;
+  QString color{};
   QString shortcut_key{};
 };
 

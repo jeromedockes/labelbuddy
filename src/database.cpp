@@ -91,11 +91,11 @@ std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject& json) {
     record->valid_content = false;
   }
   record->declared_md5 = json["utf8_text_md5_checksum"].toString();
-  record->annotations = json["labels"].toArray();
+  record->annotations = json["annotations"].toArray();
   record->metadata =
-      QJsonDocument(json["meta"].toObject()).toJson(QJsonDocument::Compact);
-  record->short_title = json["short_title"].toString();
-  record->long_title = json["long_title"].toString();
+      QJsonDocument(json["metadata"].toObject()).toJson(QJsonDocument::Compact);
+  record->display_title = json["display_title"].toString();
+  record->list_title = json["list_title"].toString();
   return record;
 }
 
@@ -198,20 +198,20 @@ QTextStream& JsonLinesDocsWriter::get_stream() { return stream_; }
 void JsonLinesDocsWriter::add_document(
     const QString& md5, const QString& content, const QJsonObject& metadata,
     const QList<Annotation>& annotations,
-    const QString& short_title, const QString& long_title) {
+    const QString& display_title, const QString& list_title) {
   if (n_docs_) {
     stream_ << "\n";
   }
   QJsonObject doc_json{};
   assert(md5 != "");
   doc_json.insert("utf8_text_md5_checksum", md5);
-  doc_json.insert("meta", metadata);
+  doc_json.insert("metadata", metadata);
   if (is_including_text()) {
-    if (short_title != QString()) {
-      doc_json.insert("short_title", short_title);
+    if (display_title != QString()) {
+      doc_json.insert("display_title", display_title);
     }
-    if (long_title != QString()) {
-      doc_json.insert("long_title", long_title);
+    if (list_title != QString()) {
+      doc_json.insert("list_title", list_title);
     }
     assert(content != "");
     doc_json.insert("text", content);
@@ -219,17 +219,17 @@ void JsonLinesDocsWriter::add_document(
   if (is_including_annotations()) {
     QJsonArray all_annotations_json{};
     for (const auto& annotation : annotations) {
-      QJsonArray annotation_json{};
-      annotation_json.append(annotation.start_char);
-      annotation_json.append(annotation.end_char);
+      QJsonObject annotation_json{};
+      annotation_json.insert("start_char", annotation.start_char);
+      annotation_json.insert("end_char", annotation.end_char);
       assert(annotation.label_name != "");
-      annotation_json.append(annotation.label_name);
+      annotation_json.insert("label_name", annotation.label_name);
       if (annotation.extra_data != "") {
-        annotation_json.append(annotation.extra_data);
+        annotation_json.insert("extra_data", annotation.extra_data);
       }
       all_annotations_json.append(annotation_json);
     }
-    doc_json.insert("labels", all_annotations_json);
+    doc_json.insert("annotations", all_annotations_json);
   }
   stream_ << QString::fromUtf8(
       QJsonDocument(doc_json).toJson(QJsonDocument::Compact));
@@ -249,13 +249,13 @@ JsonDocsWriter::JsonDocsWriter(const QString& file_path, bool include_text,
 void JsonDocsWriter::add_document(const QString& md5, const QString& content,
                                   const QJsonObject& metadata,
                                   const QList<Annotation>& annotations,
-                                  const QString& short_title,
-                                  const QString& long_title) {
+                                  const QString& display_title,
+                                  const QString& list_title) {
   if (get_n_docs()) {
     get_stream() << ",";
   }
   JsonLinesDocsWriter::add_document(md5, content, metadata, annotations,
-                                    short_title, long_title);
+                                    display_title, list_title);
 }
 
 void JsonDocsWriter::write_prefix() { get_stream() << "[\n"; }
@@ -267,16 +267,12 @@ void JsonDocsWriter::write_suffix() {
 LabelRecord json_to_label_record(const QJsonValue& json) {
   LabelRecord record;
   auto json_obj = json.toObject();
-  record.name = json_obj["text"].toString();
+  record.name = json_obj["name"].toString();
   if (json_obj.contains("color")) {
     record.color = json_obj["color"].toString();
-  } else {
-    record.color = json_obj["background_color"].toString();
   }
   if (json_obj.contains("shortcut_key")) {
     record.shortcut_key = json_obj["shortcut_key"].toString();
-  } else {
-    record.shortcut_key = json_obj["suffix_key"].toString();
   }
   return record;
 }
@@ -509,16 +505,16 @@ int DatabaseCatalog::insert_doc_record(const DocRecord& record,
   QByteArray hash{};
   if (record.valid_content) {
     query.prepare("insert into document (content, content_md5, metadata, "
-                  "short_title, long_title) "
+                  "display_title, list_title) "
                   "values (:content, :md5, :extra, :st, :lt);");
     query.bindValue(":content", record.content);
     query.bindValue(":extra", record.metadata);
     hash = QCryptographicHash::hash(record.content.toUtf8(),
                                     QCryptographicHash::Md5);
     query.bindValue(":md5", hash);
-    query.bindValue(":st", record.short_title != QString() ? record.short_title
+    query.bindValue(":st", record.display_title != QString() ? record.display_title
                                                            : QVariant());
-    query.bindValue(":lt", record.long_title != QString() ? record.long_title
+    query.bindValue(":lt", record.list_title != QString() ? record.list_title
                                                           : QVariant());
     query.exec();
   } else {
@@ -546,10 +542,10 @@ int DatabaseCatalog::insert_doc_annotations(int doc_id,
                                             QSqlQuery& query) {
   int n_annotations{};
   for (const auto& annotation : annotations) {
-    auto annotation_array = annotation.toArray();
-    insert_label(query, annotation_array[2].toString());
+    auto annotation_object = annotation.toObject();
+    insert_label(query, annotation_object["label_name"].toString());
     query.prepare("select id from label where name = :lname;");
-    query.bindValue(":lname", annotation_array[2].toString());
+    query.bindValue(":lname", annotation_object["label_name"].toString());
     query.exec();
     if (!query.next()) {
       // bad annotation (eg empty label)
@@ -561,10 +557,10 @@ int DatabaseCatalog::insert_doc_annotations(int doc_id,
         "extra_data) values (:docid, :labelid, :schar, :echar, :extra);");
     query.bindValue(":docid", doc_id);
     query.bindValue(":labelid", label_id);
-    query.bindValue(":schar", annotation_array[0].toInt());
-    query.bindValue(":echar", annotation_array[1].toInt());
-    if (annotation_array.size() == 4) {
-      auto extra = annotation_array[3].toString();
+    query.bindValue(":schar", annotation_object["start_char"].toInt());
+    query.bindValue(":echar", annotation_object["end_char"].toInt());
+    if (annotation_object.contains("extra_data")) {
+      auto extra = annotation_object["extra_data"].toString();
       query.bindValue(":extra", extra != "" ? extra : QVariant());
     } else {
       query.bindValue(":extra", QVariant());
@@ -723,7 +719,7 @@ QPair<QJsonArray, QPair<ErrorCode, QString>> read_txt_labels(QFile& file) {
   stream.setCodec("UTF-8");
   QJsonObject obj{};
   while (!stream.atEnd()) {
-    obj["text"] = stream.readLine();
+    obj["name"] = stream.readLine();
     result << obj;
   }
   return {result, {ErrorCode::NoError, ""}};
@@ -826,11 +822,11 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
   if (include_text) {
     doc_query.prepare("select lower(hex(content_md5)) as md5, content, "
                       "metadata, "
-                      "short_title, long_title from document where id = :doc;");
+                      "display_title, list_title from document where id = :doc;");
   } else {
     doc_query.prepare(
         "select lower(hex(content_md5)) as md5, null as content, metadata, "
-        "null as short_title, null as long_title "
+        "null as display_title, null as list_title "
         "from document where id = :doc;");
   }
   doc_query.bindValue(":doc", doc_id);
@@ -861,8 +857,8 @@ int DatabaseCatalog::write_doc(DocsWriter& writer, int doc_id,
   writer.add_document(doc_query.value("md5").toString(),
                       doc_query.value("content").toString(), metadata,
                       annotations,
-                      doc_query.value("short_title").toString(),
-                      doc_query.value("long_title").toString());
+                      doc_query.value("display_title").toString(),
+                      doc_query.value("list_title").toString());
   return n_annotations;
 }
 
@@ -872,13 +868,11 @@ ExportLabelsResult DatabaseCatalog::export_labels(const QString& file_path) {
   query.exec("select name, color, shortcut_key from sorted_label;");
   while (query.next()) {
     QJsonObject label_info{};
-    label_info["text"] = query.value(0).toString();
+    label_info["name"] = query.value(0).toString();
     label_info["color"] = QColor(query.value(1).toString()).name();
-    label_info["background_color"] = QColor(query.value(1).toString()).name();
     auto key = query.value(2);
     if (!key.isNull()) {
       label_info["shortcut_key"] = key.toString();
-      label_info["suffix_key"] = key.toString();
     }
     labels << label_info;
   }
@@ -1050,7 +1044,7 @@ bool DatabaseCatalog::create_tables(QSqlQuery& query) {
       query.exec("CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
                  "content_md5 BLOB UNIQUE NOT NULL, "
                  "content TEXT NOT NULL, metadata BLOB, "
-                 "long_title TEXT DEFAULT NULL, short_title TEXT DEFAULT NULL, "
+                 "list_title TEXT DEFAULT NULL, display_title TEXT DEFAULT NULL, "
                  "CHECK (content != ''), CHECK (length(content_md5 = 128)));");
   // for some reason the auto index created for the primary key is not treated
   // as a covering index in 'count(*) from document where id < xxx' but this is:

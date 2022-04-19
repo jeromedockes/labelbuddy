@@ -14,9 +14,18 @@ def get_annotations(doc, annotations):
             start = match.start(1)
             end = match.end(1)
             if extra_data:
-                result.append([start, end, label, extra_data[0]])
+                result.append(
+                    {
+                        "start_char": start,
+                        "end_char": end,
+                        "label_name": label,
+                        "extra_data": extra_data[0],
+                    }
+                )
             else:
-                result.append([start, end, label])
+                result.append(
+                    {"start_char": start, "end_char": end, "label_name": label}
+                )
     return result
 
 
@@ -36,7 +45,7 @@ for doc_name in doc_file_names:
     doc = example_dir.joinpath(doc_name).read_text(encoding="utf-8")
     lines = doc.split("\n")
     title = lines[0].strip()
-    long_title = re.sub(r"<a[^>]*>([^<]*)</a>", r"\1", title)
+    list_title = re.sub(r"<a[^>]*>([^<]*)</a>", r"\1", title)
     body = "\n".join(lines[1:])
     if doc_name == "hello_annotations.txt":
         annotations = get_annotations(
@@ -60,7 +69,7 @@ for doc_name in doc_file_names:
         )
     else:
         annotations = []
-    meta = {
+    metadata = {
         "title": doc_name,
         "md5": hashlib.md5(body.encode("utf-8")).hexdigest(),
     }
@@ -68,19 +77,19 @@ for doc_name in doc_file_names:
         demo_docs.append(
             {
                 "text": body,
-                "meta": meta,
-                "short_title": title,
-                "long_title": long_title,
-                "labels": annotations,
+                "metadata": metadata,
+                "display_title": title,
+                "list_title": list_title,
+                "annotations": annotations,
             }
         )
     if doc_name != "hello_annotations.txt":
         wiki_docs.append(
             {
                 "text": body,
-                "meta": {"source": "https://en.wikipedia.org"},
-                "short_title": title,
-                "long_title": long_title,
+                "metadata": {"source": "https://en.wikipedia.org"},
+                "display_title": title,
+                "list_title": list_title,
             }
         )
 

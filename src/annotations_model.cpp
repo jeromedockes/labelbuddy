@@ -39,7 +39,7 @@ void AnnotationsModel::set_database(const QString& new_database_name) {
 
 QString AnnotationsModel::get_title() const {
   auto query = get_query();
-  query.prepare("select coalesce(short_title, '') "
+  query.prepare("select coalesce(display_title, '') "
                 "as title from document where id = :docid ;");
   query.bindValue(":docid", current_doc_id_);
   query.exec();

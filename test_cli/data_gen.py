@@ -8,7 +8,6 @@ import numpy as np
 from sklearn.datasets import fetch_20newsgroups
 
 
-
 def fetch_newsgroups(n_docs=None):
     newsgroups = fetch_20newsgroups(shuffle=False, subset="all")
     all_docs, all_targets = newsgroups["data"], newsgroups["target"]
@@ -20,14 +19,14 @@ def fetch_newsgroups(n_docs=None):
     for i, (doc, target) in enumerate(zip(all_docs, all_targets)):
         target_name = newsgroups["target_names"][target]
         header = doc.split("\n")[1].replace("Subject:", "").strip()
-        long_title = f"{i} {target_name}: {header}"
-        short_title = f"{i} {target_name}"
+        list_title = f"{i} {target_name}: {header}"
+        display_title = f"{i} {target_name}"
         json_ready.append(
             {
                 "text": doc,
-                "long_title": long_title,
-                "short_title": short_title,
-                "meta": {
+                "list_title": list_title,
+                "display_title": display_title,
+                "metadata": {
                     "target": int(target),
                     "target_name": target_name,
                     "md5": hashlib.md5(doc.encode("utf-8")).hexdigest(),
@@ -61,8 +60,8 @@ def get_labels(label_names):
     letters = [chr(ord("a") + i) for i in range(26)]
     labels = [
         {
-            "text": label,
-            "background_color": mpl_tab_colors[i % len(mpl_tab_colors)],
+            "name": label,
+            "color": mpl_tab_colors[i % len(mpl_tab_colors)],
             "shortcut_key": letters[i],
         }
         for (i, label) in enumerate(label_names)

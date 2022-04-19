@@ -178,7 +178,7 @@ void TestDatabase::test_stored_database_path() {
 
 void TestDatabase::test_import_export_docs_data() {
   QTest::addColumn<QString>("import_format");
-  QTest::addColumn<bool>("import_with_meta");
+  QTest::addColumn<bool>("import_with_metadata");
   QTest::addColumn<QString>("export_format");
   QTest::addColumn<bool>("export_with_content");
   QTest::addColumn<bool>("export_annotations");
@@ -200,14 +200,14 @@ void TestDatabase::test_import_export_docs_data() {
               << "txt" << false << export_format << with_content
               << export_annotations << export_all;
           ++i;
-          for (auto with_meta : false_true) {
+          for (auto with_metadata : false_true) {
             for (const auto& import_format : formats) {
               name = QString();
-              ns << import_format << " " << int(with_meta) << " "
+              ns << import_format << " " << int(with_metadata) << " "
                  << export_format << " " << int(with_content) << " "
                  << int(export_annotations) << " " << int(export_all);
               QTest::newRow(name.toUtf8().data())
-                  << import_format << with_meta << export_format << with_content
+                  << import_format << with_metadata << export_format << with_content
                   << export_annotations << export_all;
               ++i;
             }
@@ -297,8 +297,8 @@ void TestDatabase::test_import_label_with_duplicate_shortcut_key() {
   QFile file(labels_file_path);
   file.open(QIODevice::WriteOnly);
   file.write(
-      R"([{"text": "lab1", "shortcut_key": "a"},
- {"text": "lab2", "shortcut_key": "a"}])");
+      R"([{"name": "lab1", "shortcut_key": "a"},
+ {"name": "lab2", "shortcut_key": "a"}])");
   file.close();
   catalog.import_labels(labels_file_path);
   QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
@@ -443,7 +443,7 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
                                             const QJsonArray& docs) {
   QFETCH(bool, export_with_content);
   QFETCH(bool, export_annotations);
-  QFETCH(bool, import_with_meta);
+  QFETCH(bool, import_with_metadata);
   QFETCH(QString, import_format);
   QFETCH(QString, export_format);
   QFile file(file_path);
@@ -464,24 +464,21 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
   int i{};
   for (const auto& doc : docs) {
     auto json_data = doc.toObject();
-    auto meta = json_data["meta"].toObject();
+    auto metadata = json_data["metadata"].toObject();
     auto output_json = output_json_data[i].toObject();
     if (import_format != "txt") {
       QCOMPARE(output_json.value("utf8_text_md5_checksum").toString(),
-               meta.value("original_md5").toString());
+               metadata.value("original_md5").toString());
     }
-    if (import_with_meta) {
+    if (import_with_metadata) {
       QCOMPARE(
-          output_json.value("meta").toObject().value("original_md5").toString(),
-          meta.value("original_md5").toString());
-      QCOMPARE(output_json.value("meta").toObject().value("title").toString(),
-               meta.value("title").toString());
-    }
-    if (import_format != "txt" && json_data.contains("id")) {
-      QCOMPARE(output_json.value("id").toString(), json_data["id"].toString());
+          output_json.value("metadata").toObject().value("original_md5").toString(),
+          metadata.value("original_md5").toString());
+      QCOMPARE(output_json.value("metadata").toObject().value("title").toString(),
+               metadata.value("title").toString());
     }
     if (export_with_content) {
-      for (const auto& key : {"short_title", "long_title"}) {
+      for (const auto& key : {"display_title", "list_title"}) {
         if (import_format != "txt" && json_data.contains(key)) {
           QCOMPARE(output_json[key].toString(), json_data[key].toString());
         }
@@ -496,24 +493,24 @@ void TestDatabase::check_exported_docs_json(const QString& file_path,
     }
 
     if (export_annotations) {
-      if (meta.value("title").toString() == "document 1") {
-        auto annotation = output_json.value("labels").toArray()[0].toArray();
-        QCOMPARE(annotation[0].toInt(), 3);
-        QCOMPARE(annotation[1].toInt(), 4);
-        QCOMPARE(annotation[2].toString(),
+      if (metadata.value("title").toString() == "document 1") {
+        auto annotation = output_json.value("annotations").toArray()[0].toObject();
+        QCOMPARE(annotation["start_char"].toInt(), 3);
+        QCOMPARE(annotation["end_char"].toInt(), 4);
+        QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
 
-        annotation = output_json.value("labels").toArray()[1].toArray();
-        QCOMPARE(annotation[0].toInt(), 5);
-        QCOMPARE(annotation[1].toInt(), 7);
-        QCOMPARE(annotation[2].toString(),
+        annotation = output_json.value("annotations").toArray()[1].toObject();
+        QCOMPARE(annotation["start_char"].toInt(), 5);
+        QCOMPARE(annotation["end_char"].toInt(), 7);
+        QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Resumption of the session"));
-        QCOMPARE(annotation[3].toString(), QString("hello extra data"));
-      } else if (meta.value("title").toString() == "document 2") {
-        auto annotation = output_json.value("labels").toArray()[0].toArray();
-        QCOMPARE(annotation[0].toInt(), 3);
-        QCOMPARE(annotation[1].toInt(), 4);
-        QCOMPARE(annotation[2].toString(),
+        QCOMPARE(annotation["extra_data"].toString(), QString("hello extra data"));
+      } else if (metadata.value("title").toString() == "document 2") {
+        auto annotation = output_json.value("annotations").toArray()[0].toObject();
+        QCOMPARE(annotation["start_char"].toInt(), 3);
+        QCOMPARE(annotation["end_char"].toInt(), 4);
+        QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
       }
     } else {
@@ -551,7 +548,7 @@ void TestDatabase::create_documents_file_txt(const QString& file_path,
 void TestDatabase::create_documents_file_json(const QString& file_path,
                                               const QJsonArray& docs) {
   QFETCH(QString, import_format);
-  QFETCH(bool, import_with_meta);
+  QFETCH(bool, import_with_metadata);
   auto jsonl{import_format == "jsonl"};
   QFile file(file_path);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -570,10 +567,10 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
     auto doc_obj = doc.toObject();
     QJsonObject json{};
     json.insert("text", doc_obj["text"].toString());
-    if (import_with_meta) {
-      json.insert("meta", doc_obj["meta"].toObject());
+    if (import_with_metadata) {
+      json.insert("metadata", doc_obj["metadata"].toObject());
     }
-    for (const auto& key : {"id", "short_title", "long_title"}) {
+    for (const auto& key : {"display_title", "list_title"}) {
       if (doc_obj.contains(key)) {
         json.insert(key, doc_obj[key].toString());
       }

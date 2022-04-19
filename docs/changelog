@@ -1,3 +1,10 @@
+labelbuddy (0.0.8) unstable; urgency=medium
+
+  * Format for annotations has changed; now uses a JSON object
+  * Minor changes to documents and labels format and database schema
+  * XML and CSV import and export formats no longer supported
+  * Dropped compatibility with doccano & annotation approver field
+
 labelbuddy (0.0.7) unstable; urgency=medium
 
   * Reordering labels

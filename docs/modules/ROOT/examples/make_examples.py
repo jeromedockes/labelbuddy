@@ -12,9 +12,9 @@ all_docs = [
     },
     {
         "text": "the text of document 2\nmore text\nthe end\n",
-        "short_title": "title 2",
-        "long_title": "the title of document 2",
-        "meta": {"id": "doc-2", "source": "example.org"},
+        "display_title": "title 2",
+        "list_title": "the title of document 2",
+        "metadata": {"id": "doc-2", "source": "example.org"},
     },
 ]
 all_annotations = []
@@ -23,7 +23,15 @@ all_annotations.append(
         "utf8_text_md5_checksum": hashlib.md5(
             all_docs[0]["text"].encode("utf-8")
         ).hexdigest(),
-        "labels": [[4, 8, "Word"], [21, 22, "Number", "1"]],
+        "annotations": [
+            {"start_char": 4, "end_char": 8, "label_name": "Word"},
+            {
+                "start_char": 21,
+                "end_char": 22,
+                "label_name": "Number",
+                "extra_data": "1",
+            },
+        ],
     }
 )
 all_annotations.append(
@@ -31,7 +39,9 @@ all_annotations.append(
         "utf8_text_md5_checksum": hashlib.md5(
             all_docs[1]["text"].encode("utf-8")
         ).hexdigest(),
-        "labels": [[12, 20, "Word"]],
+        "annotations": [
+            {"start_char": 12, "end_char": 20, "label_name": "Word"}
+        ],
     }
 )
 
@@ -53,8 +63,8 @@ data_dir.joinpath("docs.txt").write_text(
 )
 
 all_labels = [
-    {"text": "Word"},
-    {"text": "Number", "shortcut_key": "n", "color": "orange"},
+    {"name": "Word"},
+    {"name": "Number", "shortcut_key": "n", "color": "orange"},
 ]
 data_dir.joinpath("labels.json").write_text(
     json.dumps(all_labels, indent=2) + "\n", encoding="utf-8"
@@ -64,7 +74,7 @@ data_dir.joinpath("labels.jsonl").write_text(
     encoding="utf-8",
 )
 data_dir.joinpath("labels.txt").write_text(
-    "\n".join(label["text"] for label in all_labels) + "\n"
+    "\n".join(label["name"] for label in all_labels) + "\n"
 )
 
 

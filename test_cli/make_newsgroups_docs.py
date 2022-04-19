@@ -41,7 +41,7 @@ for (a, b) in [(None, None), (0, 11), (6, 15), (0, 15), (0, 300)]:
 
 (out_dir / "labels.json").write_text(json.dumps(data["labels"]))
 out_dir.joinpath("labels.txt").write_text(
-    "\n".join(lab["text"] for lab in data["labels"])
+    "\n".join(lab["name"] for lab in data["labels"])
 )
 (out_dir / "labels.jsonl").write_text(
     "\n".join([json.dumps(lab) for lab in data["labels"]])
