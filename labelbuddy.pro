@@ -13,6 +13,7 @@ src/searchable_text.h \
 src/annotations_model.h \
 src/no_deselect_all_view.h \
 src/database.h \
+src/database_impl.h \
 src/import_export_menu.h \
 src/utils.h \
 src/compat.h \

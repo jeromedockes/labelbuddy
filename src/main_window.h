@@ -120,17 +120,17 @@ private:
   DatabaseCatalog database_catalog_;
 
   // QLabels in the status bar
-  QLabel* status_db_name_;
-  QLabel* status_db_summary_;
-  QLabel* status_n_selected_docs_;
-  QLabel* status_current_doc_info_;
-  QLabel* status_current_annotation_info_;
+  QLabel* status_db_name_ = nullptr;
+  QLabel* status_db_summary_ = nullptr;
+  QLabel* status_n_selected_docs_ = nullptr;
+  QLabel* status_current_doc_info_ = nullptr;
+  QLabel* status_current_annotation_info_ = nullptr;
   // having the label in its own widget means it doesn't affect the rest if it
   // is written from right to left (eg in Arabic), has rich text, several lines,
   // etc.
-  QLabel* status_current_annotation_label_;
+  QLabel* status_current_annotation_label_ = nullptr;
 
-  QMenu* opened_databases_submenu_;
+  QMenu* opened_databases_submenu_ = nullptr;
 
   /// Open the given database and warn user if it failed
 
@@ -161,9 +161,11 @@ private:
   /// Display a message box saying database could not be opened
   void warn_failed_to_open_db(const QString& database_path);
 
-  static const QString bf_setting_key_;
-  static const bool bf_default_ = true;
-  static const QString font_setting_key_;
+  const QString bf_setting_key_{"LabelBuddy/selected_annotation_bold"};
+  const bool bf_default_{true};
+  const QString font_setting_key_{"LabelBuddy/annotator_font"};
+  static constexpr int default_window_width_ = 600;
+  static constexpr int default_window_height_ = 600;
 };
 } // namespace labelbuddy
 #endif

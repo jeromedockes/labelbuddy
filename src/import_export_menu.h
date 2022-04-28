@@ -44,6 +44,8 @@ private:
     export_labels
   };
 
+  static constexpr int progress_dialog_min_duration_ms_ = 2000;
+
   /// Find a directory from which to start a filedialog
 
   /// Depends on the kind of file to be opened and what is stored in the
@@ -65,10 +67,10 @@ private:
 
   template <typename T>
   void report_result(const T& result, const QString& file_path);
-  QString get_report_msg(const ImportDocsResult& result) const;
-  QString get_report_msg(const ImportLabelsResult& result) const;
-  QString get_report_msg(const ExportDocsResult& result) const;
-  QString get_report_msg(const ExportLabelsResult& result) const;
+  static QString get_report_msg(const ImportDocsResult& result);
+  static QString get_report_msg(const ImportLabelsResult& result);
+  static QString get_report_msg(const ExportDocsResult& result);
+  static QString get_report_msg(const ExportLabelsResult& result);
 
   DatabaseCatalog* database_catalog_;
   QPushButton* import_docs_button_;

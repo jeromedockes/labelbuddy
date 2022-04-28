@@ -36,7 +36,7 @@ int LabelDelegate::radio_button_width() const {
 }
 
 int LabelDelegate::handle_width() const {
-  return with_drag_handles_ ? 16 * line_width_ : 0;
+  return with_drag_handles_ ? handle_outer_width_factor_ * line_width_ : 0;
 }
 
 QStyleOptionViewItem
@@ -75,7 +75,7 @@ void LabelDelegate::paint_radio_button(QPainter* painter,
   } else {
     button_opt.state = QStyle::State_NoChange;
     auto palette = button_opt.palette;
-    palette.setColor(QPalette::Base, label_color.lighter(100));
+    palette.setColor(QPalette::Base, label_color);
     button_opt.palette = palette;
   }
   QApplication::style()->drawControl(QStyle::CE_RadioButton, &button_opt,
@@ -90,8 +90,11 @@ void LabelDelegate::paint_drag_handle(QPainter* painter,
   if (!with_drag_handles_) {
     return;
   }
-  QRect rect(QPoint(option.rect.left() + 2 * lw, option.rect.top() + 2),
-             QPoint(option.rect.left() + 14 * lw, option.rect.bottom() - 2));
+  QRect rect(QPoint(option.rect.left() + handle_margin_factor_ * lw,
+                    option.rect.top() + 2),
+             QPoint(option.rect.left() + handle_margin_factor_ * lw +
+                        handle_inner_width_factor_ * lw,
+                    option.rect.bottom() - 2));
   for (int i = -5; i < 7; i += 3) {
     painter->fillRect(rect.left(), rect.center().y() + i * lw, rect.width(),
                       2 * lw, QColor(255, 255, 255, 90));
@@ -176,8 +179,8 @@ void LabelListButtons::update_button_states(int n_selected, int total,
   shortcut_label_->setEnabled(n_selected == 1);
   if (n_selected == 1 && first_selected.isValid()) {
     shortcut_edit_->setText(first_selected.model()
-                               ->data(first_selected, Roles::ShortcutKeyRole)
-                               .toString());
+                                ->data(first_selected, Roles::ShortcutKeyRole)
+                                .toString());
     shortcut_edit_->setFocus();
   } else {
     if (shortcut_edit_had_focus) {
@@ -222,7 +225,7 @@ void LabelListButtons::add_label_edit_pressed() {
 }
 
 LabelList::LabelList(QWidget* parent) : QFrame(parent) {
-  QVBoxLayout* layout = new QVBoxLayout();
+  auto layout = new QVBoxLayout();
   setLayout(layout);
 
   buttons_frame_ = new LabelListButtons();
@@ -245,8 +248,8 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
 
   QObject::connect(buttons_frame_, &LabelListButtons::select_all, labels_view_,
                    &QListView::selectAll);
-  QObject::connect(buttons_frame_, &LabelListButtons::delete_selected_rows, this,
-                   &LabelList::delete_selected_rows);
+  QObject::connect(buttons_frame_, &LabelListButtons::delete_selected_rows,
+                   this, &LabelList::delete_selected_rows);
   QObject::connect(buttons_frame_, &LabelListButtons::set_label_color, this,
                    &LabelList::set_label_color);
   QObject::connect(buttons_frame_, &LabelListButtons::set_label_shortcut, this,
@@ -318,7 +321,7 @@ void LabelList::update_button_states() {
     selected_index = *first_selected;
   }
   buttons_frame_->update_button_states(n_rows, model_->total_n_labels(),
-                                      selected_index);
+                                       selected_index);
 }
 
 void LabelList::set_label_color() {

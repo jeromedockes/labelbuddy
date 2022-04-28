@@ -21,7 +21,7 @@
 namespace labelbuddy {
 
 SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
-  QVBoxLayout* top_layout = new QVBoxLayout();
+  auto top_layout = new QVBoxLayout();
   setLayout(top_layout);
 
   text_edit_ = new QPlainTextEdit();
@@ -34,7 +34,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
                    palette.color(QPalette::Active, QPalette::HighlightedText));
   text_edit_->setPalette(palette);
 
-  QHBoxLayout* search_bar_layout = new QHBoxLayout();
+  auto search_bar_layout = new QHBoxLayout();
   top_layout->addLayout(search_bar_layout);
 
   search_box_ = new QLineEdit();
@@ -50,7 +50,7 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   find_next_button_->setIcon(
       QIcon::fromTheme("go-down", QIcon(":data/icons/go-down.png")));
 
-  QAction* search_action = new QAction(this);
+  auto search_action = new QAction(this);
   search_action->setShortcuts(
       QList<QKeySequence>{QKeySequence::Find, QKeySequence::FindNext});
   QObject::connect(search_action, &QAction::triggered, this,
@@ -118,7 +118,7 @@ void SearchableText::set_cursor_position() {
   last_match_ = text_edit_->textCursor();
 }
 
-void SearchableText::swap_pos_anchor(QTextCursor& cursor) const {
+void SearchableText::swap_pos_anchor(QTextCursor& cursor) {
   auto pos = cursor.position();
   auto anchor = cursor.anchor();
   cursor.setPosition(pos);

@@ -68,7 +68,8 @@ private:
   QTextDocument::FindFlags current_search_flags_;
 
   /// swap the cursor's position and anchor
-  void swap_pos_anchor(QTextCursor& cursor) const;
+  static void swap_pos_anchor(QTextCursor& cursor);
+
   void handle_nav_event(QKeyEvent* event);
 
   enum class SelectionSide { Left, Right, Cursor };
@@ -102,7 +103,7 @@ private:
   /// Key events filtered (handled by this object and not the search bar) when
   /// Ctrl is pressed
   const QList<int> nav_keys_{Qt::Key_K, Qt::Key_J, Qt::Key_N,
-                            Qt::Key_P, Qt::Key_U, Qt::Key_D};
+                             Qt::Key_P, Qt::Key_U, Qt::Key_D};
 
   /// Filtered both for the search bar and the text edit
   const QList<QKeySequence::StandardKey> selection_sequences_{

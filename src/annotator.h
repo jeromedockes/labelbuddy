@@ -79,6 +79,9 @@ public slots:
   void set_skip_updating(bool skip);
 
 private:
+  // if updating the button states once takes longer than this (*huge*
+  // database), do not update them next time.
+  static constexpr int skip_update_buttons_duration_threshold_ms_{500};
   AnnotationsModel* annotations_model_ = nullptr;
   QPushButton* prev_labelled_button_;
   QPushButton* prev_unlabelled_button_;

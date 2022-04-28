@@ -274,10 +274,7 @@ bool LabelListModel::is_valid_shortcut(const QString& shortcut,
   query.bindValue(":shortcut", shortcut);
   query.bindValue(":labelid", label_id);
   query.exec();
-  if (query.next()) {
-    return false;
-  }
-  return true;
+  return !query.next();
 }
 
 void LabelListModel::set_label_shortcut(const QModelIndex& index,

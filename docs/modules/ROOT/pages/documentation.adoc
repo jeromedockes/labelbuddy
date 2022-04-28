@@ -372,7 +372,7 @@ Once you are satisfied with your annotations you can export them in order to sha
 Back in the {ietab}, click btn:[Export docs & annotations].
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
-If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the {wikipedia-md5}[MD5] checksum of the text that is always exported.
+If you do not export the text, the documents can be identified from metadata you may have associated with them, or by the {wikipedia-md5}[MD5] checksum of the text that is always exported.
 You can also choose to only export the documents, without the annotations.
 
 When clicking btn:[Export docs & annotations] you are asked to select a file and the resulting format will depend on the filename extension.
@@ -406,7 +406,7 @@ Each {lb} database (containing documents, labels and annotations) is an {sqliteh
 That is a single regular file on your disk that you can copy, backup, or share, like any other file.
 Therefore managing {lb} data is as simple as if you were storing annotations in a {libreoffice-calc} or {excel} spreadsheet, for example.
 
-TIP: Using {sqlite} (with the https://sqlite.org/cli.html[SQLite command-line interface] or one of the https://en.wikipedia.org/wiki/SQLite#Programming_language_support[many programming languages] that provide {sqlite} bindings) you can also open a connection directly to the database to query it or even modify it.
+TIP: Using {sqlite} (with the https://sqlite.org/cli.html[SQLite command-line interface] or one of the many programming languages that provide {sqlite} bindings) you can also open a connection directly to the database to query it or even modify it.
 If you do so, set `PRAGMA foreign_keys = ON`.
 
 After starting {lb}, you can create a new database or open an existing one by selecting menu:File[Open].
@@ -419,7 +419,7 @@ labelbuddy /path/to/my_project.labelbuddy
 
 The path to the current database is displayed in the {ietab}.
 
-If you just want to give {lb} a try and don’t have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
+If you just want to give {lb} a try and do not have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
 
 As it is easy to create, copy and delete databases (an empty {lb} database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
 For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each {lb} file.
@@ -456,7 +456,7 @@ Arguments:
   database                                Database to open.
 ----
 
-If any of the `import` or `export` options are used, {lb} doesn’t start a GUI but performs the required import or export operations and exits.
+If any of the `import` or `export` options are used, {lb} does not start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.
 
@@ -473,7 +473,7 @@ Or even (using {sqlite}'s in-memory database):
 labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations
 ----
 
-Regarding `vacuum`: when data is deleted from an {sqlite} database, the file doesn’t shrink.
+Regarding `vacuum`: when data is deleted from an {sqlite} database, the file does not shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
 To shrink the database to occupy a minimal amount of disk space, we can use:
 [source,sh]
@@ -548,13 +548,13 @@ A document can have a `annotations` attribute, which is a list of annotations.
 Each annotation has the following attributes (the last one, `extra_data`, is optional):
 
 [horizontal]
-`start_char`:: the position of the first character (Unicode code point), starting from 0 at the begining of the text
-`end_char`::  the position of one past the last character
-`label_name`:: the label name
+`start_char`:: the position of the first character (Unicode code point), starting from 0 at the begining of the text.
+`end_char`::  the position of one past the last character.
+`label_name`:: the label name.
 `extra_data`:: additional text associated with the annotation.
 
-For example if the text starts with "`hello &#x1F600;`" and you highlighted exactly that phrase, and labelled it with `label_1`, the associated annotation will be `{"start_char": 0, "end_char": 7, "label_name": "label_1"}`.
-If you also typed "`some more info`" in the {extra-edit} box, the annotation will be `` {"start_char": 0, "end_char": 7, "label_name": "label_1", "extra_data": "some more info"}`.
+For example if the text starts with "`hello &#x1F600;`" and you highlighted exactly that phrase, and annotated it with the label *"Greeting"*, the associated annotation will be `{"start_char": 0, "end_char": 7, "label_name": "Greeting"}`.
+If you also typed "`some more info`" in the {extra-edit} box, the annotation will be `` {"start_char": 0, "end_char": 7, "label_name": "Greeting", "extra_data": "some more info"}`.
 Here, a "`character`" means a {unicode-home}[Unicode] code point.
 Note this does not correspond to byte offsets in the encoded text, nor necessarily to graphemes in the displayed text -- a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.
 
@@ -697,7 +697,7 @@ If you exported your annotations in a JSON Lines file, when parsing it each _lin
 Labels can have the following attributes:
 
 [horizontal]
-`name`:: the label's name, mandatory
+`name`:: the label's name, mandatory.
 `color`:: A hexadecimal color string, such as `"#aec7e8"`, or an https://www.w3.org/TR/SVG11/types.html#ColorKeywords[SVG color name], such as `"yellow"`.
 If missing, a default color will be assigned to the label.
 // https://doc.qt.io/qt-5/qcolor.html#setNamedColor

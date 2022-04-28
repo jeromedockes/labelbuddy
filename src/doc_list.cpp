@@ -16,13 +16,13 @@
 
 namespace labelbuddy {
 DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
-  QVBoxLayout* main_layout = new QVBoxLayout();
+  auto main_layout = new QVBoxLayout();
   setLayout(main_layout);
-  QHBoxLayout* buttons_layout = new QHBoxLayout();
+  auto buttons_layout = new QHBoxLayout();
   main_layout->addLayout(buttons_layout);
-  QHBoxLayout* filters_layout = new QHBoxLayout();
+  auto filters_layout = new QHBoxLayout();
   main_layout->addLayout(filters_layout);
-  QHBoxLayout* nav_layout = new QHBoxLayout();
+  auto nav_layout = new QHBoxLayout();
   main_layout->addLayout(nav_layout);
 
   select_all_button_ = new QPushButton("Select all");
@@ -108,7 +108,7 @@ void DocListButtons::fill_filter_choice() {
       -1, static_cast<int>(DocListModel::DocFilter::unlabelled)));
   filter_choice_->addItem("Documents without labels", var);
   auto label_names = model_->get_label_names();
-  if (label_names.size()) {
+  if (!label_names.empty()) {
     filter_choice_->insertSeparator(filter_choice_->count());
   }
   for (const auto& label_info : label_names) {
@@ -117,7 +117,7 @@ void DocListButtons::fill_filter_choice() {
         static_cast<int>(DocListModel::DocFilter::has_given_label)));
     filter_choice_->addItem(label_info.first, var);
   }
-  if (label_names.size()) {
+  if (!label_names.empty()) {
     filter_choice_->insertSeparator(filter_choice_->count());
   }
   for (const auto& label_info : label_names) {
@@ -172,7 +172,8 @@ void DocListButtons::go_to_next_page() {
     return;
   }
   offset_ += page_size_;
-  emit doc_filter_changed(current_filter_, current_label_id_, page_size_, offset_);
+  emit doc_filter_changed(current_filter_, current_label_id_, page_size_,
+                          offset_);
 }
 
 void DocListButtons::go_to_prev_page() {
@@ -184,7 +185,8 @@ void DocListButtons::go_to_prev_page() {
     return;
   }
   offset_ = std::max(0, offset_ - page_size_);
-  emit doc_filter_changed(current_filter_, current_label_id_, page_size_, offset_);
+  emit doc_filter_changed(current_filter_, current_label_id_, page_size_,
+                          offset_);
 }
 
 void DocListButtons::go_to_last_page() {
@@ -194,7 +196,8 @@ void DocListButtons::go_to_last_page() {
   }
   int total = model_->total_n_docs(current_filter_, current_label_id_);
   offset_ = total - total % page_size_;
-  emit doc_filter_changed(current_filter_, current_label_id_, page_size_, offset_);
+  emit doc_filter_changed(current_filter_, current_label_id_, page_size_,
+                          offset_);
 }
 
 void DocListButtons::go_to_first_page() {
@@ -203,7 +206,8 @@ void DocListButtons::go_to_first_page() {
     return;
   }
   offset_ = 0;
-  emit doc_filter_changed(current_filter_, current_label_id_, page_size_, offset_);
+  emit doc_filter_changed(current_filter_, current_label_id_, page_size_,
+                          offset_);
 }
 
 void DocListButtons::update_after_data_change() {
@@ -272,7 +276,8 @@ void DocListButtons::update_filter() {
   auto data = filter_choice_->currentData().value<QPair<int, int>>();
   current_label_id_ = data.first;
   current_filter_ = static_cast<DocListModel::DocFilter>(data.second);
-  if ((current_label_id_ != prev_label_id) || (current_filter_ != prev_filter)) {
+  if ((current_label_id_ != prev_label_id) ||
+      (current_filter_ != prev_filter)) {
     offset_ = 0;
     emit doc_filter_changed(current_filter_, current_label_id_, page_size_,
                             offset_);
@@ -296,7 +301,7 @@ void DocListButtons::setModel(DocListModel* new_model) {
 
 DocList::DocList(QWidget* parent) : QFrame(parent) {
 
-  QVBoxLayout* layout = new QVBoxLayout();
+  auto layout = new QVBoxLayout();
   setLayout(layout);
 
   buttons_frame_ = new DocListButtons();
@@ -368,7 +373,7 @@ void DocList::delete_all_docs() {
   {
     QProgressDialog progress("Deleting documents...", "Stop", 0, 0, this);
     progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(2000);
+    progress.setMinimumDuration(delete_docs_dialog_min_duration_ms_);
     n_deleted = model_->delete_all_docs(&progress);
   }
   doc_view_->reset();
@@ -418,7 +423,7 @@ void DocList::visit_doc(const QModelIndex& index) {
   }
   auto selected = doc_view_->selectionModel()->selectedIndexes();
   // items outside of first (visible) column shouldn't be selectable
-  assert(!selected.size() || selected[0].column() == 0);
+  assert(selected.empty() || selected[0].column() == 0);
   if (selected.size() != 1 || selected[0].column() != 0) {
     return;
   }
@@ -442,7 +447,7 @@ void DocList::update_select_delete_buttons() {
     }
   }
   buttons_frame_->update_top_row_buttons(n_rows, model_->rowCount(),
-                                        model_->total_n_docs());
+                                         model_->total_n_docs());
   emit n_selected_docs_changed(n_rows);
 }
 } // namespace labelbuddy

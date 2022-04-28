@@ -1028,7 +1028,7 @@ As you click the gray region or press the <kbd>Space</kbd> key, each <span class
 <p>Back in the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Export docs &amp; annotations</b>.
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
-If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
+If you do not export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
 You can also choose to only export the documents, without the annotations.</p>
 </div>
 <div class="paragraph">
@@ -1076,7 +1076,7 @@ Therefore managing <strong>labelbuddy</strong> data is as simple as if you were 
 <div class="title">Tip</div>
 </td>
 <td class="content">
-Using <strong>SQLite</strong> (with the <a href="https://sqlite.org/cli.html">SQLite command-line interface</a> or one of the <a href="https://en.wikipedia.org/wiki/SQLite#Programming_language_support">many programming languages</a> that provide <strong>SQLite</strong> bindings) you can also open a connection directly to the database to query it or even modify it.
+Using <strong>SQLite</strong> (with the <a href="https://sqlite.org/cli.html">SQLite command-line interface</a> or one of the many programming languages that provide <strong>SQLite</strong> bindings) you can also open a connection directly to the database to query it or even modify it.
 If you do so, set <code>PRAGMA foreign_keys = ON</code>.
 </td>
 </tr>
@@ -1096,7 +1096,7 @@ The database to open can also be specified when invoking <strong>labelbuddy</str
 <p>The path to the current database is displayed in the <strong>&#8220;Import / Export&#8221;</strong> tab.</p>
 </div>
 <div class="paragraph">
-<p>If you just want to give <strong>labelbuddy</strong> a try and don’t have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<b class="caret">&#8250;</b> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
+<p>If you just want to give <strong>labelbuddy</strong> a try and do not have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<b class="caret">&#8250;</b> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
 </div>
 <div class="paragraph">
 <p>As it is easy to create, copy and delete databases (an empty <strong>labelbuddy</strong> database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
@@ -1137,7 +1137,7 @@ Arguments:
 </div>
 </div>
 <div class="paragraph">
-<p>If any of the <code>import</code> or <code>export</code> options are used, <strong>labelbuddy</strong> doesn’t start a GUI but performs the required import or export operations and exits.
+<p>If any of the <code>import</code> or <code>export</code> options are used, <strong>labelbuddy</strong> does not start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.</p>
 </div>
@@ -1160,7 +1160,7 @@ As an example, to strip the annotations from previously exported documents you c
 </div>
 </div>
 <div class="paragraph">
-<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file doesn’t shrink.
+<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file does not shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
 To shrink the database to occupy a minimal amount of disk space, we can use:</p>
 </div>
@@ -1303,7 +1303,7 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 <code>start_char</code>
 </td>
 <td class="hdlist2">
-<p>the position of the first character (Unicode code point), starting from 0 at the begining of the text</p>
+<p>the position of the first character (Unicode code point), starting from 0 at the begining of the text.</p>
 </td>
 </tr>
 <tr>
@@ -1311,7 +1311,7 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 <code>end_char</code>
 </td>
 <td class="hdlist2">
-<p>the position of one past the last character</p>
+<p>the position of one past the last character.</p>
 </td>
 </tr>
 <tr>
@@ -1319,7 +1319,7 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 <code>label_name</code>
 </td>
 <td class="hdlist2">
-<p>the label name</p>
+<p>the label name.</p>
 </td>
 </tr>
 <tr>
@@ -1333,8 +1333,8 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 </table>
 </div>
 <div class="paragraph">
-<p>For example if the text starts with &#8220;hello &#x1F600;&#8221; and you highlighted exactly that phrase, and labelled it with <code>label_1</code>, the associated annotation will be <code>{"start_char": 0, "end_char": 7, "label_name": "label_1"}</code>.
-If you also typed &#8220;some more info&#8221; in the <strong>&#8220;Extra annotation data&#8221;</strong> box, the annotation will be <code>` {"start_char": 0, "end_char": 7, "label_name": "label_1", "extra_data": "some more info"}</code>.
+<p>For example if the text starts with &#8220;hello &#x1F600;&#8221; and you highlighted exactly that phrase, and annotated it with the label <strong>"Greeting"</strong>, the associated annotation will be <code>{"start_char": 0, "end_char": 7, "label_name": "Greeting"}</code>.
+If you also typed &#8220;some more info&#8221; in the <strong>&#8220;Extra annotation data&#8221;</strong> box, the annotation will be <code>` {"start_char": 0, "end_char": 7, "label_name": "Greeting", "extra_data": "some more info"}</code>.
 Here, a &#8220;character&#8221; means a <a href="https://home.unicode.org">Unicode</a> code point.
 Note this does not correspond to byte offsets in the encoded text, nor necessarily to graphemes in the displayed text&#8201;&#8212;&#8201;a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.</p>
 </div>
@@ -1473,7 +1473,7 @@ If you exported your annotations in a JSON Lines file, when parsing it each <em>
 <code>name</code>
 </td>
 <td class="hdlist2">
-<p>the label&#8217;s name, mandatory</p>
+<p>the label&#8217;s name, mandatory.</p>
 </td>
 </tr>
 <tr>
@@ -1596,7 +1596,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-04-12 11:19:46 -0400
+Last updated 2022-04-28 14:24:19 -0400
 </div>
 </div>
 <style>

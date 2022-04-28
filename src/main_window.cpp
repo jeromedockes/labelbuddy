@@ -14,6 +14,7 @@
 #include <QStatusBar>
 #include <QTabWidget>
 #include <QTimer>
+#include <qobject.h>
 
 #include "annotations_model.h"
 #include "database.h"
@@ -24,10 +25,6 @@
 #include "main_window.h"
 
 namespace labelbuddy {
-
-const QString LabelBuddy::bf_setting_key_{
-    "LabelBuddy/selected_annotation_bold"};
-const QString LabelBuddy::font_setting_key_{"LabelBuddy/annotator_font"};
 
 void LabelBuddy::warn_failed_to_open_db(const QString& database_path) {
   assert(!QSqlDatabase::contains(database_path));
@@ -40,7 +37,7 @@ void LabelBuddy::warn_failed_to_open_db(const QString& database_path) {
 
 LabelBuddy::LabelBuddy(QWidget* parent, const QString& database_path,
                        bool start_from_temp_db)
-    : QMainWindow(parent), database_catalog_{} {
+    : QMainWindow(parent) {
 
   notebook_owner_.reset(new QTabWidget());
   notebook_ = notebook_owner_.get();
@@ -155,8 +152,8 @@ void LabelBuddy::add_connections() {
                    &LabelBuddy::update_status_bar);
   QObject::connect(label_model_, &LabelListModel::labels_deleted, this,
                    &LabelBuddy::update_status_bar);
-  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added, this,
-                   &LabelBuddy::update_status_bar);
+  QObject::connect(import_export_menu_, &ImportExportMenu::documents_added,
+                   this, &LabelBuddy::update_status_bar);
   QObject::connect(annotations_model_,
                    &AnnotationsModel::document_status_changed, this,
                    &LabelBuddy::update_status_bar);
@@ -397,7 +394,7 @@ void LabelBuddy::choose_and_open_database() {
   dialog.setOption(QFileDialog::HideNameFilterDetails, false);
   dialog.setOption(QFileDialog::DontUseCustomDirectoryIcons, true);
   dialog.setOption(QFileDialog::DontConfirmOverwrite, true);
-  dialog.setDirectory(database_catalog_.get_last_opened_directory());
+  dialog.setDirectory(DatabaseCatalog::get_last_opened_directory());
   dialog.setAcceptMode(QFileDialog::AcceptOpen);
   if (!dialog.exec() || dialog.selectedFiles().isEmpty()) {
     return;
@@ -436,7 +433,7 @@ void LabelBuddy::open_temp_database() {
 
 void LabelBuddy::store_notebook_page() {
   database_catalog_.set_app_state_extra("notebook_page",
-                                       notebook_->currentIndex());
+                                        notebook_->currentIndex());
 }
 
 void LabelBuddy::showEvent(QShowEvent* event) {
@@ -467,7 +464,7 @@ void LabelBuddy::set_geometry() {
   if (settings.contains("LabelBuddy/geometry")) {
     restoreGeometry(settings.value("LabelBuddy/geometry").toByteArray());
   } else {
-    resize(QSize(600, 600));
+    resize(QSize(default_window_width_, default_window_height_));
   }
 }
 

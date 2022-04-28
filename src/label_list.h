@@ -36,6 +36,13 @@ public:
                  const QModelIndex& index) const override;
 
 private:
+  // dimensions of drag handles as multiples of line width, eg margin is 2 line
+  // widths
+  static constexpr int handle_inner_width_factor_ = 12;
+  static constexpr int handle_margin_factor_ = 2;
+  static constexpr int handle_outer_width_factor_ =
+      handle_inner_width_factor_ + 2 * handle_margin_factor_;
+
   bool with_drag_handles_ = false;
   int line_width_ = 1;
   int margin_ = 2;

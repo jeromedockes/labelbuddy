@@ -1,5 +1,5 @@
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <QCoreApplication>
 #include <QDir>
@@ -85,16 +85,14 @@ QString database_name_display(const QString& database_name, bool full_path,
   if (database_name == ":LABELBUDDY_TEMPORARY_DATABASE:") {
     if (temp_warning) {
       return "Temporary database (will disappear when labelbuddy exits)";
-    } else {
-      return "Temporary database";
     }
+    return "Temporary database";
   }
   if (database_name == ":memory:") {
     if (temp_warning) {
       return "In-memory database (will disappear when labelbuddy exits)";
-    } else {
-      return "In-memory database";
     }
+    return "In-memory database";
   }
   if (full_path) {
     return database_name;
@@ -132,4 +130,11 @@ const QString& suggest_label_color(int color_index) {
 int cast_progress_to_range(double current, double maximum, double range_max) {
   return static_cast<int>(floor((current / std::max(maximum, 1.)) * range_max));
 }
+
+QString parent_directory(const QString& file_path) {
+  auto dir = QDir(file_path);
+  dir.cdUp();
+  return dir.absolutePath();
+}
+
 } // namespace labelbuddy

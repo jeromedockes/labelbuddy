@@ -122,6 +122,7 @@ signals:
   void n_selected_docs_changed(int n_docs);
 
 private:
+  static constexpr int delete_docs_dialog_min_duration_ms_ = 2000;
   DocListButtons* buttons_frame_;
   QListView* doc_view_;
   DocListModel* model_ = nullptr;

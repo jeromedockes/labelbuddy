@@ -45,9 +45,9 @@ QString AnnotationsModel::get_title() const {
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
-  } else {
-    return QString("");
   }
+  return QString("");
+
 }
 
 QString AnnotationsModel::get_content() const {
@@ -57,9 +57,8 @@ QString AnnotationsModel::get_content() const {
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
-  } else {
-    return QString("");
   }
+  return QString("");
 }
 
 void AnnotationsModel::fill_index_converters(const QString& text) {
@@ -94,15 +93,15 @@ int AnnotationsModel::code_point_idx_to_utf16_idx(int cp_idx) const {
   return utf_idx;
 }
 
-int AnnotationsModel::utf16_idx_to_code_point_idx(int utf_idx) const {
-  assert(utf_idx >= 0);
-  int cp_idx = utf_idx;
+int AnnotationsModel::utf16_idx_to_code_point_idx(int utf16_idx) const {
+  assert(utf16_idx >= 0);
+  int cp_idx = utf16_idx;
   auto it = surrogate_indices_in_qstring_.cbegin();
-  while (it != surrogate_indices_in_qstring_.cend() && *it < utf_idx) {
+  while (it != surrogate_indices_in_qstring_.cend() && *it < utf16_idx) {
     --cp_idx;
     ++it;
   }
-  assert(utf_idx >= 0);
+  assert(utf16_idx >= 0);
   return cp_idx;
 }
 

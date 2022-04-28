@@ -79,5 +79,9 @@ bool set_compare(const C1& container_1, const C2& container_2) {
   }
   return set_1 == set_2;
 }
+
+/// The directory containing a file
+QString parent_directory(const QString& file_path);
+
 } // namespace labelbuddy
 #endif

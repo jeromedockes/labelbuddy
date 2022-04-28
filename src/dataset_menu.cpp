@@ -63,7 +63,9 @@ void DatasetMenu::set_label_list_model(LabelListModel* new_model) {
   }
 }
 
-int DatasetMenu::n_selected_docs() const { return doc_list_->n_selected_docs(); }
+int DatasetMenu::n_selected_docs() const {
+  return doc_list_->n_selected_docs();
+}
 
 void DatasetMenu::store_state() {
   QSettings settings("labelbuddy", "labelbuddy");

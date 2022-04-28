@@ -75,6 +75,8 @@ signals:
   void database_changed();
 
 private:
+  static constexpr int default_n_docs_limit_{100};
+
   QSqlQuery get_query() const;
   void refresh_n_labelled_docs();
   int total_n_docs_no_filter();

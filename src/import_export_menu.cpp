@@ -36,8 +36,8 @@ void ImportExportMenu::store_parent_dir(const QString& file_path,
     break;
   }
   auto setting_name = QString("ImportExportMenu/directory_%0").arg(name);
-  database_catalog_->set_app_state_extra(
-      setting_name, database_catalog_->parent_directory(file_path));
+  database_catalog_->set_app_state_extra(setting_name,
+                                         parent_directory(file_path));
 }
 
 QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
@@ -70,7 +70,7 @@ QString ImportExportMenu::suggest_dir(ImportExportMenu::DirRole role) const {
       return setting_value;
     }
   }
-  return database_catalog_->get_last_opened_directory();
+  return DatabaseCatalog::get_last_opened_directory();
 }
 
 void ImportExportMenu::update_database_info() {
@@ -149,7 +149,8 @@ ImportExportMenu::ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent)
 
 void ImportExportMenu::init_checkbox_states() {
   labelled_only_checkbox_->setChecked(
-      database_catalog_->get_app_state_extra("export_labelled_only", 1).toInt());
+      database_catalog_->get_app_state_extra("export_labelled_only", 1)
+          .toInt());
 
   include_text_checkbox_->setChecked(
       database_catalog_->get_app_state_extra("export_include_doc_text", 1)
@@ -164,7 +165,7 @@ bool ImportExportMenu::ask_confirm_unknown_extension(
     const QString& file_path, DatabaseCatalog::Action action,
     DatabaseCatalog::ItemKind kind) {
   bool accept_default{action == DatabaseCatalog::Action::Export};
-  auto msg = database_catalog_->file_extension_error_message(
+  auto msg = DatabaseCatalog::file_extension_error_message(
       file_path, action, kind, accept_default);
   if (msg == QString()) {
     return true;
@@ -175,10 +176,7 @@ bool ImportExportMenu::ask_confirm_unknown_extension(
   }
   auto answer = QMessageBox::warning(this, "labelbuddy", msg,
                                      QMessageBox::Ok | QMessageBox::Cancel);
-  if (answer == QMessageBox::Ok) {
-    return true;
-  }
-  return false;
+  return (answer == QMessageBox::Ok);
 }
 
 template <typename T>
@@ -196,7 +194,7 @@ void ImportExportMenu::report_result(const T& result,
   }
 }
 
-QString ImportExportMenu::get_report_msg(const ImportDocsResult& result) const {
+QString ImportExportMenu::get_report_msg(const ImportDocsResult& result) {
   return QString("Added %0 new document%1 and %2 new annotation%3")
       .arg(result.n_docs)
       .arg(result.n_docs != 1 ? "s" : "")
@@ -204,14 +202,13 @@ QString ImportExportMenu::get_report_msg(const ImportDocsResult& result) const {
       .arg(result.n_annotations != 1 ? "s" : "");
 }
 
-QString
-ImportExportMenu::get_report_msg(const ImportLabelsResult& result) const {
+QString ImportExportMenu::get_report_msg(const ImportLabelsResult& result) {
   return QString("Added %0 new label%1")
       .arg(result.n_labels)
       .arg(result.n_labels != 1 ? "s" : "");
 }
 
-QString ImportExportMenu::get_report_msg(const ExportDocsResult& result) const {
+QString ImportExportMenu::get_report_msg(const ExportDocsResult& result) {
 
   return QString("Exported %0 annotation%1 for %2 document%3")
       .arg(result.n_annotations)
@@ -220,8 +217,7 @@ QString ImportExportMenu::get_report_msg(const ExportDocsResult& result) const {
       .arg(result.n_docs == 1 ? "" : "s");
 }
 
-QString
-ImportExportMenu::get_report_msg(const ExportLabelsResult& result) const {
+QString ImportExportMenu::get_report_msg(const ExportLabelsResult& result) {
   return QString("Exported %0 label%1")
       .arg(result.n_labels)
       .arg(result.n_labels == 1 ? "" : "s");
@@ -246,7 +242,7 @@ void ImportExportMenu::import_documents() {
   {
     QProgressDialog progress("Importing documents...", "Stop", 0, 0, this);
     progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(2000);
+    progress.setMinimumDuration(progress_dialog_min_duration_ms_);
     result = database_catalog_->import_documents(file_path, &progress);
   }
   emit documents_added();
@@ -293,7 +289,7 @@ void ImportExportMenu::export_documents() {
   {
     QProgressDialog progress("Exporting documents...", "Stop", 0, 0, this);
     progress.setWindowModality(Qt::WindowModal);
-    progress.setMinimumDuration(2000);
+    progress.setMinimumDuration(progress_dialog_min_duration_ms_);
 
     result = database_catalog_->export_documents(
         file_path, labelled_only_checkbox_->isChecked(),
@@ -301,9 +297,9 @@ void ImportExportMenu::export_documents() {
         include_annotations_checkbox_->isChecked(), &progress);
   }
   database_catalog_->set_app_state_extra("export_labelled_only",
-                                        labelled_only_checkbox_->isChecked());
+                                         labelled_only_checkbox_->isChecked());
   database_catalog_->set_app_state_extra("export_include_doc_text",
-                                        include_text_checkbox_->isChecked());
+                                         include_text_checkbox_->isChecked());
   database_catalog_->set_app_state_extra(
       "export_include_annotations", include_annotations_checkbox_->isChecked());
   report_result(result, file_path);

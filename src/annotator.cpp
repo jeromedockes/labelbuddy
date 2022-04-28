@@ -23,7 +23,7 @@
 namespace labelbuddy {
 
 LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
-  QVBoxLayout* layout = new QVBoxLayout();
+  auto layout = new QVBoxLayout();
   setLayout(layout);
   instruction_label_ = new QLabel("Set label for selected text:");
   layout->addWidget(instruction_label_);
@@ -190,8 +190,8 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::delete_active_annotation);
   QObject::connect(label_choices_, &LabelChoices::extra_data_edited, this,
                    &Annotator::update_extra_data_for_active_annotation);
-  QObject::connect(label_choices_, &LabelChoices::extra_data_edit_finished, this,
-                   &Annotator::set_default_focus);
+  QObject::connect(label_choices_, &LabelChoices::extra_data_edit_finished,
+                   this, &Annotator::set_default_focus);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
                    &Annotator::paint_annotations);
   QObject::connect(this, &Annotator::active_annotation_changed, this,
@@ -247,8 +247,8 @@ void Annotator::set_font(const QFont& new_font) {
   text_->get_text_edit()->setFont(new_font);
 }
 
-void Annotator::set_use_bold_font(bool bold_font) {
-  use_bold_font_ = bold_font;
+void Annotator::set_use_bold_font(bool use_bold) {
+  use_bold_font_ = use_bold;
   paint_annotations();
 }
 
@@ -257,8 +257,8 @@ void Annotator::set_annotations_model(AnnotationsModel* new_model) {
   annotations_model_ = new_model;
   nav_buttons_->setModel(new_model);
 
-  QObject::connect(annotations_model_, &AnnotationsModel::document_changed, this,
-                   &Annotator::reset_document);
+  QObject::connect(annotations_model_, &AnnotationsModel::document_changed,
+                   this, &Annotator::reset_document);
   QObject::connect(nav_buttons_, &AnnotationsNavButtons::visit_next,
                    annotations_model_, &AnnotationsModel::visit_next);
   QObject::connect(nav_buttons_, &AnnotationsNavButtons::visit_prev,
@@ -268,9 +268,11 @@ void Annotator::set_annotations_model(AnnotationsModel* new_model) {
   QObject::connect(nav_buttons_, &AnnotationsNavButtons::visit_prev_labelled,
                    annotations_model_, &AnnotationsModel::visit_prev_labelled);
   QObject::connect(nav_buttons_, &AnnotationsNavButtons::visit_next_unlabelled,
-                   annotations_model_, &AnnotationsModel::visit_next_unlabelled);
+                   annotations_model_,
+                   &AnnotationsModel::visit_next_unlabelled);
   QObject::connect(nav_buttons_, &AnnotationsNavButtons::visit_prev_unlabelled,
-                   annotations_model_, &AnnotationsModel::visit_prev_unlabelled);
+                   annotations_model_,
+                   &AnnotationsModel::visit_prev_unlabelled);
 
   reset_document();
 }
@@ -464,7 +466,7 @@ void Annotator::activate_cluster_at_cursor_pos() {
 }
 
 void Annotator::delete_annotation(int annotation_id) {
-  if (annotation_id == -1){
+  if (annotation_id == -1) {
     return;
   }
   if (active_annotation_ == annotation_id) {
@@ -497,7 +499,7 @@ void Annotator::update_extra_data_for_active_annotation(
     return;
   }
   if (annotations_model_->update_annotation_extra_data(active_annotation_,
-                                                      new_data)) {
+                                                       new_data)) {
     annotations_[active_annotation_].extra_data = new_data;
   } else {
     assert(false);
@@ -600,7 +602,7 @@ void Annotator::fetch_annotations_info() {
 }
 
 int Annotator::find_next_annotation(AnnotationIndex pos, bool forward) const {
-  if (annotations_.size() == 0) {
+  if (annotations_.empty()) {
     return -1;
   }
   if (forward) {
@@ -686,7 +688,8 @@ void Annotator::paint_annotations() {
     } else if (cluster.first_annotation.id != active_annotation_) {
       new_selections << make_painted_region(
           cluster_start, cluster_end,
-          labels_.value(annotations_.value(cluster.first_annotation.id).label_id)
+          labels_
+              .value(annotations_.value(cluster.first_annotation.id).label_id)
               .color);
     }
   }
@@ -817,8 +820,8 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
 void AnnotationsNavButtons::setModel(AnnotationsModel* new_model) {
   assert(new_model != nullptr);
   annotations_model_ = new_model;
-  QObject::connect(annotations_model_, &AnnotationsModel::document_changed, this,
-                   &AnnotationsNavButtons::update_button_states);
+  QObject::connect(annotations_model_, &AnnotationsModel::document_changed,
+                   this, &AnnotationsNavButtons::update_button_states);
   update_button_states();
 }
 
@@ -842,17 +845,23 @@ void AnnotationsNavButtons::update_button_states() {
   next_button_->setEnabled(annotations_model_->has_next());
   prev_button_->setEnabled(annotations_model_->has_prev());
   next_labelled_button_->setEnabled(annotations_model_->has_next_labelled());
-  if (timer.elapsed() > 500)
+  if (timer.elapsed() > skip_update_buttons_duration_threshold_ms_) {
     return set_skip_updating(true);
+  }
   prev_labelled_button_->setEnabled(annotations_model_->has_prev_labelled());
-  if (timer.elapsed() > 500)
+  if (timer.elapsed() > skip_update_buttons_duration_threshold_ms_) {
     return set_skip_updating(true);
-  next_unlabelled_button_->setEnabled(annotations_model_->has_next_unlabelled());
-  if (timer.elapsed() > 500)
+  }
+  next_unlabelled_button_->setEnabled(
+      annotations_model_->has_next_unlabelled());
+  if (timer.elapsed() > skip_update_buttons_duration_threshold_ms_) {
     return set_skip_updating(true);
-  prev_unlabelled_button_->setEnabled(annotations_model_->has_prev_unlabelled());
-  if (timer.elapsed() > 500)
+  }
+  prev_unlabelled_button_->setEnabled(
+      annotations_model_->has_prev_unlabelled());
+  if (timer.elapsed() > skip_update_buttons_duration_threshold_ms_) {
     return set_skip_updating(true);
+  }
 }
 
 void AnnotationsNavButtons::set_skip_updating(bool skip) {

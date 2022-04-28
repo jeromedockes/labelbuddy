@@ -19,7 +19,7 @@ void DocListModel::set_database(const QString& new_database_name) {
   database_name_ = new_database_name;
   doc_filter_ = DocFilter::all;
   filter_label_id_ = -1;
-  limit_ = 100;
+  limit_ = default_n_docs_limit_;
   offset_ = 0;
   emit database_changed();
   refresh_current_query();
