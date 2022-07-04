@@ -1,9 +1,9 @@
 [
   {
-    "name": "Word"
+    "text": "Word"
   },
   {
-    "name": "Number",
+    "text": "Number",
     "shortcut_key": "n",
     "color": "orange"
   }

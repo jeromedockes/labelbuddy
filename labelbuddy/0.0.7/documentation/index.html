@@ -29,7 +29,7 @@
   </nav>
 </header>
 <div class="body">
-<div class="nav-container" data-component="labelbuddy" data-version="0.0.8">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.7">
   <aside class="nav">
     <div class="panels">
 <div class="nav-panel-menu is-active" data-panel="menu">
@@ -53,6 +53,9 @@
   <li class="nav-item" data-depth="1">
     <a class="nav-link" href="../examples/">Examples</a>
   </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../xml_schema/">XML Schema</a>
+  </li>
 </ul>
   </li>
 </ul>
@@ -61,17 +64,17 @@
 <div class="nav-panel-explore" data-panel="explore">
   <div class="context">
     <span class="title">labelbuddy</span>
-    <span class="version">0.0.8</span>
+    <span class="version">0.0.7</span>
   </div>
   <ul class="components">
     <li class="component is-current">
-      <a class="title" href="../">labelbuddy</a>
+      <a class="title" href="../../current/">labelbuddy</a>
       <ul class="versions">
-        <li class="version is-current is-latest">
-          <a href="../">0.0.8</a>
+        <li class="version is-latest">
+          <a href="../../current/">0.0.8</a>
         </li>
-        <li class="version">
-          <a href="../../0.0.7/">0.0.7</a>
+        <li class="version is-current">
+          <a href="../">0.0.7</a>
         </li>
       </ul>
     </li>
@@ -83,7 +86,7 @@
 <main class="article">
 <div class="toolbar" role="navigation">
 <button class="nav-toggle"></button>
-  <a href="../" class="home-link"></a>
+  <a href="../../current/" class="home-link"></a>
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../">labelbuddy</a></li>
@@ -91,10 +94,10 @@
   </ul>
 </nav>
 <div class="page-versions">
-  <button class="version-menu-toggle" title="Show other versions of page">0.0.8</button>
+  <button class="version-menu-toggle" title="Show other versions of page">0.0.7</button>
   <div class="version-menu">
-    <a class="version is-current" href="./">0.0.8</a>
-    <a class="version" href="../../0.0.7/documentation/">0.0.7</a>
+    <a class="version" href="../../current/documentation/">0.0.8</a>
+    <a class="version is-current" href="./">0.0.7</a>
   </div>
 </div>
 </div>
@@ -109,7 +112,7 @@
 <div class="paragraph">
 <p>This document describes
 <strong>labelbuddy</strong>
-version <strong>0.0.8</strong>.</p>
+version <strong>0.0.7</strong>.</p>
 </div>
 </div>
 </div>
@@ -142,6 +145,9 @@ But being a dedicated tool, <strong>labelbuddy</strong> provides a convenient in
 <div class="paragraph">
 <p><strong>labelbuddy</strong> works completely offline, making it suitable to annotate confidential data.</p>
 </div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> supports the input and output formats of <strong>doccano</strong> so it is <a href="#compatibility-with-doccano">possible</a> to switch from one to the other or to combine the work of annotators that use either.</p>
+</div>
 </div>
 <div class="sect2">
 <h3 id="quick-start"><a class="anchor" href="#quick-start"></a>1.2. Quick start</h3>
@@ -150,40 +156,15 @@ But being a dedicated tool, <strong>labelbuddy</strong> provides a convenient in
 Then to give it a try, start <strong>labelbuddy</strong> and select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> in the menu.
 This will open a temporary demo database pre-loaded with a few example documents and labels.
 You can play around with <strong>labelbuddy</strong>’s features in this temporary database.
-You can also open the demo database by starting labelbuddy with:</p>
+If you decide to start creating annotations that you want to keep, read on to the next section.
+It explains how to open a new (persistent) database and import your documents and labels.</p>
+</div>
+<div class="paragraph">
+<p>If you start <strong>labelbuddy</strong> from the <a href="#command-line-interface">command line</a>, you can also open the demo database at startup with the <code>--demo</code> option:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy --demo</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>If you decide to start creating annotations that you want to keep, read on to the next section.
-It explains how to open a new (persistent) database and import your documents and labels.
-The short version is:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Create a file for your documents that looks  <a href="#import-docs-jsonl-example">like this</a>.</p>
-</li>
-<li>
-<p>Create a file for your labels that looks <a href="#import-labels-txt-example">like this</a> (optional&#8201;&#8212;&#8201;labels can be created from within <strong>labelbuddy</strong>).</p>
-</li>
-<li>
-<p>Start <strong>labelbuddy</strong> and open a new database (<span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Open</b></span> or pass a file name on the command-line).</p>
-</li>
-<li>
-<p>Import the labels and documents and start labelling!</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>For a short description of the <a href="#command-line-interface">command line</a> interface run:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy -h</code></pre>
 </div>
 </div>
 </div>
@@ -203,7 +184,7 @@ We start with a list of terms used in the rest of the documentation:</p>
 Document
 </td>
 <td class="hdlist2">
-<p>A piece of text that we want to annotate, along with optional attributes such as a <code>display_title</code>.</p>
+<p>A piece of text that we want to annotate, along with optional attributes such as a <code>short_title</code> or an <code>id</code>.</p>
 </td>
 </tr>
 <tr>
@@ -247,7 +228,7 @@ Database
 Importing and exporting data
 </td>
 <td class="hdlist2">
-<p>Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON.</p>
+<p>Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON, XML or CSV.</p>
 </td>
 </tr>
 </table>
@@ -256,7 +237,7 @@ Importing and exporting data
 <p>The labelbuddy interface is organized around three tabs: the <strong>&#8220;Import / Export&#8221;</strong> tab for importing and exporting documents, labels and annotations, the <strong>&#8220;Dataset&#8221;</strong> tab to get an overview and manage documents and labels in the database, and the <strong>&#8220;Annotate&#8221;</strong> tab is where annotations are edited.</p>
 </div>
 <div class="paragraph">
-<p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from plain text, JSON or JSONLines, as described in <a href="#formats-sec">Appendix A</a>.
+<p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from several simple formats such as JSON or CSV, described in <a href="#formats-sec">Appendix A</a>.
 Once they are imported, you can annotate the documents.
 Finally, you can export your annotations.</p>
 </div>
@@ -295,7 +276,7 @@ If you want try this before creating your own, you can download example document
 <table>
 <tr>
 <td class="hdlist1">
-<code>metadata</code>
+<code>meta</code>
 </td>
 <td class="hdlist2">
 <p>A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author&#8230;&#8203;
@@ -305,7 +286,16 @@ It is stored and bundled with the document when you export it.</p>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>display_title</code>
+<code>id</code>
+</td>
+<td class="hdlist2">
+<p>A string attached to the document&#8201;&#8212;&#8201;a simpler alternative to <code>meta</code> if you only need a way to identify exported documents.
+Just as <code>meta</code>, <code>id</code> is stored but not used internally by <strong>labelbuddy</strong>.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>short_title</code>
 </td>
 <td class="hdlist2">
 <p>Displayed in the <strong>&#8220;Annotate&#8221;</strong> tab when annotating the document.</p>
@@ -313,7 +303,7 @@ It is stored and bundled with the document when you export it.</p>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>list_title</code>
+<code>long_title</code>
 </td>
 <td class="hdlist2">
 <p>Displayed in the document list in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
@@ -328,7 +318,7 @@ It is stored and bundled with the document when you export it.</p>
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-You can use the <code>display_title</code> to display essential metadata or short instructions specific to a document.
+You can use the <code>short_title</code> to display essential metadata or short instructions specific to a document.
 It can contain links by using an html <code>&lt;a&gt;</code> tag.
 </td>
 </tr>
@@ -337,6 +327,9 @@ It can contain links by using an html <code>&lt;a&gt;</code> tag.
 <div class="paragraph">
 <p>This information can be provided in <a href="#formats-sec">several formats</a>.
 The format is deduced from the filename extension.</p>
+</div>
+<div class="paragraph">
+<p>Moreover, annotations (previously exported from <strong>labelbuddy</strong> or <strong>doccano</strong>) can also be imported into a database as described in <a href="#formats-sec">Appendix A</a>.</p>
 </div>
 <div class="paragraph">
 <p>Importing documents and annotations can also be done from the <a href="#command-line-interface">command line</a>, for example:</p>
@@ -354,7 +347,7 @@ The format is deduced from the filename extension.</p>
 If you want try this before creating your own labels, you can download example labels from the <a href="../examples/" class="page"><strong>labelbuddy</strong> examples page</a>.</p>
 </div>
 <div class="paragraph">
-<p>Labels have three attributes: a mandatory <code>name</code>, and an optional <code>color</code> and <code>shortcut_key</code>.
+<p>Labels have three attributes: a mandatory <code>text</code> (label name), and an optional <code>color</code> and <code>shortcut_key</code>.
 The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.</p>
 </div>
 <div class="paragraph">
@@ -640,7 +633,8 @@ As you click the gray region or press the <kbd>Space</kbd> key, each <span class
 <p>Back in the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Export docs &amp; annotations</b>.
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
-If you do not export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
+If you don’t export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
+You can also provide an &#8220;annotation approver&#8221; (user name), that will be exported as the <code>annotation_approver</code> (used by <strong>doccano</strong>).
 You can also choose to only export the documents, without the annotations.</p>
 </div>
 <div class="paragraph">
@@ -688,7 +682,7 @@ Therefore managing <strong>labelbuddy</strong> data is as simple as if you were 
 <i class="fa icon-tip" title="Tip"></i>
 </td>
 <td class="content">
-Using <strong>SQLite</strong> (with the <a href="https://sqlite.org/cli.html">SQLite command-line interface</a> or one of the many programming languages that provide <strong>SQLite</strong> bindings) you can also open a connection directly to the database to query it or even modify it.
+Using <strong>SQLite</strong> (with the <a href="https://sqlite.org/cli.html">SQLite command-line interface</a> or one of the <a href="https://en.wikipedia.org/wiki/SQLite#Programming_language_support">many programming languages</a> that provide <strong>SQLite</strong> bindings) you can also open a connection directly to the database to query it or even modify it.
 If you do so, set <code>PRAGMA foreign_keys = ON</code>.
 </td>
 </tr>
@@ -708,7 +702,7 @@ The database to open can also be specified when invoking <strong>labelbuddy</str
 <p>The path to the current database is displayed in the <strong>&#8220;Import / Export&#8221;</strong> tab.</p>
 </div>
 <div class="paragraph">
-<p>If you just want to give <strong>labelbuddy</strong> a try and do not have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
+<p>If you just want to give <strong>labelbuddy</strong> a try and don’t have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
 </div>
 <div class="paragraph">
 <p>As it is easy to create, copy and delete databases (an empty <strong>labelbuddy</strong> database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
@@ -730,17 +724,18 @@ Options:
   -h, --help                              Displays this help.
   -v, --version                           Displays version information.
   --demo                                  Open a temporary demo database with
-                                          pre-loaded docs.
+                                          pre-loaded docs
   --import-labels &lt;labels file&gt;           Labels file to import in database.
   --import-docs &lt;docs file&gt;               Docs &amp; annotations file to import in
                                           database.
   --export-labels &lt;exported labels file&gt;  Labels file to export to.
   --export-docs &lt;exported docs file&gt;      Docs &amp; annotations file to export to.
-  --labelled-only                         Export only labelled documents.
+  --labelled-only                         Export only labelled documents
   --no-text                               Do not include doc text when
-                                          exporting.
+                                          exporting
   --no-annotations                        Do not include annotations when
-                                          exporting.
+                                          exporting
+  --approver &lt;name&gt;                       User or 'annotations approver' name
   --vacuum                                Repack database into minimal amount
                                           of disk space.
 
@@ -749,7 +744,7 @@ Arguments:
 </div>
 </div>
 <div class="paragraph">
-<p>If any of the <code>import</code> or <code>export</code> options are used, <strong>labelbuddy</strong> does not start a GUI but performs the required import or export operations and exits.
+<p>If any of the <code>import</code> or <code>export</code> options are used, <strong>labelbuddy</strong> doesn’t start a GUI but performs the required import or export operations and exits.
 It is possible to specify these options several times.
 To use these options, the database path must be provided explicitly.</p>
 </div>
@@ -772,7 +767,7 @@ As an example, to strip the annotations from previously exported documents you c
 </div>
 </div>
 <div class="paragraph">
-<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file does not shrink.
+<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file doesn’t shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
 To shrink the database to occupy a minimal amount of disk space, we can use:</p>
 </div>
@@ -818,19 +813,28 @@ The documentation relies on <a href="https://asciidoctor.org/">asciidoctor</a> a
 In all cases, the format is deduced from the filename extension.</p>
 </div>
 <div class="paragraph">
+<p>Several formats are supported to facilitate integrating <strong>labelbuddy</strong> in your project.
+For example, if you work with spreadsheet software such as <strong>Microsoft Excel</strong> or <strong>LibreOffice Calc</strong>, you may want to use the <a href="#docs-csv-format">CSV</a> format.
+If your documents are in XML you can easily transform them into the <strong>labelbuddy</strong> <a href="#docs-xml-format">XML</a> format with <strong>XSLT</strong>.
+Of course, you can import data from several files in any formats into the same database.
+If you are not sure which format to choose, use <a href="#docs-jsonl-format">JSONL</a> for documents and <a href="#labels-json-format">JSON</a> for labels.</p>
+</div>
+<div class="paragraph">
 <p>The examples shown in this section can be found as separate files on the <a href="../examples/" class="page"><strong>labelbuddy</strong> examples page</a>.
 Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <a href="#file-formats-for-documents-and-annotations">the next section</a>.
 However note that it is possible to export document metadata and annotations without the documents' text to save storage space.</p>
 </div>
 <div class="paragraph">
 <p>At the moment, <strong>labelbuddy</strong> expects all the files it imports to be encoded with <a href="https://en.wikipedia.org/wiki/UTF-8">UTF-8</a> (or UTF-16, or UTF-32).
-Note that <a href="https://en.wikipedia.org/wiki/ASCII">ASCII</a> files are also valid UTF-8.</p>
+Note that <a href="https://en.wikipedia.org/wiki/ASCII">ASCII</a> files are also valid UTF-8.
+One exception is that if you use the XML format, you can specify a different encoding in the XML prolog.</p>
 </div>
 <div class="paragraph">
 <p>All files produced by <strong>labelbuddy</strong> are UTF-8 encoded.</p>
 </div>
 <div class="paragraph">
-<p>The import and export formats of <strong>labelbuddy</strong> are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any <strong>labelbuddy</strong> database.</p>
+<p>The import and export formats of <strong>labelbuddy</strong> are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any <strong>labelbuddy</strong> database.
+Some formats are also compatible with <strong>doccano</strong>; see <a href="#compatibility-with-doccano">Section A.4</a>.</p>
 </div>
 <div class="paragraph">
 <p>Note that the content (text) of the documents must be in plain text.
@@ -846,13 +850,13 @@ For documents that are already in the database, it is possible to import new ann
 The associated value must be the hexadecimal representation of the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the (UTF-8 encoded) text of the document.
 Typically, you will not add this attribute yourself.
 It is added by <strong>labelbuddy</strong> when exporting documents and annotations.
-It allows you to export annotations without the document&#8217;s text, and then import them into a database that already contains the document.</p>
+It allows you to export annotations without the document&#8217;s text (or titles), and then import them into a database that already contains the document.</p>
 </div>
 <div class="paragraph">
-<p>When exporting documents and annotations, the document&#8217;s metadata (<code>metadata</code>, if you provided it), and <code>utf8_text_md5_checksum</code> are always included.
-You can choose not to include the document&#8217;s <code>text</code> (in which case <code>display_title</code> and <code>list_title</code> are not included either).
+<p>When exporting documents and annotations, the document&#8217;s metadata (<code>meta</code> and <code>id</code>, if you provided them), and <code>utf8_text_md5_checksum</code> are always included.
+You can choose not to include the document&#8217;s <code>text</code> (in which case <code>short_title</code> and <code>long_title</code> are not included either).
 This is useful to export annotations while avoiding to store the text several times.
-Exported annotations can be linked to the original text using the MD5 checksum, or information you stored in the documents&#8217; <code>metadata</code>.
+Exported annotations can be linked to the original text using the MD5 checksum, or information you stored in the documents&#8217; <code>id</code> or <code>meta</code>.
 You can also choose not to include the annotations, and export only the documents.</p>
 </div>
 <div class="paragraph">
@@ -870,7 +874,7 @@ You can also choose not to include the annotations, and export only the document
 </tr>
 <tr>
 <td class="hdlist1">
-<code>metadata</code>
+<code>meta</code>
 </td>
 <td class="hdlist2">
 <p>A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author&#8230;&#8203;
@@ -880,23 +884,32 @@ It is stored and bundled with the document when you export it.</p>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>display_title</code>
+<code>id</code>
 </td>
 <td class="hdlist2">
-<p>Shown in the <strong>&#8220;Annotate&#8221;</strong> tab when the document is displayed and being annotated.</p>
+<p>A string attached to the document&#8201;&#8212;&#8201;a simpler alternative to <code>meta</code> if you only need a way to identify exported documents.
+Just as <code>meta</code>, <code>id</code> is stored but not used internally by <strong>labelbuddy</strong>.</p>
 </td>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>list_title</code>
+<code>short_title</code>
 </td>
 <td class="hdlist2">
-<p>Shown in the document list in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
+<p>Displayed in the <strong>&#8220;Annotate&#8221;</strong> tab when annotating the document.</p>
 </td>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>annotations</code>
+<code>long_title</code>
+</td>
+<td class="hdlist2">
+<p>Displayed in the document list in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>labels</code>
 </td>
 <td class="hdlist2">
 <p>A list of annotations.</p>
@@ -905,8 +918,8 @@ It is stored and bundled with the document when you export it.</p>
 </table>
 </div>
 <div class="paragraph">
-<p>A document can have a <code>annotations</code> attribute, which is a list of annotations.
-Each annotation has the following attributes (the last one, <code>extra_data</code>, is optional):</p>
+<p>A document can can have a <code>labels</code> attribute, which is a list of annotations (the name is <code>labels</code> and not <code>annotations</code> for compatibility with <strong>doccano</strong>).
+Each annotation is a list of 3 or 4 elements (the last one, <code>extra_data</code>, is optional):</p>
 </div>
 <div class="hdlist">
 <table>
@@ -915,7 +928,7 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 <code>start_char</code>
 </td>
 <td class="hdlist2">
-<p>the position of the first character (Unicode code point), starting from 0 at the begining of the text.</p>
+<p>the position of the first character (Unicode code point), starting from 0 at the begining of the text</p>
 </td>
 </tr>
 <tr>
@@ -923,15 +936,15 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 <code>end_char</code>
 </td>
 <td class="hdlist2">
-<p>the position of one past the last character.</p>
+<p>the position of one past the last character</p>
 </td>
 </tr>
 <tr>
 <td class="hdlist1">
-<code>label_name</code>
+<code>label</code>
 </td>
 <td class="hdlist2">
-<p>the label name.</p>
+<p>the label name</p>
 </td>
 </tr>
 <tr>
@@ -945,8 +958,8 @@ Each annotation has the following attributes (the last one, <code>extra_data</co
 </table>
 </div>
 <div class="paragraph">
-<p>For example if the text starts with &#8220;hello &#x1F600;&#8221; and you highlighted exactly that phrase, and annotated it with the label <strong>"Greeting"</strong>, the associated annotation will be <code>{"start_char": 0, "end_char": 7, "label_name": "Greeting"}</code>.
-If you also typed &#8220;some more info&#8221; in the <strong>&#8220;Extra annotation data&#8221;</strong> box, the annotation will be <code>` {"start_char": 0, "end_char": 7, "label_name": "Greeting", "extra_data": "some more info"}</code>.
+<p>For example if the text starts with &#8220;hello &#x1F600;&#8221; and you highlighted exactly that phrase, and labelled it with <code>label_1</code>, the associated annotation will be <code>[0, 7, "label_1"]</code>.
+If you also typed &#8220;some more info&#8221; in the <strong>&#8220;Extra annotation data&#8221;</strong> box, the annotation will be <code>[0, 7, "label_1", "some more info"]</code>.
 Here, a &#8220;character&#8221; means a <a href="https://home.unicode.org">Unicode</a> code point.
 Note this does not correspond to byte offsets in the encoded text, nor necessarily to graphemes in the displayed text&#8201;&#8212;&#8201;a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.</p>
 </div>
@@ -989,7 +1002,7 @@ the text of document 2 more text the end</code></pre>
 <div class="paragraph">
 <p>When using this format, the import or export file is a JSON file containing one JSON array.
 Each element of the array is a JSON object representing a document and its attributes.
-If provided, <code>metadata</code> must be a JSON object (mapping) containing user data about the document.</p>
+If provided, <code>meta</code> must be a JSON object (mapping) containing user data about the document.</p>
 </div>
 <div class="paragraph">
 <p>Here is an example of a <code>.json</code> file we can use to import documents into a <strong>labelbuddy</strong> database:</p>
@@ -1003,9 +1016,9 @@ If provided, <code>metadata</code> must be a JSON object (mapping) containing us
   },
   {
     "text": "the text of document 2\nmore text\nthe end\n",
-    "display_title": "title 2",
-    "list_title": "the title of document 2",
-    "metadata": {
+    "short_title": "title 2",
+    "long_title": "the title of document 2",
+    "meta": {
       "id": "doc-2",
       "source": "example.org"
     }
@@ -1014,7 +1027,7 @@ If provided, <code>metadata</code> must be a JSON object (mapping) containing us
 </div>
 </div>
 <div class="paragraph">
-<p>Note that <code>display_title</code>, <code>list_title</code>, <code>metadata</code> are optional&#8201;&#8212;&#8201;and indeed the first document does not provide them.</p>
+<p>Note that <code>short_title</code>, <code>long_title</code>, <code>meta</code> are optional&#8201;&#8212;&#8201;and indeed the first document does not provide them.</p>
 </div>
 <div class="paragraph">
 <p>Below are the same documents, exported by <strong>labelbuddy</strong> after being annotated.
@@ -1026,8 +1039,8 @@ Moreover, as the documents are always in the same order (the order in which they
 <div class="title">Another example of 2 documents in a <code>.json</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
-{"annotations":[{"end_char":8,"label_name":"Word","start_char":4},{"end_char":22,"extra_data":"1","label_name":"Number","start_char":21}],"metadata":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"},
-{"annotations":[{"end_char":20,"label_name":"Word","start_char":12}],"display_title":"title 2","list_title":"the title of document 2","metadata":{"id":"doc-2","source":"example.org"},"text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
+{"labels":[[4,8,"Word"],[21,22,"Number","1"]],"meta":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"},
+{"labels":[[12,20,"Word"]],"long_title":"the title of document 2","meta":{"id":"doc-2","source":"example.org"},"short_title":"title 2","text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
 ]</code></pre>
 </div>
 </div>
@@ -1047,15 +1060,15 @@ To read documents one by one and reduce memory usage, you can use <a href="https
 It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:</p>
 </div>
-<div id="import-docs-jsonl-example" class="listingblock">
+<div class="listingblock">
 <div class="title">Importing 2 documents from a <code>.jsonl</code> file.</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"text": "the text of document 1\nsome text\nthe end\n"}
-{"text": "the text of document 2\nmore text\nthe end\n", "display_title": "title 2", "list_title": "the title of document 2", "metadata": {"id": "doc-2", "source": "example.org"}}</code></pre>
+{"text": "the text of document 2\nmore text\nthe end\n", "short_title": "title 2", "long_title": "the title of document 2", "meta": {"id": "doc-2", "source": "example.org"}}</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>(We can see that the first document omits the optional <code>display_title</code>, <code>list_title</code> and <code>metadata</code>.)</p>
+<p>(We can see that the first document omits the optional <code>short_title</code>, <code>long_title</code> and <code>meta</code>.)</p>
 </div>
 <div class="paragraph">
 <p>It is also possible to export documents and annotations to a <code>.jsonl</code> file:</p>
@@ -1063,13 +1076,329 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Another example of 2 documents in a <code>.jsonl</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"annotations":[{"end_char":8,"label_name":"Word","start_char":4},{"end_char":22,"extra_data":"1","label_name":"Number","start_char":21}],"metadata":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"}
-{"annotations":[{"end_char":20,"label_name":"Word","start_char":12}],"display_title":"title 2","list_title":"the title of document 2","metadata":{"id":"doc-2","source":"example.org"},"text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}</code></pre>
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"labels":[[4,8,"Word"],[21,22,"Number","1"]],"meta":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"}
+{"labels":[[12,20,"Word"]],"long_title":"the title of document 2","meta":{"id":"doc-2","source":"example.org"},"short_title":"title 2","text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Note that JSON Lines is <em>not</em> valid JSON.
 If you exported your annotations in a JSON Lines file, when parsing it each <em>line</em> must be parsed separately as a JSON document&#8201;&#8212;&#8201;not the whole file.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="docs-xml-format"><a class="anchor" href="#docs-xml-format"></a>A.2.4. XML (<code>.xml</code>)</h4>
+<div class="paragraph">
+<p>If your source documents are stored in XML, it may be easier to transform them to <strong>labelbuddy</strong>'s XML format than to JSON.
+A RELAX NG schema is provided on the <a href="../xml_schema/" class="page"><strong>labelbuddy</strong> XML schema page</a>.
+The root element must be <code>document_set</code> and contain any number of <code>document</code> elements.
+Each <code>document</code> contains children that have the names of the attributes described above: <code>text</code>, <code>short_title</code>, etc.
+User metadata is provided in the attributes of an element named <code>meta</code> or by using the <code>id</code> element&#8217;s text.
+A <code>document</code>’s children can appear in any order.
+The children of an <code>annotation</code> must respect the order: <code>start_char</code>, <code>end_char</code>, <code>label</code>, and optionally <code>extra_data</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 documents from a <code>.xml</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version='1.0' encoding='utf-8'?&gt;
+&lt;document_set&gt;
+  &lt;document&gt;
+    &lt;text&gt;the text of document 1
+some text
+the end
+&lt;/text&gt;
+  &lt;/document&gt;
+  &lt;document&gt;
+    &lt;meta id="doc-2" source="example.org"/&gt;
+    &lt;text&gt;the text of document 2
+more text
+the end
+&lt;/text&gt;
+    &lt;short_title&gt;title 2&lt;/short_title&gt;
+    &lt;long_title&gt;the title of document 2&lt;/long_title&gt;
+  &lt;/document&gt;
+&lt;/document_set&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here are the same documents exported with some annotations:</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 documents in a <code>.xml</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;document_set&gt;
+    &lt;document&gt;
+        &lt;utf8_text_md5_checksum&gt;872edcd008dee45d894d5d3c9143f96b&lt;/utf8_text_md5_checksum&gt;
+        &lt;meta/&gt;
+        &lt;text&gt;the text of document 1
+some text
+the end
+&lt;/text&gt;
+        &lt;labels&gt;
+            &lt;annotation&gt;
+                &lt;start_char&gt;4&lt;/start_char&gt;
+                &lt;end_char&gt;8&lt;/end_char&gt;
+                &lt;label&gt;Word&lt;/label&gt;
+            &lt;/annotation&gt;
+            &lt;annotation&gt;
+                &lt;start_char&gt;21&lt;/start_char&gt;
+                &lt;end_char&gt;22&lt;/end_char&gt;
+                &lt;label&gt;Number&lt;/label&gt;
+                &lt;extra_data&gt;1&lt;/extra_data&gt;
+            &lt;/annotation&gt;
+        &lt;/labels&gt;
+    &lt;/document&gt;
+    &lt;document&gt;
+        &lt;utf8_text_md5_checksum&gt;c27b0dbfabf831afaf8bafa0c727cf97&lt;/utf8_text_md5_checksum&gt;
+        &lt;meta id="doc-2" source="example.org"/&gt;
+        &lt;short_title&gt;title 2&lt;/short_title&gt;
+        &lt;long_title&gt;the title of document 2&lt;/long_title&gt;
+        &lt;text&gt;the text of document 2
+more text
+the end
+&lt;/text&gt;
+        &lt;labels&gt;
+            &lt;annotation&gt;
+                &lt;start_char&gt;12&lt;/start_char&gt;
+                &lt;end_char&gt;20&lt;/end_char&gt;
+                &lt;label&gt;Word&lt;/label&gt;
+            &lt;/annotation&gt;
+        &lt;/labels&gt;
+    &lt;/document&gt;
+&lt;/document_set&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="title">Caveats when importing from Text, JSON, JSONL or CSV and exporting to XML</div>
+<div class="paragraph">
+<p>In the XML format, the document&#8217;s metadata is stored as attributes of the <code>meta</code> element.
+This means the values in <code>meta</code> must be literal values (ie not arrays or objects).
+Therefore, if you plan to export documents and annotations to XML, do not use arrays or objects for values in the <code>meta</code> attribute of documents imported from other formats.
+For example, if you import a document from JSON with <code>meta</code> equal to <code>{"authors": ["author 1", "author 2"], "id": "doc-1"}</code>, <code>"authors"</code> will not be correctly exported to XML (but <code>"id"</code> will, and both would be correctly exported to other formats than XML).</p>
+</div>
+<div class="paragraph">
+<p>JSON and other formats can represent some characters that are invalid in XML.
+<a href="https://en.wikipedia.org/wiki/Valid_characters_in_XML">Invalid characters</a> (for example form feed, <code>0xC</code>) are not allowed to appear at all in XML (unlike special characters such as <code>&lt;</code> that simply need to be escaped), and they will not be written to the output.
+Thus if you imported documents from another format and there is a chance that they contain invalid XML characters, it is safer to choose something else than XML as the export format so that no characters are omitted in the output.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="docs-csv-format"><a class="anchor" href="#docs-csv-format"></a>A.2.5. CSV (<code>.csv</code>)</h4>
+<div class="paragraph">
+<p>Documents and annotations can also be imported and exported using CSV files.</p>
+</div>
+<div class="paragraph">
+<p>The file must be in the default format produced by most tools.
+More precisely, it must respect the conventions described in <a href="https://tools.ietf.org/html/rfc4180">rfc4180</a>: <code>,</code> is the separator, fields that contain newlines (<code>\r\n</code> or <code>\n</code>) or double quotes (<code>"</code>) must be enclosed in double quotes, and <code>"</code> must be escaped by doubling it (replacing it with <code>""</code>).
+Line endings can be either <code>\r\n</code> or <code>\n</code> (in files exported by <strong>labelbuddy</strong> they will always be <code>\r\n</code>, as specified by rfc4180).
+This is the default CSV format used by tools such as <strong>Microsoft Excel</strong>, <strong>LibreOffice Calc</strong>, <strong>Google Sheets</strong>, <code>write.csv</code> in <strong>R</strong>, <strong>the <code>csv</code> Python</strong> standard library module or <code>DataFrame.to_csv</code> in the <strong>Pandas</strong> library, etc. so most likely you will not need to configure anything.</p>
+</div>
+<div class="paragraph">
+<p>The file should be encoded with UTF-8 (or UTF-16, or UTF-32).</p>
+</div>
+<div class="paragraph">
+<p>The CSV file must start with a header row and the column names must correspond to the document attributes described above (other columns will be ignored).
+If present (and not empty), <code>meta</code> must be the JSON serialization of the metadata (eg <code>{"key": "value"}</code>, which is why it may be more convenient to rely only on <code>id</code> instead, as shown below.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 documents from a <code>.csv</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">text,short_title,long_title,id
+"the text of document 1
+some text
+the end
+",,,
+"the text of document 2
+more text
+the end
+",title 2,the title of document 2,doc-2</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here is the same file represented as a table:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 1. Importing 2 documents from a <code>.csv</code> file.</caption>
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">text</th>
+<th class="tableblock halign-left valign-top">short_title</th>
+<th class="tableblock halign-left valign-top">long_title</th>
+<th class="tableblock halign-left valign-top">id</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the text of document 1
+some text
+the end</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the text of document 2
+more text
+the end</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>title 2</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the title of document 2</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>doc-2</pre></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>When documents contain annotations, their representation is slightly different than in the JSON, JSONL or XML formats.
+Documents do not have a <code>labels</code> attribute.
+Instead, each row corresponds to one annotation and contains the attributes of both the document and the annotation, as shown in the examples below.
+To avoid storing multiple copies of the documents&#8217; text and titles, it is recommended to export the text and annotations separately.
+That is,</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>export the documents <em>with</em> the text but <em>without</em> the annotations,</p>
+</li>
+<li>
+<p>then export to a different file <em>without</em> the text but <em>with</em> the annotations.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The two resulting tables can then be joined on the <code>utf8_text_md5_checksum</code> column (or on the <code>id</code> column if you provided a distinct <code>id</code> for each document when importing them).</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 documents in a <code>.csv</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">﻿ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",4,8,Word,
+,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
+some text
+the end
+",21,22,Number,1
+,c27b0dbfabf831afaf8bafa0c727cf97,{},doc-2,title 2,the title of document 2,"the text of document 2
+more text
+the end
+",12,20,Word,</code></pre>
+</div>
+</div>
+<div class="openblock hscrollable">
+<div class="title">Another example of 2 documents in a <code>.csv</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<table class="tableblock frame-all grid-all fit-content">
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ignore_this_column</th>
+<th class="tableblock halign-left valign-top">utf8_text_md5_checksum</th>
+<th class="tableblock halign-left valign-top">meta</th>
+<th class="tableblock halign-left valign-top">id</th>
+<th class="tableblock halign-left valign-top">short_title</th>
+<th class="tableblock halign-left valign-top">long_title</th>
+<th class="tableblock halign-left valign-top">text</th>
+<th class="tableblock halign-left valign-top">start_char</th>
+<th class="tableblock halign-left valign-top">end_char</th>
+<th class="tableblock halign-left valign-top">label</th>
+<th class="tableblock halign-left valign-top">extra_data</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>872edcd008dee45d894d5d3c9143f96b</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>{}</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the text of document 1
+some text
+the end</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>4</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>8</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Word</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>872edcd008dee45d894d5d3c9143f96b</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>{}</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the text of document 1
+some text
+the end</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>21</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>22</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Number</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>1</pre></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>c27b0dbfabf831afaf8bafa0c727cf97</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>{}</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>doc-2</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>title 2</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the title of document 2</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>the text of document 2
+more text
+the end</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>12</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>20</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Word</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="paragraph">
+<p>When exporting with annotations, any unlabelled document will produce one row in which the annotation-related columns <code>start_char</code>, <code>end_char</code>, <code>label</code> and <code>extra_data</code> are empty.</p>
+</div>
+<div class="paragraph">
+<p>When reading exported <code>.csv</code> files, you should rely on the header row to identify columns, rather than on column positions, which may change in future versions of <strong>labelbuddy</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Note the csv starts with and empty column that you can ignore.
+This is because the document starts with a <a href="https://en.wikipedia.org/wiki/Byte_order_mark">Byte Order Mark (BOM)</a>, so that <strong>LibreOffice Calc</strong>, <strong>Microsoft Excel</strong> and some other tools correctly detect that it is UTF-8 encoded.
+By inserting an empty column, the data will still be read correctly by tools that do not expect or skip the BOM.
+When parsing the csv with such a tool the name of the first column will be <code>\0xef\0xbb\0xbfignore_this_column</code> instead of <code>ignore_this_column</code>, but the rest of the data will be unchanged.</p>
 </div>
 </div>
 </div>
@@ -1082,10 +1411,10 @@ If you exported your annotations in a JSON Lines file, when parsing it each <em>
 <table>
 <tr>
 <td class="hdlist1">
-<code>name</code>
+<code>text</code>
 </td>
 <td class="hdlist2">
-<p>the label&#8217;s name, mandatory.</p>
+<p>the label&#8217;s name, mandatory</p>
 </td>
 </tr>
 <tr>
@@ -1121,7 +1450,7 @@ Note the exported file is in the same format, thus can also be imported into a <
 <div class="paragraph">
 <p>Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):</p>
 </div>
-<div id="import-labels-txt-example" class="listingblock">
+<div class="listingblock">
 <div class="title">Importing 2 labels from a <code>.txt</code> file</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">Word
@@ -1137,7 +1466,9 @@ Exporting labels to <code>.txt</code> is not possible.</p>
 <h4 id="labels-json-format"><a class="anchor" href="#labels-json-format"></a>A.3.2. JSON (<code>.json</code>)</h4>
 <div class="paragraph">
 <p>When labels are stored in a JSON file, the file must contain a JSON array containing one JSON object per label.
-Each label&#8217;s object must have the key <code>name</code> and optionally <code>color</code> and <code>shortcut_key</code>.</p>
+Each label&#8217;s object must have the key <code>text</code> and optionally <code>color</code> and <code>shortcut_key</code>.
+For compatibility with <strong>doccano</strong>, <code>color</code> and <code>shortcut_key</code> can also be specified as <code>background_color</code> and <code>suffix_key</code>.
+If both are present, <code>color</code> has higher precedence than <code>background_color</code> and <code>shortcut_key</code> has higher precedence than <code>suffix_key</code>.</p>
 </div>
 <div class="paragraph">
 <p>For example:</p>
@@ -1147,10 +1478,10 @@ Each label&#8217;s object must have the key <code>name</code> and optionally <co
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
   {
-    "name": "Word"
+    "text": "Word"
   },
   {
-    "name": "Number",
+    "text": "Number",
     "shortcut_key": "n",
     "color": "orange"
   }
@@ -1158,21 +1489,25 @@ Each label&#8217;s object must have the key <code>name</code> and optionally <co
 </div>
 </div>
 <div class="paragraph">
-<p>When exporting labels to JSON, unlike documents, each exported label is not on a single line.
-This makes them easier to read and labels files are very short so there is no need to parse them incrementally.</p>
+<p>When exporting labels to JSON, Both keys <code>color</code> and <code>background_color</code> are set to the label&#8217;s color.
+Both keys <code>shortcut_key</code> and <code>suffix_key</code> are set to the label&#8217;s shortcut key if it has one.
+Unlike documents, each exported label is not on a single line:</p>
 </div>
 <div class="listingblock">
 <div class="title">Another example of 2 labels in a <code>.json</code> file (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
 <pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
     {
+        "background_color": "#aec7e8",
         "color": "#aec7e8",
-        "name": "Word"
+        "text": "Word"
     },
     {
+        "background_color": "#ffa500",
         "color": "#ffa500",
-        "name": "Number",
-        "shortcut_key": "n"
+        "shortcut_key": "n",
+        "suffix_key": "n",
+        "text": "Number"
     }
 ]</code></pre>
 </div>
@@ -1187,8 +1522,8 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Importing 2 labels from a <code>.jsonl</code> file.</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"name": "Word"}
-{"name": "Number", "shortcut_key": "n", "color": "orange"}</code></pre>
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"text": "Word"}
+{"text": "Number", "shortcut_key": "n", "color": "orange"}</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1197,10 +1532,228 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Another example of 2 labels in a <code>.jsonl</code> file (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"color":"#aec7e8","name":"Word"}
-{"color":"#ffa500","name":"Number","shortcut_key":"n"}</code></pre>
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"background_color":"#aec7e8","color":"#aec7e8","text":"Word"}
+{"background_color":"#ffa500","color":"#ffa500","shortcut_key":"n","suffix_key":"n","text":"Number"}</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="xml-xml"><a class="anchor" href="#xml-xml"></a>A.3.4. XML (<code>.xml</code>)</h4>
+<div class="paragraph">
+<p>Labels can also be stored in XML.
+As for documents, a RELAX NG schema is provided on the <a href="../xml_schema/" class="page"><strong>labelbuddy</strong> XML schema page</a>.
+Here is an example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 labels from a <code>.xml</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version='1.0' encoding='utf-8'?&gt;
+&lt;label_set&gt;
+  &lt;label&gt;
+    &lt;text&gt;Word&lt;/text&gt;
+  &lt;/label&gt;
+  &lt;label&gt;
+    &lt;text&gt;Number&lt;/text&gt;
+    &lt;shortcut_key&gt;n&lt;/shortcut_key&gt;
+    &lt;color&gt;orange&lt;/color&gt;
+  &lt;/label&gt;
+&lt;/label_set&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Labels exported by <strong>labelbuddy</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 labels in a <code>.xml</code> file (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-xml hljs" data-lang="xml">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;label_set&gt;
+    &lt;label&gt;
+        &lt;text&gt;Word&lt;/text&gt;
+        &lt;color&gt;#aec7e8&lt;/color&gt;
+    &lt;/label&gt;
+    &lt;label&gt;
+        &lt;text&gt;Number&lt;/text&gt;
+        &lt;color&gt;#ffa500&lt;/color&gt;
+        &lt;shortcut_key&gt;n&lt;/shortcut_key&gt;
+    &lt;/label&gt;
+&lt;/label_set&gt;</code></pre>
+</div>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="title">Caveat when exporting labels to XML</div>
+<div class="paragraph">
+<p>The same caveat as for documents applies: if the label names contain <a href="https://en.wikipedia.org/wiki/Valid_characters_in_XML">invalid characters</a> (for example form feed, <code>0xC</code>), they cannot be correctly exported to XML.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="labels-csv-format"><a class="anchor" href="#labels-csv-format"></a>A.3.5. CSV (<code>.csv</code>)</h4>
+<div class="paragraph">
+<p>Labels can also be imported and exported from and to CSV.
+The CSV format is the same as for <a href="#docs-csv-format">documents</a>, ie the one
+described in <a href="https://tools.ietf.org/html/rfc4180">rfc4180</a>: <code>,</code> is the separator, fields that contain newlines (<code>\r\n</code> or <code>\n</code>) or double quotes (<code>"</code>) must be enclosed in double quotes, and <code>"</code> must be escaped by doubling it (replacing it with <code>""</code>).
+Line endings can be either <code>\r\n</code> or <code>\n</code> (they are always <code>\r\n</code> in CSV files created by <strong>labelbuddy</strong>).
+This is the default format used by many tools including <strong>Microsoft Excel</strong>, <strong>LibreOffice Calc</strong>, and <strong>Google Sheets</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 labels from a <code>.csv</code> file</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">text,shortcut_key,color
+Word,,
+Number,n,orange</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is the same file presented as a table:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 2. Importing 2 labels from a <code>.csv</code> file</caption>
+<colgroup>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">text</th>
+<th class="tableblock halign-left valign-top">shortcut_key</th>
+<th class="tableblock halign-left valign-top">color</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Word</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Number</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>n</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>orange</pre></div></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>As for documents, when exporting labels to CSV the first column is empty and can be ignored.
+This allows inserting a <a href="https://en.wikipedia.org/wiki/Byte_order_mark">Byte Order Mark (BOM)</a>, so that tools such as <strong>Microsoft Excel</strong> or <strong>LibreOffice Calc</strong> that need it to detect UTF-8 can parse the file correctly, while at the same time ensuring that the file will also be parsed correctly by tools that do not expect or do not skip the BOM.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 labels in a <code>.csv</code> file (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">﻿ignore_this_column,text,color,shortcut_key
+,Word,#aec7e8,
+,Number,#ffa500,n</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here is the same file presented as a table:</p>
+</div>
+<table class="tableblock frame-all grid-all fit-content">
+<caption class="title">Table 3. Another example of 2 labels in a <code>.csv</code> file (exported by <strong>labelbuddy</strong>)</caption>
+<colgroup>
+<col>
+<col>
+<col>
+<col>
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">ignore_this_column</th>
+<th class="tableblock halign-left valign-top">text</th>
+<th class="tableblock halign-left valign-top">color</th>
+<th class="tableblock halign-left valign-top">shortcut_key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Word</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>#aec7e8</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre></pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>Number</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>#ffa500</pre></div></td>
+<td class="tableblock halign-left valign-top"><div class="literal"><pre>n</pre></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="compatibility-with-doccano"><a class="anchor" href="#compatibility-with-doccano"></a>A.4. Compatibility with doccano</h3>
+<div class="paragraph">
+<p>Labels exported from <strong>labelbuddy</strong> in the JSON format can be imported into <strong>doccano</strong>.
+Labels exported from <strong>doccano</strong> and saved in a <code>.json</code> file can be imported into <strong>labelbuddy</strong>.</p>
+</div>
+<div class="paragraph">
+<p>Documents and annotations exported from <strong>doccano</strong> can also be imported into a <strong>labelbuddy</strong> database.
+To do so, when exporting from <strong>doccano</strong> select the format &#8220;jsonl (text label)&#8221;.
+Make sure to save them in a file with the <code>.jsonl</code> extension (not <code>.json</code>, otherwise <strong>labelbuddy</strong> will try to parse it as JSON and JSON Lines is not valid JSON).</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="title">Caveats when importing <strong>doccano</strong> documents and annotations into <strong>labelbuddy</strong></div>
+<div class="paragraph">
+<p><strong>doccano</strong> strips leading and trailing whitespace from documents when importing them.
+Therefore if you import the result into a <strong>labelbuddy</strong> database that already contains the original documents, it may not be recognized as being the same (<strong>labelbuddy</strong> doesn’t modify the imported documents) and you might end up with (near) duplicate documents in the database.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Annotations exported from <strong>labelbuddy</strong> in the <code>.jsonl</code> format together with the document’s text can also be imported into <strong>doccano</strong> (selecting the &#8220;jsonl&#8221; import format).</p>
+</div>
+<div class="admonitionblock caution">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-caution" title="Caution"></i>
+</td>
+<td class="content">
+<div class="title">Caveats when importing <strong>labelbuddy</strong> documents and annotations into <strong>doccano</strong></div>
+<div class="paragraph">
+<p>If the original document contained leading whitespace, <strong>labelbuddy</strong> annotations will appear shifted when <strong>doccano</strong> removes the whitespace.
+Moreover, <strong>doccano</strong> allows duplicate documents so if the documents were already in the <strong>doccano</strong> database, they will appear as new (duplicate) documents rather than new annotations for existing documents.</p>
+</div>
+<div class="paragraph">
+<p>If you used <strong>labelbuddy</strong> features that do not exist in <strong>doccano</strong>, you will not be able to import the resulting annotations into <strong>doccano</strong>:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>if you have attached extra data to the annotations, <strong>doccano</strong> will not recognize the format and will not import the annotations.</p>
+</li>
+<li>
+<p><strong>doccano</strong> does not allow overlapping annotations.
+Therefore if you try to import overlapping annotations (created with <strong>labelbuddy</strong>) into <strong>doccano</strong> the results will be incorrect; annotated text will appear duplicated and jumbled.</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
