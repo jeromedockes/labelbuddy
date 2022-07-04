@@ -1,36 +1,36 @@
 [
   {
-    "text": "Word",
+    "name": "Word",
     "shortcut_key": "e",
     "color": "#aec7e8"
   },
   {
-    "text": "Mot",
+    "name": "Mot",
     "shortcut_key": "f",
     "color": "#ffbb78"
   },
   {
-    "text": "Palavra",
+    "name": "Palavra",
     "shortcut_key": "p",
     "color": "#98df8a"
   },
   {
-    "text": "\u0643\u0644\u0645\u0629",
+    "name": "\u0643\u0644\u0645\u0629",
     "shortcut_key": "a",
     "color": "#ff9896"
   },
   {
-    "text": "\u8a5e",
+    "name": "\u8a5e",
     "shortcut_key": "z",
     "color": "#c5b0d5"
   },
   {
-    "text": "In progress",
+    "name": "In progress",
     "shortcut_key": "n",
     "color": "#f7b6d2"
   },
   {
-    "text": "Complete",
+    "name": "Complete",
     "shortcut_key": "y",
     "color": "#9edae5"
   }

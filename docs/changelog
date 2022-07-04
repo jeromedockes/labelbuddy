@@ -5,6 +5,8 @@ labelbuddy (0.0.8) unstable; urgency=medium
   * XML and CSV import and export formats no longer supported
   * Dropped compatibility with doccano & annotation approver field
 
+ -- jerome dockes <jerome@dockes.org>  Fri, 01 Jul 2022 15:40:07 -0400
+
 labelbuddy (0.0.7) unstable; urgency=medium
 
   * Reordering labels

@@ -24,13 +24,13 @@ It should be suitable for a wide variety of text annotation projects.
 .Some features of {lb}
 ****
 - *Open source.* It is completely free and always will be.
-- *Easy to install.* Install {lb} in less than 2 minutes on Linux, Windows or MacOS.
+- *Easy to install.* Install {lb} quickly on Linux, Windows or MacOS.
 No docker containers, nothing to configure -- start labelling right away!
 - *Sequence labelling* with predefined labels or free-form annotations.
 A simple interface and keyboard shortcuts help annotate documents quickly.
 - *Overlapping annotations* are supported.
 - *Simple file formats* to import your data from.
-Choose between JSON, JSON lines or plain text.
+Choose between JSON, JSONLines or plain text.
 Export your annotations to these same formats.
 - *Native application* -- not a web application running on a server.
 An annotation database is a single ordinary file.

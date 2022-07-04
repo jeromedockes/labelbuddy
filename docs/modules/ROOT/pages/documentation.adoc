@@ -108,14 +108,27 @@ Start by {downloads-link}[installing] {lb}.
 Then to give it a try, start {lb} and select menu:File[Demo] in the menu.
 This will open a temporary demo database pre-loaded with a few example documents and labels.
 You can play around with {lb}’s features in this temporary database.
-If you decide to start creating annotations that you want to keep, read on to the next section.
-It explains how to open a new (persistent) database and import your documents and labels.
-
-If you start {lb} from the <<command-line-interface,command line>>, you can also open the demo database at startup with the `--demo` option:
+You can also open the demo database by starting labelbuddy with:
 
 [source,sh]
 ----
 labelbuddy --demo
+----
+
+If you decide to start creating annotations that you want to keep, read on to the next section.
+It explains how to open a new (persistent) database and import your documents and labels.
+The short version is:
+
+- Create a file for your documents that looks  <<import-docs-jsonl-example,like this>>.
+- Create a file for your labels that looks <<import-labels-txt-example,like this>> (optional -- labels can be created from within {lb}).
+- Start {lb} and open a new database (menu:File[Open] or pass a file name on the command-line).
+- Import the labels and documents and start labelling!
+
+For a short description of the <<command-line-interface,command line>> interface run:
+
+[source,sh]
+----
+labelbuddy -h
 ----
 
 == Using labelbuddy
@@ -659,7 +672,7 @@ When importing a JSON file the whole file is read into memory before inserting t
 To read documents one by one and reduce memory usage, you can use https://jsonlines.org/[JSON Lines] format.
 It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:
-[source,json]
+[source#import-docs-jsonl-example,json]
 .Importing 2 documents from a `.jsonl` file.
 ifndef::env-github[]
 ----
@@ -713,7 +726,7 @@ Note the exported file is in the same format, thus can also be imported into a {
 ==== Import only: plain text (`.txt`)
 Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):
 
-[source,txt]
+[source#import-labels-txt-example,txt]
 .Importing 2 labels from a `.txt` file
 ifndef::env-github[]
 ----

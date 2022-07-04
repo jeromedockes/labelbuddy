@@ -522,7 +522,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>This document describes
 <a href="https://jeromedockes.github.io/labelbuddy"><strong>labelbuddy</strong></a>
-version <strong>0.0.7</strong>.</p>
+version <strong>0.0.8</strong>.</p>
 </div>
 </div>
 </div>
@@ -563,15 +563,40 @@ But being a dedicated tool, <strong>labelbuddy</strong> provides a convenient in
 Then to give it a try, start <strong>labelbuddy</strong> and select <span class="menuseq"><b class="menu">File</b>&#160;<b class="caret">&#8250;</b> <b class="menuitem">Demo</b></span> in the menu.
 This will open a temporary demo database pre-loaded with a few example documents and labels.
 You can play around with <strong>labelbuddy</strong>’s features in this temporary database.
-If you decide to start creating annotations that you want to keep, read on to the next section.
-It explains how to open a new (persistent) database and import your documents and labels.</p>
-</div>
-<div class="paragraph">
-<p>If you start <strong>labelbuddy</strong> from the <a href="#command-line-interface">command line</a>, you can also open the demo database at startup with the <code>--demo</code> option:</p>
+You can also open the demo database by starting labelbuddy with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy --demo</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you decide to start creating annotations that you want to keep, read on to the next section.
+It explains how to open a new (persistent) database and import your documents and labels.
+The short version is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a file for your documents that looks  <a href="#import-docs-jsonl-example">like this</a>.</p>
+</li>
+<li>
+<p>Create a file for your labels that looks <a href="#import-labels-txt-example">like this</a> (optional&#8201;&#8212;&#8201;labels can be created from within <strong>labelbuddy</strong>).</p>
+</li>
+<li>
+<p>Start <strong>labelbuddy</strong> and open a new database (<span class="menuseq"><b class="menu">File</b>&#160;<b class="caret">&#8250;</b> <b class="menuitem">Open</b></span> or pass a file name on the command-line).</p>
+</li>
+<li>
+<p>Import the labels and documents and start labelling!</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a short description of the <a href="#command-line-interface">command line</a> interface run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy -h</code></pre>
 </div>
 </div>
 </div>
@@ -1435,7 +1460,7 @@ To read documents one by one and reduce memory usage, you can use <a href="https
 It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
 For example:</p>
 </div>
-<div class="listingblock">
+<div id="import-docs-jsonl-example" class="listingblock">
 <div class="title">Importing 2 documents from a <code>.jsonl</code> file.</div>
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span> <span class="tok-s2">&quot;the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">}</span>
@@ -1509,7 +1534,7 @@ Note the exported file is in the same format, thus can also be imported into a <
 <div class="paragraph">
 <p>Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):</p>
 </div>
-<div class="listingblock">
+<div id="import-labels-txt-example" class="listingblock">
 <div class="title">Importing 2 labels from a <code>.txt</code> file</div>
 <div class="content">
 <pre class="pygments highlight nowrap"><code data-lang="txt"><span></span>Word
@@ -1596,7 +1621,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-04-28 14:24:19 -0400
+Last updated 2022-07-04 16:03:08 -0400
 </div>
 </div>
 <style>
