@@ -50,7 +50,7 @@ QMAKE_LFLAGS += --coverage
 
 QT += testlib
 
-INCLUDEPATH += ../src/
+INCLUDEPATH += ./src/
 
 RESOURCES += test_resources.qrc
 
