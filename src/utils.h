@@ -16,17 +16,17 @@
 namespace labelbuddy {
 
 /// The labelbuddy version 'x.y.z'
-QString get_version();
+QString getVersion();
 
-QString get_welcome_message();
+QString getWelcomeMessage();
 
 /// URL to the html documentation
 
 /// Searched in /usr/share/doc, the parent directory of the running program, and
 /// if not found, return URL to the online doc.
-QUrl get_doc_url();
+QUrl getDocUrl();
 
-void prepare_parser(QCommandLineParser& parser);
+void prepareParser(QCommandLineParser& parser);
 
 /// Find the first index that is in the column 0
 
@@ -38,50 +38,48 @@ void prepare_parser(QCommandLineParser& parser);
 ///
 /// In practice this is a redundant check because the corresponding models'
 /// `flags` make the other columns non-selectable.
-QModelIndexList::const_iterator
-find_first_in_col_0(const QModelIndexList& indices);
+QModelIndexList::const_iterator findFirstInCol0(const QModelIndexList& indices);
 
-/// ATM single lower-case letters. If `accept_empty` the empty string also
+/// ATM single lower-case letters. If `acceptEmpty` the empty string also
 /// allowed.
 
 /// Empty string can be acceptable to clear the label's shortcut in Dataset tab.
-QRegularExpression shortcut_key_pattern(bool accept_empty = false);
+QRegularExpression shortcutKeyPattern(bool acceptEmpty = false);
 
 /// Display string for the database name (path or helpful message if temp db)
 
-/// `database_name` is the Qt database name; if not temporary database it is the
-/// path to the sqlite file. If `full_path` is false only filename is returned;
-/// if `temp_warning` and database is temporary or in-memory a message saying it
+/// `databaseName` is the Qt database name; if not temporary database it is the
+/// path to the sqlite file. If `fullPath` is false only filename is returned;
+/// if `tempWarning` and database is temporary or in-memory a message saying it
 /// will disappear is added.
-QString database_name_display(const QString& database_name,
-                              bool full_path = true, bool temp_warning = true);
+QString databaseNameDisplay(const QString& databaseName, bool fullPath = true,
+                            bool tempWarning = true);
 
 enum class Side { Left, Right };
 
-void scale_margin(QWidget& widget, Side side, float scale = .5);
+void scaleMargin(QWidget& widget, Side side, float scale = .5);
 
-const QString& suggest_label_color(int color_index);
-const QString& suggest_label_color();
+const QString& suggestLabelColor(int colorIndex);
+const QString& suggestLabelColor();
 
-int cast_progress_to_range(double current, double maximum,
-                           double range_max = 1000);
+int castProgressToRange(double current, double maximum, double rangeMax = 1000);
 
 /// compare sequences as sets ie irrespective of order or duplicates
 template <typename C1, typename C2>
-bool set_compare(const C1& container_1, const C2& container_2) {
-  QSet<typename C1::value_type> set_1{};
-  for (const auto& val_1 : container_1) {
-    set_1 << val_1;
+bool setCompare(const C1& container1, const C2& container2) {
+  QSet<typename C1::value_type> set1{};
+  for (const auto& val1 : container1) {
+    set1 << val1;
   }
-  QSet<typename C2::value_type> set_2{};
-  for (const auto& val_2 : container_2) {
-    set_2 << val_2;
+  QSet<typename C2::value_type> set2{};
+  for (const auto& val2 : container2) {
+    set2 << val2;
   }
-  return set_1 == set_2;
+  return set1 == set2;
 }
 
 /// The directory containing a file
-QString parent_directory(const QString& file_path);
+QString parentDirectory(const QString& filePath);
 
 } // namespace labelbuddy
 #endif

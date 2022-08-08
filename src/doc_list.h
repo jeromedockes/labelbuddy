@@ -25,70 +25,70 @@ public:
   void setModel(DocListModel*);
 
   /// Update the state of the "delete" and "annotate" buttons
-  /// \param n_selected number of docs selected in the doc list view
-  /// \param n_rows number of rows in the doc list view
-  /// \param total_n_docs total number of documents in the database
-  void update_top_row_buttons(int n_selected, int n_rows, int total_n_docs);
+  /// \param nSelected number of docs selected in the doc list view
+  /// \param nRows number of rows in the doc list view
+  /// \param totalNDocs total number of documents in the database
+  void updateTopRowButtons(int nSelected, int nRows, int totalNDocs);
 
 signals:
 
-  void doc_filter_changed(DocListModel::DocFilter, int filter_label_id,
-                          int limit, int offset);
-  void select_all();
-  void delete_selected_rows();
-  void delete_all_docs();
+  void docFilterChanged(DocListModel::DocFilter, int filterLabelId, int limit,
+                        int offset);
+  void selectAll();
+  void deleteSelectedRows();
+  void deleteAllDocs();
 
   /// User asked to see selected document in Annotate tab
-  void visit_doc();
+  void visitDoc();
 
 private slots:
 
   /// prepare the combobox
 
   /// the items' `itemData` is a pair (label id, doc filter)
-  void fill_filter_choice();
+  void fillFilterChoice();
 
   /// reset filter and offset when database changes
-  void after_database_change();
+  void afterDatabaseChange();
 
-  void update_button_states();
+  void updateButtonStates();
 
   /// adjust offset and button states when model data changes
-  void update_after_data_change();
+  void updateAfterDataChange();
 
-  void go_to_next_page();
+  void goToNextPage();
 
-  void go_to_last_page();
+  void goToLastPage();
 
-  void go_to_prev_page();
+  void goToPrevPage();
 
-  void go_to_first_page();
+  void goToFirstPage();
 
   /// adjust doc filter when combobox selection changes
-  void update_filter();
+  void updateFilter();
 
 private:
   int offset_ = 0;
-  int page_size_ = 100;
-  DocListModel::DocFilter current_filter_ = DocListModel::DocFilter::all;
+  int pageSize_ = 100;
+  DocListModel::DocFilter currentFilter_ = DocListModel::DocFilter::all;
   // label used to either include or exclude docs
-  int current_label_id_ = -1;
+  int currentLabelId_ = -1;
   DocListModel* model_ = nullptr;
-  QLabel* current_page_label_ = nullptr;
+  QLabel* currentPageLabel_ = nullptr;
 
-  QPushButton* select_all_button_ = nullptr;
-  QPushButton* delete_button_ = nullptr;
-  QPushButton* delete_all_button_ = nullptr;
-  QPushButton* annotate_button_ = nullptr;
+  QPushButton* selectAllButton_ = nullptr;
+  QPushButton* deleteButton_ = nullptr;
+  QPushButton* deleteAllButton_ = nullptr;
+  QPushButton* annotateButton_ = nullptr;
 
-  QPushButton* prev_page_button_ = nullptr;
-  QPushButton* next_page_button_ = nullptr;
-  QPushButton* first_page_button_ = nullptr;
-  QPushButton* last_page_button_ = nullptr;
+  QPushButton* prevPageButton_ = nullptr;
+  QPushButton* nextPageButton_ = nullptr;
+  QPushButton* firstPageButton_ = nullptr;
+  QPushButton* lastPageButton_ = nullptr;
 
-  QComboBox* filter_choice_ = nullptr;
+  QComboBox* filterChoice_ = nullptr;
 
-  void add_connections();
+  void addConnections();
 };
 
 /// document list in the Dataset tab
@@ -99,7 +99,7 @@ public:
 
   void setModel(DocListModel*);
 
-  int n_selected_docs() const;
+  int nSelectedDocs() const;
 
 protected:
   void showEvent(QShowEvent* event) override;
@@ -109,22 +109,22 @@ protected:
 private slots:
 
   /// ask for confirmation and tell the model to delete selected docs
-  void delete_selected_rows();
+  void deleteSelectedRows();
   /// ask for confirmation and tell the model to delete all docs
-  void delete_all_docs();
-  /// get the doc's id and emit `visit_doc_requested`
-  void visit_doc(const QModelIndex& = QModelIndex());
-  void update_select_delete_buttons();
+  void deleteAllDocs();
+  /// get the doc's id and emit `visitDocRequested`
+  void visitDoc(const QModelIndex& = QModelIndex());
+  void updateSelectDeleteButtons();
 
 signals:
 
-  void visit_doc_requested(int doc_id);
-  void n_selected_docs_changed(int n_docs);
+  void visitDocRequested(int docId);
+  void nSelectedDocsChanged(int nDocs);
 
 private:
-  static constexpr int delete_docs_dialog_min_duration_ms_ = 2000;
-  DocListButtons* buttons_frame_;
-  QListView* doc_view_;
+  static constexpr int deleteDocsDialogMinDurationMs_ = 2000;
+  DocListButtons* buttonsFrame_;
+  QListView* docView_;
   DocListModel* model_ = nullptr;
 };
 } // namespace labelbuddy

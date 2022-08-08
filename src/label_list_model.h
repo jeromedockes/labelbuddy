@@ -23,7 +23,7 @@ public:
   /// data for a label.
 
   /// besides Qt roles `Roles::RowIdRole` can be used to get the doc's `id`
-  /// and Roles::ShortcutKeyRole to get the `shortcut_key`.
+  /// and Roles::ShortcutKeyRole to get the `shortcutKey`.
   QVariant data(const QModelIndex& index, int role) const override;
 
   /// Items in the second (hidden) column that contains id cannot be selected.
@@ -42,68 +42,67 @@ public:
   QStringList mimeTypes() const override;
 
   /// Get the QModelIndex given the `id` in the database
-  QModelIndex label_id_to_model_index(int label_id) const;
+  QModelIndex labelIdToModelIndex(int labelId) const;
 
-  int total_n_labels() const;
+  int totalNLabels() const;
 
-  /// Delete labels, reset query, emit `labels_deleted` and `labels_changed`
-  int delete_labels(const QModelIndexList& indices);
+  /// Delete labels, reset query, emit `labelsDeleted` and `labelsChanged`
+  int deleteLabels(const QModelIndexList& indices);
 
-  /// Check that `shortcut` is a valid `shortcut_key` for the label at `index`
+  /// Check that `shortcut` is a valid `shortcutKey` for the label at `index`
 
   /// Valid if it is a single lowercase letter not used by another label.
-  bool is_valid_shortcut(const QString& shortcut,
-                         const QModelIndex& index) const;
+  bool isValidShortcut(const QString& shortcut, const QModelIndex& index) const;
 
-  int add_label(const QString& name);
+  int addLabel(const QString& name);
 
 public slots:
 
   /// Set the current database
-  void set_database(const QString& new_database_name);
+  void setDatabase(const QString& newDatabaseName);
 
   /// Reset model
-  void refresh_current_query();
+  void refreshCurrentQuery();
 
   /// Set `color` for a label
 
   /// Nothing is done if `! color.isValid()`
   /// Otherwise insert the color's html name ie #xxxxxx
-  /// Emits `dataChanged` and `labels_changed` otherwise
-  void set_label_color(const QModelIndex& index, const QColor& color);
+  /// Emits `dataChanged` and `labelsChanged` otherwise
+  void setLabelColor(const QModelIndex& index, const QColor& color);
 
-  /// Set `shortcut_key` for the label at index
+  /// Set `shortcutKey` for the label at index
 
   /// Nothing is done if not a single lowercase letter or empty string
-  /// `sortcut_key` set to NULL if `shortcut` is the empty string If shortcut
+  /// `sortcutKey` set to NULL if `shortcut` is the empty string If shortcut
   /// used by another label db constraint will prevent inserting it but signals
   /// will still be emited.
-  /// Emits `dataChanged` and `labels_changed`
-  void set_label_shortcut(const QModelIndex& index, const QString& shortcut);
+  /// Emits `dataChanged` and `labelsChanged`
+  void setLabelShortcut(const QModelIndex& index, const QString& shortcut);
 
 signals:
 
-  void labels_changed();
-  void labels_deleted();
-  void labels_added();
-  void labels_order_changed();
+  void labelsChanged();
+  void labelsDeleted();
+  void labelsAdded();
+  void labelsOrderChanged();
 
 private:
-  QSqlQuery get_query() const;
+  QSqlQuery getQuery() const;
 
-  bool is_valid_shortcut(const QString& shortcut, int label_id) const;
+  bool isValidShortcut(const QString& shortcut, int labelId) const;
 
-  /// `all_labels` is an empty list to be filled with label ids in the new order
-  void get_reordered_labels_into(const QList<int>& moved_labels, int row,
-                                 std::list<int>& all_labels) const;
+  /// `allLabels` is an empty list to be filled with label ids in the new order
+  void getReorderedLabelsInto(const QList<int>& movedLabels, int row,
+                              std::list<int>& allLabels) const;
 
-  void update_labels_order(const std::list<int>& labels);
+  void updateLabelsOrder(const std::list<int>& labels);
 
-  QString database_name_;
-  const QString select_query_text_ = ("select name, id from sorted_label;");
-  QRegularExpression re_ = shortcut_key_pattern(true);
+  QString databaseName_;
+  const QString selectQueryText_ = ("select name, id from sorted_label;");
+  QRegularExpression re_ = shortcutKeyPattern(true);
 };
 
-QList<int> get_label_ids(const LabelListModel& model);
+QList<int> getLabelIds(const LabelListModel& model);
 } // namespace labelbuddy
 #endif // LABELBUDDY_DOC_LIST_MODEL_H

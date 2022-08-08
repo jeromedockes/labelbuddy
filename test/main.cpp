@@ -9,17 +9,17 @@
 #include "test_dataset_menu.h"
 #include "test_doc_list.h"
 #include "test_doc_list_model.h"
-#include "test_label_list_model.h"
+#include "test_import_export_menu.h"
 #include "test_label_list.h"
+#include "test_label_list_model.h"
 #include "test_main_window.h"
 #include "test_searchable_text.h"
 #include "test_utils.h"
-#include "test_import_export_menu.h"
 
 int main(int argc, char* argv[]) {
-  QTemporaryDir tmp_dir{};
+  QTemporaryDir tmpDir{};
   QSettings::setPath(QSettings::NativeFormat, QSettings::UserScope,
-                     tmp_dir.path());
+                     tmpDir.path());
 
   QApplication app(argc, argv);
 

@@ -26,13 +26,12 @@ public:
     all,
     labelled,
     unlabelled,
-    has_given_label,
-    not_has_given_label
+    hasGivenLabel,
+    notHasGivenLabel
   };
 
   /// Number of documents in the database matching the filter params
-  int total_n_docs(DocFilter doc_filter = DocFilter::all,
-                   int filter_label_id = -1);
+  int totalNDocs(DocFilter docFilter = DocFilter::all, int filterLabelId = -1);
 
   /// data for a document. `Roles::RowIdRole` can be used to get the doc's `id`
   QVariant data(const QModelIndex& index, int role) const override;
@@ -41,54 +40,54 @@ public:
   Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   /// label names in the database sorted by id, used to filter docs
-  QList<QPair<QString, int>> get_label_names() const;
+  QList<QPair<QString, int>> getLabelNames() const;
 
-  /// Delete specified docs, reset query and emit `docs_deleted`
-  int delete_docs(const QModelIndexList& indices);
+  /// Delete specified docs, reset query and emit `docsDeleted`
+  int deleteDocs(const QModelIndexList& indices);
 
-  /// Delete all docs, reset query and emit `docs_deleted`
-  int delete_all_docs(QProgressDialog* progress = nullptr);
+  /// Delete all docs, reset query and emit `docsDeleted`
+  int deleteAllDocs(QProgressDialog* progress = nullptr);
 
 public slots:
 
   /// Change database
-  void set_database(const QString& new_database_name);
+  void setDatabase(const QString& newDatabaseName);
 
   /// Set current query and reset model.
-  void adjust_query(DocFilter doc_filter = DocFilter::all,
-                    int filter_label_id = -1, int limit = 100, int offset = 0);
+  void adjustQuery(DocFilter docFilter = DocFilter::all, int filterLabelId = -1,
+                   int limit = 100, int offset = 0);
 
   /// reset model
-  void refresh_current_query();
+  void refreshCurrentQuery();
 
-  void document_status_changed(DocumentStatus new_status);
-  void document_gained_label(int label_id, int doc_id);
-  void document_lost_label(int label_id, int doc_id);
+  void documentStatusChanged(DocumentStatus newStatus);
+  void documentGainedLabel(int labelId, int docId);
+  void documentLostLabel(int labelId, int docId);
 
   /// called before showing the view; filtered doc list updates are lazy
-  void refresh_current_query_if_outdated();
+  void refreshCurrentQueryIfOutdated();
 
 signals:
 
-  void docs_deleted();
-  void labels_changed();
-  void database_changed();
+  void docsDeleted();
+  void labelsChanged();
+  void databaseChanged();
 
 private:
-  static constexpr int default_n_docs_limit_{100};
+  static constexpr int defaultNDocsLimit_{100};
 
-  QSqlQuery get_query() const;
-  void refresh_n_labelled_docs();
-  int total_n_docs_no_filter();
+  QSqlQuery getQuery() const;
+  void refreshNLabelledDocs();
+  int totalNDocsNoFilter();
 
-  DocFilter doc_filter_ = DocFilter::all;
-  int filter_label_id_ = -1;
+  DocFilter docFilter_ = DocFilter::all;
+  int filterLabelId_ = -1;
   int offset_ = 0;
   int limit_ = 100;
-  QString database_name_;
-  bool result_set_outdated_{};
+  QString databaseName_;
+  bool resultSetOutdated_{};
 
-  int n_labelled_docs_{};
+  int nLabelledDocs_{};
 };
 } // namespace labelbuddy
 #endif // LABELBUDDY_DOC_LIST_MODEL_H

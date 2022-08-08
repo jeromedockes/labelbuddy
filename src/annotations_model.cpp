@@ -10,50 +10,49 @@ namespace labelbuddy {
 
 AnnotationsModel::AnnotationsModel(QObject* parent) : QObject(parent) {}
 
-QSqlQuery AnnotationsModel::get_query() const {
-  return QSqlQuery(QSqlDatabase::database(database_name_));
+QSqlQuery AnnotationsModel::getQuery() const {
+  return QSqlQuery(QSqlDatabase::database(databaseName_));
 }
 
-void AnnotationsModel::set_database(const QString& new_database_name) {
-  assert(QSqlDatabase::contains(new_database_name));
-  database_name_ = new_database_name;
-  auto query = get_query();
+void AnnotationsModel::setDatabase(const QString& newDatabaseName) {
+  assert(QSqlDatabase::contains(newDatabaseName));
+  databaseName_ = newDatabaseName;
+  auto query = getQuery();
   query.exec("select last_visited_doc from app_state;");
   query.next();
   if (query.value(0) == QVariant()) {
-    visit_first_doc();
+    visitFirstDoc();
     return;
   }
-  auto last_visited = query.value(0).toInt();
+  auto lastVisited = query.value(0).toInt();
   query.prepare("select count(*) from document where id = :doc;");
-  query.bindValue(":doc", last_visited);
+  query.bindValue(":doc", lastVisited);
   query.exec();
   query.next();
   auto exists = query.value(0).toInt();
   if (exists) {
-    visit_doc(last_visited);
+    visitDoc(lastVisited);
   } else {
-    visit_first_doc();
+    visitFirstDoc();
   }
 }
 
-QString AnnotationsModel::get_title() const {
-  auto query = get_query();
+QString AnnotationsModel::getTitle() const {
+  auto query = getQuery();
   query.prepare("select coalesce(display_title, '') "
                 "as title from document where id = :docid ;");
-  query.bindValue(":docid", current_doc_id_);
+  query.bindValue(":docid", currentDocId_);
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
   }
   return QString("");
-
 }
 
-QString AnnotationsModel::get_content() const {
-  auto query = get_query();
+QString AnnotationsModel::getContent() const {
+  auto query = getQuery();
   query.prepare("select content from document where id = :docid ;");
-  query.bindValue(":docid", current_doc_id_);
+  query.bindValue(":docid", currentDocId_);
   query.exec();
   if (query.next()) {
     return query.value(0).toString();
@@ -61,52 +60,52 @@ QString AnnotationsModel::get_content() const {
   return QString("");
 }
 
-void AnnotationsModel::fill_index_converters(const QString& text) {
-  surrogate_indices_in_qstring_.clear();
-  surrogate_indices_in_unicode_string_.clear();
-  int q_pos{};
-  int u_pos{};
+void AnnotationsModel::fillIndexConverters(const QString& text) {
+  surrogateIndicesInQString_.clear();
+  surrogateIndicesInUnicodeString_.clear();
+  int qPos{};
+  int uPos{};
   for (auto qchar : text) {
     if (!qchar.isSurrogate()) {
-      ++q_pos;
-      ++u_pos;
+      ++qPos;
+      ++uPos;
     } else if (qchar.isHighSurrogate()) {
-      surrogate_indices_in_qstring_ << q_pos;
-      ++q_pos;
-      surrogate_indices_in_unicode_string_ << u_pos;
-      ++u_pos;
+      surrogateIndicesInQString_ << qPos;
+      ++qPos;
+      surrogateIndicesInUnicodeString_ << uPos;
+      ++uPos;
     } else {
       assert(qchar.isLowSurrogate());
-      ++q_pos;
+      ++qPos;
     }
   }
 }
 
-int AnnotationsModel::code_point_idx_to_utf16_idx(int cp_idx) const {
-  assert(cp_idx >= 0);
-  int utf_idx = cp_idx;
-  auto it = surrogate_indices_in_unicode_string_.cbegin();
-  while (it != surrogate_indices_in_unicode_string_.cend() && *it < cp_idx) {
-    ++utf_idx;
+int AnnotationsModel::codePointIdxToUtf16Idx(int cpIdx) const {
+  assert(cpIdx >= 0);
+  int utfIdx = cpIdx;
+  auto it = surrogateIndicesInUnicodeString_.cbegin();
+  while (it != surrogateIndicesInUnicodeString_.cend() && *it < cpIdx) {
+    ++utfIdx;
     ++it;
   }
-  return utf_idx;
+  return utfIdx;
 }
 
-int AnnotationsModel::utf16_idx_to_code_point_idx(int utf16_idx) const {
-  assert(utf16_idx >= 0);
-  int cp_idx = utf16_idx;
-  auto it = surrogate_indices_in_qstring_.cbegin();
-  while (it != surrogate_indices_in_qstring_.cend() && *it < utf16_idx) {
-    --cp_idx;
+int AnnotationsModel::utf16IdxToCodePointIdx(int utf16Idx) const {
+  assert(utf16Idx >= 0);
+  int cpIdx = utf16Idx;
+  auto it = surrogateIndicesInQString_.cbegin();
+  while (it != surrogateIndicesInQString_.cend() && *it < utf16Idx) {
+    --cpIdx;
     ++it;
   }
-  assert(utf16_idx >= 0);
-  return cp_idx;
+  assert(utf16Idx >= 0);
+  return cpIdx;
 }
 
-QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
-  auto query = get_query();
+QMap<int, LabelInfo> AnnotationsModel::getLabelsInfo() const {
+  auto query = getQuery();
   query.prepare("select id, color, name from sorted_label;");
   query.exec();
   QMap<int, LabelInfo> result{};
@@ -118,178 +117,175 @@ QMap<int, LabelInfo> AnnotationsModel::get_labels_info() const {
   return result;
 }
 
-QMap<int, AnnotationInfo> AnnotationsModel::get_annotations_info() const {
-  auto query = get_query();
+QMap<int, AnnotationInfo> AnnotationsModel::getAnnotationsInfo() const {
+  auto query = getQuery();
   query.prepare("select rowid, label_id, start_char, end_char, extra_data from "
                 "annotation where doc_id = :doc order by rowid;");
-  query.bindValue(":doc", current_doc_id_);
+  query.bindValue(":doc", currentDocId_);
   query.exec();
   QMap<int, AnnotationInfo> result{};
   while (query.next()) {
     result[query.value(0).toInt()] =
         AnnotationInfo{query.value(0).toInt(), query.value(1).toInt(),
-                       code_point_idx_to_utf16_idx(query.value(2).toInt()),
-                       code_point_idx_to_utf16_idx(query.value(3).toInt()),
+                       codePointIdxToUtf16Idx(query.value(2).toInt()),
+                       codePointIdxToUtf16Idx(query.value(3).toInt()),
                        query.value(4).toString()};
   }
   return result;
 }
 
-int AnnotationsModel::add_annotation(int label_id, int start_char,
-                                     int end_char) {
-  auto query = get_query();
+int AnnotationsModel::addAnnotation(int labelId, int startChar, int endChar) {
+  auto query = getQuery();
   query.prepare("insert into annotation (doc_id, label_id, start_char, "
                 "end_char) values (:doc, :label, :start, :end);");
-  query.bindValue(":doc", current_doc_id_);
-  query.bindValue(":label", label_id);
-  query.bindValue(":start", utf16_idx_to_code_point_idx(start_char));
-  query.bindValue(":end", utf16_idx_to_code_point_idx(end_char));
+  query.bindValue(":doc", currentDocId_);
+  query.bindValue(":label", labelId);
+  query.bindValue(":start", utf16IdxToCodePointIdx(startChar));
+  query.bindValue(":end", utf16IdxToCodePointIdx(endChar));
   if (!query.exec()) {
     // fails eg if annotation is a duplicate of one already in db
     return -1;
   }
-  auto new_annotation_id = query.lastInsertId().toInt();
+  auto newAnnotationId = query.lastInsertId().toInt();
   query.prepare("select count(*) from annotation where doc_id = :doc;");
-  query.bindValue(":doc", current_doc_id_);
+  query.bindValue(":doc", currentDocId_);
   query.exec();
   query.next();
   if (query.value(0).toInt() == 1) {
-    emit document_status_changed(DocumentStatus::Labelled);
-    emit document_gained_label(label_id, current_doc_id_);
+    emit documentStatusChanged(DocumentStatus::Labelled);
+    emit documentGainedLabel(labelId, currentDocId_);
   } else {
     query.prepare("select count(*) from annotation where doc_id = :doc and "
                   "label_id = :label;");
-    query.bindValue(":doc", current_doc_id_);
-    query.bindValue(":label", label_id);
+    query.bindValue(":doc", currentDocId_);
+    query.bindValue(":label", labelId);
     query.exec();
     query.next();
     if (query.value(0).toInt() == 1) {
-      emit document_gained_label(label_id, current_doc_id_);
+      emit documentGainedLabel(labelId, currentDocId_);
     }
   }
-  return new_annotation_id;
+  return newAnnotationId;
 }
 
-int AnnotationsModel::delete_annotation(int annotation_id) {
-  auto query = get_query();
+int AnnotationsModel::deleteAnnotation(int annotationId) {
+  auto query = getQuery();
   query.prepare("select label_id from annotation where rowid = :id;");
-  query.bindValue(":id", annotation_id);
+  query.bindValue(":id", annotationId);
   query.exec();
   query.next();
-  auto label_id = query.value(0).toInt();
+  auto labelId = query.value(0).toInt();
   query.prepare("delete from annotation where rowid = :id;");
-  query.bindValue(":id", annotation_id);
+  query.bindValue(":id", annotationId);
   query.exec();
-  auto n_deleted = query.numRowsAffected();
-  assert(n_deleted == 1);
+  auto nDeleted = query.numRowsAffected();
+  assert(nDeleted == 1);
   // -1 if query is not active
-  if (n_deleted <= 0) {
+  if (nDeleted <= 0) {
     return 0;
   }
   query.prepare("select count(*) from annotation where doc_id = :doc;");
-  query.bindValue(":doc", current_doc_id_);
+  query.bindValue(":doc", currentDocId_);
   query.exec();
   query.next();
   if (query.value(0).toInt() == 0) {
-    emit document_status_changed(DocumentStatus::Unlabelled);
-    emit document_lost_label(label_id, current_doc_id_);
+    emit documentStatusChanged(DocumentStatus::Unlabelled);
+    emit documentLostLabel(labelId, currentDocId_);
   } else {
     query.prepare("select count(*) from annotation where doc_id = :doc and "
                   "label_id = :label;");
-    query.bindValue(":doc", current_doc_id_);
-    query.bindValue(":label", label_id);
+    query.bindValue(":doc", currentDocId_);
+    query.bindValue(":label", labelId);
     query.exec();
     query.next();
     if (query.value(0).toInt() == 0) {
-      emit document_lost_label(label_id, current_doc_id_);
+      emit documentLostLabel(labelId, currentDocId_);
     }
   }
-  return n_deleted;
+  return nDeleted;
 }
 
-bool AnnotationsModel::update_annotation_extra_data(int annotation_id,
-                                                    const QString& new_data) {
-  auto query = get_query();
+bool AnnotationsModel::updateAnnotationExtraData(int annotationId,
+                                                 const QString& newData) {
+  auto query = getQuery();
   query.prepare("update annotation set extra_data = :data where rowid = :id;");
-  query.bindValue(":data", new_data == "" ? QVariant() : new_data);
-  query.bindValue(":id", annotation_id);
+  query.bindValue(":data", newData == "" ? QVariant() : newData);
+  query.bindValue(":id", annotationId);
   return query.exec();
 }
 
-void AnnotationsModel::check_current_doc() {
-  auto query = get_query();
+void AnnotationsModel::checkCurrentDoc() {
+  auto query = getQuery();
   query.prepare("select count(*) from document where id = :doc;");
-  query.bindValue(":doc", current_doc_id_);
+  query.bindValue(":doc", currentDocId_);
   query.exec();
   query.next();
   if (query.value(0) != 1) {
-    visit_first_doc();
+    visitFirstDoc();
   }
 }
 
-void AnnotationsModel::visit_first_doc() {
-  auto success = visit_query_result("select min(id) from document;");
+void AnnotationsModel::visitFirstDoc() {
+  auto success = visitQueryResult("select min(id) from document;");
   if (!success) {
-    visit_doc(-1);
+    visitDoc(-1);
   }
 }
 
-void AnnotationsModel::visit_next() {
-  visit_query_result("select min(id) from document where id > :doc;");
+void AnnotationsModel::visitNext() {
+  visitQueryResult("select min(id) from document where id > :doc;");
 }
 
-void AnnotationsModel::visit_prev() {
-  visit_query_result("select max(id) from document where id < :doc;");
+void AnnotationsModel::visitPrev() {
+  visitQueryResult("select max(id) from document where id < :doc;");
 }
 
-void AnnotationsModel::visit_next_labelled() {
-  visit_query_result("select min(id) from labelled_document where id > :doc;");
+void AnnotationsModel::visitNextLabelled() {
+  visitQueryResult("select min(id) from labelled_document where id > :doc;");
 }
 
-void AnnotationsModel::visit_prev_labelled() {
-  visit_query_result("select max(id) from labelled_document where id < :doc;");
+void AnnotationsModel::visitPrevLabelled() {
+  visitQueryResult("select max(id) from labelled_document where id < :doc;");
 }
 
-void AnnotationsModel::visit_next_unlabelled() {
-  visit_query_result(
-      "select min(id) from unlabelled_document where id > :doc;");
+void AnnotationsModel::visitNextUnlabelled() {
+  visitQueryResult("select min(id) from unlabelled_document where id > :doc;");
 }
 
-void AnnotationsModel::visit_prev_unlabelled() {
-  visit_query_result(
-      "select max(id) from unlabelled_document where id < :doc;");
+void AnnotationsModel::visitPrevUnlabelled() {
+  visitQueryResult("select max(id) from unlabelled_document where id < :doc;");
 }
 
-bool AnnotationsModel::visit_query_result(const QString& query_text) {
-  auto query = get_query();
-  query.prepare(query_text);
-  query.bindValue(":doc", current_doc_id_);
+bool AnnotationsModel::visitQueryResult(const QString& queryText) {
+  auto query = getQuery();
+  query.prepare(queryText);
+  query.bindValue(":doc", currentDocId_);
   query.exec();
   query.next();
   if (query.isNull(0)) {
     return false;
   }
-  visit_doc(query.value(0).toInt());
+  visitDoc(query.value(0).toInt());
   return true;
 }
 
-void AnnotationsModel::visit_doc(int doc_id) {
-  current_doc_id_ = doc_id;
-  if (doc_id == -1) {
-    fill_index_converters("");
+void AnnotationsModel::visitDoc(int docId) {
+  currentDocId_ = docId;
+  if (docId == -1) {
+    fillIndexConverters("");
   } else {
-    auto query = get_query();
+    auto query = getQuery();
     query.prepare("update app_state set last_visited_doc = :doc;");
-    query.bindValue(":doc", doc_id);
+    query.bindValue(":doc", docId);
     query.exec();
-    fill_index_converters(get_content());
+    fillIndexConverters(getContent());
   }
-  emit document_changed();
+  emit documentChanged();
 }
 
-int AnnotationsModel::get_query_result(const QString& query_text) const {
-  auto query = get_query();
-  query.prepare(query_text);
+int AnnotationsModel::getQueryResult(const QString& queryText) const {
+  auto query = getQuery();
+  query.prepare(queryText);
   query.exec();
   query.next();
   if (query.isNull(0)) {
@@ -298,76 +294,74 @@ int AnnotationsModel::get_query_result(const QString& query_text) const {
   return query.value(0).toInt();
 }
 
-bool AnnotationsModel::is_positioned_on_valid_doc() const {
-  return current_doc_id_ != -1;
+bool AnnotationsModel::isPositionedOnValidDoc() const {
+  return currentDocId_ != -1;
 }
 
-int AnnotationsModel::current_doc_position() const {
-  auto query = get_query();
+int AnnotationsModel::currentDocPosition() const {
+  auto query = getQuery();
   query.prepare("select count(*) from document where id < :docid;");
-  query.bindValue(":docid", current_doc_id_);
+  query.bindValue(":docid", currentDocId_);
   query.exec();
   query.next();
   return query.value(0).toInt();
 }
 
-int AnnotationsModel::last_doc_id() const {
-  return get_query_result("select max(id) from document;");
+int AnnotationsModel::lastDocId() const {
+  return getQueryResult("select max(id) from document;");
 }
-int AnnotationsModel::first_doc_id() const {
+int AnnotationsModel::firstDocId() const {
 
-  return get_query_result("select min(id) from document;");
+  return getQueryResult("select min(id) from document;");
 }
-int AnnotationsModel::last_unlabelled_doc_id() const {
-  auto res = get_query_result("select max(id) from unlabelled_document;");
+int AnnotationsModel::lastUnlabelledDocId() const {
+  auto res = getQueryResult("select max(id) from unlabelled_document;");
   return res;
 }
-int AnnotationsModel::first_unlabelled_doc_id() const {
+int AnnotationsModel::firstUnlabelledDocId() const {
 
-  return get_query_result("select min(id) from unlabelled_document;");
+  return getQueryResult("select min(id) from unlabelled_document;");
 }
-int AnnotationsModel::last_labelled_doc_id() const {
+int AnnotationsModel::lastLabelledDocId() const {
 
-  return get_query_result("select max(doc_id) from annotation;");
+  return getQueryResult("select max(doc_id) from annotation;");
 }
-int AnnotationsModel::first_labelled_doc_id() const {
-  return get_query_result("select min(doc_id) from annotation;");
-}
-
-int AnnotationsModel::total_n_docs() const {
-  return get_query_result("select count(*) from document;");
+int AnnotationsModel::firstLabelledDocId() const {
+  return getQueryResult("select min(doc_id) from annotation;");
 }
 
-bool AnnotationsModel::has_next() const {
-  return current_doc_id_ < last_doc_id();
+int AnnotationsModel::totalNDocs() const {
+  return getQueryResult("select count(*) from document;");
 }
 
-bool AnnotationsModel::has_prev() const {
-  auto first = first_doc_id();
-  return (first != -1) && (current_doc_id_ > first);
+bool AnnotationsModel::hasNext() const { return currentDocId_ < lastDocId(); }
+
+bool AnnotationsModel::hasPrev() const {
+  auto first = firstDocId();
+  return (first != -1) && (currentDocId_ > first);
 }
 
-bool AnnotationsModel::has_next_labelled() const {
-  return current_doc_id_ < last_labelled_doc_id();
+bool AnnotationsModel::hasNextLabelled() const {
+  return currentDocId_ < lastLabelledDocId();
 }
 
-bool AnnotationsModel::has_prev_labelled() const {
+bool AnnotationsModel::hasPrevLabelled() const {
 
-  auto first = first_labelled_doc_id();
-  return (first != -1) && (current_doc_id_ > first);
+  auto first = firstLabelledDocId();
+  return (first != -1) && (currentDocId_ > first);
 }
 
-bool AnnotationsModel::has_next_unlabelled() const {
-  return current_doc_id_ < last_unlabelled_doc_id();
+bool AnnotationsModel::hasNextUnlabelled() const {
+  return currentDocId_ < lastUnlabelledDocId();
 }
 
-bool AnnotationsModel::has_prev_unlabelled() const {
-  auto first = first_unlabelled_doc_id();
-  return (first != -1) && (current_doc_id_ > first);
+bool AnnotationsModel::hasPrevUnlabelled() const {
+  auto first = firstUnlabelledDocId();
+  return (first != -1) && (currentDocId_ > first);
 }
 
-int AnnotationsModel::shortcut_to_id(const QString& shortcut) const {
-  auto query = get_query();
+int AnnotationsModel::shortcutToId(const QString& shortcut) const {
+  auto query = getQuery();
   query.prepare("select id from label where shortcut_key = :key;");
   query.bindValue(":key", shortcut);
   query.exec();

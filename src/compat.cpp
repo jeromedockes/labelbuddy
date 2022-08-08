@@ -4,7 +4,7 @@
 
 namespace labelbuddy {
 
-int text_width(const QFontMetrics& metrics, const QString& text) {
+int textWidth(const QFontMetrics& metrics, const QString& text) {
 #if QT_VERSION < QT_VERSION_CHECK(5, 11, 0)
   return metrics.width(text);
 #else

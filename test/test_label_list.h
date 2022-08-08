@@ -4,10 +4,10 @@
 #include <QTest>
 
 namespace labelbuddy {
-  class TestLabelList : public QObject {
-    Q_OBJECT
-  private slots:
-    void test_label_list();
-  };
+class TestLabelList : public QObject {
+  Q_OBJECT
+private slots:
+  void testLabelList();
+};
 } // namespace labelbuddy
 #endif

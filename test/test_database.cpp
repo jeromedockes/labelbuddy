@@ -12,203 +12,203 @@
 namespace labelbuddy {
 
 void TestDatabase::cleanup() {
-  for (const auto& connection_name : QSqlDatabase::connectionNames()) {
-    QSqlDatabase::removeDatabase(connection_name);
+  for (const auto& connectionName : QSqlDatabase::connectionNames()) {
+    QSqlDatabase::removeDatabase(connectionName);
   }
 }
 
-void TestDatabase::test_app_state_extra() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testAppStateExtra() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  catalog.set_app_state_extra("my key", "value 1");
-  auto res = catalog.get_app_state_extra("my key", "default").toString();
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  catalog.setAppStateExtra("my key", "value 1");
+  auto res = catalog.getAppStateExtra("my key", "default").toString();
   QCOMPARE(res, QString("value 1"));
-  res = catalog.get_app_state_extra("new key", "default").toString();
+  res = catalog.getAppStateExtra("new key", "default").toString();
   QCOMPARE(res, QString("default"));
-  catalog.set_app_state_extra("my key", "value 2");
-  res = catalog.get_app_state_extra("my key", "default").toString();
+  catalog.setAppStateExtra("my key", "value 2");
+  res = catalog.getAppStateExtra("my key", "default").toString();
   QCOMPARE(res, QString("value 2"));
 }
 
-void TestDatabase::test_open_database() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testOpenDatabase() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  auto db = QSqlDatabase::database(file_path);
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  auto db = QSqlDatabase::database(filePath);
   QStringList expected{"document",  "label",           "annotation",
                        "app_state", "app_state_extra", "database_info"};
   QCOMPARE(db.tables(), expected);
-  QCOMPARE(catalog.get_current_database(), file_path);
+  QCOMPARE(catalog.getCurrentDatabase(), filePath);
 
-  catalog.open_temp_database();
-  QCOMPARE(catalog.get_last_opened_directory(), tmp_dir.filePath(""));
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  catalog.openTempDatabase();
+  QCOMPARE(catalog.getLastOpenedDirectory(), tmpDir.filePath(""));
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
   query.exec("select count(*) from document;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 4);
   query.exec("select count(*) from label where name = 'Word';");
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
-  catalog.open_database(file_path);
-  QCOMPARE(catalog.get_current_database(), file_path);
-  QSqlQuery new_query(QSqlDatabase::database(catalog.get_current_database()));
-  new_query.exec("select count(*) from label where name = 'pronoun';");
-  new_query.next();
-  QCOMPARE(new_query.value(0).toInt(), 0);
-  auto file_path_1 = tmp_dir.filePath("db_1.sqlite");
-  catalog.open_database(file_path_1, false);
+  catalog.openDatabase(filePath);
+  QCOMPARE(catalog.getCurrentDatabase(), filePath);
+  QSqlQuery newQuery(QSqlDatabase::database(catalog.getCurrentDatabase()));
+  newQuery.exec("select count(*) from label where name = 'pronoun';");
+  newQuery.next();
+  QCOMPARE(newQuery.value(0).toInt(), 0);
+  auto filePath1 = tmpDir.filePath("db_1.sqlite");
+  catalog.openDatabase(filePath1, false);
   {
-    DatabaseCatalog new_catalog{};
-    new_catalog.open_database();
-    QCOMPARE(new_catalog.get_current_database(), file_path);
+    DatabaseCatalog newCatalog{};
+    newCatalog.openDatabase();
+    QCOMPARE(newCatalog.getCurrentDatabase(), filePath);
   }
-  auto res = catalog.open_database(file_path_1, true);
+  auto res = catalog.openDatabase(filePath1, true);
   QCOMPARE(res, true);
   {
-    DatabaseCatalog new_catalog{};
-    new_catalog.open_database();
-    QCOMPARE(new_catalog.get_current_database(), file_path_1);
+    DatabaseCatalog newCatalog{};
+    newCatalog.openDatabase();
+    QCOMPARE(newCatalog.getCurrentDatabase(), filePath1);
   }
 }
 
-void TestDatabase::test_open_database_errors() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testOpenDatabaseErrors() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database();
-  auto db_path = catalog.get_current_database();
-  QCOMPARE(QFileInfo(db_path).fileName(),
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase();
+  auto dbPath = catalog.getCurrentDatabase();
+  QCOMPARE(QFileInfo(dbPath).fileName(),
            QString(":LABELBUDDY_TEMPORARY_DATABASE:"));
   QVERIFY(QSqlDatabase::contains(":LABELBUDDY_TEMPORARY_DATABASE:"));
-  catalog.open_database(file_path);
-  db_path = catalog.get_current_database();
-  QCOMPARE(db_path, file_path);
-  QVERIFY(QSqlDatabase::contains(file_path));
+  catalog.openDatabase(filePath);
+  dbPath = catalog.getCurrentDatabase();
+  QCOMPARE(dbPath, filePath);
+  QVERIFY(QSqlDatabase::contains(filePath));
 
-  auto bad_file_path = tmp_dir.filePath("bad.sql");
+  auto badFilePath = tmpDir.filePath("bad.sql");
   {
-    QFile file(bad_file_path);
+    QFile file(badFilePath);
     file.open(QIODevice::WriteOnly | QIODevice::Text);
     QTextStream ostream(&file);
     ostream << "hello\n";
   }
-  bool opened = catalog.open_database(bad_file_path);
+  bool opened = catalog.openDatabase(badFilePath);
   QVERIFY(!opened);
-  QVERIFY(!QSqlDatabase::contains(bad_file_path));
-  db_path = catalog.get_current_database();
-  QCOMPARE(db_path, file_path);
-  bad_file_path = "/tmp/some/dir/does/notexist.sql";
-  opened = catalog.open_database(bad_file_path);
+  QVERIFY(!QSqlDatabase::contains(badFilePath));
+  dbPath = catalog.getCurrentDatabase();
+  QCOMPARE(dbPath, filePath);
+  badFilePath = "/tmp/some/dir/does/notexist.sql";
+  opened = catalog.openDatabase(badFilePath);
   QVERIFY(!opened);
-  QVERIFY(!QSqlDatabase::contains(bad_file_path));
-  db_path = catalog.get_current_database();
-  QCOMPARE(db_path, file_path);
+  QVERIFY(!QSqlDatabase::contains(badFilePath));
+  dbPath = catalog.getCurrentDatabase();
+  QCOMPARE(dbPath, filePath);
 
-  auto bad_db_path = tmp_dir.filePath("other_db_type.sql");
+  auto badDbPath = tmpDir.filePath("other_db_type.sql");
   {
     auto db = QSqlDatabase::addDatabase("QSQLITE", "non_labelbuddy");
-    db.setDatabaseName(bad_db_path);
+    db.setDatabaseName(badDbPath);
     db.open();
     QSqlQuery query(db);
     auto executed = query.exec("create table bookmarks (page, title);");
     QVERIFY(executed);
   }
   QSqlDatabase::removeDatabase("non_labelbuddy");
-  opened = catalog.open_database(bad_db_path);
+  opened = catalog.openDatabase(badDbPath);
   QVERIFY(!opened);
-  QVERIFY(!QSqlDatabase::contains(bad_db_path));
-  db_path = catalog.get_current_database();
-  QCOMPARE(db_path, file_path);
+  QVERIFY(!QSqlDatabase::contains(badDbPath));
+  dbPath = catalog.getCurrentDatabase();
+  QCOMPARE(dbPath, filePath);
 }
 
-void TestDatabase::test_last_opened_database() {
-  QTemporaryDir tmp_dir{};
-  auto file_path = tmp_dir.filePath("database.labelbuddy");
+void TestDatabase::testLastOpenedDatabase() {
+  QTemporaryDir tmpDir{};
+  auto filePath = tmpDir.filePath("database.labelbuddy");
   {
     DatabaseCatalog catalog{};
-    auto opened = catalog.open_database(file_path);
+    auto opened = catalog.openDatabase(filePath);
     QVERIFY(opened);
-    QCOMPARE(catalog.get_current_database(), file_path);
+    QCOMPARE(catalog.getCurrentDatabase(), filePath);
   }
   {
     DatabaseCatalog catalog{};
-    auto opened = catalog.open_database();
+    auto opened = catalog.openDatabase();
     QVERIFY(opened);
-    QCOMPARE(catalog.get_current_database(), file_path);
+    QCOMPARE(catalog.getCurrentDatabase(), filePath);
   }
-  QFile(file_path).remove();
+  QFile(filePath).remove();
   {
     DatabaseCatalog catalog{};
-    auto opened = catalog.open_database();
+    auto opened = catalog.openDatabase();
     QVERIFY(!opened);
-    QCOMPARE(catalog.get_current_database(), ":LABELBUDDY_TEMPORARY_DATABASE:");
+    QCOMPARE(catalog.getCurrentDatabase(), ":LABELBUDDY_TEMPORARY_DATABASE:");
   }
 }
 
-void TestDatabase::test_stored_database_path() {
+void TestDatabase::testStoredDatabasePath() {
   DatabaseCatalog catalog{};
   QDir dir(".");
-  auto rel_path = dir.filePath("database.labelbuddy");
-  auto abs_path = dir.absoluteFilePath("database.labelbuddy");
-  QVERIFY(rel_path != abs_path);
-  auto opened = catalog.open_database(rel_path);
+  auto relPath = dir.filePath("database.labelbuddy");
+  auto absPath = dir.absoluteFilePath("database.labelbuddy");
+  QVERIFY(relPath != absPath);
+  auto opened = catalog.openDatabase(relPath);
   QVERIFY(opened);
   auto stored = QSettings("labelbuddy", "labelbuddy")
                     .value("last_opened_database")
                     .toString();
-  QCOMPARE(stored, abs_path);
+  QCOMPARE(stored, absPath);
 
-  opened = catalog.open_database(":memory:");
+  opened = catalog.openDatabase(":memory:");
   QVERIFY(opened);
   stored = QSettings("labelbuddy", "labelbuddy")
                .value("last_opened_database")
                .toString();
-  QCOMPARE(stored, abs_path);
+  QCOMPARE(stored, absPath);
 
-  opened = catalog.open_database("");
+  opened = catalog.openDatabase("");
   QVERIFY(opened);
   stored = QSettings("labelbuddy", "labelbuddy")
                .value("last_opened_database")
                .toString();
-  QCOMPARE(stored, abs_path);
+  QCOMPARE(stored, absPath);
 }
 
-void TestDatabase::test_import_export_docs_data() {
-  QTest::addColumn<QString>("import_format");
-  QTest::addColumn<bool>("import_with_metadata");
-  QTest::addColumn<QString>("export_format");
-  QTest::addColumn<bool>("export_with_content");
-  QTest::addColumn<bool>("export_annotations");
-  QTest::addColumn<bool>("export_all");
+void TestDatabase::testImportExportDocs_data() {
+  QTest::addColumn<QString>("importFormat");
+  QTest::addColumn<bool>("importWithMetadata");
+  QTest::addColumn<QString>("exportFormat");
+  QTest::addColumn<bool>("exportWithContent");
+  QTest::addColumn<bool>("exportAnnotations");
+  QTest::addColumn<bool>("exportAll");
 
   QList<QString> formats{"json", "jsonl"};
-  QList<bool> false_true{false, true};
+  QList<bool> falseTrue{false, true};
   int i{};
   QString name{};
   QTextStream ns(&name);
-  for (const auto& export_format : formats) {
-    for (auto with_content : false_true) {
-      for (auto export_annotations : false_true) {
-        for (auto export_all : false_true) {
+  for (const auto& exportFormat : formats) {
+    for (auto withContent : falseTrue) {
+      for (auto exportAnnotations : falseTrue) {
+        for (auto exportAll : falseTrue) {
           name = QString();
-          ns << "txt " << 0 << " " << export_format << " " << int(with_content)
-             << " " << int(export_annotations) << " " << int(export_all);
+          ns << "txt " << 0 << " " << exportFormat << " " << int(withContent)
+             << " " << int(exportAnnotations) << " " << int(exportAll);
           QTest::newRow(name.toUtf8().data())
-              << "txt" << false << export_format << with_content
-              << export_annotations << export_all;
+              << "txt" << false << exportFormat << withContent
+              << exportAnnotations << exportAll;
           ++i;
-          for (auto with_metadata : false_true) {
-            for (const auto& import_format : formats) {
+          for (auto withMetadata : falseTrue) {
+            for (const auto& importFormat : formats) {
               name = QString();
-              ns << import_format << " " << int(with_metadata) << " "
-                 << export_format << " " << int(with_content) << " "
-                 << int(export_annotations) << " " << int(export_all);
+              ns << importFormat << " " << int(withMetadata) << " "
+                 << exportFormat << " " << int(withContent) << " "
+                 << int(exportAnnotations) << " " << int(exportAll);
               QTest::newRow(name.toUtf8().data())
-                  << import_format << with_metadata << export_format << with_content
-                  << export_annotations << export_all;
+                  << importFormat << withMetadata << exportFormat << withContent
+                  << exportAnnotations << exportAll;
               ++i;
             }
           }
@@ -218,17 +218,17 @@ void TestDatabase::test_import_export_docs_data() {
   }
 }
 
-void TestDatabase::test_import_export_docs() {
-  QTemporaryDir tmp_dir{};
-  auto docs_file = create_documents_file(tmp_dir);
+void TestDatabase::testImportExportDocs() {
+  QTemporaryDir tmpDir{};
+  auto docsFile = createDocumentsFile(tmpDir);
 
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  catalog.import_documents(docs_file);
-  catalog.import_labels(":test/data/test_labels.json");
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  catalog.importDocuments(docsFile);
+  catalog.importLabels(":test/data/test_labels.json");
 
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
 
   query.exec("insert into annotation (doc_id, label_id, start_char, end_char) "
              "values (2, 1, 3, 4);");
@@ -241,43 +241,43 @@ void TestDatabase::test_import_export_docs() {
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
-  auto export_file = check_exported_docs(catalog, tmp_dir);
-  check_import_back(catalog, export_file);
+  auto exportFile = checkExportedDocs(catalog, tmpDir);
+  checkImportBack(catalog, exportFile);
 }
 
-void TestDatabase::test_import_export_labels() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testImportExportLabels() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  catalog.import_labels(":test/data/test_labels.json");
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
-  check_db_labels(query);
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  catalog.importLabels(":test/data/test_labels.json");
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
+  checkDbLabels(query);
   for (QString format : {"jsonl", "json"}) {
-    auto labels_file_path = tmp_dir.filePath(QString("labels.%0").arg(format));
-    catalog.export_labels(labels_file_path);
+    auto labelsFilePath = tmpDir.filePath(QString("labels.%0").arg(format));
+    catalog.exportLabels(labelsFilePath);
     query.exec("delete from label;");
     query.exec("select count(*) from label;");
     query.next();
     QCOMPARE(query.value(0).toInt(), 0);
-    catalog.import_labels(labels_file_path);
-    check_db_labels(query);
+    catalog.importLabels(labelsFilePath);
+    checkDbLabels(query);
   }
 }
 
-void TestDatabase::test_import_txt_labels() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testImportTxtLabels() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  auto labels_file_path = tmp_dir.filePath("labels.txt");
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  auto labelsFilePath = tmpDir.filePath("labels.txt");
   {
-    QFile labels_file(labels_file_path);
-    labels_file.open(QIODevice::WriteOnly);
-    labels_file.write("First label\nSecond label");
+    QFile labelsFile(labelsFilePath);
+    labelsFile.open(QIODevice::WriteOnly);
+    labelsFile.write("First label\nSecond label");
   }
-  catalog.import_labels(labels_file_path);
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  catalog.importLabels(labelsFilePath);
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
   query.exec("select name from label order by id;");
   query.next();
   QCOMPARE(query.value(0).toString(), "First label");
@@ -288,20 +288,20 @@ void TestDatabase::test_import_txt_labels() {
   QCOMPARE(query.value(0).toInt(), 2);
 }
 
-void TestDatabase::test_import_label_with_duplicate_shortcut_key() {
-  QTemporaryDir tmp_dir{};
+void TestDatabase::testImportLabelWithDuplicateShortcutKey() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  auto file_path = tmp_dir.filePath("db.sqlite");
-  catalog.open_database(file_path);
-  auto labels_file_path = tmp_dir.filePath("labels.json");
-  QFile file(labels_file_path);
+  auto filePath = tmpDir.filePath("db.sqlite");
+  catalog.openDatabase(filePath);
+  auto labelsFilePath = tmpDir.filePath("labels.json");
+  QFile file(labelsFilePath);
   file.open(QIODevice::WriteOnly);
   file.write(
       R"([{"name": "lab1", "shortcut_key": "a"},
  {"name": "lab2", "shortcut_key": "a"}])");
   file.close();
-  catalog.import_labels(labels_file_path);
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  catalog.importLabels(labelsFilePath);
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
   query.exec("select name, shortcut_key from label order by id;");
   query.next();
   QCOMPARE(query.value(0).toString(), QString("lab1"));
@@ -311,7 +311,7 @@ void TestDatabase::test_import_label_with_duplicate_shortcut_key() {
   QVERIFY(query.value(1).isNull());
 }
 
-void TestDatabase::check_db_labels(QSqlQuery& query) {
+void TestDatabase::checkDbLabels(QSqlQuery& query) {
   query.exec("select name, color, shortcut_key from label;");
   query.next();
   QCOMPARE(query.value(0).toString(), QString("label: Reinício da sessão"));
@@ -326,11 +326,11 @@ void TestDatabase::check_db_labels(QSqlQuery& query) {
   QCOMPARE(query.value(1).toString(), QString("#98df8a"));
 }
 
-void TestDatabase::check_import_back(DatabaseCatalog& catalog,
-                                     const QString& export_file) {
-  QFETCH(QString, export_format);
+void TestDatabase::checkImportBack(DatabaseCatalog& catalog,
+                                   const QString& exportFile) {
+  QFETCH(QString, exportFormat);
 
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
   query.exec("select count(*) from annotation;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 3);
@@ -338,7 +338,7 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
-  catalog.import_documents(export_file);
+  catalog.importDocuments(exportFile);
 
   query.exec("select count(*) from annotation;");
   query.next();
@@ -356,17 +356,17 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
-  catalog.import_documents(export_file);
-  QFETCH(bool, export_annotations);
+  catalog.importDocuments(exportFile);
+  QFETCH(bool, exportAnnotations);
 
   query.exec("select count(*) from annotation;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), export_annotations ? 3 : 0);
+  QCOMPARE(query.value(0).toInt(), exportAnnotations ? 3 : 0);
   query.exec("select count(*) from document;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 6);
 
-  if (export_annotations) {
+  if (exportAnnotations) {
     query.exec(
         "select doc_id, label_id, start_char from annotation order by rowid;");
 
@@ -385,8 +385,8 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
     QCOMPARE(query.value(1).toInt(), 1);
     QCOMPARE(query.value(2).toInt(), 3);
   }
-  QFETCH(bool, export_with_content);
-  if (!export_with_content) {
+  QFETCH(bool, exportWithContent);
+  if (!exportWithContent) {
     return;
   }
   query.exec("delete from document;");
@@ -398,145 +398,151 @@ void TestDatabase::check_import_back(DatabaseCatalog& catalog,
   query.next();
   QCOMPARE(query.value(0).toInt(), 0);
 
-  catalog.import_documents(export_file);
+  catalog.importDocuments(exportFile);
 
   query.exec("select count(*) from annotation;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), export_annotations ? 3 : 0);
+  QCOMPARE(query.value(0).toInt(), exportAnnotations ? 3 : 0);
 
-  QFETCH(bool, export_all);
+  QFETCH(bool, exportAll);
 
   query.exec("select count(*) from document;");
   query.next();
-  QCOMPARE(query.value(0).toInt(), (export_all ? 6 : 2));
+  QCOMPARE(query.value(0).toInt(), (exportAll ? 6 : 2));
 
-  QTemporaryDir tmp_dir{};
-  if (export_annotations || export_all) {
-    check_exported_docs(catalog, tmp_dir);
+  QTemporaryDir tmpDir{};
+  if (exportAnnotations || exportAll) {
+    checkExportedDocs(catalog, tmpDir);
   }
 }
 
-QString TestDatabase::check_exported_docs(DatabaseCatalog& catalog,
-                                          QTemporaryDir& tmp_dir) {
-  QFETCH(QString, export_format);
-  QFETCH(bool, export_with_content);
-  QFETCH(bool, export_annotations);
-  QFETCH(bool, export_all);
+QString TestDatabase::checkExportedDocs(DatabaseCatalog& catalog,
+                                        QTemporaryDir& tmpDir) {
+  QFETCH(QString, exportFormat);
+  QFETCH(bool, exportWithContent);
+  QFETCH(bool, exportAnnotations);
+  QFETCH(bool, exportAll);
 
-  QFile docs_file(":test/data/test_documents.json");
-  docs_file.open(QIODevice::ReadOnly);
-  auto docs = QJsonDocument::fromJson(docs_file.readAll()).array();
-  if (!export_all) {
-    QJsonArray annotated_docs{};
-    annotated_docs << docs[1] << docs[2];
-    docs = annotated_docs;
+  QFile docsFile(":test/data/test_documents.json");
+  docsFile.open(QIODevice::ReadOnly);
+  auto docs = QJsonDocument::fromJson(docsFile.readAll()).array();
+  if (!exportAll) {
+    QJsonArray annotatedDocs{};
+    annotatedDocs << docs[1] << docs[2];
+    docs = annotatedDocs;
   }
 
-  auto out_file = tmp_dir.filePath(QString("exported.%0").arg(export_format));
-  catalog.export_documents(out_file, !export_all, export_with_content,
-                           export_annotations);
-  check_exported_docs_json(out_file, docs);
-  return out_file;
+  auto outFile = tmpDir.filePath(QString("exported.%0").arg(exportFormat));
+  catalog.exportDocuments(outFile, !exportAll, exportWithContent,
+                          exportAnnotations);
+  checkExportedDocsJson(outFile, docs);
+  return outFile;
 }
 
-void TestDatabase::check_exported_docs_json(const QString& file_path,
-                                            const QJsonArray& docs) {
-  QFETCH(bool, export_with_content);
-  QFETCH(bool, export_annotations);
-  QFETCH(bool, import_with_metadata);
-  QFETCH(QString, import_format);
-  QFETCH(QString, export_format);
-  QFile file(file_path);
-  QJsonArray output_json_data;
-  if (export_format == "json") {
+void TestDatabase::checkExportedDocsJson(const QString& filePath,
+                                         const QJsonArray& docs) {
+  QFETCH(bool, exportWithContent);
+  QFETCH(bool, exportAnnotations);
+  QFETCH(bool, importWithMetadata);
+  QFETCH(QString, importFormat);
+  QFETCH(QString, exportFormat);
+  QFile file(filePath);
+  QJsonArray outputJsonData;
+  if (exportFormat == "json") {
     file.open(QIODevice::ReadOnly);
-    output_json_data = QJsonDocument::fromJson(file.readAll()).array();
+    outputJsonData = QJsonDocument::fromJson(file.readAll()).array();
   } else {
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream stream(&file);
     stream.setCodec("UTF-8");
     while (!stream.atEnd()) {
-      output_json_data
+      outputJsonData
           << QJsonDocument::fromJson(stream.readLine().toUtf8()).object();
     }
   }
 
   int i{};
   for (const auto& doc : docs) {
-    auto json_data = doc.toObject();
-    auto metadata = json_data["metadata"].toObject();
-    auto output_json = output_json_data[i].toObject();
-    if (import_format != "txt") {
-      QCOMPARE(output_json.value("utf8_text_md5_checksum").toString(),
+    auto jsonData = doc.toObject();
+    auto metadata = jsonData["metadata"].toObject();
+    auto outputJson = outputJsonData[i].toObject();
+    if (importFormat != "txt") {
+      QCOMPARE(outputJson.value("utf8_text_md5_checksum").toString(),
                metadata.value("original_md5").toString());
     }
-    if (import_with_metadata) {
+    if (importWithMetadata) {
+      QCOMPARE(outputJson.value("metadata")
+                   .toObject()
+                   .value("original_md5")
+                   .toString(),
+               metadata.value("original_md5").toString());
       QCOMPARE(
-          output_json.value("metadata").toObject().value("original_md5").toString(),
-          metadata.value("original_md5").toString());
-      QCOMPARE(output_json.value("metadata").toObject().value("title").toString(),
-               metadata.value("title").toString());
+          outputJson.value("metadata").toObject().value("title").toString(),
+          metadata.value("title").toString());
     }
-    if (export_with_content) {
+    if (exportWithContent) {
       for (const auto& key : {"display_title", "list_title"}) {
-        if (import_format != "txt" && json_data.contains(key)) {
-          QCOMPARE(output_json[key].toString(), json_data[key].toString());
+        if (importFormat != "txt" && jsonData.contains(key)) {
+          QCOMPARE(outputJson[key].toString(), jsonData[key].toString());
         }
       }
-      if (import_format != "txt") {
-        QCOMPARE(output_json.value("text").toString(),
-                 json_data["text"].toString());
+      if (importFormat != "txt") {
+        QCOMPARE(outputJson.value("text").toString(),
+                 jsonData["text"].toString());
       } else {
-        QCOMPARE(output_json.value("text").toString(),
-                 json_data["text"].toString().replace("\n", "\t"));
+        QCOMPARE(outputJson.value("text").toString(),
+                 jsonData["text"].toString().replace("\n", "\t"));
       }
     }
 
-    if (export_annotations) {
+    if (exportAnnotations) {
       if (metadata.value("title").toString() == "document 1") {
-        auto annotation = output_json.value("annotations").toArray()[0].toObject();
+        auto annotation =
+            outputJson.value("annotations").toArray()[0].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 3);
         QCOMPARE(annotation["end_char"].toInt(), 4);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
 
-        annotation = output_json.value("annotations").toArray()[1].toObject();
+        annotation = outputJson.value("annotations").toArray()[1].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 5);
         QCOMPARE(annotation["end_char"].toInt(), 7);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Resumption of the session"));
-        QCOMPARE(annotation["extra_data"].toString(), QString("hello extra data"));
+        QCOMPARE(annotation["extra_data"].toString(),
+                 QString("hello extra data"));
       } else if (metadata.value("title").toString() == "document 2") {
-        auto annotation = output_json.value("annotations").toArray()[0].toObject();
+        auto annotation =
+            outputJson.value("annotations").toArray()[0].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 3);
         QCOMPARE(annotation["end_char"].toInt(), 4);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
       }
     } else {
-      QVERIFY(!output_json.contains("labels"));
+      QVERIFY(!outputJson.contains("labels"));
     }
     ++i;
   }
 }
 
-QString TestDatabase::create_documents_file(QTemporaryDir& tmp_dir) {
-  QFile docs_file(":test/data/test_documents.json");
-  docs_file.open(QIODevice::ReadOnly);
-  auto docs = QJsonDocument::fromJson(docs_file.readAll()).array();
-  QFETCH(QString, import_format);
-  auto out_file = tmp_dir.filePath(QString("documents.%0").arg(import_format));
-  if (import_format == "txt") {
-    create_documents_file_txt(out_file, docs);
-  }  else {
-    create_documents_file_json(out_file, docs);
+QString TestDatabase::createDocumentsFile(QTemporaryDir& tmpDir) {
+  QFile docsFile(":test/data/test_documents.json");
+  docsFile.open(QIODevice::ReadOnly);
+  auto docs = QJsonDocument::fromJson(docsFile.readAll()).array();
+  QFETCH(QString, importFormat);
+  auto outFile = tmpDir.filePath(QString("documents.%0").arg(importFormat));
+  if (importFormat == "txt") {
+    createDocumentsFileTxt(outFile, docs);
+  } else {
+    createDocumentsFileJson(outFile, docs);
   }
-  return out_file;
+  return outFile;
 }
 
-void TestDatabase::create_documents_file_txt(const QString& file_path,
-                                             const QJsonArray& docs) {
-  QFile file(file_path);
+void TestDatabase::createDocumentsFileTxt(const QString& filePath,
+                                          const QJsonArray& docs) {
+  QFile file(filePath);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream out(&file);
   out.setCodec("UTF-8");
@@ -545,12 +551,12 @@ void TestDatabase::create_documents_file_txt(const QString& file_path,
   }
 }
 
-void TestDatabase::create_documents_file_json(const QString& file_path,
-                                              const QJsonArray& docs) {
-  QFETCH(QString, import_format);
-  QFETCH(bool, import_with_metadata);
-  auto jsonl{import_format == "jsonl"};
-  QFile file(file_path);
+void TestDatabase::createDocumentsFileJson(const QString& filePath,
+                                           const QJsonArray& docs) {
+  QFETCH(QString, importFormat);
+  QFETCH(bool, importWithMetadata);
+  auto jsonl{importFormat == "jsonl"};
+  QFile file(filePath);
   file.open(QIODevice::WriteOnly | QIODevice::Text);
   QTextStream out(&file);
   if (!jsonl) {
@@ -564,15 +570,15 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
       }
       out << "\n";
     }
-    auto doc_obj = doc.toObject();
+    auto docObj = doc.toObject();
     QJsonObject json{};
-    json.insert("text", doc_obj["text"].toString());
-    if (import_with_metadata) {
-      json.insert("metadata", doc_obj["metadata"].toObject());
+    json.insert("text", docObj["text"].toString());
+    if (importWithMetadata) {
+      json.insert("metadata", docObj["metadata"].toObject());
     }
     for (const auto& key : {"display_title", "list_title"}) {
-      if (doc_obj.contains(key)) {
-        json.insert(key, doc_obj[key].toString());
+      if (docObj.contains(key)) {
+        json.insert(key, docObj[key].toString());
       }
     }
     out << QString::fromUtf8(
@@ -582,64 +588,64 @@ void TestDatabase::create_documents_file_json(const QString& file_path,
   out << (jsonl ? "\n" : "\n]\n");
 }
 
-void TestDatabase::test_batch_import_export() {
-  QTemporaryDir tmp_dir{};
-  auto db_path = tmp_dir.filePath("db.sqlite");
-  auto docs_file = tmp_dir.filePath("docs.json");
-  auto docs_file_bad_ext = tmp_dir.filePath("docs.abc");
-  QFile::copy(":test/data/test_documents.json", docs_file);
-  QFile::copy(":test/data/test_documents.json", docs_file_bad_ext);
-  auto labels_file = tmp_dir.filePath("labels.json");
-  QFile::copy(":test/data/test_labels.json", labels_file);
-  auto labels_out = tmp_dir.filePath("exported_labels.json");
-  auto docs_out = tmp_dir.filePath("exported_docs.json");
-  auto res = batch_import_export(
-      db_path, {labels_file},
-      {docs_file, "/some/file/does/not/exist.json", docs_file_bad_ext},
-      labels_out, docs_out, false, true, true, false);
+void TestDatabase::testBatchImportExport() {
+  QTemporaryDir tmpDir{};
+  auto dbPath = tmpDir.filePath("db.sqlite");
+  auto docsFile = tmpDir.filePath("docs.json");
+  auto docsFileBadExt = tmpDir.filePath("docs.abc");
+  QFile::copy(":test/data/test_documents.json", docsFile);
+  QFile::copy(":test/data/test_documents.json", docsFileBadExt);
+  auto labelsFile = tmpDir.filePath("labels.json");
+  QFile::copy(":test/data/test_labels.json", labelsFile);
+  auto labelsOut = tmpDir.filePath("exported_labels.json");
+  auto docsOut = tmpDir.filePath("exported_docs.json");
+  auto res = batchImportExport(
+      dbPath, {labelsFile},
+      {docsFile, "/some/file/does/not/exist.json", docsFileBadExt}, labelsOut,
+      docsOut, false, true, true, false);
   QCOMPARE(res, 1);
 
-  QJsonArray output_docs;
-  QFile docs_out_f(docs_out);
-  docs_out_f.open(QIODevice::ReadOnly);
-  output_docs = QJsonDocument::fromJson(docs_out_f.readAll()).array();
+  QJsonArray outputDocs;
+  QFile docsOutF(docsOut);
+  docsOutF.open(QIODevice::ReadOnly);
+  outputDocs = QJsonDocument::fromJson(docsOutF.readAll()).array();
 
-  QFile input_docs_f(docs_file);
-  input_docs_f.open(QIODevice::ReadOnly);
-  auto input_docs = QJsonDocument::fromJson(input_docs_f.readAll()).array();
+  QFile inputDocsF(docsFile);
+  inputDocsF.open(QIODevice::ReadOnly);
+  auto inputDocs = QJsonDocument::fromJson(inputDocsF.readAll()).array();
 
-  QCOMPARE(output_docs.size(), input_docs.size());
-  QCOMPARE(output_docs[0].toObject()["text"], input_docs[0].toObject()["text"]);
+  QCOMPARE(outputDocs.size(), inputDocs.size());
+  QCOMPARE(outputDocs[0].toObject()["text"], inputDocs[0].toObject()["text"]);
 
-  res = batch_import_export(db_path, {}, {}, "", "", false, false, false, true);
+  res = batchImportExport(dbPath, {}, {}, "", "", false, false, false, true);
   QCOMPARE(res, 0);
 
-  res = batch_import_export("/does/not/exist/db.sql", {}, {}, "", "", false,
-                            false, false, true);
+  res = batchImportExport("/does/not/exist/db.sql", {}, {}, "", "", false,
+                          false, false, true);
   QCOMPARE(res, 1);
 }
 
-void TestDatabase::test_import_errors_data() {
-  QTest::addColumn<QString>("input_file");
+void TestDatabase::testImportErrors_data() {
+  QTest::addColumn<QString>("inputFile");
   QDir dir(":test/data/invalid_files/");
-  auto input_files = dir.entryList({"*"});
-  for (const auto& file_name : input_files) {
-    QTest::newRow(file_name.toUtf8()) << dir.filePath(file_name);
+  auto inputFiles = dir.entryList({"*"});
+  for (const auto& fileName : inputFiles) {
+    QTest::newRow(fileName.toUtf8()) << dir.filePath(fileName);
   }
 }
 
-void TestDatabase::test_import_errors() {
-  QFETCH(QString, input_file);
+void TestDatabase::testImportErrors() {
+  QFETCH(QString, inputFile);
   DatabaseCatalog catalog{};
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
-  auto doc_res = catalog.import_documents(input_file);
-  QCOMPARE(static_cast<int>(doc_res.error_code),
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
+  auto docRes = catalog.importDocuments(inputFile);
+  QCOMPARE(static_cast<int>(docRes.errorCode),
            static_cast<int>(ErrorCode::CriticalParsingError));
   query.exec("select count(*) from document;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 0);
-  auto label_res = catalog.import_labels(input_file);
-  QCOMPARE(static_cast<int>(label_res.error_code),
+  auto labelRes = catalog.importLabels(inputFile);
+  QCOMPARE(static_cast<int>(labelRes.errorCode),
            static_cast<int>(ErrorCode::CriticalParsingError));
   query.exec("select count(*) from label;");
   query.next();

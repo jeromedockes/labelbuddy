@@ -33,37 +33,37 @@ public:
   void setModel(LabelListModel*);
   QModelIndexList selectedIndexes() const;
   /// The currently selected label's `id` in the database
-  int selected_label_id() const;
+  int selectedLabelId() const;
   /// Set the currently selected label based on its `id` in the db
-  void set_selected_label_id(int label_id);
+  void setSelectedLabelId(int labelId);
   /// Set the extra data in the line edit
-  void set_extra_data(const QString& new_data);
-  bool is_label_choice_enabled() const;
+  void setExtraData(const QString& newData);
+  bool isLabelChoiceEnabled() const;
 
 signals:
   void selectionChanged();
-  void delete_button_clicked();
-  void extra_data_edited(const QString& new_data);
-  void extra_data_edit_finished();
+  void deleteButtonClicked();
+  void extraDataEdited(const QString& newData);
+  void extraDataEditFinished();
 
 public slots:
-  void enable_delete_and_edit();
-  void disable_delete_and_edit();
-  void enable_label_choice();
-  void disable_label_choice();
+  void enableDeleteAndEdit();
+  void disableDeleteAndEdit();
+  void enableLabelChoice();
+  void disableLabelChoice();
 
 private slots:
-  void on_selection_change();
-  void on_delete_button_click();
+  void onSelectionChange();
+  void onDeleteButtonClick();
 
 private:
-  QLabel* instruction_label_ = nullptr;
-  QPushButton* delete_button_ = nullptr;
-  NoDeselectAllView* labels_view_ = nullptr;
-  LabelListModel* label_list_model_ = nullptr;
-  std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
-  QLineEdit* extra_data_edit_ = nullptr;
-  QLabel* extra_data_label_ = nullptr;
+  QLabel* instructionLabel_ = nullptr;
+  QPushButton* deleteButton_ = nullptr;
+  NoDeselectAllView* labelsView_ = nullptr;
+  LabelListModel* labelListModel_ = nullptr;
+  std::unique_ptr<LabelDelegate> labelDelegate_ = nullptr;
+  QLineEdit* extraDataEdit_ = nullptr;
+  QLabel* extraDataLabel_ = nullptr;
 };
 
 /// Navigation buttons above the text: next, next labelled etc.
@@ -75,46 +75,46 @@ public:
   void setModel(AnnotationsModel*);
 
 public slots:
-  void update_button_states();
-  void set_skip_updating(bool skip);
+  void updateButtonStates();
+  void setSkipUpdating(bool skip);
 
 private:
   // if updating the button states once takes longer than this (*huge*
   // database), do not update them next time.
-  static constexpr int skip_update_buttons_duration_threshold_ms_{500};
-  AnnotationsModel* annotations_model_ = nullptr;
-  QPushButton* prev_labelled_button_;
-  QPushButton* prev_unlabelled_button_;
-  QPushButton* prev_button_;
+  static constexpr int skipUpdateButtonsDurationThresholdMs_{500};
+  AnnotationsModel* annotationsModel_ = nullptr;
+  QPushButton* prevLabelledButton_;
+  QPushButton* prevUnlabelledButton_;
+  QPushButton* prevButton_;
 
-  QLabel* current_doc_label_;
+  QLabel* currentDocLabel_;
 
-  QPushButton* next_button_;
-  QPushButton* next_unlabelled_button_;
-  QPushButton* next_labelled_button_;
+  QPushButton* nextButton_;
+  QPushButton* nextUnlabelledButton_;
+  QPushButton* nextLabelledButton_;
 
-  bool skip_updating_buttons_{};
+  bool skipUpdatingButtons_{};
 
 signals:
-  void visit_next();
-  void visit_prev();
-  void visit_next_labelled();
-  void visit_prev_labelled();
-  void visit_next_unlabelled();
-  void visit_prev_unlabelled();
+  void visitNext();
+  void visitPrev();
+  void visitNextLabelled();
+  void visitPrevLabelled();
+  void visitNextUnlabelled();
+  void visitPrevUnlabelled();
 };
 
 struct AnnotationCursor {
   int id;
-  int label_id;
-  int start_char;
-  int end_char;
-  QString extra_data;
+  int labelId;
+  int startChar;
+  int endChar;
+  QString extraData;
   QTextCursor cursor;
 };
 
 struct AnnotationIndex {
-  int start_char;
+  int startChar;
   int id;
 };
 
@@ -126,16 +126,16 @@ bool operator==(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
 bool operator!=(const AnnotationIndex& lhs, const AnnotationIndex& rhs);
 
 struct Cluster {
-  AnnotationIndex first_annotation;
-  AnnotationIndex last_annotation;
-  int start_char;
-  int end_char;
+  AnnotationIndex firstAnnotation;
+  AnnotationIndex lastAnnotation;
+  int startChar;
+  int endChar;
 };
 
 struct StatusBarInfo {
-  QString doc_info;
-  QString annotation_info;
-  QString annotation_label;
+  QString docInfo;
+  QString annotationInfo;
+  QString annotationLabel;
 };
 
 /// The widget that allows creating and manipulating annotations
@@ -153,43 +153,43 @@ class Annotator : public QSplitter {
 public:
   Annotator(QWidget* parent = nullptr);
 
-  void set_annotations_model(AnnotationsModel*);
-  void set_label_list_model(LabelListModel*);
+  void setAnnotationsModel(AnnotationsModel*);
+  void setLabelListModel(LabelListModel*);
 
   /// If there is a currently active (selected) annotation return its label's
   /// `id`, otherwise return -1 .
-  int active_annotation_label() const;
+  int activeAnnotationLabel() const;
 
   /// If there is a currently active annotation return its extra data
   /// "" if there is no active annotation or its data is NULL
-  QString active_annotation_extra_data() const;
+  QString activeAnnotationExtraData() const;
 
-  StatusBarInfo current_status_info() const;
+  StatusBarInfo currentStatusInfo() const;
 
 signals:
 
-  void active_annotation_changed();
-  void current_status_display_changed();
+  void activeAnnotationChanged();
+  void currentStatusDisplayChanged();
 
 public slots:
 
   /// Update the list of annotations e.g. after changing the document or changes
   /// to the labels in the database.
-  void update_annotations();
+  void updateAnnotations();
 
   /// Refresh the states of navigation buttons eg if documents or annotations
   /// have been added or removed
-  void update_nav_buttons();
+  void updateNavButtons();
 
   /// jump to next annotation and make it active
-  void select_next_annotation(bool forward = true);
+  void selectNextAnnotation(bool forward = true);
 
   /// Remember window state (slider position) in QSettings
-  void store_state();
-  void set_font(const QFont& new_font);
-  void set_use_bold_font(bool use_bold);
+  void storeState();
+  void setFont(const QFont& newFont);
+  void setUseBoldFont(bool useBold);
 
-  void reset_skip_updating_nav_buttons();
+  void resetSkipUpdatingNavButtons();
 
 protected:
   /// Filter installed on the textedit to override the behaviour of Space key
@@ -205,66 +205,65 @@ protected:
   /// cursorPositionChanged can be due to mouse press but also to keyboard
   /// actions. Moreover, a mouse click on the same position will not trigger a
   /// cursorPositionChanged. Therefore when the mouse is pressed we set
-  /// `need_update_active_anno_` to true, and when it is released if it hasn't
+  /// `needUpdateActiveAnno_` to true, and when it is released if it hasn't
   /// been set to false we update the active annotation and repaint annotations.
   void mouseReleaseEvent(QMouseEvent*) override;
 
 private slots:
-  void set_default_focus();
-  void delete_active_annotation();
-  void update_extra_data_for_active_annotation(const QString& new_data);
-  void activate_cluster_at_cursor_pos();
-  void set_label_for_selected_region();
-  void update_label_choices_button_states();
-  void reset_document();
+  void setDefaultFocus();
+  void deleteActiveAnnotation();
+  void updateExtraDataForActiveAnnotation(const QString& newData);
+  void activateClusterAtCursorPos();
+  void setLabelForSelectedRegion();
+  void updateLabelChoicesButtonStates();
+  void resetDocument();
 
 private:
-  void clear_annotations();
-  void fetch_labels_info();
-  void fetch_annotations_info();
+  void clearAnnotations();
+  void fetchLabelsInfo();
+  void fetchAnnotationsInfo();
   QTextEdit::ExtraSelection
-  make_painted_region(int start_char, int end_char, const QString& color,
-                      const QString& text_color = "black",
-                      bool underline = false);
-  void paint_annotations();
-  bool add_annotation();
-  bool add_annotation(int label_id, int start_char, int end_char);
-  void delete_annotation(int);
-  void deactivate_active_annotation();
-  std::list<Cluster>::const_iterator cluster_at_pos(int pos) const;
+  makePaintedRegion(int startChar, int endChar, const QString& color,
+                    const QString& textColor = "black", bool underline = false);
+  void paintAnnotations();
+  bool addAnnotation();
+  bool addAnnotation(int labelId, int startChar, int endChar);
+  void deleteAnnotation(int);
+  void deactivateActiveAnnotation();
+  std::list<Cluster>::const_iterator clusterAtPos(int pos) const;
 
-  /// pos: {start_char, id}
-  int find_next_annotation(AnnotationIndex pos, bool forward = true) const;
+  /// pos: {startChar, id}
+  int findNextAnnotation(AnnotationIndex pos, bool forward = true) const;
 
   /// Update clusters with a new annotation.
 
   /// Clusters that overlap with the new annotation are merged
-  void add_annotation_to_clusters(const AnnotationCursor& annotation,
-                                  std::list<Cluster>& clusters);
+  void addAnnotationToClusters(const AnnotationCursor& annotation,
+                               std::list<Cluster>& clusters);
 
   /// Remove an annotation and update the clusters
-  void remove_annotation_from_clusters(const AnnotationCursor& annotation,
-                                       std::list<Cluster>& clusters);
+  void removeAnnotationFromClusters(const AnnotationCursor& annotation,
+                                    std::list<Cluster>& clusters);
 
-  int active_annotation_ = -1;
-  bool need_update_active_anno_{};
-  bool active_anno_format_is_set_{};
+  int activeAnnotation_ = -1;
+  bool needUpdateActiveAnno_{};
+  bool activeAnnoFormatIsSet_{};
 
   /// clusters of overlapping annotations
   std::list<Cluster> clusters_{};
   QMap<int, AnnotationCursor> annotations_{};
   QMap<int, LabelInfo> labels_{};
 
-  /// Sorting annotations by {start_char, id}
-  std::set<AnnotationIndex> sorted_annotations_{};
+  /// Sorting annotations by {startChar, id}
+  std::set<AnnotationIndex> sortedAnnotations_{};
 
-  QLabel* title_label_;
+  QLabel* titleLabel_;
   SearchableText* text_;
-  LabelChoices* label_choices_;
-  AnnotationsModel* annotations_model_ = nullptr;
-  AnnotationsNavButtons* nav_buttons_ = nullptr;
-  QTextCharFormat default_format_;
-  bool use_bold_font_ = true;
+  LabelChoices* labelChoices_;
+  AnnotationsModel* annotationsModel_ = nullptr;
+  AnnotationsNavButtons* navButtons_ = nullptr;
+  QTextCharFormat defaultFormat_;
+  bool useBoldFont_ = true;
 };
 
 } // namespace labelbuddy

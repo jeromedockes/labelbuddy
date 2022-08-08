@@ -10,20 +10,20 @@ namespace labelbuddy {
 
 DocListModel::DocListModel(QObject* parent) : QSqlQueryModel(parent) {}
 
-QSqlQuery DocListModel::get_query() const {
-  return QSqlQuery(QSqlDatabase::database(database_name_));
+QSqlQuery DocListModel::getQuery() const {
+  return QSqlQuery(QSqlDatabase::database(databaseName_));
 }
 
-void DocListModel::set_database(const QString& new_database_name) {
-  assert(QSqlDatabase::contains(new_database_name));
-  database_name_ = new_database_name;
-  doc_filter_ = DocFilter::all;
-  filter_label_id_ = -1;
-  limit_ = default_n_docs_limit_;
+void DocListModel::setDatabase(const QString& newDatabaseName) {
+  assert(QSqlDatabase::contains(newDatabaseName));
+  databaseName_ = newDatabaseName;
+  docFilter_ = DocFilter::all;
+  filterLabelId_ = -1;
+  limit_ = defaultNDocsLimit_;
   offset_ = 0;
-  emit database_changed();
-  refresh_current_query();
-  emit labels_changed();
+  emit databaseChanged();
+  refreshCurrentQuery();
+  emit labelsChanged();
 }
 
 QVariant DocListModel::data(const QModelIndex& index, int role) const {
@@ -38,15 +38,15 @@ QVariant DocListModel::data(const QModelIndex& index, int role) const {
 }
 
 Qt::ItemFlags DocListModel::flags(const QModelIndex& index) const {
-  auto default_flags = QSqlQueryModel::flags(index);
+  auto defaultFlags = QSqlQueryModel::flags(index);
   if (index.column() == 0) {
-    return default_flags;
+    return defaultFlags;
   }
-  return default_flags & (~Qt::ItemIsSelectable);
+  return defaultFlags & (~Qt::ItemIsSelectable);
 }
 
-QList<QPair<QString, int>> DocListModel::get_label_names() const {
-  auto query = get_query();
+QList<QPair<QString, int>> DocListModel::getLabelNames() const {
+  auto query = getQuery();
   query.exec("select name, id from sorted_label;");
   QList<QPair<QString, int>> result{};
   while (query.next()) {
@@ -56,16 +56,16 @@ QList<QPair<QString, int>> DocListModel::get_label_names() const {
   return result;
 }
 
-void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
-                                int new_limit, int new_offset) {
-  limit_ = new_limit;
-  offset_ = new_offset;
-  doc_filter_ = new_doc_filter;
-  filter_label_id_ = filter_label_id;
-  result_set_outdated_ = false;
+void DocListModel::adjustQuery(DocFilter newDocFilter, int filterLabelId,
+                               int newLimit, int newOffset) {
+  limit_ = newLimit;
+  offset_ = newOffset;
+  docFilter_ = newDocFilter;
+  filterLabelId_ = filterLabelId;
+  resultSetOutdated_ = false;
 
-  auto query = get_query();
-  switch (new_doc_filter) {
+  auto query = getQuery();
+  switch (newDocFilter) {
   case DocFilter::all:
     query.prepare("select replace(substr(coalesce(list_title, content), "
                   "1, 160), char(10), ' ') as head, id "
@@ -82,74 +82,74 @@ void DocListModel::adjust_query(DocFilter new_doc_filter, int filter_label_id,
         "char(10), ' ') as head, id "
         "from unlabelled_document order by id limit :lim offset :off;");
     break;
-  case DocFilter::has_given_label:
+  case DocFilter::hasGivenLabel:
     query.prepare(
         "select replace(substr(coalesce(list_title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from document where id in (select distinct doc_id from annotation "
         "where label_id = :labelid) order by id limit :lim offset :off;");
-    query.bindValue(":labelid", filter_label_id);
+    query.bindValue(":labelid", filterLabelId);
     break;
-  case DocFilter::not_has_given_label:
+  case DocFilter::notHasGivenLabel:
     query.prepare(
         "select replace(substr(coalesce(list_title, content), 1, 160), "
         "char(10), ' ') as head, id "
         "from document where id not in (select distinct doc_id from annotation "
         "where label_id = :labelid) order by id limit :lim offset :off;");
-    query.bindValue(":labelid", filter_label_id);
+    query.bindValue(":labelid", filterLabelId);
     break;
   }
 
-  query.bindValue(":lim", new_limit);
-  query.bindValue(":off", new_offset);
+  query.bindValue(":lim", newLimit);
+  query.bindValue(":off", newOffset);
   query.exec();
   assert(query.isActive());
   setQuery(query);
 }
 
-int DocListModel::total_n_docs(DocFilter doc_filter, int filter_label_id) {
-  auto query = get_query();
-  switch (doc_filter) {
+int DocListModel::totalNDocs(DocFilter docFilter, int filterLabelId) {
+  auto query = getQuery();
+  switch (docFilter) {
   case DocFilter::labelled:
-    return n_labelled_docs_;
+    return nLabelledDocs_;
   case DocFilter::unlabelled:
-    return total_n_docs_no_filter() - n_labelled_docs_;
-  case DocFilter::has_given_label:
+    return totalNDocsNoFilter() - nLabelledDocs_;
+  case DocFilter::hasGivenLabel:
     query.prepare("select count (*) from (select distinct doc_id from "
                   "annotation where label_id = :labelid)");
-    query.bindValue(":labelid", filter_label_id);
+    query.bindValue(":labelid", filterLabelId);
     query.exec();
     query.next();
     return query.value(0).toInt();
-  case DocFilter::not_has_given_label:
+  case DocFilter::notHasGivenLabel:
     query.prepare("select count (*) from (select distinct doc_id from "
                   "annotation where label_id = :labelid)");
-    query.bindValue(":labelid", filter_label_id);
+    query.bindValue(":labelid", filterLabelId);
     query.exec();
     query.next();
-    return total_n_docs_no_filter() - query.value(0).toInt();
+    return totalNDocsNoFilter() - query.value(0).toInt();
   default:
-    return total_n_docs_no_filter();
+    return totalNDocsNoFilter();
   }
 }
 
-int DocListModel::total_n_docs_no_filter() {
-  auto query = get_query();
+int DocListModel::totalNDocsNoFilter() {
+  auto query = getQuery();
   query.exec("select count(*) from document;");
   query.next();
   return query.value(0).toInt();
 }
 
-void DocListModel::refresh_n_labelled_docs() {
-  auto query = get_query();
+void DocListModel::refreshNLabelledDocs() {
+  auto query = getQuery();
   query.exec("select count (*) from "
              "(select distinct doc_id from annotation);");
   query.next();
-  n_labelled_docs_ = query.value(0).toInt();
+  nLabelledDocs_ = query.value(0).toInt();
 }
 
-int DocListModel::delete_docs(const QModelIndexList& indices) {
-  auto query = get_query();
+int DocListModel::deleteDocs(const QModelIndexList& indices) {
+  auto query = getQuery();
   query.exec("begin transaction;");
   query.prepare("delete from document where id = ?");
   QVariantList ids;
@@ -165,15 +165,15 @@ int DocListModel::delete_docs(const QModelIndexList& indices) {
   query.addBindValue(ids);
   query.execBatch();
   query.exec("commit transaction;");
-  refresh_current_query();
-  emit docs_deleted();
+  refreshCurrentQuery();
+  emit docsDeleted();
   return query.numRowsAffected();
 }
 
-int DocListModel::delete_all_docs(QProgressDialog* progress) {
-  auto query = get_query();
-  int n_deleted{};
-  auto total = total_n_docs(DocListModel::DocFilter::all) + 1;
+int DocListModel::deleteAllDocs(QProgressDialog* progress) {
+  auto query = getQuery();
+  int nDeleted{};
+  auto total = totalNDocs(DocListModel::DocFilter::all) + 1;
   if (progress != nullptr) {
     progress->setMaximum(total);
   }
@@ -182,19 +182,19 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
   query.exec("delete from annotation;");
   do {
     if (progress != nullptr) {
-      progress->setValue(n_deleted);
+      progress->setValue(nDeleted);
       if (progress->wasCanceled()) {
         cancelled = true;
         break;
       }
     }
     query.exec("delete from document limit 1000;");
-    n_deleted += query.numRowsAffected();
+    nDeleted += query.numRowsAffected();
     if (query.lastError().type() == QSqlError::StatementError) {
       // sqlite not compiled with SQLITE_ENABLE_UPDATE_DELETE_LIMIT
       // delete all in one go
       cancelled = !query.exec("delete from document;");
-      n_deleted = query.numRowsAffected();
+      nDeleted = query.numRowsAffected();
       break;
     }
     if (query.lastError().type() != QSqlError::NoError) {
@@ -203,7 +203,7 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
     }
   } while (query.numRowsAffected());
   if (cancelled) {
-    n_deleted = 0;
+    nDeleted = 0;
     query.exec("rollback transaction;");
   } else {
     query.exec("commit transaction;");
@@ -211,48 +211,48 @@ int DocListModel::delete_all_docs(QProgressDialog* progress) {
   if (progress != nullptr) {
     progress->setValue(total);
   }
-  refresh_current_query();
-  emit docs_deleted();
-  return n_deleted;
+  refreshCurrentQuery();
+  emit docsDeleted();
+  return nDeleted;
 }
 
-void DocListModel::refresh_current_query() {
-  refresh_n_labelled_docs();
-  adjust_query(doc_filter_, filter_label_id_, limit_, offset_);
+void DocListModel::refreshCurrentQuery() {
+  refreshNLabelledDocs();
+  adjustQuery(docFilter_, filterLabelId_, limit_, offset_);
 }
 
-void DocListModel::document_status_changed(DocumentStatus new_status) {
-  if (doc_filter_ != DocFilter::all) {
-    result_set_outdated_ = true;
+void DocListModel::documentStatusChanged(DocumentStatus newStatus) {
+  if (docFilter_ != DocFilter::all) {
+    resultSetOutdated_ = true;
   }
-  if (new_status == DocumentStatus::Labelled) {
-    ++n_labelled_docs_;
+  if (newStatus == DocumentStatus::Labelled) {
+    ++nLabelledDocs_;
   } else {
-    --n_labelled_docs_;
+    --nLabelledDocs_;
   }
 }
 
-void DocListModel::document_gained_label(int label_id, int doc_id) {
-  (void)doc_id;
-  if ((doc_filter_ == DocFilter::has_given_label ||
-       doc_filter_ == DocFilter::not_has_given_label) &&
-      filter_label_id_ == label_id) {
-    result_set_outdated_ = true;
+void DocListModel::documentGainedLabel(int labelId, int docId) {
+  (void)docId;
+  if ((docFilter_ == DocFilter::hasGivenLabel ||
+       docFilter_ == DocFilter::notHasGivenLabel) &&
+      filterLabelId_ == labelId) {
+    resultSetOutdated_ = true;
   }
 }
 
-void DocListModel::document_lost_label(int label_id, int doc_id) {
-  (void)doc_id;
-  if ((doc_filter_ == DocFilter::has_given_label ||
-       doc_filter_ == DocFilter::not_has_given_label) &&
-      filter_label_id_ == label_id) {
-    result_set_outdated_ = true;
+void DocListModel::documentLostLabel(int labelId, int docId) {
+  (void)docId;
+  if ((docFilter_ == DocFilter::hasGivenLabel ||
+       docFilter_ == DocFilter::notHasGivenLabel) &&
+      filterLabelId_ == labelId) {
+    resultSetOutdated_ = true;
   }
 }
 
-void DocListModel::refresh_current_query_if_outdated() {
-  if (result_set_outdated_) {
-    refresh_current_query();
+void DocListModel::refreshCurrentQueryIfOutdated() {
+  if (resultSetOutdated_) {
+    refreshCurrentQuery();
   }
 }
 

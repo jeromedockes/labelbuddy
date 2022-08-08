@@ -9,16 +9,16 @@
 
 namespace labelbuddy {
 
-void TestDocListModel::test_delete_docs() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
+void TestDocListModel::testDeleteDocs() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
   DocListModel model{};
-  model.set_database(db_name);
+  model.setDatabase(dbName);
   QCOMPARE(model.rowCount(), 6);
   QList<QModelIndex> indices{model.index(1, 0), model.index(2, 0)};
-  model.delete_docs(indices);
+  model.deleteDocs(indices);
   QCOMPARE(model.rowCount(), 4);
-  QSqlQuery query(QSqlDatabase::database(db_name));
+  QSqlQuery query(QSqlDatabase::database(dbName));
   query.exec("select id from document order by id;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
@@ -26,49 +26,48 @@ void TestDocListModel::test_delete_docs() {
   QCOMPARE(query.value(0).toInt(), 4);
 }
 
-void TestDocListModel::test_filters() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
-  add_annotations(db_name);
+void TestDocListModel::testFilters() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
+  addAnnotations(dbName);
   DocListModel model{};
-  model.set_database(db_name);
-  model.adjust_query(DocListModel::DocFilter::labelled);
+  model.setDatabase(dbName);
+  model.adjustQuery(DocListModel::DocFilter::labelled);
   QCOMPARE(model.rowCount(), 1);
   QCOMPARE(model.data(model.index(0, 0), Roles::RowIdRole).toInt(), 1);
-  model.adjust_query(DocListModel::DocFilter::unlabelled);
+  model.adjustQuery(DocListModel::DocFilter::unlabelled);
   QCOMPARE(model.rowCount(), 5);
   QCOMPARE(model.data(model.index(0, 0), Roles::RowIdRole).toInt(), 2);
   QCOMPARE(model.data(model.index(1, 0), Roles::RowIdRole).toInt(), 3);
-  model.adjust_query(DocListModel::DocFilter::all);
+  model.adjustQuery(DocListModel::DocFilter::all);
   QCOMPARE(model.rowCount(), 6);
   QCOMPARE(model.data(model.index(3, 0), Roles::RowIdRole).toInt(), 4);
 }
 
-void TestDocListModel::test_updating_results() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
-  add_annotations(db_name);
+void TestDocListModel::testUpdatingResults() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
+  addAnnotations(dbName);
   DocListModel model{};
-  model.set_database(db_name);
-  model.adjust_query(DocListModel::DocFilter::labelled);
+  model.setDatabase(dbName);
+  model.adjustQuery(DocListModel::DocFilter::labelled);
   QCOMPARE(model.rowCount(), 1);
-  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 1);
-  QSqlQuery query(QSqlDatabase::database(db_name));
+  QCOMPARE(model.totalNDocs(DocListModel::DocFilter::labelled), 1);
+  QSqlQuery query(QSqlDatabase::database(dbName));
 
   query.exec("delete from annotation;");
-  model.document_status_changed(DocumentStatus::Unlabelled);
-  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 0);
+  model.documentStatusChanged(DocumentStatus::Unlabelled);
+  QCOMPARE(model.totalNDocs(DocListModel::DocFilter::labelled), 0);
   QCOMPARE(model.rowCount(), 1);
-  model.refresh_current_query_if_outdated();
+  model.refreshCurrentQueryIfOutdated();
   QCOMPARE(model.rowCount(), 0);
 
-  add_annotations(db_name);
-  model.document_status_changed(DocumentStatus::Labelled);
-  QCOMPARE(model.total_n_docs(DocListModel::DocFilter::labelled), 1);
+  addAnnotations(dbName);
+  model.documentStatusChanged(DocumentStatus::Labelled);
+  QCOMPARE(model.totalNDocs(DocListModel::DocFilter::labelled), 1);
   QCOMPARE(model.rowCount(), 0);
-  model.refresh_current_query_if_outdated();
+  model.refreshCurrentQueryIfOutdated();
   QCOMPARE(model.rowCount(), 1);
-
 }
 
 } // namespace labelbuddy

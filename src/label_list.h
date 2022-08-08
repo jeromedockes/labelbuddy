@@ -29,7 +29,7 @@ namespace labelbuddy {
 class LabelDelegate : public QStyledItemDelegate {
 
 public:
-  LabelDelegate(bool with_drag_handles = false, QObject* parent = nullptr);
+  LabelDelegate(bool withDragHandles = false, QObject* parent = nullptr);
   void paint(QPainter* painter, const QStyleOptionViewItem& option,
              const QModelIndex& index) const override;
   QSize sizeHint(const QStyleOptionViewItem& option,
@@ -38,23 +38,23 @@ public:
 private:
   // dimensions of drag handles as multiples of line width, eg margin is 2 line
   // widths
-  static constexpr int handle_inner_width_factor_ = 12;
-  static constexpr int handle_margin_factor_ = 2;
-  static constexpr int handle_outer_width_factor_ =
-      handle_inner_width_factor_ + 2 * handle_margin_factor_;
+  static constexpr int handleInnerWidthFactor_ = 12;
+  static constexpr int handleMarginFactor_ = 2;
+  static constexpr int handleOuterWidthFactor_ =
+      handleInnerWidthFactor_ + 2 * handleMarginFactor_;
 
-  bool with_drag_handles_ = false;
-  int line_width_ = 1;
+  bool withDragHandles_ = false;
+  int lineWidth_ = 1;
   int margin_ = 2;
 
-  int radio_button_width() const;
-  int handle_width() const;
-  QStyleOptionViewItem text_style_option(const QStyleOptionViewItem& option,
-                                         QRect rect) const;
-  void paint_radio_button(QPainter* painter, const QStyleOptionViewItem& option,
-                          const QColor& label_color) const;
-  void paint_drag_handle(QPainter* painter, const QStyleOptionViewItem& option,
-                         const QColor& label_color) const;
+  int radioButtonWidth() const;
+  int handleWidth() const;
+  QStyleOptionViewItem textStyleOption(const QStyleOptionViewItem& option,
+                                       QRect rect) const;
+  void paintRadioButton(QPainter* painter, const QStyleOptionViewItem& option,
+                        const QColor& labelColor) const;
+  void paintDragHandle(QPainter* painter, const QStyleOptionViewItem& option,
+                       const QColor& labelColor) const;
 };
 
 /// Validator for shortcut entered in the shortcut QLineEdit
@@ -69,10 +69,10 @@ public:
   State validate(QString& input, int& pos) const override;
 
   /// set the model, needed to validate shortcuts
-  void setModel(LabelListModel* new_model);
+  void setModel(LabelListModel* newModel);
 
   /// set the label list view, needed to know which label is selected
-  void setView(QListView* new_view);
+  void setView(QListView* newView);
 
 private:
   LabelListModel* model_ = nullptr;
@@ -85,43 +85,43 @@ class LabelListButtons : public QFrame {
 
 public:
   LabelListButtons(QWidget* parent = nullptr);
-  void set_model(LabelListModel* new_model);
-  void set_view(QListView* new_view);
+  void setModel(LabelListModel* newModel);
+  void setView(QListView* newView);
 
 signals:
 
-  void select_all();
-  void delete_selected_rows();
-  void set_label_color();
-  void set_label_shortcut(const QString& new_shortcut);
-  void add_label(const QString& name);
+  void selectAll();
+  void deleteSelectedRows();
+  void setLabelColor();
+  void setLabelShortcut(const QString& newShortcut);
+  void addLabel(const QString& name);
 
 public slots:
 
   /// Update the button states
 
-  /// \param n_selected number of items selected in the label list
+  /// \param nSelected number of items selected in the label list
   /// \param total total number of labels in the database
-  /// \param first_selected first selected label in the list, used to set the
+  /// \param firstSelected first selected label in the list, used to set the
   /// current shortcut in the shortcut edit box.
-  void update_button_states(int n_selected, int total,
-                            const QModelIndex& first_selected);
+  void updateButtonStates(int nSelected, int total,
+                          const QModelIndex& firstSelected);
 
 protected:
   bool eventFilter(QObject* object, QEvent* event) override;
 
 private:
-  QPushButton* select_all_button_;
-  QPushButton* delete_button_;
-  QLineEdit* add_label_edit_;
-  QPushButton* set_color_button_;
-  QLineEdit* shortcut_edit_;
-  QLabel* shortcut_label_;
+  QPushButton* selectAllButton_;
+  QPushButton* deleteButton_;
+  QLineEdit* addLabelEdit_;
+  QPushButton* setColorButton_;
+  QLineEdit* shortcutEdit_;
+  QLabel* shortcutLabel_;
   ShortcutValidator validator_;
-  QListView* label_list_view_ = nullptr;
+  QListView* labelListView_ = nullptr;
 
 private slots:
-  void add_label_edit_pressed();
+  void addLabelEditPressed();
 };
 
 /// List of labels shown in the Dataset and Annotate tabs
@@ -135,26 +135,26 @@ public:
 private slots:
 
   /// Asks for confirmation and tells the model to delete selected labels
-  void delete_selected_rows();
-  void update_button_states();
+  void deleteSelectedRows();
+  void updateButtonStates();
 
   /// Opens a color dialog and asks the model to set the new color for the label
 
   /// color is validated by the model before update
-  void set_label_color();
+  void setLabelColor();
 
   /// When shortcut is changed in the line edit, ask the model to update it
 
   /// shortcut is validated by the model before update
-  void set_label_shortcut(const QString& new_shortcut);
+  void setLabelShortcut(const QString& newShortcut);
 
-  void add_label(const QString& name);
+  void addLabel(const QString& name);
 
 private:
-  LabelListButtons* buttons_frame_;
-  QListView* labels_view_;
+  LabelListButtons* buttonsFrame_;
+  QListView* labelsView_;
   LabelListModel* model_ = nullptr;
-  std::unique_ptr<LabelDelegate> label_delegate_ = nullptr;
+  std::unique_ptr<LabelDelegate> labelDelegate_ = nullptr;
 };
 
 } // namespace labelbuddy

@@ -15,36 +15,35 @@ int main(int argc, char* argv[]) {
 
   QApplication app(argc, argv);
   QApplication::setApplicationName("labelbuddy");
-  QApplication::setApplicationVersion(labelbuddy::get_version());
+  QApplication::setApplicationVersion(labelbuddy::getVersion());
 
   QCommandLineParser parser;
-  labelbuddy::prepare_parser(parser);
+  labelbuddy::prepareParser(parser);
   parser.process(app);
   const QStringList args = parser.positionalArguments();
-  const QStringList labels_files = parser.values("import-labels");
-  const QStringList docs_files = parser.values("import-docs");
-  const QString export_labels_file = parser.value("export-labels");
-  const QString export_docs_file = parser.value("export-docs");
-  QString db_path = (args.length() == 0) ? QString() : args[0];
+  const QStringList labelsFiles = parser.values("import-labels");
+  const QStringList docsFiles = parser.values("import-docs");
+  const QString exportLabelsFile = parser.value("export-labels");
+  const QString exportDocsFile = parser.value("export-docs");
+  QString dbPath = (args.length() == 0) ? QString() : args[0];
 
-  if (labels_files.length() || docs_files.length() ||
-      (export_labels_file != QString()) || (export_docs_file != QString()) ||
+  if (labelsFiles.length() || docsFiles.length() ||
+      (exportLabelsFile != QString()) || (exportDocsFile != QString()) ||
       parser.isSet("vacuum")) {
-    if (db_path == QString()) {
+    if (dbPath == QString()) {
       std::cerr << "Specify database path explicitly to import / export "
                 << "labels and documents or vacuum db" << std::endl;
       return 1;
     }
-    return labelbuddy::batch_import_export(
-        db_path, labels_files, docs_files, export_labels_file, export_docs_file,
+    return labelbuddy::batchImportExport(
+        dbPath, labelsFiles, docsFiles, exportLabelsFile, exportDocsFile,
         parser.isSet("labelled-only"), !parser.isSet("no-text"),
-        !parser.isSet("no-annotations"),
-        parser.isSet("vacuum"));
+        !parser.isSet("no-annotations"), parser.isSet("vacuum"));
   }
 
-  std::unique_ptr<labelbuddy::LabelBuddy> label_buddy(
-      new labelbuddy::LabelBuddy(nullptr, db_path, parser.isSet("demo")));
+  std::unique_ptr<labelbuddy::LabelBuddy> labelBuddy(
+      new labelbuddy::LabelBuddy(nullptr, dbPath, parser.isSet("demo")));
   app.setWindowIcon(QIcon(":/data/icons/LB.png"));
-  label_buddy->show();
+  labelBuddy->show();
   return app.exec();
 }

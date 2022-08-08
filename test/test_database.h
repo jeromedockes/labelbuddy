@@ -11,33 +11,30 @@ class TestDatabase : public QObject {
   Q_OBJECT
 
 private slots:
-  void test_open_database();
-  void test_last_opened_database();
-  void test_stored_database_path();
-  void test_app_state_extra();
-  void test_open_database_errors();
-  void test_import_export_labels();
-  void test_import_txt_labels();
-  void test_import_label_with_duplicate_shortcut_key();
-  void test_import_export_docs();
-  void test_import_export_docs_data();
-  void test_batch_import_export();
-  void test_import_errors_data();
-  void test_import_errors();
+  void testOpenDatabase();
+  void testLastOpenedDatabase();
+  void testStoredDatabasePath();
+  void testAppStateExtra();
+  void testOpenDatabaseErrors();
+  void testImportExportLabels();
+  void testImportTxtLabels();
+  void testImportLabelWithDuplicateShortcutKey();
+  void testImportExportDocs();
+  void testImportExportDocs_data();
+  void testBatchImportExport();
+  void testImportErrors_data();
+  void testImportErrors();
 
   void cleanup();
 
 private:
-  QString create_documents_file(QTemporaryDir& tmp_dir);
-  void create_documents_file_txt(const QString& file_path,
-                                 const QJsonArray& docs);
-  void create_documents_file_json(const QString& file_path,
-                                  const QJsonArray& docs);
-  QString check_exported_docs(DatabaseCatalog& catalog, QTemporaryDir& tmp_dir);
-  void check_exported_docs_json(const QString& file_path,
-                                const QJsonArray& docs);
-  void check_import_back(DatabaseCatalog& catalog, const QString& export_file);
-  void check_db_labels(QSqlQuery& query);
+  QString createDocumentsFile(QTemporaryDir& tmpDir);
+  void createDocumentsFileTxt(const QString& filePath, const QJsonArray& docs);
+  void createDocumentsFileJson(const QString& filePath, const QJsonArray& docs);
+  QString checkExportedDocs(DatabaseCatalog& catalog, QTemporaryDir& tmpDir);
+  void checkExportedDocsJson(const QString& filePath, const QJsonArray& docs);
+  void checkImportBack(DatabaseCatalog& catalog, const QString& exportFile);
+  void checkDbLabels(QSqlQuery& query);
 };
 } // namespace labelbuddy
 #endif

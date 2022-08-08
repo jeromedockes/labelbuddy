@@ -9,9 +9,9 @@ class TestSearchableText : public QObject {
   Q_OBJECT
 
 private slots:
-  void test_search();
-  void test_cycle_pos();
-  void test_shortcuts();
+  void testSearch();
+  void testCyclePos();
+  void testShortcuts();
 };
 
 } // namespace labelbuddy

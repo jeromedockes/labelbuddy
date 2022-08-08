@@ -21,79 +21,79 @@
 
 namespace labelbuddy {
 
-LabelDelegate::LabelDelegate(bool with_drag_handles, QObject* parent)
-    : QStyledItemDelegate{parent}, with_drag_handles_{with_drag_handles} {
-  line_width_ = QFontMetrics(QFont()).lineWidth();
-  margin_ = 2 * line_width_;
+LabelDelegate::LabelDelegate(bool withDragHandles, QObject* parent)
+    : QStyledItemDelegate{parent}, withDragHandles_{withDragHandles} {
+  lineWidth_ = QFontMetrics(QFont()).lineWidth();
+  margin_ = 2 * lineWidth_;
 }
 
-int LabelDelegate::radio_button_width() const {
+int LabelDelegate::radioButtonWidth() const {
   QStyleOptionButton opt{};
   return QApplication::style()
              ->sizeFromContents(QStyle::CT_RadioButton, &opt, QSize(0, 0))
              .width() +
-         2 * line_width_;
+         2 * lineWidth_;
 }
 
-int LabelDelegate::handle_width() const {
-  return with_drag_handles_ ? handle_outer_width_factor_ * line_width_ : 0;
+int LabelDelegate::handleWidth() const {
+  return withDragHandles_ ? handleOuterWidthFactor_ * lineWidth_ : 0;
 }
 
 QStyleOptionViewItem
-LabelDelegate::text_style_option(const QStyleOptionViewItem& option,
-                                 QRect rect) const {
-  QStyleOptionViewItem new_option(option);
-  new_option.showDecorationSelected = false;
-  auto text_palette = option.palette;
-  text_palette.setColor(QPalette::Text, QColor("black"));
-  text_palette.setColor(QPalette::Background, QColor(0, 0, 0, 0));
-  text_palette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
-  text_palette.setColor(QPalette::HighlightedText, QColor("black"));
-  text_palette.setColor(QPalette::Disabled, QPalette::Text, QColor("#444444"));
-  new_option.palette = text_palette;
-  new_option.rect = QRect(
-      QPoint(rect.left() + handle_width() + radio_button_width(), rect.top()),
+LabelDelegate::textStyleOption(const QStyleOptionViewItem& option,
+                               QRect rect) const {
+  QStyleOptionViewItem newOption(option);
+  newOption.showDecorationSelected = false;
+  auto textPalette = option.palette;
+  textPalette.setColor(QPalette::Text, QColor("black"));
+  textPalette.setColor(QPalette::Background, QColor(0, 0, 0, 0));
+  textPalette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
+  textPalette.setColor(QPalette::HighlightedText, QColor("black"));
+  textPalette.setColor(QPalette::Disabled, QPalette::Text, QColor("#444444"));
+  newOption.palette = textPalette;
+  newOption.rect = QRect(
+      QPoint(rect.left() + handleWidth() + radioButtonWidth(), rect.top()),
       QPoint(rect.right(), rect.bottom()));
-  return new_option;
+  return newOption;
 }
 
-void LabelDelegate::paint_radio_button(QPainter* painter,
-                                       const QStyleOptionViewItem& option,
-                                       const QColor& label_color) const {
-  QStyleOptionButton button_opt{};
-  button_opt.rect =
-      QRect(QPoint(option.rect.left() + handle_width() + 2 * line_width_,
+void LabelDelegate::paintRadioButton(QPainter* painter,
+                                     const QStyleOptionViewItem& option,
+                                     const QColor& labelColor) const {
+  QStyleOptionButton buttonOpt{};
+  buttonOpt.rect =
+      QRect(QPoint(option.rect.left() + handleWidth() + 2 * lineWidth_,
                    option.rect.top()),
             option.rect.bottomRight());
   if (option.state & QStyle::State_Selected) {
-    button_opt.state |= QStyle::State_On;
+    buttonOpt.state |= QStyle::State_On;
   } else {
-    button_opt.state |= QStyle::State_Off;
+    buttonOpt.state |= QStyle::State_Off;
   }
   if (option.state & QStyle::State_Enabled) {
-    button_opt.state |= QStyle::State_Enabled;
+    buttonOpt.state |= QStyle::State_Enabled;
   } else {
-    button_opt.state = QStyle::State_NoChange;
-    auto palette = button_opt.palette;
-    palette.setColor(QPalette::Base, label_color);
-    button_opt.palette = palette;
+    buttonOpt.state = QStyle::State_NoChange;
+    auto palette = buttonOpt.palette;
+    palette.setColor(QPalette::Base, labelColor);
+    buttonOpt.palette = palette;
   }
-  QApplication::style()->drawControl(QStyle::CE_RadioButton, &button_opt,
+  QApplication::style()->drawControl(QStyle::CE_RadioButton, &buttonOpt,
                                      painter);
 }
 
-void LabelDelegate::paint_drag_handle(QPainter* painter,
-                                      const QStyleOptionViewItem& option,
-                                      const QColor& label_color) const {
-  (void)label_color;
-  int lw = line_width_;
-  if (!with_drag_handles_) {
+void LabelDelegate::paintDragHandle(QPainter* painter,
+                                    const QStyleOptionViewItem& option,
+                                    const QColor& labelColor) const {
+  (void)labelColor;
+  int lw = lineWidth_;
+  if (!withDragHandles_) {
     return;
   }
-  QRect rect(QPoint(option.rect.left() + handle_margin_factor_ * lw,
+  QRect rect(QPoint(option.rect.left() + handleMarginFactor_ * lw,
                     option.rect.top() + 2),
-             QPoint(option.rect.left() + handle_margin_factor_ * lw +
-                        handle_inner_width_factor_ * lw,
+             QPoint(option.rect.left() + handleMarginFactor_ * lw +
+                        handleInnerWidthFactor_ * lw,
                     option.rect.bottom() - 2));
   for (int i = -5; i < 7; i += 3) {
     painter->fillRect(rect.left(), rect.center().y() + i * lw, rect.width(),
@@ -105,178 +105,178 @@ void LabelDelegate::paint_drag_handle(QPainter* painter,
 
 void LabelDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option,
                           const QModelIndex& index) const {
-  auto label_color = index.data(Qt::BackgroundRole).value<QColor>();
-  assert(label_color.isValid());
-  QRect inner_rect(option.rect);
-  inner_rect.adjust(0, margin_, 0, -margin_);
-  painter->fillRect(inner_rect, label_color);
-  paint_radio_button(painter, option, label_color);
-  auto text_option = text_style_option(option, inner_rect);
-  QStyledItemDelegate::paint(painter, text_option, index);
-  paint_drag_handle(painter, option, label_color);
+  auto labelColor = index.data(Qt::BackgroundRole).value<QColor>();
+  assert(labelColor.isValid());
+  QRect innerRect(option.rect);
+  innerRect.adjust(0, margin_, 0, -margin_);
+  painter->fillRect(innerRect, labelColor);
+  paintRadioButton(painter, option, labelColor);
+  auto textOption = textStyleOption(option, innerRect);
+  QStyledItemDelegate::paint(painter, textOption, index);
+  paintDragHandle(painter, option, labelColor);
 }
 
 QSize LabelDelegate::sizeHint(const QStyleOptionViewItem& option,
                               const QModelIndex& index) const {
   auto size = QStyledItemDelegate::sizeHint(option, index);
-  return QSize(size.width() + radio_button_width() + handle_width(),
+  return QSize(size.width() + radioButtonWidth() + handleWidth(),
                size.height() + 4 * margin_);
 }
 
 LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
-  auto outer_layout = new QVBoxLayout();
-  setLayout(outer_layout);
-  auto top_layout = new QHBoxLayout();
-  outer_layout->addLayout(top_layout);
-  select_all_button_ = new QPushButton("Select all");
-  top_layout->addWidget(select_all_button_);
-  delete_button_ = new QPushButton("Delete");
-  top_layout->addWidget(delete_button_);
+  auto outerLayout = new QVBoxLayout();
+  setLayout(outerLayout);
+  auto topLayout = new QHBoxLayout();
+  outerLayout->addLayout(topLayout);
+  selectAllButton_ = new QPushButton("Select all");
+  topLayout->addWidget(selectAllButton_);
+  deleteButton_ = new QPushButton("Delete");
+  topLayout->addWidget(deleteButton_);
 
-  auto add_label_layout = new QHBoxLayout();
-  outer_layout->addLayout(add_label_layout);
-  auto add_label_instruction = new QLabel("&New label:");
-  add_label_layout->addWidget(add_label_instruction);
-  add_label_edit_ = new QLineEdit();
-  add_label_layout->addWidget(add_label_edit_);
-  add_label_instruction->setBuddy(add_label_edit_);
-  add_label_edit_->installEventFilter(this);
+  auto addLabelLayout = new QHBoxLayout();
+  outerLayout->addLayout(addLabelLayout);
+  auto addLabelInstruction = new QLabel("&New label:");
+  addLabelLayout->addWidget(addLabelInstruction);
+  addLabelEdit_ = new QLineEdit();
+  addLabelLayout->addWidget(addLabelEdit_);
+  addLabelInstruction->setBuddy(addLabelEdit_);
+  addLabelEdit_->installEventFilter(this);
 
-  auto bottom_layout = new QHBoxLayout();
-  outer_layout->addLayout(bottom_layout);
-  set_color_button_ = new QPushButton("Set color");
-  bottom_layout->addWidget(set_color_button_);
-  shortcut_label_ = new QLabel("Shortcut key: ");
-  bottom_layout->addWidget(shortcut_label_);
-  shortcut_edit_ = new QLineEdit();
-  bottom_layout->addWidget(shortcut_edit_);
-  shortcut_edit_->setMaxLength(1);
-  shortcut_edit_->setValidator(&validator_);
-  shortcut_edit_->setFixedWidth(
-      text_width(shortcut_edit_->fontMetrics(), "[a-z]x"));
-  shortcut_edit_->setPlaceholderText("[a-z]");
-  bottom_layout->addStretch(1);
+  auto bottomLayout = new QHBoxLayout();
+  outerLayout->addLayout(bottomLayout);
+  setColorButton_ = new QPushButton("Set color");
+  bottomLayout->addWidget(setColorButton_);
+  shortcutLabel_ = new QLabel("Shortcut key: ");
+  bottomLayout->addWidget(shortcutLabel_);
+  shortcutEdit_ = new QLineEdit();
+  bottomLayout->addWidget(shortcutEdit_);
+  shortcutEdit_->setMaxLength(1);
+  shortcutEdit_->setValidator(&validator_);
+  shortcutEdit_->setFixedWidth(
+      textWidth(shortcutEdit_->fontMetrics(), "[a-z]x"));
+  shortcutEdit_->setPlaceholderText("[a-z]");
+  bottomLayout->addStretch(1);
 
-  QObject::connect(select_all_button_, &QPushButton::clicked, this,
-                   &LabelListButtons::select_all);
-  QObject::connect(set_color_button_, &QPushButton::clicked, this,
-                   &LabelListButtons::set_label_color);
-  QObject::connect(delete_button_, &QPushButton::clicked, this,
-                   &LabelListButtons::delete_selected_rows);
-  QObject::connect(shortcut_edit_, &QLineEdit::textEdited, this,
-                   &LabelListButtons::set_label_shortcut);
-  QObject::connect(add_label_edit_, &QLineEdit::returnPressed, this,
-                   &LabelListButtons::add_label_edit_pressed);
+  QObject::connect(selectAllButton_, &QPushButton::clicked, this,
+                   &LabelListButtons::selectAll);
+  QObject::connect(setColorButton_, &QPushButton::clicked, this,
+                   &LabelListButtons::setLabelColor);
+  QObject::connect(deleteButton_, &QPushButton::clicked, this,
+                   &LabelListButtons::deleteSelectedRows);
+  QObject::connect(shortcutEdit_, &QLineEdit::textEdited, this,
+                   &LabelListButtons::setLabelShortcut);
+  QObject::connect(addLabelEdit_, &QLineEdit::returnPressed, this,
+                   &LabelListButtons::addLabelEditPressed);
 }
 
-void LabelListButtons::update_button_states(int n_selected, int total,
-                                            const QModelIndex& first_selected) {
-  select_all_button_->setEnabled(total > 0);
-  delete_button_->setEnabled(n_selected > 0);
-  set_color_button_->setEnabled(n_selected == 1);
-  auto shortcut_edit_had_focus = shortcut_edit_->hasFocus();
-  shortcut_edit_->setEnabled(n_selected == 1);
-  shortcut_label_->setEnabled(n_selected == 1);
-  if (n_selected == 1 && first_selected.isValid()) {
-    shortcut_edit_->setText(first_selected.model()
-                                ->data(first_selected, Roles::ShortcutKeyRole)
-                                .toString());
-    shortcut_edit_->setFocus();
+void LabelListButtons::updateButtonStates(int nSelected, int total,
+                                          const QModelIndex& firstSelected) {
+  selectAllButton_->setEnabled(total > 0);
+  deleteButton_->setEnabled(nSelected > 0);
+  setColorButton_->setEnabled(nSelected == 1);
+  auto shortcutEditHadFocus = shortcutEdit_->hasFocus();
+  shortcutEdit_->setEnabled(nSelected == 1);
+  shortcutLabel_->setEnabled(nSelected == 1);
+  if (nSelected == 1 && firstSelected.isValid()) {
+    shortcutEdit_->setText(firstSelected.model()
+                               ->data(firstSelected, Roles::ShortcutKeyRole)
+                               .toString());
+    shortcutEdit_->setFocus();
   } else {
-    if (shortcut_edit_had_focus) {
+    if (shortcutEditHadFocus) {
       setFocus();
     }
-    shortcut_edit_->setText("");
+    shortcutEdit_->setText("");
   }
-  if (n_selected != 0) {
-    add_label_edit_->setText("");
-    if (add_label_edit_->hasFocus()) {
+  if (nSelected != 0) {
+    addLabelEdit_->setText("");
+    if (addLabelEdit_->hasFocus()) {
       setFocus();
     }
   }
 }
 
-void LabelListButtons::set_model(LabelListModel* new_model) {
-  assert(new_model != nullptr);
-  validator_.setModel(new_model);
+void LabelListButtons::setModel(LabelListModel* newModel) {
+  assert(newModel != nullptr);
+  validator_.setModel(newModel);
 }
 
-void LabelListButtons::set_view(QListView* new_view) {
-  assert(new_view != nullptr);
-  label_list_view_ = new_view;
-  validator_.setView(new_view);
+void LabelListButtons::setView(QListView* newView) {
+  assert(newView != nullptr);
+  labelListView_ = newView;
+  validator_.setView(newView);
 }
 
 bool LabelListButtons::eventFilter(QObject* object, QEvent* event) {
-  if (object == add_label_edit_ && event->type() == QEvent::FocusIn) {
-    if (label_list_view_ != nullptr) {
-      label_list_view_->clearSelection();
+  if (object == addLabelEdit_ && event->type() == QEvent::FocusIn) {
+    if (labelListView_ != nullptr) {
+      labelListView_->clearSelection();
     }
   }
   return QWidget::eventFilter(object, event);
 }
 
-void LabelListButtons::add_label_edit_pressed() {
-  auto label_name = add_label_edit_->text().trimmed();
-  if (label_name != "") {
-    emit add_label(label_name);
+void LabelListButtons::addLabelEditPressed() {
+  auto labelName = addLabelEdit_->text().trimmed();
+  if (labelName != "") {
+    emit addLabel(labelName);
   }
-  add_label_edit_->setText("");
+  addLabelEdit_->setText("");
 }
 
 LabelList::LabelList(QWidget* parent) : QFrame(parent) {
   auto layout = new QVBoxLayout();
   setLayout(layout);
 
-  buttons_frame_ = new LabelListButtons();
-  layout->addWidget(buttons_frame_);
+  buttonsFrame_ = new LabelListButtons();
+  layout->addWidget(buttonsFrame_);
 
   this->setStyleSheet("QListView::item {background: transparent;}");
-  labels_view_ = new QListView();
-  layout->addWidget(labels_view_);
-  labels_view_->setDragEnabled(true);
-  labels_view_->setAcceptDrops(true);
-  labels_view_->setDropIndicatorShown(true);
-  labels_view_->setDragDropMode(QAbstractItemView::InternalMove);
-  // labels_view->setSpacing(3);
-  label_delegate_.reset(new LabelDelegate(true));
-  labels_view_->setItemDelegate(label_delegate_.get());
-  labels_view_->setFocusPolicy(Qt::NoFocus);
-  buttons_frame_->set_view(labels_view_);
+  labelsView_ = new QListView();
+  layout->addWidget(labelsView_);
+  labelsView_->setDragEnabled(true);
+  labelsView_->setAcceptDrops(true);
+  labelsView_->setDropIndicatorShown(true);
+  labelsView_->setDragDropMode(QAbstractItemView::InternalMove);
+  // labelsView->setSpacing(3);
+  labelDelegate_.reset(new LabelDelegate(true));
+  labelsView_->setItemDelegate(labelDelegate_.get());
+  labelsView_->setFocusPolicy(Qt::NoFocus);
+  buttonsFrame_->setView(labelsView_);
 
-  labels_view_->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  labelsView_->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  QObject::connect(buttons_frame_, &LabelListButtons::select_all, labels_view_,
+  QObject::connect(buttonsFrame_, &LabelListButtons::selectAll, labelsView_,
                    &QListView::selectAll);
-  QObject::connect(buttons_frame_, &LabelListButtons::delete_selected_rows,
-                   this, &LabelList::delete_selected_rows);
-  QObject::connect(buttons_frame_, &LabelListButtons::set_label_color, this,
-                   &LabelList::set_label_color);
-  QObject::connect(buttons_frame_, &LabelListButtons::set_label_shortcut, this,
-                   &LabelList::set_label_shortcut);
-  QObject::connect(buttons_frame_, &LabelListButtons::add_label, this,
-                   &LabelList::add_label);
+  QObject::connect(buttonsFrame_, &LabelListButtons::deleteSelectedRows, this,
+                   &LabelList::deleteSelectedRows);
+  QObject::connect(buttonsFrame_, &LabelListButtons::setLabelColor, this,
+                   &LabelList::setLabelColor);
+  QObject::connect(buttonsFrame_, &LabelListButtons::setLabelShortcut, this,
+                   &LabelList::setLabelShortcut);
+  QObject::connect(buttonsFrame_, &LabelListButtons::addLabel, this,
+                   &LabelList::addLabel);
 }
 
-void LabelList::setModel(LabelListModel* new_model) {
-  assert(new_model != nullptr);
-  labels_view_->setModel(new_model);
-  buttons_frame_->set_model(new_model);
-  model_ = new_model;
+void LabelList::setModel(LabelListModel* newModel) {
+  assert(newModel != nullptr);
+  labelsView_->setModel(newModel);
+  buttonsFrame_->setModel(newModel);
+  model_ = newModel;
   QObject::connect(model_, &LabelListModel::modelReset, this,
-                   &LabelList::update_button_states);
-  QObject::connect(labels_view_->selectionModel(),
+                   &LabelList::updateButtonStates);
+  QObject::connect(labelsView_->selectionModel(),
                    &QItemSelectionModel::selectionChanged, this,
-                   &LabelList::update_button_states);
-  update_button_states();
+                   &LabelList::updateButtonStates);
+  updateButtonStates();
 }
 
-void LabelList::delete_selected_rows() {
+void LabelList::deleteSelectedRows() {
   if (model_ == nullptr) {
     assert(false);
     return;
   }
-  QModelIndexList selected = labels_view_->selectionModel()->selectedIndexes();
+  QModelIndexList selected = labelsView_->selectionModel()->selectedIndexes();
   if (selected.length() == 0) {
     return;
   }
@@ -288,75 +288,74 @@ void LabelList::delete_selected_rows() {
   if (resp != QMessageBox::Ok) {
     return;
   }
-  int n_before = model_->total_n_labels();
+  int nBefore = model_->totalNLabels();
   setFocus();
-  model_->delete_labels(selected);
-  int n_after = model_->total_n_labels();
-  int n_deleted = n_before - n_after;
-  labels_view_->reset();
-  QMessageBox::information(this, "labelbuddy",
-                           QString("Deleted %0 label%1")
-                               .arg(n_deleted)
-                               .arg(n_deleted > 1 ? "s" : ""),
-                           QMessageBox::Ok);
+  model_->deleteLabels(selected);
+  int nAfter = model_->totalNLabels();
+  int nDeleted = nBefore - nAfter;
+  labelsView_->reset();
+  QMessageBox::information(
+      this, "labelbuddy",
+      QString("Deleted %0 label%1").arg(nDeleted).arg(nDeleted > 1 ? "s" : ""),
+      QMessageBox::Ok);
 }
 
-void LabelList::update_button_states() {
+void LabelList::updateButtonStates() {
   if (model_ == nullptr) {
     assert(false);
     return;
   }
-  auto selected = labels_view_->selectionModel()->selectedIndexes();
-  int n_rows{};
+  auto selected = labelsView_->selectionModel()->selectedIndexes();
+  int nRows{};
   for (const auto& sel : selected) {
     if (sel.column() == 0) {
-      ++n_rows;
+      ++nRows;
     } else {
       assert(false);
     }
   }
-  auto first_selected = find_first_in_col_0(selected);
-  QModelIndex selected_index{};
-  if (first_selected != selected.constEnd()) {
-    selected_index = *first_selected;
+  auto firstSelected = findFirstInCol0(selected);
+  QModelIndex selectedIndex{};
+  if (firstSelected != selected.constEnd()) {
+    selectedIndex = *firstSelected;
   }
-  buttons_frame_->update_button_states(n_rows, model_->total_n_labels(),
-                                       selected_index);
+  buttonsFrame_->updateButtonStates(nRows, model_->totalNLabels(),
+                                    selectedIndex);
 }
 
-void LabelList::set_label_color() {
-  auto all_selected = labels_view_->selectionModel()->selectedIndexes();
-  auto selected = find_first_in_col_0(all_selected);
-  if (selected == all_selected.constEnd()) {
+void LabelList::setLabelColor() {
+  auto allSelected = labelsView_->selectionModel()->selectedIndexes();
+  auto selected = findFirstInCol0(allSelected);
+  if (selected == allSelected.constEnd()) {
     return;
   }
-  auto label_name = model_->data(*selected, LabelNameRole).toString();
-  auto current_color =
+  auto labelName = model_->data(*selected, LabelNameRole).toString();
+  auto currentColor =
       model_->data(*selected, Qt::BackgroundRole).value<QColor>();
-  assert(current_color.isValid());
+  assert(currentColor.isValid());
   auto color = QColorDialog::getColor(
-      current_color, this, QString("Set color for '%0'").arg(label_name));
-  model_->set_label_color(*selected, color);
+      currentColor, this, QString("Set color for '%0'").arg(labelName));
+  model_->setLabelColor(*selected, color);
 }
 
-void LabelList::set_label_shortcut(const QString& new_shortcut) {
-  auto all_selected = labels_view_->selectionModel()->selectedIndexes();
-  auto selected = find_first_in_col_0(all_selected);
-  if (selected == all_selected.constEnd()) {
+void LabelList::setLabelShortcut(const QString& newShortcut) {
+  auto allSelected = labelsView_->selectionModel()->selectedIndexes();
+  auto selected = findFirstInCol0(allSelected);
+  if (selected == allSelected.constEnd()) {
     return;
   }
-  model_->set_label_shortcut(*selected, new_shortcut);
+  model_->setLabelShortcut(*selected, newShortcut);
 }
 
-void LabelList::add_label(const QString& name) {
-  auto label_id = model_->add_label(name);
-  if (label_id == -1) {
+void LabelList::addLabel(const QString& name) {
+  auto labelId = model_->addLabel(name);
+  if (labelId == -1) {
     return;
   }
-  labels_view_->reset();
-  auto model_index = model_->label_id_to_model_index(label_id);
-  assert(model_index.isValid());
-  labels_view_->setCurrentIndex(model_index);
+  labelsView_->reset();
+  auto modelIndex = model_->labelIdToModelIndex(labelId);
+  assert(modelIndex.isValid());
+  labelsView_->setCurrentIndex(modelIndex);
 }
 
 QValidator::State ShortcutValidator::validate(QString& input, int& pos) const {
@@ -367,26 +366,26 @@ QValidator::State ShortcutValidator::validate(QString& input, int& pos) const {
   if (input == QString("")) {
     return State::Acceptable;
   }
-  auto all_selected = view_->selectionModel()->selectedIndexes();
+  auto allSelected = view_->selectionModel()->selectedIndexes();
   QModelIndex selected{};
-  auto selected_it = find_first_in_col_0(all_selected);
-  if (selected_it != all_selected.constEnd()) {
-    selected = *selected_it;
+  auto selectedIt = findFirstInCol0(allSelected);
+  if (selectedIt != allSelected.constEnd()) {
+    selected = *selectedIt;
   }
-  if (!model_->is_valid_shortcut(input, selected)) {
+  if (!model_->isValidShortcut(input, selected)) {
     return State::Invalid;
   }
   return State::Acceptable;
 }
 
-void ShortcutValidator::setModel(LabelListModel* new_model) {
-  assert(new_model != nullptr);
-  model_ = new_model;
+void ShortcutValidator::setModel(LabelListModel* newModel) {
+  assert(newModel != nullptr);
+  model_ = newModel;
 }
 
-void ShortcutValidator::setView(QListView* new_view) {
-  assert(new_view != nullptr);
-  view_ = new_view;
+void ShortcutValidator::setView(QListView* newView) {
+  assert(newView != nullptr);
+  view_ = newView;
 }
 
 } // namespace labelbuddy

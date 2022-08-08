@@ -10,11 +10,11 @@ class TestDocList : public QObject {
 
 private slots:
 
-  void test_delete_selected_docs();
-  void test_delete_all_docs();
-  void test_visit_document();
-  void test_navigation();
-  void test_filters();
+  void testDeleteSelectedDocs();
+  void testDeleteAllDocs();
+  void testVisitDocument();
+  void testNavigation();
+  void testFilters();
 };
 
 } // namespace labelbuddy

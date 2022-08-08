@@ -4,7 +4,7 @@
 #include "test_main_window.h"
 
 namespace labelbuddy {
-void TestLabelBuddy::test_label_buddy() {
+void TestLabelBuddy::testLabelBuddy() {
   LabelBuddy buddy(nullptr, "", true);
   auto te = buddy.findChild<QPlainTextEdit*>();
   QVERIFY(te->toPlainText().startsWith("THIS IS A TEMPORARY DATABASE"));

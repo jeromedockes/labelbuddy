@@ -9,78 +9,78 @@
 #include "testing_utils.h"
 
 namespace labelbuddy {
-void TestAnnotationsModel::test_add_and_delete_annotations() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
+void TestAnnotationsModel::testAddAndDeleteAnnotations() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
   AnnotationsModel model{};
-  model.set_database(db_name);
+  model.setDatabase(dbName);
   int id{};
-  id = model.add_annotation(2, 3, 5);
+  id = model.addAnnotation(2, 3, 5);
   QCOMPARE(id, 1);
-  id = model.add_annotation(1, 7, 9);
+  id = model.addAnnotation(1, 7, 9);
   QCOMPARE(id, 2);
-  id = model.add_annotation(10, 7, 9);
+  id = model.addAnnotation(10, 7, 9);
   QCOMPARE(id, -1);
-  id = model.add_annotation(3, 10, 12);
+  id = model.addAnnotation(3, 10, 12);
   QCOMPARE(id, 3);
-  model.delete_annotation(1);
-  QSqlQuery query(QSqlDatabase::database(db_name));
+  model.deleteAnnotation(1);
+  QSqlQuery query(QSqlDatabase::database(dbName));
   query.exec(
       "select label_id from annotation where doc_id = 1 order by label_id;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
-  auto labels_info = model.get_labels_info();
-  QCOMPARE(labels_info[3].color, QString("#98df8a"));
-  auto annotations = model.get_annotations_info();
-  QCOMPARE(annotations[3].end_char, 12);
+  auto labelsInfo = model.getLabelsInfo();
+  QCOMPARE(labelsInfo[3].color, QString("#98df8a"));
+  auto annotations = model.getAnnotationsInfo();
+  QCOMPARE(annotations[3].endChar, 12);
 }
 
-void TestAnnotationsModel::test_navigation() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
+void TestAnnotationsModel::testNavigation() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
   AnnotationsModel model{};
-  model.set_database(db_name);
-  model.visit_next();
-  QCOMPARE(model.current_doc_position(), 1);
-  model.add_annotation(2, 3, 5);
-  model.visit_next_unlabelled();
-  QCOMPARE(model.current_doc_position(), 2);
-  QVERIFY(model.get_content().startsWith("document 2"));
-  model.visit_next();
-  model.visit_next_unlabelled();
-  QCOMPARE(model.current_doc_position(), 4);
+  model.setDatabase(dbName);
+  model.visitNext();
+  QCOMPARE(model.currentDocPosition(), 1);
+  model.addAnnotation(2, 3, 5);
+  model.visitNextUnlabelled();
+  QCOMPARE(model.currentDocPosition(), 2);
+  QVERIFY(model.getContent().startsWith("document 2"));
+  model.visitNext();
+  model.visitNextUnlabelled();
+  QCOMPARE(model.currentDocPosition(), 4);
   for (int i = 0; i != 20; ++i) {
-    model.visit_next_unlabelled();
+    model.visitNextUnlabelled();
   }
-  QCOMPARE(model.current_doc_position(), 5);
-  QCOMPARE(model.get_annotations_info().size(), 0);
-  model.visit_prev_labelled();
-  QCOMPARE(model.current_doc_position(), 1);
-  QCOMPARE(model.get_annotations_info().size(), 1);
-  model.visit_prev_labelled();
-  model.visit_prev_labelled();
-  QCOMPARE(model.current_doc_position(), 1);
-  model.visit_prev();
-  QCOMPARE(model.current_doc_position(), 0);
-  model.visit_next_unlabelled();
-  QCOMPARE(model.current_doc_position(), 2);
-  model.visit_prev();
-  QSqlQuery query(QSqlDatabase::database(db_name));
+  QCOMPARE(model.currentDocPosition(), 5);
+  QCOMPARE(model.getAnnotationsInfo().size(), 0);
+  model.visitPrevLabelled();
+  QCOMPARE(model.currentDocPosition(), 1);
+  QCOMPARE(model.getAnnotationsInfo().size(), 1);
+  model.visitPrevLabelled();
+  model.visitPrevLabelled();
+  QCOMPARE(model.currentDocPosition(), 1);
+  model.visitPrev();
+  QCOMPARE(model.currentDocPosition(), 0);
+  model.visitNextUnlabelled();
+  QCOMPARE(model.currentDocPosition(), 2);
+  model.visitPrev();
+  QSqlQuery query(QSqlDatabase::database(dbName));
   query.exec("delete from document where id = 2;");
   query.next();
-  model.check_current_doc();
-  QCOMPARE(model.current_doc_position(), 0);
+  model.checkCurrentDoc();
+  QCOMPARE(model.currentDocPosition(), 0);
   query.exec("delete from document;");
   query.next();
-  model.check_current_doc();
-  QCOMPARE(model.get_content(), QString(""));
+  model.checkCurrentDoc();
+  QCOMPARE(model.getContent(), QString(""));
 }
 
-void TestAnnotationsModel::test_surrogate_pairs() {
-  QTemporaryDir tmp_dir{};
+void TestAnnotationsModel::testSurrogatePairs() {
+  QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};
-  catalog.open_database(tmp_dir.filePath("db"));
-  QSqlQuery query(QSqlDatabase::database(catalog.get_current_database()));
+  catalog.openDatabase(tmpDir.filePath("db"));
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
   query.exec("insert into label(name) values ('label');");
   query.prepare("insert into document(content, content_md5) values (?, ?);");
   QString content("𝄞𝄞-𝄞");
@@ -93,29 +93,29 @@ void TestAnnotationsModel::test_surrogate_pairs() {
   query.next();
   QCOMPARE(query.value(0).toInt(), 1);
   AnnotationsModel model{};
-  model.set_database(catalog.get_current_database());
+  model.setDatabase(catalog.getCurrentDatabase());
 
-  QCOMPARE(model.code_point_idx_to_utf16_idx(0), 0);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(1), 2);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(2), 4);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(3), 5);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(4), 7);
+  QCOMPARE(model.codePointIdxToUtf16Idx(0), 0);
+  QCOMPARE(model.codePointIdxToUtf16Idx(1), 2);
+  QCOMPARE(model.codePointIdxToUtf16Idx(2), 4);
+  QCOMPARE(model.codePointIdxToUtf16Idx(3), 5);
+  QCOMPARE(model.codePointIdxToUtf16Idx(4), 7);
 
-  QCOMPARE(model.utf16_idx_to_code_point_idx(0), 0);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(1), 0);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(2), 1);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(3), 1);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(4), 2);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(5), 3);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(6), 3);
+  QCOMPARE(model.utf16IdxToCodePointIdx(0), 0);
+  QCOMPARE(model.utf16IdxToCodePointIdx(1), 0);
+  QCOMPARE(model.utf16IdxToCodePointIdx(2), 1);
+  QCOMPARE(model.utf16IdxToCodePointIdx(3), 1);
+  QCOMPARE(model.utf16IdxToCodePointIdx(4), 2);
+  QCOMPARE(model.utf16IdxToCodePointIdx(5), 3);
+  QCOMPARE(model.utf16IdxToCodePointIdx(6), 3);
 
-  model.add_annotation(1, 0, 2);
+  model.addAnnotation(1, 0, 2);
   query.exec("select start_char, end_char from annotation where rowid = 1;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 0);
   QCOMPARE(query.value(1).toInt(), 1);
 
-  model.add_annotation(1, 4, 7);
+  model.addAnnotation(1, 4, 7);
   query.exec("select start_char, end_char from annotation where rowid = 2;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 2);
@@ -127,16 +127,16 @@ void TestAnnotationsModel::test_surrogate_pairs() {
   query.bindValue(0, content);
   query.bindValue(1, hash);
   query.exec();
-  model.visit_doc(2);
-  QCOMPARE(model.get_content(), content);
+  model.visitDoc(2);
+  QCOMPARE(model.getContent(), content);
 
-  QCOMPARE(model.code_point_idx_to_utf16_idx(0), 0);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(1), 1);
-  QCOMPARE(model.code_point_idx_to_utf16_idx(2), 2);
+  QCOMPARE(model.codePointIdxToUtf16Idx(0), 0);
+  QCOMPARE(model.codePointIdxToUtf16Idx(1), 1);
+  QCOMPARE(model.codePointIdxToUtf16Idx(2), 2);
 
-  QCOMPARE(model.utf16_idx_to_code_point_idx(0), 0);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(1), 1);
-  QCOMPARE(model.utf16_idx_to_code_point_idx(2), 2);
+  QCOMPARE(model.utf16IdxToCodePointIdx(0), 0);
+  QCOMPARE(model.utf16IdxToCodePointIdx(1), 1);
+  QCOMPARE(model.utf16IdxToCodePointIdx(2), 2);
 }
 
 } // namespace labelbuddy

@@ -10,25 +10,25 @@
 
 namespace labelbuddy {
 
-void TestDatasetMenu::test_dataset_menu() {
-  QTemporaryDir tmp_dir{};
-  auto db_name = prepare_db(tmp_dir);
-  add_annotations(db_name);
-  DocListModel doc_model{};
-  doc_model.set_database(db_name);
-  LabelListModel label_model{};
-  label_model.set_database(db_name);
+void TestDatasetMenu::testDatasetMenu() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
+  addAnnotations(dbName);
+  DocListModel docModel{};
+  docModel.setDatabase(dbName);
+  LabelListModel labelModel{};
+  labelModel.setDatabase(dbName);
   DatasetMenu menu{};
-  menu.set_doc_list_model(&doc_model);
-  menu.set_label_list_model(&label_model);
-  auto doc_list = menu.findChild<DocList*>();
-  auto filter_box = doc_list->findChildren<QComboBox*>()[0];
-  filter_box->setCurrentIndex(1);
-  filter_box->activated(1);
-  QCOMPARE(doc_model.rowCount(), 1);
-  QCOMPARE(menu.n_selected_docs(), 0);
-  doc_list->findChildren<QPushButton*>()[0]->click();
-  QCOMPARE(menu.n_selected_docs(), 1);
+  menu.setDocListModel(&docModel);
+  menu.setLabelListModel(&labelModel);
+  auto docList = menu.findChild<DocList*>();
+  auto filterBox = docList->findChildren<QComboBox*>()[0];
+  filterBox->setCurrentIndex(1);
+  filterBox->activated(1);
+  QCOMPARE(docModel.rowCount(), 1);
+  QCOMPARE(menu.nSelectedDocs(), 0);
+  docList->findChildren<QPushButton*>()[0]->click();
+  QCOMPARE(menu.nSelectedDocs(), 1);
   auto lbuttons = menu.findChild<LabelListButtons*>();
   lbuttons->findChildren<QPushButton*>()[0]->click();
   QTimer::singleShot(1000, this, [&]() {
@@ -39,7 +39,7 @@ void TestDatasetMenu::test_dataset_menu() {
   });
   lbuttons->findChildren<QPushButton*>()[1]->click();
   QTest::qWait(1000);
-  QCOMPARE(doc_model.rowCount(), 0);
+  QCOMPARE(docModel.rowCount(), 0);
 }
 
 } // namespace labelbuddy

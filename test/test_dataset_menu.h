@@ -11,7 +11,7 @@ class TestDatasetMenu : public QObject {
   Q_OBJECT
 
 private slots:
-  void test_dataset_menu();
+  void testDatasetMenu();
 };
 } // namespace labelbuddy
 

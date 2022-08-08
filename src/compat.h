@@ -7,7 +7,7 @@
 namespace labelbuddy {
 
 /// use QFontMetrics::width before Qt 5.11 and horizontalAdvance after
-int text_width(const QFontMetrics& metrics, const QString& text);
+int textWidth(const QFontMetrics& metrics, const QString& text);
 
 } // namespace labelbuddy
 

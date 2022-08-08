@@ -21,23 +21,23 @@ class DatasetMenu : public QSplitter {
 
 public:
   DatasetMenu(QWidget* parent = nullptr);
-  void set_doc_list_model(DocListModel*);
-  void set_label_list_model(LabelListModel*);
-  int n_selected_docs() const;
+  void setDocListModel(DocListModel*);
+  void setLabelListModel(LabelListModel*);
+  int nSelectedDocs() const;
 
 public slots:
-  void store_state();
+  void storeState();
 
 signals:
-  /// User asked to annotate doc with `id` (in the db) `doc_id`
-  void visit_doc_requested(int doc_id);
-  void n_selected_docs_changed(int n_docs);
+  /// User asked to annotate doc with `id` (in the db) `docId`
+  void visitDocRequested(int docId);
+  void nSelectedDocsChanged(int nDocs);
 
 private:
-  LabelList* label_list_;
-  DocList* doc_list_;
-  LabelListModel* label_list_model_ = nullptr;
-  DocListModel* doc_list_model_ = nullptr;
+  LabelList* labelList_;
+  DocList* docList_;
+  LabelListModel* labelListModel_ = nullptr;
+  DocListModel* docListModel_ = nullptr;
 };
 } // namespace labelbuddy
 #endif

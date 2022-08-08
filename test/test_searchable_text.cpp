@@ -7,21 +7,21 @@
 
 namespace labelbuddy {
 
-void TestSearchableText::test_search() {
+void TestSearchableText::testSearch() {
   SearchableText text{};
   text.show();
-  auto content = example_doc();
+  auto content = exampleDoc();
   text.fill(content);
-  QCOMPARE(text.get_text_edit()->toPlainText(), example_doc());
-  QVERIFY(text.get_text_edit()->isReadOnly());
-  auto search_box = text.findChild<QLineEdit*>();
+  QCOMPARE(text.getTextEdit()->toPlainText(), exampleDoc());
+  QVERIFY(text.getTextEdit()->isReadOnly());
+  auto searchBox = text.findChild<QLineEdit*>();
   auto te = text.findChild<QPlainTextEdit*>();
-  search_box->setText(u8"maçã");
+  searchBox->setText(u8"maçã");
 
-  text.search_forward();
+  text.searchForward();
   auto selected =
-      content.mid(text.current_selection()[0],
-                  text.current_selection()[1] - text.current_selection()[0]);
+      content.mid(text.currentSelection()[0],
+                  text.currentSelection()[1] - text.currentSelection()[0]);
   QCOMPARE(selected, QString(u8"maçã"));
   auto cursor = te->textCursor();
   QCOMPARE(cursor.selectedText(), QString(u8"maçã"));
@@ -36,14 +36,14 @@ void TestSearchableText::test_search() {
   cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
   QCOMPARE(cursor.selectedText(), QString("2"));
 
-  text.search_backward();
+  text.searchBackward();
   cursor = te->textCursor();
   QCOMPARE(cursor.selectedText(), QString(u8"maçã"));
   cursor.clearSelection();
   cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor);
   QCOMPARE(cursor.selectedText(), QString("1"));
 
-  text.search_backward();
+  text.searchBackward();
   cursor = te->textCursor();
   QCOMPARE(cursor.selectedText(), QString(u8"maçã"));
   cursor.clearSelection();
@@ -51,14 +51,14 @@ void TestSearchableText::test_search() {
   QCOMPARE(cursor.selectedText(), QString("3"));
 }
 
-void TestSearchableText::test_cycle_pos() {
+void TestSearchableText::testCyclePos() {
   SearchableText text{};
   text.show();
-  text.fill(long_doc());
-  auto search_box = text.findChild<QLineEdit*>();
+  text.fill(longDoc());
+  auto searchBox = text.findChild<QLineEdit*>();
   auto te = text.findChild<QPlainTextEdit*>();
-  search_box->setText("Line 150");
-  text.search_forward();
+  searchBox->setText("Line 150");
+  text.searchForward();
   QTest::keyClicks(te, "l", Qt::ControlModifier);
   auto cheight = (te->cursorRect().bottom() - te->cursorRect().top());
   QVERIFY((te->cursorRect().bottom() != te->rect().bottom()) &&
@@ -69,14 +69,14 @@ void TestSearchableText::test_cycle_pos() {
   QVERIFY(abs(te->cursorRect().bottom() - te->rect().bottom()) < cheight);
 }
 
-void TestSearchableText::test_shortcuts() {
+void TestSearchableText::testShortcuts() {
   SearchableText text{};
   text.show();
-  text.fill(long_doc());
-  auto search_box = text.findChild<QLineEdit*>();
+  text.fill(longDoc());
+  auto searchBox = text.findChild<QLineEdit*>();
   auto te = text.findChild<QPlainTextEdit*>();
-  search_box->setText("Line 150");
-  text.search_forward();
+  searchBox->setText("Line 150");
+  text.searchForward();
 
   QTest::keyClicks(te, "]");
   QTest::keyClicks(te, "]");

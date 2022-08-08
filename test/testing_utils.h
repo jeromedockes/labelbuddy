@@ -5,11 +5,11 @@
 #include <QTemporaryDir>
 
 namespace labelbuddy {
-QString prepare_db(QTemporaryDir&);
-void add_annotations(const QString& db_name);
-void add_many_docs(const QString& db_name);
-QString example_doc();
-QString long_doc();
+QString prepareDb(QTemporaryDir&);
+void addAnnotations(const QString& dbName);
+void addManyDocs(const QString& dbName);
+QString exampleDoc();
+QString longDoc();
 } // namespace labelbuddy
 
 #endif

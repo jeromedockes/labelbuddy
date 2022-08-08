@@ -4,12 +4,12 @@
 #include <QTest>
 
 namespace labelbuddy {
-  class TestDocListModel : public QObject{
-    Q_OBJECT
-  private slots:
-    void test_delete_docs();
-    void test_filters();
-    void test_updating_results();
-  };
-}
+class TestDocListModel : public QObject {
+  Q_OBJECT
+private slots:
+  void testDeleteDocs();
+  void testFilters();
+  void testUpdatingResults();
+};
+} // namespace labelbuddy
 #endif

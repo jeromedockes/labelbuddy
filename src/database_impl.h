@@ -8,84 +8,84 @@
 namespace labelbuddy {
 
 struct Annotation {
-  int start_char;
-  int end_char;
-  QString label_name;
-  QString extra_data;
+  int startChar;
+  int endChar;
+  QString labelName;
+  QString extraData;
 };
 
 struct DocRecord {
   QString content{};
   QByteArray metadata{};
-  QString declared_md5{};
+  QString declaredMd5{};
   QList<Annotation> annotations{};
-  bool valid_content = true;
-  QString display_title{};
-  QString list_title{};
+  bool validContent = true;
+  QString displayTitle{};
+  QString listTitle{};
 };
 
 class DocsReader {
 
 public:
-  DocsReader(const QString& file_path);
+  explicit DocsReader(const QString& filePath);
   virtual ~DocsReader() = default;
-  bool is_open() const;
-  bool has_error() const;
-  ErrorCode error_code() const;
-  QString error_message() const;
-  virtual bool read_next() = 0;
-  const DocRecord* get_current_record() const;
-  virtual int progress_max() const;
-  virtual int current_progress() const;
+  bool isOpen() const;
+  bool hasError() const;
+  ErrorCode errorCode() const;
+  QString errorMessage() const;
+  virtual bool readNext() = 0;
+  const DocRecord* getCurrentRecord() const;
+  virtual int progressMax() const;
+  virtual int currentProgress() const;
 
 protected:
-  QFile* get_file();
-  void set_current_record(std::unique_ptr<DocRecord>);
-  static constexpr int progress_range_max_{1000};
-  void set_error(ErrorCode code, const QString& message);
+  QFile* getFile();
+  void setCurrentRecord(std::unique_ptr<DocRecord>);
+  static constexpr int progressRangeMax_{1000};
+  void setError(ErrorCode code, const QString& message);
 
 private:
   QFile file_;
-  std::unique_ptr<DocRecord> current_record_{nullptr};
-  double file_size_{};
-  ErrorCode error_code_ = ErrorCode::NoError;
-  QString error_message_{};
+  std::unique_ptr<DocRecord> currentRecord_{nullptr};
+  double fileSize_{};
+  ErrorCode errorCode_ = ErrorCode::NoError;
+  QString errorMessage_{};
 };
 
 class TxtDocsReader : public DocsReader {
 
 public:
-  TxtDocsReader(const QString& file_path);
-  bool read_next() override;
+  explicit TxtDocsReader(const QString& filePath);
+  bool readNext() override;
 
 private:
   QTextStream stream_;
 };
 
-std::unique_ptr<DocRecord> json_to_doc_record(const QJsonDocument&);
-std::unique_ptr<DocRecord> json_to_doc_record(const QJsonValue&);
-std::unique_ptr<DocRecord> json_to_doc_record(const QJsonObject&);
+std::unique_ptr<DocRecord> jsonToDocRecord(const QJsonDocument&);
+std::unique_ptr<DocRecord> jsonToDocRecord(const QJsonValue&);
+std::unique_ptr<DocRecord> jsonToDocRecord(const QJsonObject&);
 
 class JsonDocsReader : public DocsReader {
 
 public:
-  JsonDocsReader(const QString& file_path);
-  bool read_next() override;
-  int progress_max() const override;
-  int current_progress() const override;
+  explicit JsonDocsReader(const QString& filePath);
+  bool readNext() override;
+  int progressMax() const override;
+  int currentProgress() const override;
 
 private:
-  QJsonArray all_docs_;
-  QJsonArray::const_iterator current_doc_;
-  int total_n_docs_;
-  int n_seen_{};
+  QJsonArray allDocs_;
+  QJsonArray::const_iterator currentDoc_;
+  int totalNDocs_;
+  int nSeen_{};
 };
 
 class JsonLinesDocsReader : public DocsReader {
 
 public:
-  JsonLinesDocsReader(const QString& file_path);
-  bool read_next() override;
+  explicit JsonLinesDocsReader(const QString& filePath);
+  bool readNext() override;
 
 private:
   QTextStream stream_;
@@ -93,94 +93,94 @@ private:
 
 class DocsWriter {
 public:
-  DocsWriter(const QString& file_path, bool include_text,
-             bool include_annotations);
+  explicit DocsWriter(const QString& filePath, bool includeText,
+                      bool includeAnnotations);
   virtual ~DocsWriter() = default;
 
-  /// after constructing the file should be open and is_open should return true
-  bool is_open() const;
-  bool is_including_text() const;
-  bool is_including_annotations() const;
+  /// after constructing the file should be open and isOpen should return true
+  bool isOpen() const;
+  bool isIncludingText() const;
+  bool isIncludingAnnotations() const;
 
-  virtual void add_document(const QString& md5, const QString& content,
-                            const QJsonObject& metadata,
-                            const QList<Annotation>& annotations,
-                            const QString& display_title,
-                            const QString& list_title) = 0;
+  virtual void addDocument(const QString& md5, const QString& content,
+                           const QJsonObject& metadata,
+                           const QList<Annotation>& annotations,
+                           const QString& displayTitle,
+                           const QString& listTitle) = 0;
   /// at the start of the output file
-  virtual void write_prefix();
+  virtual void writePrefix();
 
   /// at the end of the output file
-  virtual void write_suffix();
+  virtual void writeSuffix();
 
 protected:
-  QFile* get_file();
+  QFile* getFile();
 
 private:
   QFile file_;
-  bool include_text_;
-  bool include_annotations_;
+  bool includeText_;
+  bool includeAnnotations_;
 };
 
 class JsonLinesDocsWriter : public DocsWriter {
 public:
-  JsonLinesDocsWriter(const QString& file_path, bool include_text,
-                      bool include_annotations);
-  void add_document(const QString& md5, const QString& content,
-                    const QJsonObject& metadata,
-                    const QList<Annotation>& annotations,
-                    const QString& display_title,
-                    const QString& list_title) override;
+  explicit JsonLinesDocsWriter(const QString& filePath, bool includeText,
+                               bool includeAnnotations);
+  void addDocument(const QString& md5, const QString& content,
+                   const QJsonObject& metadata,
+                   const QList<Annotation>& annotations,
+                   const QString& displayTitle,
+                   const QString& listTitle) override;
 
-  void write_suffix() override;
+  void writeSuffix() override;
 
 protected:
-  int get_n_docs() const;
-  QTextStream& get_stream();
+  int getNDocs() const;
+  QTextStream& getStream();
 
 private:
   QTextStream stream_;
-  int n_docs_{};
+  int nDocs_{};
 };
 
 class JsonDocsWriter : public JsonLinesDocsWriter {
 public:
-  JsonDocsWriter(const QString& file_path, bool include_text,
-                 bool include_annotations);
+  explicit JsonDocsWriter(const QString& filePath, bool includeText,
+                          bool includeAnnotations);
 
-  void add_document(const QString& md5, const QString& content,
-                    const QJsonObject& metadata,
-                    const QList<Annotation>& annotations,
-                    const QString& display_title,
-                    const QString& list_title) override;
-  void write_prefix() override;
-  void write_suffix() override;
+  void addDocument(const QString& md5, const QString& content,
+                   const QJsonObject& metadata,
+                   const QList<Annotation>& annotations,
+                   const QString& displayTitle,
+                   const QString& listTitle) override;
+  void writePrefix() override;
+  void writeSuffix() override;
 };
 
 struct LabelRecord {
   QString name;
   QString color{};
-  QString shortcut_key{};
+  QString shortcutKey{};
 };
 
-LabelRecord json_to_label_record(const QJsonValue& json);
+LabelRecord jsonToLabelRecord(const QJsonValue& json);
 
 struct ReadLabelsResult {
   QJsonArray labels;
-  ErrorCode error_code;
-  QString error_message;
+  ErrorCode errorCode;
+  QString errorMessage;
 };
 
 /// read labels into a json array
 
 /// returns the array and a (error code, error message) pair
-ReadLabelsResult read_labels(const QString& file_path);
+ReadLabelsResult readLabels(const QString& filePath);
 
-ReadLabelsResult read_json_labels(QFile& file);
+ReadLabelsResult readJsonLabels(QFile& file);
 
-ReadLabelsResult read_json_lines_labels(QFile& file);
+ReadLabelsResult readJsonLinesLabels(QFile& file);
 
-ReadLabelsResult read_txt_labels(QFile& file);
+ReadLabelsResult readTxtLabels(QFile& file);
 
 /// remove a connection from the qt databases
 
@@ -189,35 +189,35 @@ ReadLabelsResult read_txt_labels(QFile& file);
 /// if database cannot be used (eg if it is not a labelbuddy database).
 /// if cancelled `execute` and the destructor do nothing.
 class RemoveConnection {
-  QString connection_name_;
+  QString connectionName_;
   bool cancelled_;
 
 public:
-  RemoveConnection(const QString& connection_name);
+  explicit RemoveConnection(const QString& connectionName);
   ~RemoveConnection();
   void execute() const;
   void cancel();
 };
 
 QPair<QStringList, QString>
-accepted_and_default_formats(DatabaseCatalog::Action action,
-                             DatabaseCatalog::ItemKind kind);
+acceptedAndDefaultFormats(DatabaseCatalog::Action action,
+                          DatabaseCatalog::ItemKind kind);
 
 /// Last used database if it is found in QSettings and exists else ""
-QString get_default_database_path();
+QString getDefaultDatabasePath();
 
 /// return a reader appropriate for the filename extension
-std::unique_ptr<DocsReader> get_docs_reader(const QString& file_path);
+std::unique_ptr<DocsReader> getDocsReader(const QString& filePath);
 
 /// return a writer appropriate for the filename extension
-std::unique_ptr<DocsWriter> get_docs_writer(const QString& file_path,
-                                            bool include_text,
-                                            bool include_annotations);
+std::unique_ptr<DocsWriter> getDocsWriter(const QString& filePath,
+                                          bool includeText,
+                                          bool includeAnnotations);
 
-ExportLabelsResult write_labels_to_json(const QJsonArray& labels,
-                                        const QString& file_path);
-ExportLabelsResult write_labels_to_json_lines(const QJsonArray& labels,
-                                              const QString& file_path);
+ExportLabelsResult writeLabelsToJson(const QJsonArray& labels,
+                                     const QString& filePath);
+ExportLabelsResult writeLabelsToJsonLines(const QJsonArray& labels,
+                                          const QString& filePath);
 } // namespace labelbuddy
 
 #endif

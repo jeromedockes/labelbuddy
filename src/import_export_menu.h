@@ -19,68 +19,69 @@ class ImportExportMenu : public QWidget {
   Q_OBJECT
 
 public:
-  ImportExportMenu(DatabaseCatalog* catalog, QWidget* parent = nullptr);
+  explicit ImportExportMenu(DatabaseCatalog* catalog,
+                            QWidget* parent = nullptr);
 
 public slots:
   /// Update db path when current database changes
-  void update_database_info();
+  void updateDatabaseInfo();
 
 signals:
 
-  void documents_added();
-  void labels_added();
+  void documentsAdded();
+  void labelsAdded();
 
 private slots:
-  void import_documents();
-  void import_labels();
-  void export_documents();
-  void export_labels();
+  void importDocuments();
+  void importLabels();
+  void exportDocuments();
+  void exportLabels();
 
 private:
   enum class DirRole {
-    import_documents,
-    import_labels,
-    export_documents,
-    export_labels
+    importDocuments,
+    importLabels,
+    exportDocuments,
+    exportLabels
   };
 
-  static constexpr int progress_dialog_min_duration_ms_ = 2000;
+  static constexpr int progressDialogMinDurationMs_ = 2000;
 
   /// Find a directory from which to start a filedialog
 
   /// Depends on the kind of file to be opened and what is stored in the
   /// QSettings
-  QString suggest_dir(DirRole role) const;
+  QString suggestDir(DirRole role) const;
 
   /// Remember directory from which a file was selected
-  void store_parent_dir(const QString& file_path, DirRole role);
+  void storeParentDir(const QString& filePath, DirRole role);
 
-  void init_checkbox_states();
+  void initCheckboxStates();
 
   /// Warn user file extension unknown, ask if proceed with default format.
 
   /// Returns true if user asked to proceed. for Import operations this is not
   /// an option -- this function always returns false in that case.
-  bool ask_confirm_unknown_extension(const QString& file_path,
-                                     DatabaseCatalog::Action action,
-                                     DatabaseCatalog::ItemKind kind);
+  bool askConfirmUnknownExtension(const QString& filePath,
+                                  DatabaseCatalog::Action action,
+                                  DatabaseCatalog::ItemKind kind);
 
   template <typename T>
-  void report_result(const T& result, const QString& file_path);
-  static QString get_report_msg(const ImportDocsResult& result);
-  static QString get_report_msg(const ImportLabelsResult& result);
-  static QString get_report_msg(const ExportDocsResult& result);
-  static QString get_report_msg(const ExportLabelsResult& result);
+  void reportResult(const T& result, const QString& filePath);
+  static QString getReportMsg(const ImportDocsResult& result);
+  static QString getReportMsg(const ImportLabelsResult& result);
+  static QString getReportMsg(const ExportDocsResult& result);
+  static QString getReportMsg(const ExportLabelsResult& result);
 
-  DatabaseCatalog* database_catalog_;
-  QPushButton* import_docs_button_;
-  QPushButton* import_labels_button_;
-  QPushButton* export_docs_button_;
-  QPushButton* export_labels_button_;
-  QCheckBox* labelled_only_checkbox_;
-  QCheckBox* include_text_checkbox_;
-  QCheckBox* include_annotations_checkbox_;
-  QLabel* db_path_line_;
+  DatabaseCatalog* databaseCatalog_;
+  QPushButton* importDocsButton_;
+  QPushButton* importLabelsButton_;
+  QPushButton* exportDocsButton_;
+  QPushButton* exportLabelsButton_;
+  QCheckBox* labelledOnlyCheckbox_;
+  QCheckBox* includeTextCheckbox_;
+  QCheckBox* includeAnnotationsCheckbox_;
+  QLabel* dbPathLine_;
 };
 } // namespace labelbuddy
 

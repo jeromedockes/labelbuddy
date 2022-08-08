@@ -9,17 +9,17 @@ namespace labelbuddy {
 class TestLabelListModel : public QObject {
   Q_OBJECT
 private slots:
-  void test_delete_labels();
-  void test_set_shortcut();
-  void test_set_color();
-  void test_is_valid_shortcut();
-  void test_getdata();
-  void test_getdata_data();
-  void test_add_label();
-  void test_mime_drop();
+  void testDeleteLabels();
+  void testSetShortcut();
+  void testSetColor();
+  void testIsValidShortcut();
+  void testGetData();
+  void testGetData_data();
+  void testAddLabel();
+  void testMimeDrop();
 };
 
-QList<QString> get_label_names(const LabelListModel& model);
+QList<QString> getLabelNames(const LabelListModel& model);
 
 } // namespace labelbuddy
 #endif

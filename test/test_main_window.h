@@ -10,7 +10,7 @@ class TestLabelBuddy : public QObject {
 
 private slots:
 
-  void test_label_buddy();
+  void testLabelBuddy();
 };
 
 } // namespace labelbuddy

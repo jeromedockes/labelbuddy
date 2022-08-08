@@ -10,7 +10,7 @@ class TestImportExportMenu : public QObject {
 
 private slots:
 
-  void test_checkboxes_states();
+  void testCheckboxesStates();
 };
 } // namespace labelbuddy
 
