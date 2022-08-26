@@ -1014,61 +1014,78 @@ bool DatabaseCatalog::initializeDatabase(QSqlDatabase& database) {
 bool DatabaseCatalog::createTables(QSqlQuery& query) {
   query.exec("BEGIN TRANSACTION;");
   bool success{true};
-  success *= query.exec(
-      QString("PRAGMA application_id = %1;").arg(sqliteApplicationId_));
-  success *=
+  success =
+      success &&
+      query.exec(
+          QString("PRAGMA application_id = %1;").arg(sqliteApplicationId_));
+  success =
+      success &&
       query.exec(QString("PRAGMA user_version = %1;").arg(sqliteUserVersion_));
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
-      "content_md5 BLOB UNIQUE NOT NULL, "
-      "content TEXT NOT NULL, metadata BLOB, "
-      "list_title TEXT DEFAULT NULL, display_title TEXT DEFAULT NULL, "
-      "CHECK (content != ''), CHECK (length(content_md5 = 128)));");
+  success =
+      success &&
+      query.exec(
+          "CREATE TABLE IF NOT EXISTS document (id INTEGER PRIMARY KEY, "
+          "content_md5 BLOB UNIQUE NOT NULL, "
+          "content TEXT NOT NULL, metadata BLOB, "
+          "list_title TEXT DEFAULT NULL, display_title TEXT DEFAULT NULL, "
+          "CHECK (content != ''), CHECK (length(content_md5 = 128)));");
   // for some reason the auto index created for the primary key is not treated
   // as a covering index in 'count(*) from document where id < xxx' but this is:
-  success *= query.exec("CREATE INDEX IF NOT EXISTS document_id_idx ON "
-                        "document(id);");
+  success =
+      success && query.exec("CREATE INDEX IF NOT EXISTS document_id_idx ON "
+                            "document(id);");
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
-      "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
-      "shortcut_key TEXT UNIQUE DEFAULT NULL, "
-      "display_order INTEGER DEFAULT NULL, CHECK (name != '')); ");
+  success = success &&
+            query.exec(
+                "CREATE TABLE IF NOT EXISTS label(id INTEGER PRIMARY KEY, name "
+                "TEXT UNIQUE NOT NULL, color TEXT NOT NULL DEFAULT '#FFA000', "
+                "shortcut_key TEXT UNIQUE DEFAULT NULL, "
+                "display_order INTEGER DEFAULT NULL, CHECK (name != '')); ");
   // NULLS LAST only available from sqlite 3.30
-  success *= query.exec(
-      "CREATE VIEW IF NOT EXISTS sorted_label AS SELECT * FROM label ORDER BY "
-      "display_order IS NULL, display_order, id;");
+  success = success && query.exec("CREATE VIEW IF NOT EXISTS sorted_label AS "
+                                  "SELECT * FROM label ORDER BY "
+                                  "display_order IS NULL, display_order, id;");
 
-  success *= query.exec(
-      " CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "
-      "REFERENCES document(id) ON DELETE CASCADE, label_id NOT NULL "
-      "REFERENCES label(id) ON DELETE CASCADE, start_char INTEGER NOT "
-      "NULL, end_char INTEGER NOT NULL, extra_data TEXT DEFAULT NULL, "
-      "UNIQUE (doc_id, start_char, end_char, label_id) "
-      "CHECK (start_char < end_char)); ");
+  success =
+      success &&
+      query.exec(
+          " CREATE TABLE IF NOT EXISTS annotation(doc_id NOT NULL "
+          "REFERENCES document(id) ON DELETE CASCADE, label_id NOT NULL "
+          "REFERENCES label(id) ON DELETE CASCADE, start_char INTEGER NOT "
+          "NULL, end_char INTEGER NOT NULL, extra_data TEXT DEFAULT NULL, "
+          "UNIQUE (doc_id, start_char, end_char, label_id) "
+          "CHECK (start_char < end_char)); ");
 
-  success *= query.exec(" CREATE INDEX IF NOT EXISTS annotation_doc_id_idx ON "
-                        "annotation(doc_id);");
+  success = success &&
+            query.exec(" CREATE INDEX IF NOT EXISTS annotation_doc_id_idx ON "
+                       "annotation(doc_id);");
 
-  success *= query.exec("CREATE INDEX IF NOT EXISTS annotation_label_id_idx ON "
-                        "annotation(label_id);");
+  success = success &&
+            query.exec("CREATE INDEX IF NOT EXISTS annotation_label_id_idx ON "
+                       "annotation(label_id);");
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS app_state (last_visited_doc INTEGER "
-      "REFERENCES document(id) ON DELETE SET NULL);");
+  success =
+      success &&
+      query.exec(
+          "CREATE TABLE IF NOT EXISTS app_state (last_visited_doc INTEGER "
+          "REFERENCES document(id) ON DELETE SET NULL);");
 
-  success *= query.exec(
-      "INSERT INTO app_state (last_visited_doc) SELECT (null) WHERE NOT "
-      "EXISTS (SELECT * from app_state); ");
+  success =
+      success &&
+      query.exec(
+          "INSERT INTO app_state (last_visited_doc) SELECT (null) WHERE NOT "
+          "EXISTS (SELECT * from app_state); ");
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS app_state_extra (key TEXT UNIQUE NOT "
-      "NULL, value); ");
+  success =
+      success &&
+      query.exec(
+          "CREATE TABLE IF NOT EXISTS app_state_extra (key TEXT UNIQUE NOT "
+          "NULL, value); ");
 
-  success *= query.exec(
-      "CREATE TABLE IF NOT EXISTS database_info "
-      "(database_schema_version INTEGER, created_by_labelbuddy_version TEXT);");
+  success = success && query.exec("CREATE TABLE IF NOT EXISTS database_info "
+                                  "(database_schema_version INTEGER, "
+                                  "created_by_labelbuddy_version TEXT);");
 
   query.prepare("INSERT INTO database_info "
                 "(database_schema_version, "
@@ -1077,17 +1094,22 @@ bool DatabaseCatalog::createTables(QSqlQuery& query) {
                 "WHERE NOT EXISTS (SELECT * FROM database_info);");
   query.bindValue(":uv", sqliteUserVersion_);
   query.bindValue(":lbv", getVersion());
-  success *= query.exec();
+  success = success && query.exec();
 
   // In experiments with many documents the subqueries below seemed much
   // faster than a left join and slightly faster than using 'where not exists'.
-  success *= query.exec(
-      "CREATE VIEW IF NOT EXISTS unlabelled_document AS SELECT * FROM "
-      "document WHERE id NOT IN (SELECT distinct doc_id FROM annotation); ");
+  success =
+      success &&
+      query.exec(
+          "CREATE VIEW IF NOT EXISTS unlabelled_document AS SELECT * FROM "
+          "document WHERE id NOT IN (SELECT distinct doc_id FROM "
+          "annotation); ");
 
-  success *= query.exec(
-      "CREATE VIEW IF NOT EXISTS labelled_document AS SELECT * "
-      "FROM document WHERE id IN (SELECT distinct doc_id FROM annotation); ");
+  success =
+      success &&
+      query.exec("CREATE VIEW IF NOT EXISTS labelled_document AS SELECT * "
+                 "FROM document WHERE id IN (SELECT distinct doc_id FROM "
+                 "annotation); ");
   if (success) {
     query.exec("COMMIT;");
     return true;
