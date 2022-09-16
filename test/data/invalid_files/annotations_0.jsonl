@@ -1,0 +1,1 @@
+{"text": "text ok", "annotations": [{"label_name": "l1", "start_char": 0, "end_char": 2}, {"label_name": "l1", "start_char": 0, "end_char": 200}, {"start_char": 0, "end_char": 2}, {"label_name": "l1", "start_char": 0, "end_char": 0}, {"label_name": "l1", "start_char": -1, "end_char": 2}]}

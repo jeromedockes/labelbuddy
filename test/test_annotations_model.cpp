@@ -95,19 +95,19 @@ void TestAnnotationsModel::testSurrogatePairs() {
   AnnotationsModel model{};
   model.setDatabase(catalog.getCurrentDatabase());
 
-  QCOMPARE(model.codePointIdxToUtf16Idx(0), 0);
-  QCOMPARE(model.codePointIdxToUtf16Idx(1), 2);
-  QCOMPARE(model.codePointIdxToUtf16Idx(2), 4);
-  QCOMPARE(model.codePointIdxToUtf16Idx(3), 5);
-  QCOMPARE(model.codePointIdxToUtf16Idx(4), 7);
+  QCOMPARE(model.unicodeIdxToQStringIdx(0), 0);
+  QCOMPARE(model.unicodeIdxToQStringIdx(1), 2);
+  QCOMPARE(model.unicodeIdxToQStringIdx(2), 4);
+  QCOMPARE(model.unicodeIdxToQStringIdx(3), 5);
+  QCOMPARE(model.unicodeIdxToQStringIdx(4), 7);
 
-  QCOMPARE(model.utf16IdxToCodePointIdx(0), 0);
-  QCOMPARE(model.utf16IdxToCodePointIdx(1), 0);
-  QCOMPARE(model.utf16IdxToCodePointIdx(2), 1);
-  QCOMPARE(model.utf16IdxToCodePointIdx(3), 1);
-  QCOMPARE(model.utf16IdxToCodePointIdx(4), 2);
-  QCOMPARE(model.utf16IdxToCodePointIdx(5), 3);
-  QCOMPARE(model.utf16IdxToCodePointIdx(6), 3);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(0), 0);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(1), 0);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(2), 1);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(3), 1);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(4), 2);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(5), 3);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(6), 3);
 
   model.addAnnotation(1, 0, 2);
   query.exec("select start_char, end_char from annotation where rowid = 1;");
@@ -130,13 +130,13 @@ void TestAnnotationsModel::testSurrogatePairs() {
   model.visitDoc(2);
   QCOMPARE(model.getContent(), content);
 
-  QCOMPARE(model.codePointIdxToUtf16Idx(0), 0);
-  QCOMPARE(model.codePointIdxToUtf16Idx(1), 1);
-  QCOMPARE(model.codePointIdxToUtf16Idx(2), 2);
+  QCOMPARE(model.unicodeIdxToQStringIdx(0), 0);
+  QCOMPARE(model.unicodeIdxToQStringIdx(1), 1);
+  QCOMPARE(model.unicodeIdxToQStringIdx(2), 2);
 
-  QCOMPARE(model.utf16IdxToCodePointIdx(0), 0);
-  QCOMPARE(model.utf16IdxToCodePointIdx(1), 1);
-  QCOMPARE(model.utf16IdxToCodePointIdx(2), 2);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(0), 0);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(1), 1);
+  QCOMPARE(model.qStringIdxToUnicodeIdx(2), 2);
 }
 
 } // namespace labelbuddy

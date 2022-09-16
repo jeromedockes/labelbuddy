@@ -5,6 +5,7 @@
 
 #include "test_annotations_model.h"
 #include "test_annotator.h"
+#include "test_char_indices.h"
 #include "test_database.h"
 #include "test_dataset_menu.h"
 #include "test_doc_list.h"
@@ -36,5 +37,6 @@ int main(int argc, char* argv[]) {
   status |= QTest::qExec(new labelbuddy::TestUtils, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestLabelList, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestImportExportMenu, argc, argv);
+  status |= QTest::qExec(new labelbuddy::TestCharIndices, argc, argv);
   return status;
 }

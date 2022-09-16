@@ -7,6 +7,7 @@
 #include <QSqlQuery>
 #include <QString>
 
+#include "char_indices.h"
 #include "user_roles.h"
 
 /// \file
@@ -104,10 +105,10 @@ public:
   int shortcutToId(const QString& shortcut) const;
 
   /// QString (utf-16) index to index in unicode sequence
-  int utf16IdxToCodePointIdx(int utf16Idx) const;
+  int qStringIdxToUnicodeIdx(int qStringIndex) const;
 
   /// convert index in unicode sequence to QString (utf-16) index
-  int codePointIdxToUtf16Idx(int cpIdx) const;
+  int unicodeIdxToQStringIdx(int unicodeIndex) const;
 
 public slots:
 
@@ -142,8 +143,7 @@ private:
   int currentDocId_ = -1;
   QString databaseName_;
 
-  QList<int> surrogateIndicesInUnicodeString_{};
-  QList<int> surrogateIndicesInQString_{};
+  CharIndices charIndices_;
 
   QSqlQuery getQuery() const;
 

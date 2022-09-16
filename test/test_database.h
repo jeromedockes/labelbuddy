@@ -24,6 +24,7 @@ private slots:
   void testBatchImportExport();
   void testImportErrors_data();
   void testImportErrors();
+  void testBadAnnotations();
 
   void cleanup();
 

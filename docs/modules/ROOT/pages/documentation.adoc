@@ -49,6 +49,7 @@ endif::[]
 :wikipedia-xslt: https://en.wikipedia.org/wiki/XSLT
 :wikipedia-md5: https://en.wikipedia.org/wiki/MD5
 :xslt: pass:q[*XSLT*]
+:utf8: pass:q[*UTF-8*]
 :sqlite: pass:q[*SQLite*]
 :lb: pass:q[*labelbuddy*]
 :libreoffice-calc: pass:q[*LibreOffice Calc*]
@@ -141,23 +142,23 @@ Document:: A piece of text that we want to annotate, along with optional attribu
 Label:: A term that can be used to annotate (tag) documents or portions of text.
 Labels can be for example types of named entities such as "`City`", Part-Of-Speech tags such as "`Verb`", etc.
 Labels can also be given a `color` and a `shortcut_key`.
-Character:: A {unicode-home}[Unicode] code point.
+Character:: A {unicode-home}[Unicode] code point ({lb} provides annotation positions both as Unicode character indices and as byte indices in the {utf8} encoded text, see <<unicode-overview,details>>).
 Annotation:: A label attached to a specific portion of text in a document.
 For example, the first 5 characters of document #2 tagged with the label "`City`" constitute an annotation.
 Additional free-form text can also be attached to annotations.
-Database:: A binary file, created and modified by {lb}, containing documents, labels and annotations.
-Importing and exporting data:: Reading (writing) documents, labels and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON.
+Database:: A binary file, created and modified by {lb}, containing labels, documents and annotations.
+Importing and exporting data:: Reading (writing) labels, documents and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON.
 
-The labelbuddy interface is organized around three tabs: the {ietab} for importing and exporting documents, labels and annotations, the {dstab} to get an overview and manage documents and labels in the database, and the {annotab} is where annotations are edited.
+The labelbuddy interface is organized around three tabs: the {ietab} for importing and exporting labels, documents and annotations, the {dstab} to get an overview and manage documents and labels in the database, and the {annotab} is where annotations are edited.
 
 Documents and labels can be imported into a {lb} database from plain text, JSON or JSONLines, as described in <<formats-sec>>.
 Once they are imported, you can annotate the documents.
 Finally, you can export your annotations.
 
-The import and export formats are the same, meaning that exported labels, documents or annotations can readily be imported back into the same or another {lb} database.
+The import and export formats are the same, meaning that exported labels, documents or annotations can readily be imported back into any {lb} database.
 
 Importing and exporting data can be done from the graphical or the <<command-line-interface,command line>> interface.
-Documents, labels and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).
+Labels, documents and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).
 
 
 === Importing documents (and annotations)
@@ -220,9 +221,9 @@ You can filter which documents are shown by the labels they have been annotated 
 You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
 You then go to the {annotab}.
-(If you double-click a document or press kbd:[Enter] after selecting it it will be opened in the {annotab}.)
+(To jump to annotating a specific document in the list you can double-click it or select it and either press kbd:[Enter] or click btn:[Annotate selected doc].)
 
-To annotate a document, select the region you want to label with the mouse and click on the appropriate label.
+Once in the {annotab}, use the mouse to select the region you want to annotate and click on the appropriate label.
 It is also possible to do the same thing with the keyboard.
 Press kbd:[/] or kbd:[Ctrl+F] to search for the term you want to annotate and the first match will be selected.
 The selection can be adusted with the keyboard using the bindings described <<keybindings-summary,below>>.
@@ -415,7 +416,7 @@ labelbuddy mydatabase.labelbuddy --export-labels mylabels.json
 
 === Managing projects
 
-Each {lb} database (containing documents, labels and annotations) is an {sqlitehome}[SQLite] database.
+Each {lb} database (containing labels, documents and annotations) is an {sqlitehome}[SQLite] database.
 That is a single regular file on your disk that you can copy, backup, or share, like any other file.
 Therefore managing {lb} data is as simple as if you were storing annotations in a {libreoffice-calc} or {excel} spreadsheet, for example.
 
@@ -434,12 +435,12 @@ The path to the current database is displayed in the {ietab}.
 
 If you just want to give {lb} a try and do not have documents or labels yet, you can also select menu:File[Demo] to open a temporary database pre-loaded with a few examples.
 
-As it is easy to create, copy and delete databases (an empty {lb} database is just 60K), and to copy documents, labels and annotations from one to another, you have some freedom in the organization of annotation work.
+As it is easy to create, copy and delete databases (an empty {lb} database is just 60K), and to copy labels, documents and annotations from one to another, you have some freedom in the organization of annotation work.
 For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each {lb} file.
 
 === Command-line interface
 
-{lb} can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
+{lb} can also be used from the command line to create databases, import and export labels, documents and annotations without opening the GUI.
 See the `labelbuddy(1)` {manpage-link}[*man* page], or `labelbuddy -h` for a short list of options reproduced here:
 
 [source]
@@ -488,7 +489,7 @@ labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl
 
 Regarding `vacuum`: when data is deleted from an {sqlite} database, the file does not shrink.
 The freed up space is not lost; it is kept and reused when new data is added to the database.
-To shrink the database to occupy a minimal amount of disk space, we can use:
+To shrink the database to occupy a minimal amount of disk space after deleting some documents, we can use:
 [source,sh]
 ----
 labelbuddy --vacuum /path/to/db.labelbuddy
@@ -520,10 +521,10 @@ The examples shown in this section can be found as separate files on the {exampl
 Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <<file-formats-for-documents-and-annotations,the next section>>.
 However note that it is possible to export document metadata and annotations without the documents' text to save storage space.
 
-At the moment, {lb} expects all the files it imports to be encoded with {wikipedia-utf8}[UTF-8] (or UTF-16, or UTF-32).
-Note that https://en.wikipedia.org/wiki/ASCII[ASCII] files are also valid UTF-8.
+{lb} expects all the files it imports to be encoded with {wikipedia-utf8}[{utf8}].
+Note that https://en.wikipedia.org/wiki/ASCII[ASCII] files are also valid {utf8}.
 
-All files produced by {lb} are UTF-8 encoded.
+All files produced by {lb} are {utf8} encoded.
 
 The import and export formats of {lb} are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any {lb} database.
 
@@ -535,7 +536,7 @@ Other formats will need to be converted to text, for example using https://www.x
 Documents and annotations are kept together in imported or exported files.
 When importing new documents (and possibly their annotations), each document will have a `text` attribute containing its content.
 For documents that are already in the database, it is possible to import new annotations from a file where the `text` is omitted, if the documents have the `utf8_text_md5_checksum` attribute instead.
-The associated value must be the hexadecimal representation of the {wikipedia-md5}[MD5] checksum of the (UTF-8 encoded) text of the document.
+The associated value must be the hexadecimal representation of the {wikipedia-md5}[MD5] checksum of the ({utf8} encoded) text of the document.
 Typically, you will not add this attribute yourself.
 It is added by {lb} when exporting documents and annotations.
 It allows you to export annotations without the document's text, and then import them into a database that already contains the document.
@@ -557,21 +558,48 @@ It is stored and bundled with the document when you export it.
 `list_title`:: Shown in the document list in the {dstab}.
 `annotations`:: A list of annotations.
 
-A document can have a `annotations` attribute, which is a list of annotations.
 Each annotation has the following attributes (the last one, `extra_data`, is optional):
 
 [horizontal]
-`start_char`:: the position of the first character (Unicode code point), starting from 0 at the begining of the text.
-`end_char`::  the position of one past the last character.
 `label_name`:: the label name.
+`start_char`:: the position of the first character (Unicode code point), starting from 0 at the beginning of the text.
+`end_char`::  the position of one past the last character.
+`start_byte`:: the position of the first byte, starting from 0 at the beginning of the {utf8} encoded text.
+`end_byte`::  the position of one past the last {utf8} byte.
 `extra_data`:: additional text associated with the annotation.
 
-For example if the text starts with "`hello &#x1F600;`" and you highlighted exactly that phrase, and annotated it with the label *"Greeting"*, the associated annotation will be `{"start_char": 0, "end_char": 7, "label_name": "Greeting"}`.
-If you also typed "`some more info`" in the {extra-edit} box, the annotation will be `` {"start_char": 0, "end_char": 7, "label_name": "Greeting", "extra_data": "some more info"}`.
-Here, a "`character`" means a {unicode-home}[Unicode] code point.
-Note this does not correspond to byte offsets in the encoded text, nor necessarily to graphemes in the displayed text -- a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.
+.Annotation positions: characters, code points and bytes
+[#unicode-overview]
+****
+To represent text on a computer, all characters such as "a" (LATIN SMALL LETTER A), "α" (GREEK SMALL LETTER ALPHA) and "🤩" (GRINNING FACE WITH STAR EYES) are associated with an integer number, known as a {unicode-home}[Unicode] code point.
+Text can be thought of in an abstract way as a sequence of Unicode code points (often called Unicode characters).
 
+In practice, data in a file or in a computer's memory is stored as a sequence of bytes (groups of 8 bits, which can each represent one of 2⁸ = 256 different values).
+In order to store text in a file, the code points need to be represented as a sequence of bytes.
+As there are far more than 256 characters (close to 150,000), each code point cannot be stored directly in one byte.
+A transformation that maps each code point to a string of bytes is called a _character encoding_.
+Several encodings exist, but the most widely used (and required for JSON files as specified in  https://datatracker.ietf.org/doc/html/rfc8259#section-8.1[the JSON standard, rfc8259]) is {wikipedia-utf8}[{utf8}], which encodes each Unicode character as a sequence of 1 to 4 bytes depending on the character.
+For example, "a" (LATIN SMALL LETTER A) corresponds to the Unicode code point 97, and is encoded in {utf8} as a single byte, `0x61`.
+"α" (GREEK SMALL LETTER ALPHA) corresponds to the Unicode code point 945, and is encoded in {utf8} as the sequence of 2 bytes `0xCE 0xB1`.
 
+In order to specify the portion of text covered by an annotation, {lb} provides the positions in the text where the annotation starts and ends, in 2 equivalent ways:
+
+- As indices into the sequence of Unicode code points, `start_char` and `end_char`.
+- As indices into the sequence of bytes that results from encoding the text with {utf8}, `start_byte` and `end_byte`.
+
+For example if the text starts with "`hello &#x1F600;`" and you highlighted exactly that phrase, the associated annotation positions will be:
+
+- `start_char`: 0
+- `end_char`: 7 (because there are 7 code points, "h", "e", "l", "l", "o", " ", and "&#x1F600;")
+- `start_byte`: 0
+- `end_byte`: 10 (because there are 10 bytes in the annotated text once it is encoded as {utf8}:  "&#x1F600;" is represented by the 4-byte sequence `0xF0 0x9F 0x98 0x80` and the other characters are each represented with 1 byte)
+
+When importing annotations, at the moment {lb} relies on the Unicode indices `start_char` and `end_char` -- if you create annotations outside of {lb} that you want to import, you can omit `start_byte` and `end_byte` but must provide `start_char` and `end_char`.
+
+Finally, note that Unicode characters do not necessarily correspond to graphemes in the displayed text -- a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.
+****
+
+Documents and annotations can be imported and exported to several formats.
 Below, two examples are shown for each format (except `.txt` which has only one).
 The first illustrates a file that you may create from your data to import it into {lb}.
 The second one is a file exported from {lb}.
@@ -642,7 +670,7 @@ Note that `display_title`, `list_title`, `metadata` are optional -- and indeed t
 
 Below are the same documents, exported by {lb} after being annotated.
 Each document is always on a separate line.
-This makes it easy to read the file incrementally.
+This makes it easy to parse the file incrementally.
 Moreover, as the documents are always in the same order (the order in which they were imported), this gives line-oriented tools such as *diff* or *git* a better chance of producing useful output.
 [source,json]
 .Another example of 2 documents in a `.json` file, with annotations (exported by {lb})

@@ -17,6 +17,8 @@ src/database_impl.h \
 src/import_export_menu.h \
 src/utils.h \
 src/compat.h \
+src/char_indices.h \
+src/char_indices.tpp \
 
 
 SOURCES += \
@@ -35,6 +37,7 @@ src/database.cpp \
 src/import_export_menu.cpp \
 src/utils.cpp \
 src/compat.cpp \
+src/char_indices.cpp \
 
 QT += widgets sql
 RESOURCES = resources.qrc
@@ -68,6 +71,7 @@ test/test_main_window.h \
 test/test_utils.h \
 test/test_label_list.h \
 test/test_import_export_menu.h \
+test/test_char_indices.h \
 
 SOURCES += \
 test/main.cpp \
@@ -84,6 +88,7 @@ test/test_main_window.cpp \
 test/test_utils.cpp \
 test/test_label_list.cpp \
 test/test_import_export_menu.cpp \
+test/test_char_indices.cpp \
 
 SOURCES -= src/main.cpp
 }

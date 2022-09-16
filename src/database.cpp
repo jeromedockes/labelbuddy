@@ -15,6 +15,7 @@
 #include <QStandardPaths>
 #include <QString>
 
+#include "char_indices.h"
 #include "database.h"
 #include "database_impl.h"
 #include "utils.h"
@@ -103,7 +104,9 @@ std::unique_ptr<DocRecord> jsonToDocRecord(const QJsonObject& json) {
         annotationObject["label_name"].toString(),
         annotationObject.contains("extra_data")
             ? annotationObject["extra_data"].toString()
-            : ""};
+            : "",
+        Annotation::nullIndex,
+        Annotation::nullIndex};
   }
   record->metadata =
       QJsonDocument(json["metadata"].toObject()).toJson(QJsonDocument::Compact);
@@ -234,6 +237,8 @@ void JsonLinesDocsWriter::addDocument(const QString& md5,
       QJsonObject annotationJson{};
       annotationJson.insert("start_char", annotation.startChar);
       annotationJson.insert("end_char", annotation.endChar);
+      annotationJson.insert("start_byte", annotation.startByte);
+      annotationJson.insert("end_byte", annotation.endByte);
       assert(annotation.labelName != "");
       annotationJson.insert("label_name", annotation.labelName);
       if (annotation.extraData != "") {
@@ -532,17 +537,34 @@ int DatabaseCatalog::insertDocRecord(const DocRecord& record,
   return insertDocAnnotations(docId, record.annotations, query);
 }
 
+int DatabaseCatalog::getDocLength(int docId, QSqlQuery& query) {
+  // Using sqlite length(content) doesn't work when document contains null
+  // bytes.
+  query.prepare("select content from document where id = :docid;");
+  query.bindValue(":docid", docId);
+  query.exec();
+  query.next();
+  return CharIndices(query.value(0).toString()).unicodeLength();
+}
+
 int DatabaseCatalog::insertDocAnnotations(int docId,
                                           const QList<Annotation>& annotations,
                                           QSqlQuery& query) {
+  if (annotations.isEmpty()) {
+    return 0;
+  }
+  auto docLength = getDocLength(docId, query);
   int nAnnotations{};
   for (const auto& annotation : annotations) {
+    if (docLength < annotation.endChar) {
+      continue; // bad annotation
+    }
     insertLabel(query, annotation.labelName);
     query.prepare("select id from label where name = :lname;");
     query.bindValue(":lname", annotation.labelName);
     query.exec();
     if (!query.next()) {
-      // bad annotation (eg empty label)
+      // bad annotation (eg empty label, end <= start or start < 0)
       continue;
     }
     auto labelId = query.value(0).toInt();
@@ -799,49 +821,61 @@ DatabaseCatalog::exportDocuments(const QString& filePath, bool labelledDocsOnly,
 
 int DatabaseCatalog::writeDoc(DocsWriter& writer, int docId, bool includeText,
                               bool includeAnnotations) const {
-  QSqlQuery docQuery(QSqlDatabase::database(currentDatabase_));
+  assert(includeText == writer.isIncludingText());
+  assert(includeAnnotations == writer.isIncludingAnnotations());
 
-  if (includeText) {
-    docQuery.prepare(
-        "select lower(hex(content_md5)) as md5, content, "
-        "metadata, "
-        "display_title, list_title from document where id = :doc;");
-  } else {
-    docQuery.prepare(
-        "select lower(hex(content_md5)) as md5, null as content, metadata, "
-        "null as display_title, null as list_title "
-        "from document where id = :doc;");
-  }
+  QSqlQuery docQuery(QSqlDatabase::database(currentDatabase_));
+  docQuery.prepare("select lower(hex(content_md5)) as md5, content, "
+                   "metadata, display_title, list_title "
+                   "from document where id = :doc;");
   docQuery.bindValue(":doc", docId);
   docQuery.exec();
   docQuery.next();
   auto metadata =
       QJsonDocument::fromJson(docQuery.value("metadata").toByteArray())
           .object();
-  int nAnnotations{};
+  auto content = docQuery.value("content").toString();
   QList<Annotation> annotations{};
   if (includeAnnotations) {
-    QSqlQuery annotationsQuery(QSqlDatabase::database(currentDatabase_));
-    annotationsQuery.prepare(
-        "select label.name as label_name, start_char, end_char, extra_data "
-        "from annotation inner join label on annotation.label_id = label.id "
-        "where annotation.doc_id = :doc order by annotation.rowid;");
-    annotationsQuery.bindValue(":doc", docId);
-    annotationsQuery.exec();
-    while (annotationsQuery.next()) {
-      annotations << Annotation{
-          annotationsQuery.value("start_char").toInt(),
-          annotationsQuery.value("end_char").toInt(),
-          annotationsQuery.value("label_name").toString(),
-          annotationsQuery.value("extra_data").toString()};
-      ++nAnnotations;
-    }
+    annotations = getDocAnnotations(docId, content);
   }
-  writer.addDocument(docQuery.value("md5").toString(),
-                     docQuery.value("content").toString(), metadata,
+  writer.addDocument(docQuery.value("md5").toString(), content, metadata,
                      annotations, docQuery.value("display_title").toString(),
                      docQuery.value("list_title").toString());
-  return nAnnotations;
+  return annotations.size();
+}
+
+QList<Annotation>
+DatabaseCatalog::getDocAnnotations(int docId, const QString& content) const {
+  QSqlQuery annotationsQuery(QSqlDatabase::database(currentDatabase_));
+  annotationsQuery.prepare(
+      "select label.name as label_name, start_char, end_char, extra_data "
+      "from annotation inner join label on annotation.label_id = label.id "
+      "where annotation.doc_id = :doc order by annotation.rowid;");
+  annotationsQuery.bindValue(":doc", docId);
+  annotationsQuery.exec();
+
+  QList<Annotation> annotations{};
+  QList<int> unicodeIndices{};
+  while (annotationsQuery.next()) {
+    annotations << Annotation{annotationsQuery.value("start_char").toInt(),
+                              annotationsQuery.value("end_char").toInt(),
+                              annotationsQuery.value("label_name").toString(),
+                              annotationsQuery.value("extra_data").toString(),
+                              Annotation::nullIndex,
+                              Annotation::nullIndex};
+    unicodeIndices << annotationsQuery.value("start_char").toInt()
+                   << annotationsQuery.value("end_char").toInt();
+  }
+  if (annotations.size()) {
+    auto unicodeToUtf8 = CharIndices(content).unicodeToUtf8(
+        unicodeIndices.cbegin(), unicodeIndices.cend());
+    for (auto& anno : annotations) {
+      anno.startByte = unicodeToUtf8[anno.startChar];
+      anno.endByte = unicodeToUtf8[anno.endChar];
+    }
+  }
+  return annotations;
 }
 
 ExportLabelsResult
@@ -1055,7 +1089,13 @@ bool DatabaseCatalog::createTables(QSqlQuery& query) {
           "REFERENCES label(id) ON DELETE CASCADE, start_char INTEGER NOT "
           "NULL, end_char INTEGER NOT NULL, extra_data TEXT DEFAULT NULL, "
           "UNIQUE (doc_id, start_char, end_char, label_id) "
+          "CHECK (0 <= start_char) "
           "CHECK (start_char < end_char)); ");
+  // end_char <= length(document.content) is not checked here because it would
+  // require reading the doc content into memory for every annotation insertion.
+  // Instead it is checked when importing annotations, and it is the case when
+  // annotations are created within labelbuddy because they come from a Qt
+  // cursor position.
 
   success = success &&
             query.exec(" CREATE INDEX IF NOT EXISTS annotation_doc_id_idx ON "

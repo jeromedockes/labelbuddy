@@ -45,6 +45,7 @@ add_executable(labelbuddy
   src/import_export_menu.cpp
   src/utils.cpp
   src/compat.cpp
+  src/char_indices.cpp
   resources.qrc
   )
 
@@ -84,6 +85,9 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 
 set(CPACK_SOURCE_GENERATOR "TGZ")
 set(CPACK_SOURCE_IGNORE_FILES
+  TODOs.org
+  org-attachments/
+  compile_commands.json
   [.]git/
   [.]gitignore
   [.]gitattributes
@@ -101,6 +105,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   test_cli/data/newsgroups/
   test_cli/__pycache__/
   test_cli/[.]mypy_cache/
+  [.]mypy_cache/
   [.]pytest_cache/
   test_cli/.*[.]pyc
   doxygen_output/

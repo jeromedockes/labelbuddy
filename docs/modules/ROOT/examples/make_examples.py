@@ -8,7 +8,7 @@ import subprocess
 
 all_docs = [
     {
-        "text": "the text of document 1\nsome text\nthe end\n",
+        "text": "😀 the text of document 1\nsome text\nthe end\n",
     },
     {
         "text": "the text of document 2\nmore text\nthe end\n",
@@ -24,10 +24,10 @@ all_annotations.append(
             all_docs[0]["text"].encode("utf-8")
         ).hexdigest(),
         "annotations": [
-            {"start_char": 4, "end_char": 8, "label_name": "Word"},
+            {"start_char": 6, "end_char": 10, "label_name": "Word"},
             {
-                "start_char": 21,
-                "end_char": 22,
+                "start_char": 23,
+                "end_char": 24,
                 "label_name": "Number",
                 "extra_data": "1",
             },
@@ -49,17 +49,19 @@ all_annotations.append(
 data_dir = Path(__file__).resolve().parent
 
 data_dir.joinpath("annotations.json").write_text(
-    json.dumps(all_annotations), encoding="utf-8"
+    json.dumps(all_annotations, ensure_ascii=False), encoding="utf-8"
 )
 data_dir.joinpath("docs.json").write_text(
-    json.dumps(all_docs, indent=2) + "\n", encoding="utf-8"
+    json.dumps(all_docs, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
 )
 data_dir.joinpath("docs.jsonl").write_text(
-    "\n".join(json.dumps(doc) for doc in all_docs) + "\n", encoding="utf-8"
+    "\n".join(json.dumps(doc, ensure_ascii=False) for doc in all_docs) + "\n",
+    encoding="utf-8",
 )
 
 data_dir.joinpath("docs.txt").write_text(
-    "\n".join(doc["text"].replace("\n", r" ") for doc in all_docs) + "\n"
+    "\n".join(doc["text"].rstrip("\n").replace("\n", r" ") for doc in all_docs)
+    + "\n"
 )
 
 all_labels = [
@@ -67,10 +69,12 @@ all_labels = [
     {"name": "Number", "shortcut_key": "n", "color": "orange"},
 ]
 data_dir.joinpath("labels.json").write_text(
-    json.dumps(all_labels, indent=2) + "\n", encoding="utf-8"
+    json.dumps(all_labels, ensure_ascii=False, indent=2) + "\n",
+    encoding="utf-8",
 )
 data_dir.joinpath("labels.jsonl").write_text(
-    "\n".join(json.dumps(label) for label in all_labels) + "\n",
+    "\n".join(json.dumps(label, ensure_ascii=False) for label in all_labels)
+    + "\n",
     encoding="utf-8",
 )
 data_dir.joinpath("labels.txt").write_text(
@@ -80,7 +84,7 @@ data_dir.joinpath("labels.txt").write_text(
 
 lb_command = os.environ.get(
     "LABELBUDDY_COMMAND",
-    str(data_dir.parents[3].joinpath("cmake_release_build", "labelbuddy")),
+    str(data_dir.parents[4].joinpath("build", "cmake_release", "labelbuddy")),
 )
 for doc_format in ["json", "jsonl"]:
     subprocess.run(

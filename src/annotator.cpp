@@ -229,9 +229,9 @@ StatusBarInfo Annotator::currentStatusInfo() const {
         QString("%0%1 %2, %3")
             .arg(isFirstInGroup ? "^" : "")
             .arg(isFirst ? "^" : "")
-            .arg(annotationsModel_->utf16IdxToCodePointIdx(
+            .arg(annotationsModel_->qStringIdxToUnicodeIdx(
                 annotations_[activeAnnotation_].startChar))
-            .arg(annotationsModel_->utf16IdxToCodePointIdx(
+            .arg(annotationsModel_->qStringIdxToUnicodeIdx(
                 annotations_[activeAnnotation_].endChar));
     statusInfo.annotationLabel =
         labels_[annotations_[activeAnnotation_].labelId].name;

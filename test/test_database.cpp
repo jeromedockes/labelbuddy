@@ -501,12 +501,16 @@ void TestDatabase::checkExportedDocsJson(const QString& filePath,
             outputJson.value("annotations").toArray()[0].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 3);
         QCOMPARE(annotation["end_char"].toInt(), 4);
+        QCOMPARE(annotation["start_byte"].toInt(), 3);
+        QCOMPARE(annotation["end_byte"].toInt(), 4);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
 
         annotation = outputJson.value("annotations").toArray()[1].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 5);
         QCOMPARE(annotation["end_char"].toInt(), 7);
+        QCOMPARE(annotation["start_byte"].toInt(), 5);
+        QCOMPARE(annotation["end_byte"].toInt(), 7);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Resumption of the session"));
         QCOMPARE(annotation["extra_data"].toString(),
@@ -516,6 +520,8 @@ void TestDatabase::checkExportedDocsJson(const QString& filePath,
             outputJson.value("annotations").toArray()[0].toObject();
         QCOMPARE(annotation["start_char"].toInt(), 3);
         QCOMPARE(annotation["end_char"].toInt(), 4);
+        QCOMPARE(annotation["start_byte"].toInt(), 3);
+        QCOMPARE(annotation["end_byte"].toInt(), 4);
         QCOMPARE(annotation["label_name"].toString(),
                  QString("label: Reinício da sessão"));
       }
@@ -628,7 +634,7 @@ void TestDatabase::testBatchImportExport() {
 void TestDatabase::testImportErrors_data() {
   QTest::addColumn<QString>("inputFile");
   QDir dir(":test/data/invalid_files/");
-  auto inputFiles = dir.entryList({"*"});
+  auto inputFiles = dir.entryList({"docs_*"});
   for (const auto& fileName : inputFiles) {
     QTest::newRow(fileName.toUtf8()) << dir.filePath(fileName);
   }
@@ -650,6 +656,19 @@ void TestDatabase::testImportErrors() {
   query.exec("select count(*) from label;");
   query.next();
   QCOMPARE(query.value(0).toInt(), 0);
+}
+
+void TestDatabase::testBadAnnotations() {
+  DatabaseCatalog catalog{};
+  QDir dir(":test/data/invalid_files/");
+  auto annotationsFile = dir.filePath("annotations_0.jsonl");
+  catalog.importDocuments(annotationsFile);
+
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
+  query.exec("select count(*) from annotation;");
+  query.next();
+  // only first annotation is ok
+  QCOMPARE(query.value(0).toInt(), 1);
 }
 
 } // namespace labelbuddy

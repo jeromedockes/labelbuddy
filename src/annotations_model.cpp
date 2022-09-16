@@ -60,48 +60,12 @@ QString AnnotationsModel::getContent() const {
   return QString("");
 }
 
-void AnnotationsModel::fillIndexConverters(const QString& text) {
-  surrogateIndicesInQString_.clear();
-  surrogateIndicesInUnicodeString_.clear();
-  int qPos{};
-  int uPos{};
-  for (auto qchar : text) {
-    if (!qchar.isSurrogate()) {
-      ++qPos;
-      ++uPos;
-    } else if (qchar.isHighSurrogate()) {
-      surrogateIndicesInQString_ << qPos;
-      ++qPos;
-      surrogateIndicesInUnicodeString_ << uPos;
-      ++uPos;
-    } else {
-      assert(qchar.isLowSurrogate());
-      ++qPos;
-    }
-  }
+int AnnotationsModel::qStringIdxToUnicodeIdx(int qStringIndex) const {
+  return charIndices_.qStringToUnicode(qStringIndex);
 }
 
-int AnnotationsModel::codePointIdxToUtf16Idx(int cpIdx) const {
-  assert(cpIdx >= 0);
-  int utfIdx = cpIdx;
-  auto it = surrogateIndicesInUnicodeString_.cbegin();
-  while (it != surrogateIndicesInUnicodeString_.cend() && *it < cpIdx) {
-    ++utfIdx;
-    ++it;
-  }
-  return utfIdx;
-}
-
-int AnnotationsModel::utf16IdxToCodePointIdx(int utf16Idx) const {
-  assert(utf16Idx >= 0);
-  int cpIdx = utf16Idx;
-  auto it = surrogateIndicesInQString_.cbegin();
-  while (it != surrogateIndicesInQString_.cend() && *it < utf16Idx) {
-    --cpIdx;
-    ++it;
-  }
-  assert(utf16Idx >= 0);
-  return cpIdx;
+int AnnotationsModel::unicodeIdxToQStringIdx(int unicodeIndex) const {
+  return charIndices_.unicodeToQString(unicodeIndex);
 }
 
 QMap<int, LabelInfo> AnnotationsModel::getLabelsInfo() const {
@@ -127,8 +91,8 @@ QMap<int, AnnotationInfo> AnnotationsModel::getAnnotationsInfo() const {
   while (query.next()) {
     result[query.value(0).toInt()] =
         AnnotationInfo{query.value(0).toInt(), query.value(1).toInt(),
-                       codePointIdxToUtf16Idx(query.value(2).toInt()),
-                       codePointIdxToUtf16Idx(query.value(3).toInt()),
+                       unicodeIdxToQStringIdx(query.value(2).toInt()),
+                       unicodeIdxToQStringIdx(query.value(3).toInt()),
                        query.value(4).toString()};
   }
   return result;
@@ -140,8 +104,8 @@ int AnnotationsModel::addAnnotation(int labelId, int startChar, int endChar) {
                 "end_char) values (:doc, :label, :start, :end);");
   query.bindValue(":doc", currentDocId_);
   query.bindValue(":label", labelId);
-  query.bindValue(":start", utf16IdxToCodePointIdx(startChar));
-  query.bindValue(":end", utf16IdxToCodePointIdx(endChar));
+  query.bindValue(":start", qStringIdxToUnicodeIdx(startChar));
+  query.bindValue(":end", qStringIdxToUnicodeIdx(endChar));
   if (!query.exec()) {
     // fails eg if annotation is a duplicate of one already in db
     return -1;
@@ -272,13 +236,13 @@ bool AnnotationsModel::visitQueryResult(const QString& queryText) {
 void AnnotationsModel::visitDoc(int docId) {
   currentDocId_ = docId;
   if (docId == -1) {
-    fillIndexConverters("");
+    charIndices_.setText("");
   } else {
     auto query = getQuery();
     query.prepare("update app_state set last_visited_doc = :doc;");
     query.bindValue(":doc", docId);
     query.exec();
-    fillIndexConverters(getContent());
+    charIndices_.setText(getContent());
   }
   emit documentChanged();
 }

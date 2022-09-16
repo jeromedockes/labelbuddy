@@ -1,4 +1,5 @@
 import math
+import random
 from pathlib import Path
 import hashlib
 import os
@@ -322,9 +323,7 @@ def test_conversion_and_import_back(formats, subset, labelbuddy, tmp_path, ng):
     labelbuddy(db, "--import-docs", source_docs, "--export-docs", target_docs)
     new_db = tmp_path / "new_db.labelbuddy"
     labelbuddy(new_db, "--import-docs", target_docs)
-    ref_format = next(
-        filter(formats.__contains__, ["txt", "jsonl", "json"])
-    )
+    ref_format = next(filter(formats.__contains__, ["txt", "jsonl", "json"]))
     with open(ng[f"{ref_format}_data_docs_{subset}.pkl"], "rb") as f:
         ref_docs = pickle.load(f)
     equiv = ["json", "jsonl"]
@@ -499,3 +498,83 @@ def test_import_duplicate_shortcut_key(labelbuddy, tmp_path):
     assert exported[0]["shortcut_key"] == "a"
     assert exported[1]["name"] == "lab2"
     assert "shortcut_key" not in exported[1]
+
+
+def test_byte_positions_example(labelbuddy, tmp_path):
+    in_f = tmp_path.joinpath("docs.json")
+    in_f.write_text(
+        json.dumps(
+            [
+                {
+                    "text": "aéo𝄞x",
+                    "annotations": [
+                        {"label_name": "l", "start_char": 1, "end_char": 4}
+                    ],
+                }
+            ]
+        )
+    )
+    out_f = tmp_path.joinpath("exported_docs.json")
+    labelbuddy(":memory:", "--import-docs", in_f, "--export-docs", out_f)
+    docs = json.loads(out_f.read_text("utf-8"))
+    anno = docs[0]["annotations"][0]
+    assert anno["start_byte"] == 1
+    assert anno["end_byte"] == 8
+    assert (
+        docs[0]["text"]
+        .encode("UTF-8")[anno["start_byte"] : anno["end_byte"]]
+        .decode("UTF-8")
+        == docs[0]["text"][anno["start_char"] : anno["end_char"]]
+    )
+
+
+def _random_unicode(seed=0, text_len=10000):
+    blocks = [
+        (0x00, 0xFF),
+        (0x0600, 0x06FF),
+        (0x1F600, 0x1F64F),
+    ]
+    chars = []
+    for start, stop in blocks:
+        chars.extend(map(chr, range(start, stop)))
+
+    text = "".join(random.Random(seed).choices(chars, k=text_len))
+    return text
+
+
+def _random_annotations(text, seed=0, n=1000):
+    positions = random.Random(seed).choices(range(len(text) + 1), k=2 * n)
+    annotations = []
+    for start, stop in zip(positions[:n], positions[n:]):
+        if stop < start:
+            start, stop = stop, start
+        if start == 0 and stop == 0:
+            stop = 1
+        if start == stop:
+            start -= 1
+        annotations.append(
+            {"label_name": "l", "start_char": start, "end_char": stop}
+        )
+    return annotations
+
+
+def test_byte_positions(labelbuddy, tmp_path):
+    text = _random_unicode()
+    annotations = _random_annotations(text)
+    in_f = tmp_path.joinpath("docs.json")
+    in_f.write_text(json.dumps([{"text": text, "annotations": annotations}]))
+    out_f = tmp_path.joinpath("exported_docs.json")
+    labelbuddy(":memory:", "--import-docs", in_f, "--export-docs", out_f)
+    docs = json.loads(out_f.read_text("utf-8"))
+    encoded_text = text.encode("utf-8")
+    n_differ = 0
+    for anno in docs[0]["annotations"]:
+        assert (
+            encoded_text[anno["start_byte"] : anno["end_byte"]].decode("utf-8")
+            == text[anno["start_char"] : anno["end_char"]]
+        )
+        if anno["start_byte"] != anno["start_char"]:
+            n_differ += 1
+        if anno["end_byte"] != anno["end_char"]:
+            n_differ += 1
+    assert n_differ > 500

@@ -188,6 +188,8 @@ private:
 
   int insertDocRecord(const DocRecord& record, QSqlQuery& query);
 
+  int getDocLength(int docId, QSqlQuery& query);
+
   int insertDocAnnotations(int docId, const QList<Annotation>& annotations,
                            QSqlQuery& query);
 
@@ -197,6 +199,8 @@ private:
 
   int writeDoc(DocsWriter& writer, int docId, bool includeText,
                bool includeAnnotations) const;
+
+  QList<Annotation> getDocAnnotations(int docId, const QString& content) const;
 
   int colorIndex_{};
   bool tmpDbDataLoaded_{};

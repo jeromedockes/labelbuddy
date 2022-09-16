@@ -8,10 +8,14 @@
 namespace labelbuddy {
 
 struct Annotation {
+  static constexpr int nullIndex = -1;
+
   int startChar;
   int endChar;
   QString labelName;
   QString extraData;
+  int startByte;
+  int endByte;
 };
 
 struct DocRecord {
