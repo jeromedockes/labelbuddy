@@ -14,6 +14,8 @@
 #include <QTextStream>
 #include <QVariant>
 
+#include "char_indices.h"
+
 /// \file
 /// Utilities for manipulating databases.
 
@@ -188,7 +190,7 @@ private:
 
   int insertDocRecord(const DocRecord& record, QSqlQuery& query);
 
-  int getDocLength(int docId, QSqlQuery& query);
+  CharIndices getCharIndices(int docId, QSqlQuery& query) const;
 
   int insertDocAnnotations(int docId, const QList<Annotation>& annotations,
                            QSqlQuery& query);

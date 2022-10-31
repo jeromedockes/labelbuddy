@@ -210,6 +210,9 @@ acceptedAndDefaultFormats(DatabaseCatalog::Action action,
 /// Last used database if it is found in QSettings and exists else ""
 QString getDefaultDatabasePath();
 
+QMap<int, int> getUtf8ToUnicode(const CharIndices& charIndices,
+                                const QList<Annotation>& annotations);
+
 /// return a reader appropriate for the filename extension
 std::unique_ptr<DocsReader> getDocsReader(const QString& filePath);
 
@@ -220,6 +223,7 @@ std::unique_ptr<DocsWriter> getDocsWriter(const QString& filePath,
 
 ExportLabelsResult writeLabelsToJson(const QJsonArray& labels,
                                      const QString& filePath);
+
 ExportLabelsResult writeLabelsToJsonLines(const QJsonArray& labels,
                                           const QString& filePath);
 } // namespace labelbuddy

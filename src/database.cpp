@@ -15,7 +15,6 @@
 #include <QStandardPaths>
 #include <QString>
 
-#include "char_indices.h"
 #include "database.h"
 #include "database_impl.h"
 #include "utils.h"
@@ -26,6 +25,8 @@ namespace labelbuddy {
 // switch to utf-16 or utf-32 if there is a BOM). when reading or writing json
 // (or jsonl) we use utf-8 (json is always utf-8 when exchanged between systems,
 // https://tools.ietf.org/html/rfc8259#page-9)
+
+constexpr int Annotation::nullIndex;
 
 DocsReader::DocsReader(const QString& filePath) : file_(filePath) {
   if (file_.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -99,14 +100,13 @@ std::unique_ptr<DocRecord> jsonToDocRecord(const QJsonObject& json) {
   for (const auto& annotation : json["annotations"].toArray()) {
     auto annotationObject = annotation.toObject();
     record->annotations << Annotation{
-        annotationObject["start_char"].toInt(),
-        annotationObject["end_char"].toInt(),
+        annotationObject["start_char"].toInt(Annotation::nullIndex),
+        annotationObject["end_char"].toInt(Annotation::nullIndex),
         annotationObject["label_name"].toString(),
-        annotationObject.contains("extra_data")
-            ? annotationObject["extra_data"].toString()
-            : "",
-        Annotation::nullIndex,
-        Annotation::nullIndex};
+        annotationObject["extra_data"].toString(""),
+        annotationObject["start_byte"].toInt(Annotation::nullIndex),
+        annotationObject["end_byte"].toInt(Annotation::nullIndex),
+    };
   }
   record->metadata =
       QJsonDocument(json["metadata"].toObject()).toJson(QJsonDocument::Compact);
@@ -537,14 +537,26 @@ int DatabaseCatalog::insertDocRecord(const DocRecord& record,
   return insertDocAnnotations(docId, record.annotations, query);
 }
 
-int DatabaseCatalog::getDocLength(int docId, QSqlQuery& query) {
-  // Using sqlite length(content) doesn't work when document contains null
-  // bytes.
+CharIndices DatabaseCatalog::getCharIndices(int docId, QSqlQuery& query) const {
   query.prepare("select content from document where id = :docid;");
   query.bindValue(":docid", docId);
   query.exec();
   query.next();
-  return CharIndices(query.value(0).toString()).unicodeLength();
+  return CharIndices(query.value(0).toString());
+}
+
+QMap<int, int> getUtf8ToUnicode(const CharIndices& charIndices,
+                                const QList<Annotation>& annotations) {
+  QList<int> byte_indices{};
+  for (const auto& anno : annotations) {
+    if (anno.startByte != Annotation::nullIndex) {
+      byte_indices << anno.startByte;
+    }
+    if (anno.endByte != Annotation::nullIndex) {
+      byte_indices << anno.endByte;
+    }
+  }
+  return charIndices.utf8ToUnicode(byte_indices.cbegin(), byte_indices.cend());
 }
 
 int DatabaseCatalog::insertDocAnnotations(int docId,
@@ -553,10 +565,24 @@ int DatabaseCatalog::insertDocAnnotations(int docId,
   if (annotations.isEmpty()) {
     return 0;
   }
-  auto docLength = getDocLength(docId, query);
+  auto charIndices = getCharIndices(docId, query);
+  auto utf8ToUnicode = getUtf8ToUnicode(charIndices, annotations);
   int nAnnotations{};
   for (const auto& annotation : annotations) {
-    if (docLength < annotation.endChar) {
+
+    auto startChar = annotation.startChar;
+    if (startChar == Annotation::nullIndex) {
+      startChar =
+          utf8ToUnicode.value(annotation.startByte, Annotation::nullIndex);
+    }
+
+    auto endChar = annotation.endChar;
+    if (endChar == Annotation::nullIndex) {
+      endChar = utf8ToUnicode.value(annotation.endByte, Annotation::nullIndex);
+    }
+
+    if (!(charIndices.isValidUnicodeIndex(startChar) &&
+          charIndices.isValidUnicodeIndex(endChar))) {
       continue; // bad annotation
     }
     insertLabel(query, annotation.labelName);
@@ -564,8 +590,7 @@ int DatabaseCatalog::insertDocAnnotations(int docId,
     query.bindValue(":lname", annotation.labelName);
     query.exec();
     if (!query.next()) {
-      // bad annotation (eg empty label, end <= start or start < 0)
-      continue;
+      continue; // bad label
     }
     auto labelId = query.value(0).toInt();
     query.prepare(
@@ -573,8 +598,8 @@ int DatabaseCatalog::insertDocAnnotations(int docId,
         "extra_data) values (:docid, :labelid, :schar, :echar, :extra);");
     query.bindValue(":docid", docId);
     query.bindValue(":labelid", labelId);
-    query.bindValue(":schar", annotation.startChar);
-    query.bindValue(":echar", annotation.endChar);
+    query.bindValue(":schar", startChar);
+    query.bindValue(":echar", endChar);
     query.bindValue(":extra", annotation.extraData != "" ? annotation.extraData
                                                          : QVariant());
     if (query.exec()) {

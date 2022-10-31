@@ -594,7 +594,9 @@ For example if the text starts with "`hello &#x1F600;`" and you highlighted exac
 - `start_byte`: 0
 - `end_byte`: 10 (because there are 10 bytes in the annotated text once it is encoded as {utf8}:  "&#x1F600;" is represented by the 4-byte sequence `0xF0 0x9F 0x98 0x80` and the other characters are each represented with 1 byte)
 
-When importing annotations, at the moment {lb} relies on the Unicode indices `start_char` and `end_char` -- if you create annotations outside of {lb} that you want to import, you can omit `start_byte` and `end_byte` but must provide `start_char` and `end_char`.
+When importing annotations, either Unicode character positions or {utf8} byte positions can be provided.
+When both are present, the `char` is used and the `byte` is ignored.
+Annotations at invalid positions (for example starting past the end of the text or in the middle of a multi-byte character) are ignored.
 
 Finally, note that Unicode characters do not necessarily correspond to graphemes in the displayed text -- a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.
 ****

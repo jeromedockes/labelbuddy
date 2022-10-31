@@ -245,6 +245,32 @@ void TestDatabase::testImportExportDocs() {
   checkImportBack(catalog, exportFile);
 }
 
+void TestDatabase::testImportAnnotations() {
+  QTemporaryDir tmpDir{};
+  auto docsPath = tmpDir.filePath("docs.jsonl");
+  {
+    QFile docsFile{docsPath};
+    docsFile.open(QIODevice::WriteOnly);
+    docsFile.write(
+        R"({"text": "a\u00e9o\ud834\udd1ex", "annotations":)"
+        R"([{"label_name": "l", "start_char": 1, "end_byte": 8})"
+        R"(, {"label_name": "l1", "start_char": 2, "end_char": 1}]})");
+  }
+  auto dbPath = tmpDir.filePath("db.sqlite");
+  DatabaseCatalog catalog{};
+  catalog.openDatabase(dbPath);
+  catalog.importDocuments(docsPath);
+
+  QSqlQuery query(QSqlDatabase::database(catalog.getCurrentDatabase()));
+  query.exec("select count(*) from annotation;");
+  query.next();
+  QCOMPARE(query.value(0).toInt(), 1);
+
+  query.exec("select end_char from annotation;");
+  query.next();
+  QCOMPARE(query.value(0), 4);
+}
+
 void TestDatabase::testImportExportLabels() {
   QTemporaryDir tmpDir{};
   DatabaseCatalog catalog{};

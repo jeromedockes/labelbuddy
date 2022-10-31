@@ -25,7 +25,7 @@ private slots:
   void testImportErrors_data();
   void testImportErrors();
   void testBadAnnotations();
-
+  void testImportAnnotations();
   void cleanup();
 
 private:

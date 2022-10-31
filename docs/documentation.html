@@ -1498,7 +1498,9 @@ For example, "a" (LATIN SMALL LETTER A) corresponds to the Unicode code point 97
 </ul>
 </div>
 <div class="paragraph">
-<p>When importing annotations, at the moment <strong>labelbuddy</strong> relies on the Unicode indices <code>start_char</code> and <code>end_char</code>&#8201;&#8212;&#8201;if you create annotations outside of <strong>labelbuddy</strong> that you want to import, you can omit <code>start_byte</code> and <code>end_byte</code> but must provide <code>start_char</code> and <code>end_char</code>.</p>
+<p>When importing annotations, either Unicode character positions or <strong>UTF-8</strong> byte positions can be provided.
+When both are present, the <code>char</code> is used and the <code>byte</code> is ignored.
+Annotations at invalid positions (for example starting past the end of the text or in the middle of a multi-byte character) are ignored.</p>
 </div>
 <div class="paragraph">
 <p>Finally, note that Unicode characters do not necessarily correspond to graphemes in the displayed text&#8201;&#8212;&#8201;a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.</p>
@@ -1764,7 +1766,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-09-14 16:13:08 -0400
+Last updated 2022-10-31 14:23:29 -0400
 </div>
 </div>
 </body>

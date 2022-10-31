@@ -1,10 +1,12 @@
 labelbuddy (0.0.9) unstable; urgency=medium
 
+  * Byte positions can be used instead of Unicode character positions when
+    importing annotations.
   * UTF-8 byte start and end indices of annotations added as 'start_byte'
     and 'end_byte' keys in annotation objects.
   * More bound checks during import of annotations.
 
- -- jerome dockes <jerome@dockes.org>  Wed, 14 Sep 2022 12:21:10 -0400
+ -- jerome dockes <jerome@dockes.org>  Mon, 31 Oct 2022 14:28:08 -0400
 
 labelbuddy (0.0.8) unstable; urgency=medium
 

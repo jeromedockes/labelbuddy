@@ -528,6 +528,45 @@ def test_byte_positions_example(labelbuddy, tmp_path):
     )
 
 
+def test_import_byte_positions_example(labelbuddy, tmp_path):
+    in_f = tmp_path.joinpath("docs.json")
+    in_f.write_text(
+        json.dumps(
+            [
+                {
+                    "text": "aéo𝄞x",
+                    "annotations": [
+                        {
+                            "label_name": "l",
+                            # when both start_byte and start_char are present
+                            # start_char is used
+                            "start_byte": 2,
+                            "start_char": 1,
+                            "end_byte": 8,
+                        },
+                        # bad annotations are ignored
+                        {"label_name": "l1", "start_char": 1},
+                        {"label_name": "l1", "start_byte": 1, "end_byte": 7},
+                        {"label_name": "l1", "start_byte": 2, "end_byte": 1},
+                    ],
+                }
+            ]
+        )
+    )
+    out_f = tmp_path.joinpath("exported_docs.json")
+    labelbuddy(":memory:", "--import-docs", in_f, "--export-docs", out_f)
+    docs = json.loads(out_f.read_text("utf-8"))
+    anno = docs[0]["annotations"][0]
+    assert anno["start_char"] == 1
+    assert anno["end_char"] == 4
+    assert (
+        docs[0]["text"]
+        .encode("UTF-8")[anno["start_byte"] : anno["end_byte"]]
+        .decode("UTF-8")
+        == docs[0]["text"][anno["start_char"] : anno["end_char"]]
+    )
+
+
 def _random_unicode(seed=0, text_len=10000):
     blocks = [
         (0x00, 0xFF),
@@ -578,3 +617,32 @@ def test_byte_positions(labelbuddy, tmp_path):
         if anno["end_byte"] != anno["end_char"]:
             n_differ += 1
     assert n_differ > 500
+
+
+def test_imported_byte_positions(labelbuddy, tmp_path):
+    text = _random_unicode()
+    annotations = _random_annotations(text)
+    in_f = tmp_path.joinpath("docs.json")
+    in_f.write_text(json.dumps([{"text": text, "annotations": annotations}]))
+
+    # import and export docs to have the byte postions
+    out_f = tmp_path.joinpath("exported_docs.json")
+    labelbuddy(":memory:", "--import-docs", in_f, "--export-docs", out_f)
+    docs = json.loads(out_f.read_text("utf-8"))
+
+    # delete the char positions and save to a new file
+    for anno in docs[0]["annotations"]:
+        anno.pop("start_char")
+        anno.pop("end_char")
+    in_f_1 = tmp_path.joinpath("docs_1.json")
+    in_f_1.write_text(json.dumps(docs))
+
+    # import & export again and check char positions match
+    out_f_1 = tmp_path.joinpath("exported_docs_1.json")
+    labelbuddy(":memory:", "--import-docs", in_f_1, "--export-docs", out_f_1)
+    docs_1 = json.loads(out_f_1.read_text("utf-8"))
+    for original_anno, exported_anno in zip(
+        annotations, docs_1[0]["annotations"]
+    ):
+        assert exported_anno["start_char"] == original_anno["start_char"]
+        assert exported_anno["end_char"] == original_anno["end_char"]
