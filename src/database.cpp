@@ -2,6 +2,7 @@
 #include <iostream>
 #include <memory>
 
+#include <QByteArray>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
@@ -119,9 +120,7 @@ JsonDocsReader::JsonDocsReader(const QString& filePath) : DocsReader(filePath) {
   if (hasError()) {
     return;
   }
-  QTextStream inputStream(getFile());
-  inputStream.setCodec("UTF-8");
-  auto jsonDoc = QJsonDocument::fromJson(inputStream.readAll().toUtf8());
+  auto jsonDoc = QJsonDocument::fromJson(getFile()->readAll());
   if (!jsonDoc.isArray()) {
     totalNDocs_ = 0;
     setError(
@@ -151,22 +150,20 @@ int JsonDocsReader::progressMax() const { return totalNDocs_; }
 int JsonDocsReader::currentProgress() const { return nSeen_; }
 
 JsonLinesDocsReader::JsonLinesDocsReader(const QString& filePath)
-    : DocsReader(filePath), stream_(getFile()) {
-  stream_.setCodec("UTF-8");
-}
+    : DocsReader(filePath) {}
 
 bool JsonLinesDocsReader::readNext() {
   if (hasError()) {
     return false;
   }
-  QString line{};
-  while (line == "" && !stream_.atEnd()) {
-    line = stream_.readLine();
+  QByteArray line{};
+  while (line == "" && !getFile()->atEnd()) {
+    line = getFile()->readLine();
   }
   if (line == "") {
     return false;
   }
-  auto jsonDoc = QJsonDocument::fromJson(line.toUtf8());
+  auto jsonDoc = QJsonDocument::fromJson(line);
   if (!jsonDoc.isObject()) {
     setError(ErrorCode::CriticalParsingError,
              "JSONLines error: could not parse line as a JSON object.");
@@ -181,7 +178,7 @@ DocsWriter::DocsWriter(const QString& filePath, bool includeText,
                        bool includeAnnotations)
     : file_(filePath), includeText_{includeText}, includeAnnotations_{
                                                       includeAnnotations} {
-  file_.open(QIODevice::WriteOnly | QIODevice::Text);
+  file_.open(QIODevice::WriteOnly);
 }
 
 void DocsWriter::writePrefix() {}
@@ -199,14 +196,9 @@ QFile* DocsWriter::getFile() { return &file_; }
 JsonLinesDocsWriter::JsonLinesDocsWriter(const QString& filePath,
                                          bool includeText,
                                          bool includeAnnotations)
-    : DocsWriter(filePath, includeText, includeAnnotations),
-      stream_(getFile()) {
-  stream_.setCodec("UTF-8");
-}
+    : DocsWriter(filePath, includeText, includeAnnotations) {}
 
 int JsonLinesDocsWriter::getNDocs() const { return nDocs_; }
-
-QTextStream& JsonLinesDocsWriter::getStream() { return stream_; }
 
 void JsonLinesDocsWriter::addDocument(const QString& md5,
                                       const QString& content,
@@ -215,7 +207,7 @@ void JsonLinesDocsWriter::addDocument(const QString& md5,
                                       const QString& displayTitle,
                                       const QString& listTitle) {
   if (nDocs_) {
-    stream_ << "\n";
+    getFile()->write("\n");
   }
   QJsonObject docJson{};
   assert(md5 != "");
@@ -248,14 +240,13 @@ void JsonLinesDocsWriter::addDocument(const QString& md5,
     }
     docJson.insert("annotations", allAnnotationsJson);
   }
-  stream_ << QString::fromUtf8(
-      QJsonDocument(docJson).toJson(QJsonDocument::Compact));
+  getFile()->write(QJsonDocument(docJson).toJson(QJsonDocument::Compact));
   ++nDocs_;
 }
 
 void JsonLinesDocsWriter::writeSuffix() {
   if (nDocs_) {
-    stream_ << "\n";
+    getFile()->write("\n");
   }
 }
 
@@ -269,16 +260,19 @@ void JsonDocsWriter::addDocument(const QString& md5, const QString& content,
                                  const QString& displayTitle,
                                  const QString& listTitle) {
   if (getNDocs()) {
-    getStream() << ",";
+    getFile()->write(",");
   }
   JsonLinesDocsWriter::addDocument(md5, content, metadata, annotations,
                                    displayTitle, listTitle);
 }
 
-void JsonDocsWriter::writePrefix() { getStream() << "[\n"; }
+void JsonDocsWriter::writePrefix() { getFile()->write("[\n"); }
 
 void JsonDocsWriter::writeSuffix() {
-  getStream() << (getNDocs() ? "\n" : "") << "]\n";
+  if (getNDocs()) {
+    getFile()->write("\n");
+  }
+  getFile()->write("]\n");
 }
 
 LabelRecord jsonToLabelRecord(const QJsonValue& json) {
@@ -703,7 +697,7 @@ ImportDocsResult DatabaseCatalog::importDocuments(const QString& filePath,
 
 ReadLabelsResult readLabels(const QString& filePath) {
   QFile file(filePath);
-  if (!file.open(QIODevice::ReadOnly)) {
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return {QJsonArray{}, ErrorCode::FileSystemError, "Could not open file."};
   }
   auto suffix = QFileInfo(file).suffix();
@@ -726,15 +720,13 @@ ReadLabelsResult readJsonLabels(QFile& file) {
 }
 
 ReadLabelsResult readJsonLinesLabels(QFile& file) {
-  QTextStream stream(&file);
-  stream.setCodec("UTF-8");
   QJsonArray result{};
-  while (!stream.atEnd()) {
-    auto line = stream.readLine();
+  while (!file.atEnd()) {
+    auto line = file.readLine();
     if (line == "") {
       continue;
     }
-    auto jsonDoc = QJsonDocument::fromJson(line.toUtf8());
+    auto jsonDoc = QJsonDocument::fromJson(line);
     if (!jsonDoc.isObject()) {
       return {QJsonArray{}, ErrorCode::CriticalParsingError,
               "JSONLines error: could not parse line as a JSON object."};
@@ -746,7 +738,6 @@ ReadLabelsResult readJsonLinesLabels(QFile& file) {
 
 ReadLabelsResult readTxtLabels(QFile& file) {
   QJsonArray result{};
-  file.setTextModeEnabled(true);
   QTextStream stream(&file);
   stream.setCodec("UTF-8");
   QJsonObject obj{};
@@ -942,11 +933,10 @@ ExportLabelsResult writeLabelsToJsonLines(const QJsonArray& labels,
   if (!file.open(QIODevice::WriteOnly)) {
     return {0, ErrorCode::FileSystemError, QString("Could not open file.")};
   }
-  QTextStream stream(&file);
-  stream.setCodec("UTF-8");
   for (const auto& labelInfo : labels) {
-    stream << QJsonDocument(labelInfo.toObject()).toJson(QJsonDocument::Compact)
-           << "\n";
+    file.write(
+        QJsonDocument(labelInfo.toObject()).toJson(QJsonDocument::Compact));
+    file.write("\n");
   }
   return {labels.size(), ErrorCode::NoError, ""};
 }

@@ -11,7 +11,6 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QString>
-#include <QTextStream>
 #include <QVariant>
 
 #include "char_indices.h"

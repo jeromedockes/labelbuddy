@@ -1,6 +1,7 @@
 #include <QCryptographicHash>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QTextStream>
 
 #include "database.h"
 #include "testing_utils.h"

@@ -2,6 +2,7 @@
 #define LABELBUDDY_DATABASE_IMPL_H
 
 #include <QJsonArray>
+#include <QTextStream>
 
 #include "database.h"
 
@@ -90,9 +91,6 @@ class JsonLinesDocsReader : public DocsReader {
 public:
   explicit JsonLinesDocsReader(const QString& filePath);
   bool readNext() override;
-
-private:
-  QTextStream stream_;
 };
 
 class DocsWriter {
@@ -140,10 +138,8 @@ public:
 
 protected:
   int getNDocs() const;
-  QTextStream& getStream();
 
 private:
-  QTextStream stream_;
   int nDocs_{};
 };
 
