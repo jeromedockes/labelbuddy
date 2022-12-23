@@ -69,6 +69,12 @@ An alternative to using the installer is to download `labelbuddy_windows.zip`, u
 Select the latest release from {ghreleases}[here], and download `labelbuddy_<version>.dmg`.
 Double-click the downloaded file, and from the window that opens drag `labelbuddy` into the `/Applications` folder in *Finder*.
 
+In addition, _if_ you want to use {lb}’s command-line interface, you probably need to add a symlink in a location in your `PATH` for your shell to find the `labelbuddy` command:
+
+....
+ln -s /Applications/labelbuddy.app/Contents/MacOs/labelbuddy /usr/local/bin/labelbuddy
+....
+
 == Building from source
 
 Download a source distribution from {ghreleases}[GitHub], the {lb} {lbppapackages}[PPA], or get the latest code by cloning or downloading the {lb} {ghrepo}[git repository].
