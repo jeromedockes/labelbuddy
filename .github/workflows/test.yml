@@ -1,0 +1,79 @@
+name: run tests
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  run_tests:
+    env:
+      SOURCE_DIR: ${{ github.workspace }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+
+      - name: Install Xvfb
+        run: sudo apt install -y xvfb
+
+      - name: Build QTest tests
+        working-directory: ${{ runner.temp }}
+        run: |
+          qmake "$SOURCE_DIR/labelbuddy.pro" "CONFIG += test"
+          make
+
+      - name: Run QTest tests
+        working-directory: ${{ runner.temp }}
+        run: xvfb-run ./labelbuddy_tests
+
+  run_cli_tests:
+    env:
+      SOURCE_DIR: ${{ github.workspace }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+
+      - name: Install Xvfb
+        run: sudo apt install -y xvfb
+
+      - name: Build debug
+        working-directory: ${{ runner.temp }}
+        run: |
+          cmake -DCMAKE_BUILD_TYPE=Debug $SOURCE_DIR
+          cmake --build .
+
+      - name: Install test requirements
+        working-directory: ${{ github.workspace }}/test_cli
+        run: |
+          pip install -r requirements.txt
+          sudo apt install sqlite3-tools
+
+      - name: Run Python CLI tests
+        working-directory: ${{ github.workspace }}/test_cli
+        env:
+          LABELBUDDY_COMMAND: ${{ runner.temp }}/labelbuddy
+        run: |
+          xvfb-run python make_newsgroups_docs.py
+          xvfb-run pytest .

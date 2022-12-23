@@ -77,8 +77,14 @@ version *{lbversion}*.
 endif::[]
 endif::[]
 ifdef::env-github[]
+
+image::https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml/badge.svg[link="https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml",alt="test results"]
+
+*Useful links:*
+
 - {homepage}[Website]
 - {homepage-current}/documentation[Documentation for latest release]
+
 endif::[]
 
 == Introduction
