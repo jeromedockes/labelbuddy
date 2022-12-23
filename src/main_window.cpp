@@ -44,9 +44,9 @@ LabelBuddy::LabelBuddy(QWidget* parent, const QString& databasePath,
   annotator_ = new Annotator();
   notebook_->addTab(annotator_, "&Annotate");
   datasetMenu_ = new DatasetMenu();
-  notebook_->addTab(datasetMenu_, "&Dataset");
+  notebook_->addTab(datasetMenu_, "&Labels && Documents");
   importExportMenu_ = new ImportExportMenu(&databaseCatalog_);
-  notebook_->addTab(importExportMenu_, "&Import / Export");
+  notebook_->addTab(importExportMenu_, "&Import && Export");
 
   docModel_ = new DocListModel(this);
   docModel_->setDatabase(databaseCatalog_.getCurrentDatabase());

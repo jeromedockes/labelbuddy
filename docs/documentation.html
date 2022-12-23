@@ -743,7 +743,7 @@ Importing and exporting data
 </table>
 </div>
 <div class="paragraph">
-<p>The labelbuddy interface is organized around three tabs: the <strong>&#8220;Import / Export&#8221;</strong> tab for importing and exporting labels, documents and annotations, the <strong>&#8220;Dataset&#8221;</strong> tab to get an overview and manage documents and labels in the database, and the <strong>&#8220;Annotate&#8221;</strong> tab is where annotations are edited.</p>
+<p>The labelbuddy interface is organized around three tabs: the <strong>&#8220;Import & Export&#8221;</strong> tab for importing and exporting labels, documents and annotations, the <strong>&#8220;Labels & Documents&#8221;</strong> tab to get an overview and manage documents and labels in the database, and the <strong>&#8220;Annotate&#8221;</strong> tab is where annotations are edited.</p>
 </div>
 <div class="paragraph">
 <p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from plain text, JSON or JSONLines, as described in <a href="#formats-sec">Appendix A</a>.
@@ -760,7 +760,7 @@ Labels, documents and annotations that are already in the database are skipped i
 <div class="sect2">
 <h3 id="importing-documents-and-annotations">2.1. Importing documents (and annotations)</h3>
 <div class="paragraph">
-<p>In the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file containing the documents you plan to annotate.
+<p>In the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file containing the documents you plan to annotate.
 If you want try this before creating your own, you can download example documents from the <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/examples"><strong>labelbuddy</strong> website</a>.</p>
 </div>
 <div class="paragraph">
@@ -806,7 +806,7 @@ It is stored and bundled with the document when you export it.</p>
 <code>list_title</code>
 </td>
 <td class="hdlist2">
-<p>Displayed in the document list in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
+<p>Displayed in the document list in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
 </td>
 </tr>
 </table>
@@ -840,7 +840,7 @@ The format is deduced from the filename extension.</p>
 <div class="sect2">
 <h3 id="importing-or-creating-labels">2.2. Importing or creating labels</h3>
 <div class="paragraph">
-<p>To import labels, click <b class="button">Import labels</b> in the <strong>&#8220;Import / Export&#8221;</strong> tab and select a file.
+<p>To import labels, click <b class="button">Import labels</b> in the <strong>&#8220;Import & Export&#8221;</strong> tab and select a file.
 If you want try this before creating your own labels, you can download example labels from the <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/examples"><strong>labelbuddy</strong> examples page</a>.</p>
 </div>
 <div class="paragraph">
@@ -851,7 +851,7 @@ The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a
 <p>As for documents, the format is deduced from the filename extension when importing labels, and is described in <a href="#formats-sec">Appendix A</a>.</p>
 </div>
 <div class="paragraph">
-<p>It is also possible to manually enter a new label or to change the labels&#8217; color and shortcut key from within the GUI application, in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
+<p>It is also possible to manually enter a new label or to change the labels&#8217; color and shortcut key from within the GUI application, in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
 </div>
 <div class="paragraph">
 <p>Labels can also be imported using the <a href="#command-line-interface">command line</a>, for example:</p>
@@ -862,13 +862,13 @@ The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a
 </div>
 </div>
 <div class="paragraph">
-<p>In the <strong>&#8220;Dataset&#8221;</strong> tab, labels can be reordered by dragging and dropping them.</p>
+<p>In the <strong>&#8220;Labels & Documents&#8221;</strong> tab, labels can be reordered by dragging and dropping them.</p>
 </div>
 </div>
 <div class="sect2">
 <h3 id="annotating-documents">2.3. Annotating documents</h3>
 <div class="paragraph">
-<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Dataset&#8221;</strong> tab.
+<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.
 You can filter which documents are shown by the labels they have been annotated with.
 You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
@@ -1117,7 +1117,7 @@ As you click the gray region or press the <kbd>Space</kbd> key, each <span class
 </tbody>
 </table>
 <div class="paragraph">
-<p>Underlined letters in the GUI indicate <kbd>Alt</kbd>-key shortcuts: for example in the <strong>&#8220;Dataset&#8221;</strong> tab &#8220;<span class="underline">N</span>ew label&#8221; indicates you can jump to creating a new label by pressing <span class="keyseq"><kbd>Alt</kbd>+<kbd>N</kbd></span>.</p>
+<p>Underlined letters in the GUI indicate <kbd>Alt</kbd>-key shortcuts: for example in the <strong>&#8220;Labels & Documents&#8221;</strong> tab &#8220;<span class="underline">N</span>ew label&#8221; indicates you can jump to creating a new label by pressing <span class="keyseq"><kbd>Alt</kbd>+<kbd>N</kbd></span>.</p>
 </div>
 </div>
 </div>
@@ -1127,7 +1127,7 @@ As you click the gray region or press the <kbd>Space</kbd> key, each <span class
 <p>Once you are satisfied with your annotations you can export them in order to share them or use them in other applications.</p>
 </div>
 <div class="paragraph">
-<p>Back in the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Export docs &amp; annotations</b>.
+<p>Back in the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Export docs &amp; annotations</b>.
 You can choose to export all documents or only those that have annotations.
 You can choose to export the text of the documents or not.
 If you do not export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
@@ -1152,7 +1152,7 @@ See <a href="#formats-sec">Appendix A</a> for details.</p>
 <h3 id="exporting-labels">2.5. Exporting labels</h3>
 <div class="paragraph">
 <p>You may also want to export labels, especially if you created them or edited their colors or shortcut keys within <strong>labelbuddy</strong>.
-In the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Export labels</b>.
+In the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Export labels</b>.
 Here also, the <a href="#formats-sec">format</a> is deduced from the filename extension.</p>
 </div>
 <div class="paragraph">
@@ -1195,7 +1195,7 @@ The database to open can also be specified when invoking <strong>labelbuddy</str
 </div>
 </div>
 <div class="paragraph">
-<p>The path to the current database is displayed in the <strong>&#8220;Import / Export&#8221;</strong> tab.</p>
+<p>The path to the current database is displayed in the <strong>&#8220;Import & Export&#8221;</strong> tab.</p>
 </div>
 <div class="paragraph">
 <p>If you just want to give <strong>labelbuddy</strong> a try and do not have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<b class="caret">&#8250;</b> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
@@ -1381,7 +1381,7 @@ It is stored and bundled with the document when you export it.</p>
 <code>list_title</code>
 </td>
 <td class="hdlist2">
-<p>Shown in the document list in the <strong>&#8220;Dataset&#8221;</strong> tab.</p>
+<p>Shown in the document list in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
 </td>
 </tr>
 <tr>
@@ -1766,7 +1766,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2022-10-31 14:23:29 -0400
+Last updated 2022-12-23 08:20:21 -0300
 </div>
 </div>
 </body>

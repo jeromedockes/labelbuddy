@@ -10,11 +10,11 @@
 #include "label_list_model.h"
 
 /// \file
-/// Implementation of the Dataset tab
+/// Implementation of the Dataset tab (note: has been renamed "Labels & Documents")
 
 namespace labelbuddy {
 
-/// Implementation of the Dataset tab
+/// Implementation of the Dataset tab (note: has been renamed "Labels & Documents")
 class DatasetMenu : public QSplitter {
 
   Q_OBJECT

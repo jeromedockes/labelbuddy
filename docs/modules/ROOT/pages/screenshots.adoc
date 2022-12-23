@@ -15,10 +15,10 @@ endif::[]
 image::annotate.png[Annotate tab]
 
 .Managing the documents and labels; choosing a document to annotate
-image::dataset.png[Dataset tab]
+image::dataset.png[Labels & Documents tab]
 
 .Importing (exporting) documents and labels from (to) plain text files
-image::import_export.png[Import / Export tab]
+image::import_export.png[Import & Export tab]
 
 ifndef::site-gen-antora[]
 <<index.adoc#,labelbuddy home>>

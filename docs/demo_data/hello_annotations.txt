@@ -19,7 +19,6 @@ Once you are done annotating this document, you can click "Next" above to move o
 
 The other documents in this database are a few extracts from Wikipedia (https://en.wikipedia.org/wiki/Main_Page) to illustrate using labelbuddy with different languages and writing systems. The documentation in HTML format can be seen by clicking "Help > Documentation".
 
-To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Dataset" tab.
+To see the list of documents, remove documents or labels, or change the labels' colors, go to the "Labels & Documents" tab.
 
-To export your annotations or import more documents or labels, go to the "Import / Export" tab.
-
+To export your annotations or import more documents or labels, go to the "Import & Export" tab.

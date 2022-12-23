@@ -9,11 +9,11 @@
 #include "database.h"
 
 /// \file
-/// Implementation of the Import / Export tab
+/// Implementation of the Import & Export tab
 
 namespace labelbuddy {
 
-/// Implementation of the Import / Export tab
+/// Implementation of the Import & Export tab
 class ImportExportMenu : public QWidget {
 
   Q_OBJECT
