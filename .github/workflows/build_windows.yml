@@ -32,14 +32,14 @@ jobs:
           qmake -r ${{ github.workspace }}/labelbuddy.pro
           nmake
           mkdir labelbuddy
-          windeployqt --dir deploy release/labelbuddy.exe
+          windeployqt --dir labelbuddy release/labelbuddy.exe
           cp release/labelbuddy.exe labelbuddy
           cp ${{ github.workspace }}/docs/documentation.html labelbuddy
 
       - name: Zip
         working-directory: ${{ runner.temp }}
         run: |
-          7z a labelbuddy.zip build -r
+          7z a labelbuddy.zip labelbuddy -r
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v3
