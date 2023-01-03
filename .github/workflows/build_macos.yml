@@ -24,7 +24,7 @@ jobs:
       - name: Build dmg
         working-directory: ${{ runner.temp }}
         run: |
-          qmake -r ${{ github.workspace }}/labelbuddy.pro "CONFIG += app_bundle" -config release
+          qmake ${{ github.workspace }}/labelbuddy.pro "CONFIG += app_bundle" -config release
           make
           macdeployqt labelbuddy.app -dmg
 
