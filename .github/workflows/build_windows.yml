@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-2019
     defaults:
       run:
-        shell: cmd
+        shell: pwsh
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -41,8 +41,13 @@ jobs:
         run: |
           7z a labelbuddy.zip labelbuddy -r
 
-      - name: Upload Artifact
+      - name: Upload Build Dir
         uses: actions/upload-artifact@v3
         with:
           name: BuildDir
           path: ${{ runner.temp }}/labelbuddy.zip
+
+      - name: Download installer framework
+        working-directory: ${{ runner.temp }}
+        run: |
+          wget "https://download.qt.io/official_releases/qt-installer-framework/4.5.1/QtInstallerFramework-windows-x64-4.5.1.exe"
