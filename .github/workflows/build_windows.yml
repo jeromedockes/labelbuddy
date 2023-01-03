@@ -61,3 +61,9 @@ jobs:
         with:
           name: Installer
           path: "${{ runner.temp }}/labelbuddy-*_windows_installer.exe"
+
+      - name: Upload workdir
+        uses: actions/upload-artifact@v3
+        with:
+          name: Workdir
+          path: "${{ runner.temp }}"
