@@ -37,6 +37,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     tmp_dir = pathlib.Path(tmp_dir)
     installer_dir = tmp_dir / "labelbuddy"
     shutil.copytree(installer_template_dir, installer_dir)
+    print(installer_dir)
+    print(list(installer_dir.glob("**/*")))
     for template_file in (
         installer_dir / "config" / "config.xml",
         installer_dir / "packages" / "labelbuddy" / "meta" / "package.xml",
