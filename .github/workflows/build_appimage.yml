@@ -1,0 +1,32 @@
+name: Build AppImage
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  build_appimage:
+    runs-on: ubuntu-20.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+
+      - name: Build AppImage
+        run: |
+          scripts/build_appimage.sh
+
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          name: AppImage
+          path: ./*.AppImage
