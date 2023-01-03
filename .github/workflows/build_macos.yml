@@ -20,9 +20,8 @@ jobs:
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
-
-      - name: Install dependencies
-        run: brew install unixodbc
+        with:
+          setup-python: 'false'
 
       - name: Build dmg
         working-directory: ${{ runner.temp }}
