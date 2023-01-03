@@ -18,8 +18,11 @@ windeployqt_dir = pathlib.Path(os.environ["WINDEPLOYQT_DIR"])
 installer_framework = os.environ.get("QT_INSTALLER_FRAMEWORK")
 if installer_framework is None:
     try:
-        installer_framework = list(pathlib.Path(os.environ["IQTA_TOOLS"]).glob("*"))[0]
+        installer_framework = list(
+            pathlib.Path(os.environ["IQTA_TOOLS"]).glob("*")
+        )[0]
         print(installer_framework)
+        print(list(installer_framework.glob("**/*")))
     except Exception:
         installer_framework = None
 
