@@ -22,6 +22,7 @@ qmake_build/
 test/labelbuddy_tests
 test_build/
 labelbuddy
+!data/windows_installer/packages/labelbuddy/
 
 moc_*
 src/moc_*

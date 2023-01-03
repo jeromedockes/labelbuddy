@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>labelbuddy</DisplayName>
+    <Description>GUI tool for annotating documents</Description>
+    <Version>${labelbuddy_version}</Version>
+    <ReleaseDate>${today}</ReleaseDate>
+    <Default>true</Default>
+    <Script>installscript.qs</Script>
+</Package>
