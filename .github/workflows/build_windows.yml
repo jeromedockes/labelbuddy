@@ -50,4 +50,4 @@ jobs:
       - name: Download installer framework
         working-directory: ${{ runner.temp }}
         run: |
-          wget "https://download.qt.io/official_releases/qt-installer-framework/4.5.1/QtInstallerFramework-windows-x64-4.5.1.exe"
+          (new-object System.Net.WebClient).DownloadFile('https://download.qt.io/official_releases/qt-installer-framework/4.5.1/QtInstallerFramework-windows-x64-4.5.1.exe','qtif.exe')
