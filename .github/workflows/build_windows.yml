@@ -48,3 +48,16 @@ jobs:
         with:
           name: BuildDir
           path: ${{ runner.temp }}/labelbuddy.zip
+
+      - name: Build installer
+        env:
+          WINDEPLOYQT_DIR: ${{ runner.temp }}/labelbuddy
+        working-directory: ${{ runner.temp }}
+        run: |
+          python3 ${{ github.workspace }}/scripts/build_windows_installer.py
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: Installer
+          path: "${{ runner.temp }}/labelbuddy-*_windows_installer.exe"
