@@ -55,8 +55,6 @@ with tempfile.TemporaryDirectory() as tmp_dir:
     shutil.rmtree(package_data_dir)
     shutil.copytree(windeployqt_dir, package_data_dir)
     shutil.copy(repo_dir / "docs" / "documentation.html", package_data_dir)
-    placeholder = package_data_dir / ".dll_and_executable"
-    placeholder.unlink()
     installer_name = f"labelbuddy-{labelbuddy_version}_windows_installer.exe"
     subprocess.run(
         [
