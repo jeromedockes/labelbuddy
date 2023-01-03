@@ -9,7 +9,7 @@ on:
       - "*"
 
 jobs:
-  build_appimage:
+  build_windows:
     runs-on: windows-2019
     defaults:
       run:
@@ -30,6 +30,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           qmake -r ${{ github.workspace }}/labelbuddy.pro
+          nmake
           mkdir labelbuddy
           windeployqt --dir deploy release/labelbuddy.exe
           cp release/labelbuddy.exe labelbuddy
