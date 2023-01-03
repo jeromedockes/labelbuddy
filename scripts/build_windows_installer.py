@@ -63,7 +63,7 @@ with tempfile.TemporaryDirectory() as tmp_dir:
             "-c",
             str(installer_dir / "config" / "config.xml"),
             "-p",
-            "packages",
+            str(installer_dir / "packages"),
             installer_name,
         ]
     )
