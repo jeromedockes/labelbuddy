@@ -31,10 +31,10 @@ jobs:
       - name: Build
         working-directory: ${{ runner.temp }}
         run: |
-          qmake -r ${{ github.workspace }}/labelbuddy.pro
+          qmake ${{ github.workspace }}/labelbuddy.pro -config release
           nmake
           mkdir labelbuddy
-          windeployqt --dir labelbuddy release/labelbuddy.exe
+          windeployqt --dir labelbuddy release/labelbuddy.exe --release
           cp release/labelbuddy.exe labelbuddy
           cp ${{ github.workspace }}/docs/documentation.html labelbuddy
 
