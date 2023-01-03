@@ -185,4 +185,10 @@ execute_process(COMMAND gzip -9 -c -n ${CMAKE_SOURCE_DIR}/docs/labelbuddy.1
 install(FILES "${CMAKE_BINARY_DIR}/labelbuddy.1.gz"
   DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
 
+install (FILES "${CMAKE_SOURCE_DIR}/data/labelbuddy.desktop"
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
+
+install (FILES "${CMAKE_SOURCE_DIR}/data/icons/labelbuddy.png"
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps")
+
 include(CPack)

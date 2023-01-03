@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-  <file>data/icons/LB.png</file>
+  <file>data/icons/labelbuddy.png</file>
   <file>data/icons/go-up.png</file>
   <file>data/icons/go-down.png</file>
   <file>data/icons/go-last.png</file>

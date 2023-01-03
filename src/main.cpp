@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
 
   std::unique_ptr<labelbuddy::LabelBuddy> labelBuddy(
       new labelbuddy::LabelBuddy(nullptr, dbPath, parser.isSet("demo")));
-  app.setWindowIcon(QIcon(":/data/icons/LB.png"));
+  app.setWindowIcon(QIcon(":/data/icons/labelbuddy.png"));
   labelBuddy->show();
   return app.exec();
 }

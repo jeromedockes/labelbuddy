@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=labelbuddy
+Comment=GUI tool for annotating text
+TryExec=labelbuddy
+Exec=labelbuddy
+Icon=labelbuddy
+Categories=Science;Qt;TextTools
