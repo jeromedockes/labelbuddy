@@ -52,8 +52,8 @@ with tempfile.TemporaryDirectory() as tmp_dir:
         )
         template_file.write_text(text, "UTF-8")
     package_data_dir = installer_dir / "packages" / "labelbuddy" / "data"
-    for data_file in windeployqt_dir.glob("*"):
-        shutil.copy(data_file, package_data_dir)
+    shutil.rmtree(package_data_dir)
+    shutil.copytree(windeployqt_dir, package_data_dir)
     shutil.copy(repo_dir / "docs" / "documentation.html", package_data_dir)
     placeholder = package_data_dir / ".dll_and_executable"
     placeholder.unlink()
