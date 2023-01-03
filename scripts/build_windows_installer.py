@@ -31,7 +31,7 @@ if installer_framework is None:
 
 if installer_framework is None:
     installer_framework = (
-        list(pathlib.Path("C:", "Qt").glob("QtIFQ-*"))[0]
+        list(pathlib.Path("C:", "Qt").glob("QtIFW-*"))[0]
         / "bin"
         / "binarycreator"
     )
