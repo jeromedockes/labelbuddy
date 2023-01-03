@@ -28,11 +28,22 @@ jobs:
         with:
           arch: x64
 
+      - name: Download JOM
+        uses: suisei-cn/actions-download-file@v1
+        with:
+          url: http://download.qt.io/official_releases/jom/jom.zip
+          target: ${{ runner.temp }}
+
+      - name: Unzip JOM
+        working-directory: ${{ runner.temp }}
+        run: |
+          7z x jom.zip -ojom
+
       - name: Build
         working-directory: ${{ runner.temp }}
         run: |
           qmake ${{ github.workspace }}/labelbuddy.pro -config release
-          nmake
+          jom/jom
           mkdir labelbuddy
           windeployqt --dir labelbuddy release/labelbuddy.exe --release
           cp release/labelbuddy.exe labelbuddy
