@@ -18,11 +18,14 @@ windeployqt_dir = pathlib.Path(os.environ["WINDEPLOYQT_DIR"])
 installer_framework = os.environ.get("QT_INSTALLER_FRAMEWORK")
 if installer_framework is None:
     try:
-        installer_framework = list(
-            pathlib.Path(os.environ["IQTA_TOOLS"]).glob("*")
-        )[0]
-        print(installer_framework)
-        print(list(installer_framework.glob("**/*")))
+        installer_framework = pathlib.Path(
+            os.environ["IQTA_TOOLS"],
+            "QtInstallerFramework",
+            "4.5",
+            "bin",
+            "binarycreator.exe",
+        )
+        assert installer_framework.is_file()
     except Exception:
         installer_framework = None
 
@@ -32,13 +35,12 @@ if installer_framework is None:
         / "bin"
         / "binarycreator"
     )
+    assert installer_framework.is_file()
 
 with tempfile.TemporaryDirectory() as tmp_dir:
     tmp_dir = pathlib.Path(tmp_dir)
     installer_dir = tmp_dir / "labelbuddy"
     shutil.copytree(installer_template_dir, installer_dir)
-    print(installer_dir)
-    print(list(installer_dir.glob("**/*")))
     for template_file in (
         installer_dir / "config" / "config.xml",
         installer_dir / "packages" / "labelbuddy" / "meta" / "package.xml",
