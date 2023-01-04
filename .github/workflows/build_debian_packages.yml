@@ -33,6 +33,8 @@ jobs:
         run: |
           mkdir build
           export BUILD_DIR=$(find $(pwd) -type d -name build)
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+          echo "$BUILD_DIR"
 
       - name: build source package
         working-directory: ${{ env.BUILD_DIR }}
