@@ -29,9 +29,10 @@ jobs:
           $REPO_DIR/scripts/debian_install_deps.sh
 
       - name: make build dir
+        working-directory: ${{ runner.temp }}
         run: |
-          export BUILD_DIR=${{ runner.temp }}/build
-          mkdir ${{ runner.temp }}/build
+          mkdir build
+          export BUILD_DIR=$(find $(pwd) -type d -name build)
 
       - name: build source package
         working-directory: ${{ env.BUILD_DIR }}
