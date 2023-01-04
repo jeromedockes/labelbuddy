@@ -21,6 +21,8 @@ jobs:
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
+        with:
+          install-deps: 'nosudo'
 
       - name: Build AppImage
         run: |
