@@ -28,18 +28,23 @@ jobs:
         run: |
           $REPO_DIR/scripts/debian_install_deps.sh
 
+      - name: make build dir
+        run: |
+          export BUILD_DIR=${{ runner.temp }}/build
+          mkdir "$BUILD_DIR"
+
       - name: build source package
-        working-directory: ${{ runner.temp }}
+        working-directory: ${{ env.BUILD_DIR }}
         run: |
           $REPO_DIR/scripts/build_source_tarball.sh
 
       - name: build .deb
-        working-directory: ${{ runner.temp }}
+        working-directory: ${{ env.BUILD_DIR }}
         run: |
           $REPO_DIR/scripts/build_deb.sh $(find -name '*.tar.gz')
 
       - name: Upload packages
         uses: actions/upload-artifact@v3
         with:
-          name: packages-${{ matrix.release }}
-          path: ${{ runner.temp }}
+          name: labelbuddy-${{ matrix.release }}
+          path: ${{ env.BUILD_DIR }}
