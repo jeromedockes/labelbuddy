@@ -1,0 +1,48 @@
+name: Build labelbuddy for Windows
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  build_windows:
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+
+      - name: Set up Visual Studio shell
+        uses: egor-tensin/vs-shell@v2
+        with:
+          arch: x64
+
+      - name: Build
+        working-directory: ${{ runner.temp }}
+        run: |
+          qmake ${{ github.workspace }}/labelbuddy.pro -config release
+          nmake
+          mkdir labelbuddy
+          windeployqt --dir labelbuddy release/labelbuddy.exe --release
+          cp release/labelbuddy.exe labelbuddy
+          cp ${{ github.workspace }}/docs/documentation.html labelbuddy
+
+      - name: Zip
+        working-directory: ${{ runner.temp }}
+        run: |
+          7z a labelbuddy.zip labelbuddy -r
+
+      - name: Upload Build Dir
+        uses: actions/upload-artifact@v3
+        with:
+          name: BuildDir
+          path: ${{ runner.temp }}/labelbuddy.zip

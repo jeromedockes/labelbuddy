@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>labelbuddy</Name>
+    <Version>${labelbuddy_version}</Version>
+    <Title>labelbuddy</Title>
+    <Publisher>labelbuddy</Publisher>
+    <StartMenuDir>labelbuddy</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/labelbuddy</TargetDir>
+</Installer>
