@@ -25,7 +25,8 @@ jobs:
           apt-get install -y cmake
           apt-get install -y qt5-default
           apt-get install -y build-essential
-          apt-get install wget
+          apt-get install -y wget
+          apt-get install -y fuse
 
       - name: Build AppImage
         run: |
