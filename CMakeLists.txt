@@ -116,7 +116,7 @@ set(CPACK_SOURCE_IGNORE_FILES
   qrc_resources[.]cpp
   qrc_test_resources[.]cpp
   [.]qmake[.]stash
-  .*[.]d
+  .*[.]d$
   .*[.]slo
   .*[.]lo
   .*[.]o
