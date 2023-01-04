@@ -1,5 +1,8 @@
-#include "char_indices.h"
+#include <cassert>
+
 #include <qmap.h>
+
+#include "char_indices.h"
 
 namespace labelbuddy {
 
