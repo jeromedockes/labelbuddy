@@ -9,7 +9,7 @@ import subprocess
 import tempfile
 
 repo_dir = pathlib.Path(__file__).resolve().parents[1]
-installer_template_dir = repo_dir / "data" / "windows_installer"
+installer_template_dir = repo_dir / "scripts" / "data" / "windows_installer"
 labelbuddy_version = (
     (repo_dir / "data" / "VERSION.txt").read_text("UTF-8").strip()
 )
