@@ -10,7 +10,8 @@ on:
 
 jobs:
   build_appimage:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    container: debian:oldstable
     defaults:
       run:
         shell: bash

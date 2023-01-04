@@ -25,5 +25,6 @@ chmod u+x linuxdeploy-*.AppImage
 
 chmod u+x labelbuddy*.AppImage
 cp labelbuddy*.AppImage "$TARGET_DIR"
+cp -r AppDir "$TARGET_DIR/AppDir"
 
 echo "AppImage in $TARGET_DIR"
