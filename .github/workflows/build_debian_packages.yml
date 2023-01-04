@@ -31,7 +31,7 @@ jobs:
       - name: make build dir
         run: |
           export BUILD_DIR=${{ runner.temp }}/build
-          mkdir "$BUILD_DIR"
+          mkdir ${{ runner.temp }}/build
 
       - name: build source package
         working-directory: ${{ env.BUILD_DIR }}
