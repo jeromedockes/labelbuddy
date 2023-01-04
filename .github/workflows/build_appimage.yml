@@ -23,6 +23,7 @@ jobs:
         uses: jurplel/install-qt-action@v3
         with:
           install-deps: 'nosudo'
+          setup-python: 'false'
 
       - name: Build AppImage
         run: |
