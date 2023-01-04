@@ -29,6 +29,8 @@ jobs:
           apt-get install -y fuse
 
       - name: Build AppImage
+        env:
+          APPIMAGE_EXTRACT_AND_RUN: 1
         run: |
           scripts/build_appimage.sh
 
