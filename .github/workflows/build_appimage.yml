@@ -11,7 +11,7 @@ on:
 jobs:
   build_appimage:
     runs-on: ubuntu-latest
-    container: ubuntu:xenial
+    container: ubuntu:bionic
     defaults:
       run:
         shell: bash
