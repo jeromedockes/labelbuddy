@@ -1,0 +1,45 @@
+name: Build debian packages
+
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "*"
+
+jobs:
+  build_debian_packages:
+    runs-on: ubuntu-latest
+    container: debian:${{ matrix.release }}
+    strategy:
+      matrix:
+        release: ["stretch", "buster", "bullseye"]
+    defaults:
+      run:
+        shell: bash
+    env:
+      REPO_DIR: ${{ github.workspace }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: install deps
+        run: |
+          $REPO_DIR/scripts/debian_install_deps.sh
+
+      - name: build source package
+        working-directory: ${{ runner.temp }}
+        run: |
+          $REPO_DIR/scripts/build_source_tarball.sh
+
+      - name: build .deb
+        working-directory: ${{ runner.temp }}
+        run: |
+          $REPO_DIR/scripts/build_deb.sh $(find -name '*.tar.gz')
+
+      - name: Upload packages
+        uses: actions/upload-artifact@v3
+        with:
+          name: packages-${{ matrix.release }}
+          path: ${{ runner.temp }}
