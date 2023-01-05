@@ -1,0 +1,55 @@
+name: Build debian packages
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build_debian_packages:
+    runs-on: ubuntu-latest
+    container: debian:${{ matrix.release }}
+    strategy:
+      matrix:
+        release: ["stretch", "buster", "bullseye"]
+    defaults:
+      run:
+        shell: bash
+    env:
+      REPO_DIR: ${{ github.workspace }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: install deps
+        run: |
+          echo "deb http://security.debian.org/ {{ matrix.release }}/updates main contrib non-free" >> /etc/apt/sources.list
+          $REPO_DIR/scripts/build_deb_install_deps.sh
+
+      - name: build source package
+        working-directory: ${{ runner.temp }}
+        run: |
+          $REPO_DIR/scripts/build_source_tarball.sh
+          SOURCE_TARBALL=$(find $(pwd) -maxdepth 1 -name 'labelbuddy*.tar.gz')
+          echo "SOURCE_TARBALL=$SOURCE_TARBALL" >> $GITHUB_ENV
+
+      - name: make build dir
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir build
+          export BUILD_DIR=$(find $(pwd) -type d -name build)
+          echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
+          echo "$BUILD_DIR"
+
+      - name: build .deb
+        working-directory: ${{ env.BUILD_DIR }}
+        run: |
+          $REPO_DIR/scripts/build_deb.sh $SOURCE_TARBALL
+          PACKAGE=$(find $(pwd) -maxdepth 1 -name 'labelbuddy_*.deb')
+          echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: labelbuddy-${{ matrix.release }}
+          path: ${{ env.PACKAGE }}*

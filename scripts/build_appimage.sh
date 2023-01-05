@@ -7,7 +7,7 @@ BUILD_DIR="$(mktemp -d)"
 cleanup () {
     rm -rf "$BUILD_DIR"
 }
-trap 'cleanup' EXIT INT TERM
+trap 'cleanup' EXIT
 
 cd "$BUILD_DIR"
 echo "Building AppImage in $(pwd)"

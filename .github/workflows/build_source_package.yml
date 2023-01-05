@@ -1,0 +1,34 @@
+name: Build source package
+
+on:
+  push:
+    branches:
+      - "main"
+
+jobs:
+  build_source_package:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install Qt & cmake
+        run: |
+          sudo apt update
+          sudo apt install -y cmake g++ qtbase5-dev
+
+      - name: Build source package
+        working-directory: ${{ runner.temp }}
+        run: |
+          ${{ github.workspace }}/scripts/build_source_tarball.sh
+          ARCHIVE=$(find $(pwd) -name 'labelbuddy*.tar.gz')
+          echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
+
+      - name: Upload package
+        uses: actions/upload-artifact@v3
+        with:
+          name: labelbuddy-source
+          path: ${{ env.ARCHIVE }}*
