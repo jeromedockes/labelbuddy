@@ -26,16 +26,6 @@ jobs:
         with:
           arch: x64
 
-      - name: Build
-        working-directory: ${{ runner.temp }}
-        run: |
-          qmake ${{ github.workspace }}/labelbuddy.pro -config release
-          nmake
-          mkdir labelbuddy
-          windeployqt --dir labelbuddy release/labelbuddy.exe --release
-          cp release/labelbuddy.exe labelbuddy
-          cp ${{ github.workspace }}/docs/documentation.html labelbuddy
-
       - name: Get labelbuddy version
         working-directory: ${{ github.workspace }}
         shell: bash
@@ -43,16 +33,27 @@ jobs:
           LABELBUDDY_VERSION=$(cat data/VERSION.txt)
           echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}"
           echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}" >> $GITHUB_ENV
+          echo "PKG_NAME=labelbuddy-${LABELBUDDY_VERSION}-windows" >> $GITHUB_ENV
+
+      - name: Build
+        working-directory: ${{ runner.temp }}
+        run: |
+          qmake ${{ github.workspace }}/labelbuddy.pro -config release
+          nmake
+          mkdir ${{ env.PKG_NAME }}
+          windeployqt --dir ${{ env.PKG_NAME }} release/labelbuddy.exe --release
+          cp release/labelbuddy.exe ${{ env.PKG_NAME }}
+          cp ${{ github.workspace }}/docs/documentation.html ${{ env.PKG_NAME }}
 
       - name: Zip
         working-directory: ${{ runner.temp }}
         shell: bash
         run: |
-          7z a labelbuddy-${LABELBUDDY_VERSION}-windows.zip labelbuddy -r
-          md5sum labelbuddy-${LABELBUDDY_VERSION}-windows.zip > labelbuddy-${LABELBUDDY_VERSION}-windows.zip.md5
+          7z a $PKG_NAME.zip $PKG_NAME -r
+          md5sum $PKG_NAME.zip > $PKG_NAME.zip.md5
 
       - name: Upload build dir
         uses: actions/upload-artifact@v3
         with:
           name: WindowsExeAndDll
-          path: ${{ runner.temp }}/labelbuddy-*.zip*
+          path: ${{ runner.temp }}/${{ env.PKG_NAME }}.zip*
