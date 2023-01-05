@@ -32,7 +32,7 @@ jobs:
           DMG_NAME="labelbuddy-$(cat ${{ github.workspace }}/data/VERSION.txt).dmg"
           echo "DMG_NAME=$DMG_NAME" >> $GITHUB_ENV
           mv labelbuddy.dmg "$DMG_NAME"
-          md5sum "$DMG_NAME" > "$DMG_NAME.md5"
+          md5 -r "$DMG_NAME" > "$DMG_NAME.md5"
 
       - name: Upload dmg
         uses: actions/upload-artifact@v3

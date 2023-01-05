@@ -38,11 +38,15 @@ jobs:
 
       - name: Zip
         working-directory: ${{ runner.temp }}
+        shell: bash
         run: |
-          7z a labelbuddy-$(cat ${{ github.workspace }}/data/VERSION.txt).zip labelbuddy -r
+          LABELBUDDY_VERSION=$(cat ${{ github.workspace }}/data/VERSION.txt)
+          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION} >> $GITHUB_ENV"
+          zip labelbuddy-${LABELBUDDY_VERSION}.zip labelbuddy -r
+          md5sum labelbuddy-${LABELBUDDY_VERSION}.zip > labelbuddy-${LABELBUDDY_VERSION}.zip.md5
 
       - name: Upload Build Dir
         uses: actions/upload-artifact@v3
         with:
           name: BuildDir
-          path: ${{ runner.temp }}/labelbuddy-*.zip
+          path: ${{ runner.temp }}/labelbuddy-*.zip*
