@@ -29,9 +29,13 @@ jobs:
           qmake ${{ github.workspace }}/labelbuddy.pro "CONFIG += app_bundle" -config release
           make
           macdeployqt labelbuddy.app -dmg
+          DMG_NAME="labelbuddy-$(cat ${{ github.workspace }}/data/VERSION.txt).dmg"
+          echo "DMG_NAME=$DMG_NAME" >> $GITHUB_ENV
+          mv labelbuddy.dmg "$DMG_NAME"
+          md5sum "$DMG_NAME" > "$DMG_NAME.md5"
 
       - name: Upload dmg
         uses: actions/upload-artifact@v3
         with:
           name: dmg
-          path: ${{ runner.temp }}/labelbuddy.dmg
+          path: ${{ runner.temp }}/${{ env.DMG_NAME }}*

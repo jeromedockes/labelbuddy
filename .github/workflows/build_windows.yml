@@ -39,10 +39,10 @@ jobs:
       - name: Zip
         working-directory: ${{ runner.temp }}
         run: |
-          7z a labelbuddy.zip labelbuddy -r
+          7z a labelbuddy-$(cat ${{ github.workspace }}/data/VERSION.txt).zip labelbuddy -r
 
       - name: Upload Build Dir
         uses: actions/upload-artifact@v3
         with:
           name: BuildDir
-          path: ${{ runner.temp }}/labelbuddy.zip
+          path: ${{ runner.temp }}/labelbuddy-*.zip
