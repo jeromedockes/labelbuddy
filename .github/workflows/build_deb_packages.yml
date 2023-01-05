@@ -29,6 +29,11 @@ jobs:
           echo "deb http://security.debian.org/ {{ matrix.release }}/updates main contrib non-free" >> /etc/apt/sources.list
           $REPO_DIR/scripts/build_deb_install_deps.sh
 
+      - name: build source package
+        working-directory: ${{ runner.temp }}
+        run: |
+          $REPO_DIR/scripts/build_source_tarball.sh
+
       - name: make build dir
         working-directory: ${{ runner.temp }}
         run: |
@@ -37,15 +42,10 @@ jobs:
           echo "BUILD_DIR=$BUILD_DIR" >> $GITHUB_ENV
           echo "$BUILD_DIR"
 
-      - name: build source package
-        working-directory: ${{ env.BUILD_DIR }}
-        run: |
-          $REPO_DIR/scripts/build_source_tarball.sh
-
       - name: build .deb
         working-directory: ${{ env.BUILD_DIR }}
         run: |
-          $REPO_DIR/scripts/build_deb.sh $(find -name '*.tar.gz')
+          $REPO_DIR/scripts/build_deb.sh $(find ${{ runner.temp }} -maxdepth 1 -name '*.tar.gz')
           PACKAGE=$(find $(pwd) -maxdepth 1 -name 'labelbuddy_*.deb')
           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
