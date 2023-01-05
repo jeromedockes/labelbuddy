@@ -18,12 +18,10 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Install Qt & utils
+      - name: Install Qt & cmake
         run: |
-          apt-get update
-          apt-get install -y cmake
-          apt-get install -y qt5-default
-          apt-get install -y build-essential
+          sudo apt update
+          sudo apt install -y cmake g++ qtbase5-dev
 
       - name: Build source package
         working-directory: ${{ runner.temp }}
