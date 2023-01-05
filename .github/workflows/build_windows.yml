@@ -38,8 +38,11 @@ jobs:
 
       - name: Get labelbuddy version
         working-directory: ${{ github.workspace }}
+        shell: bash
         run: |
-          echo "LABELBUDDY_VERSION=$(cat data/VERSION.txt)" >> $GITHUB_ENV
+          LABELBUDDY_VERSION=$(cat data/VERSION.txt)
+          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}"
+          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}" >> $GITHUB_ENV
 
       - name: Zip
         working-directory: ${{ runner.temp }}
