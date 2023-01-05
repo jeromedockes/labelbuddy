@@ -33,6 +33,8 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           $REPO_DIR/scripts/build_source_tarball.sh
+          SOURCE_TARBALL=$(find $(pwd) -maxdepth 1 -name 'labelbuddy*.tar.gz')
+          echo "SOURCE_TARBALL=$SOURCE_TARBALL" >> $GITHUB_ENV
 
       - name: make build dir
         working-directory: ${{ runner.temp }}
@@ -45,7 +47,7 @@ jobs:
       - name: build .deb
         working-directory: ${{ env.BUILD_DIR }}
         run: |
-          $REPO_DIR/scripts/build_deb.sh $(find ${{ runner.temp }} -maxdepth 1 -name '*.tar.gz')
+          $REPO_DIR/scripts/build_deb.sh $SOURCE_TARBALL
           PACKAGE=$(find $(pwd) -maxdepth 1 -name 'labelbuddy_*.deb')
           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
