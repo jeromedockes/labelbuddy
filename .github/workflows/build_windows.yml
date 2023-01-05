@@ -48,11 +48,11 @@ jobs:
         working-directory: ${{ runner.temp }}
         shell: bash
         run: |
-          7z a labelbuddy-${LABELBUDDY_VERSION}.zip labelbuddy -r
-          md5sum labelbuddy-${LABELBUDDY_VERSION}.zip > labelbuddy-${LABELBUDDY_VERSION}.zip.md5
+          7z a labelbuddy-${LABELBUDDY_VERSION}-windows.zip labelbuddy -r
+          md5sum labelbuddy-${LABELBUDDY_VERSION}-windows.zip > labelbuddy-${LABELBUDDY_VERSION}-windows.zip.md5
 
-      - name: Upload Build Dir
+      - name: Upload build dir
         uses: actions/upload-artifact@v3
         with:
-          name: BuildDir
+          name: WindowsExeAndDll
           path: ${{ runner.temp }}/labelbuddy-*.zip*
