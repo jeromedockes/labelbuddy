@@ -36,12 +36,15 @@ jobs:
           cp release/labelbuddy.exe labelbuddy
           cp ${{ github.workspace }}/docs/documentation.html labelbuddy
 
+      - name: Get labelbuddy version
+        working-directory: ${{ github.workspace }}
+        run: |
+          echo "LABELBUDDY_VERSION=$(cat data/VERSION.txt) >> $GITHUB_ENV"
+
       - name: Zip
         working-directory: ${{ runner.temp }}
         shell: bash
         run: |
-          LABELBUDDY_VERSION=$(cat ${{ github.workspace }}/data/VERSION.txt)
-          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION} >> $GITHUB_ENV"
           zip labelbuddy-${LABELBUDDY_VERSION}.zip labelbuddy -r
           md5sum labelbuddy-${LABELBUDDY_VERSION}.zip > labelbuddy-${LABELBUDDY_VERSION}.zip.md5
 
