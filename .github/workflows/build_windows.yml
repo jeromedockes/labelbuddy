@@ -45,7 +45,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         shell: bash
         run: |
-          zip labelbuddy-${LABELBUDDY_VERSION}.zip labelbuddy -r
+          7z a labelbuddy-${LABELBUDDY_VERSION}.zip labelbuddy -r
           md5sum labelbuddy-${LABELBUDDY_VERSION}.zip > labelbuddy-${LABELBUDDY_VERSION}.zip.md5
 
       - name: Upload Build Dir
