@@ -46,9 +46,11 @@ jobs:
         working-directory: ${{ env.BUILD_DIR }}
         run: |
           $REPO_DIR/scripts/build_deb.sh $(find -name '*.tar.gz')
+          PACKAGE=$(find $(pwd) -maxdepth 1 -name 'labelbuddy_*.deb')
+          echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
-      - name: Upload packages
+      - name: Upload package
         uses: actions/upload-artifact@v3
         with:
           name: labelbuddy-${{ matrix.release }}
-          path: ${{ env.BUILD_DIR }}
+          path: ${{ env.PACKAGE }}
