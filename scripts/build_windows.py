@@ -34,7 +34,7 @@ def _build_executable(work_dir: pathlib.Path) -> pathlib.Path:
 def _build_package(
     executable: pathlib.Path, work_dir: pathlib.Path
 ) -> pathlib.Path:
-    package_dir = work_dir / f"labelbuddy-{_labelbuddy_version()}"
+    package_dir = work_dir / f"labelbuddy-{_labelbuddy_version()}-windows"
     package_dir.mkdir()
     subprocess.run(
         [
@@ -52,13 +52,16 @@ def _build_package(
 
 
 def _zip_package(package_dir: pathlib.Path) -> pathlib.Path:
-    archive = shutil.make_archive(
-        str(package_dir),
-        "zip",
-        root_dir=package_dir.parent,
-        base_dir=package_dir.name,
-    )
-    return pathlib.Path(archive).resolve()
+    target = package_dir.with_name(f"{package_dir.name}.zip")
+    subprocess.run(["7z", "a", target, str(package_dir), "-r"], check=True)
+    return target.resolve()
+    # archive = shutil.make_archive(
+    #     str(package_dir),
+    #     "zip",
+    #     root_dir=package_dir.parent,
+    #     base_dir=package_dir.name,
+    # )
+    # return pathlib.Path(archive).resolve()
 
 
 def _installer_framework() -> pathlib.Path:
