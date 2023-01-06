@@ -9,6 +9,7 @@ import shutil
 import string
 import subprocess
 import tempfile
+from typing import Optional
 
 
 def _repo_dir() -> pathlib.Path:
@@ -143,7 +144,7 @@ def _md5sum(file_path: pathlib.Path):
 
 
 def _build(
-    executable: pathlib.Path | None = None, build_installer: bool = False
+    executable: Optional[pathlib.Path] = None, build_installer: bool = False
 ) -> None:
     with tempfile.TemporaryDirectory() as work_dir_path:
         work_dir = pathlib.Path(work_dir_path)
