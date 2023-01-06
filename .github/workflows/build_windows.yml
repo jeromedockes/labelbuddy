@@ -33,8 +33,14 @@ jobs:
         run: |
           python3 ${{ github.workspace }}/scripts/build_windows.py --installer
 
-      - name: Upload build dir
+      - name: Upload deployment dir
         uses: actions/upload-artifact@v3
         with:
           name: WindowsExeAndDll
           path: ${{ runner.temp }}/labelbuddy-*.zip*
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: WindowsInstaller
+          path: ${{ runner.temp }}/labelbuddy-*-windows-installer.exe*
