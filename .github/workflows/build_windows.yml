@@ -20,6 +20,8 @@ jobs:
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
+        with:
+          tools: 'tools_ifw'
 
       - name: Set up Visual Studio shell
         uses: egor-tensin/vs-shell@v2
@@ -29,7 +31,7 @@ jobs:
       - name: Build
         working-directory: ${{ runner.temp }}
         run: |
-          python3 ${{ github.workspace }}/scripts/build_windows.py
+          python3 ${{ github.workspace }}/scripts/build_windows.py --installer
 
       - name: Upload build dir
         uses: actions/upload-artifact@v3
