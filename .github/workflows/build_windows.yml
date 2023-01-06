@@ -26,34 +26,13 @@ jobs:
         with:
           arch: x64
 
-      - name: Get labelbuddy version
-        working-directory: ${{ github.workspace }}
-        shell: bash
-        run: |
-          LABELBUDDY_VERSION=$(cat data/VERSION.txt)
-          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}"
-          echo "LABELBUDDY_VERSION=${LABELBUDDY_VERSION}" >> $GITHUB_ENV
-          echo "PKG_NAME=labelbuddy-${LABELBUDDY_VERSION}-windows" >> $GITHUB_ENV
-
       - name: Build
         working-directory: ${{ runner.temp }}
         run: |
-          qmake ${{ github.workspace }}/labelbuddy.pro -config release
-          nmake
-          mkdir ${{ env.PKG_NAME }}
-          windeployqt --dir ${{ env.PKG_NAME }} release/labelbuddy.exe --release
-          cp release/labelbuddy.exe ${{ env.PKG_NAME }}
-          cp ${{ github.workspace }}/docs/documentation.html ${{ env.PKG_NAME }}
-
-      - name: Zip
-        working-directory: ${{ runner.temp }}
-        shell: bash
-        run: |
-          7z a $PKG_NAME.zip $PKG_NAME -r
-          md5sum $PKG_NAME.zip > $PKG_NAME.zip.md5
+          python3 ${{ github.workspace }}/scripts/build_windows.py
 
       - name: Upload build dir
         uses: actions/upload-artifact@v3
         with:
           name: WindowsExeAndDll
-          path: ${{ runner.temp }}/${{ env.PKG_NAME }}.zip*
+          path: ${{ runner.temp }}/labelbuddy-*.zip*
