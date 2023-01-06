@@ -90,7 +90,7 @@ def _installer_framework() -> pathlib.Path:
     except (KeyError, AssertionError):
         pass
     installer_framework = (
-        list(pathlib.Path("C:", "Qt").glob("QtIFW-*"))[0]
+        list(pathlib.Path("C:/Qt").glob("QtIFW-*"))[0]
         / "bin"
         / "binarycreator"
     )
@@ -141,8 +141,8 @@ def _build_installer(
 
 def _md5sum(file_path: pathlib.Path):
     checksum = hashlib.md5(file_path.read_bytes()).hexdigest()
-    file_path.with_name(f"{file_path.name}.md5").write_text(
-        f"{checksum}  {file_path.name}\n", newline="\n"
+    file_path.with_name(f"{file_path.name}.md5").write_bytes(
+        f"{checksum}  {file_path.name}\n".encode("UTF-8")
     )
 
 
