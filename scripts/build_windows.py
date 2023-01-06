@@ -92,7 +92,7 @@ def _installer_framework() -> pathlib.Path:
     installer_framework = (
         list(pathlib.Path("C:/Qt").glob("QtIFW-*"))[0]
         / "bin"
-        / "binarycreator"
+        / "binarycreator.exe"
     )
     assert installer_framework.is_file()
     return installer_framework
