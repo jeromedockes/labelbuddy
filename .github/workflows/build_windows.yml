@@ -29,20 +29,10 @@ jobs:
       - name: Build
         working-directory: ${{ runner.temp }}
         run: |
-          qmake ${{ github.workspace }}/labelbuddy.pro -config release
-          nmake
-          mkdir labelbuddy
-          windeployqt --dir labelbuddy release/labelbuddy.exe --release
-          cp release/labelbuddy.exe labelbuddy
-          cp ${{ github.workspace }}/docs/documentation.html labelbuddy
+          python3 ${{ github.workspace }}/scripts/build_windows.py
 
-      - name: Zip
-        working-directory: ${{ runner.temp }}
-        run: |
-          7z a labelbuddy.zip labelbuddy -r
-
-      - name: Upload Build Dir
+      - name: Upload deployment dir
         uses: actions/upload-artifact@v3
         with:
-          name: BuildDir
-          path: ${{ runner.temp }}/labelbuddy.zip
+          name: WindowsExeAndDll
+          path: ${{ runner.temp }}/labelbuddy-*.zip*
