@@ -55,7 +55,9 @@ def _build_package(
 def _zip_package(package_dir: pathlib.Path) -> pathlib.Path:
     target = package_dir.with_name(f"{package_dir.name}.zip")
     subprocess.run(["7z", "a", target, str(package_dir), "-r"], check=True)
-    return target.resolve()
+    # note: the following results in directories with permissions 777 in the gh
+    # actions artifact so we use 7z instead.
+
     # archive = shutil.make_archive(
     #     str(package_dir),
     #     "zip",
@@ -63,6 +65,7 @@ def _zip_package(package_dir: pathlib.Path) -> pathlib.Path:
     #     base_dir=package_dir.name,
     # )
     # return pathlib.Path(archive).resolve()
+    return target.resolve()
 
 
 def _installer_framework() -> pathlib.Path:
@@ -99,9 +102,8 @@ def _build_installer(
     package: pathlib.Path, work_dir: pathlib.Path
 ) -> pathlib.Path:
     installer_dir = (
-        work_dir / f"labelbuddy-${_labelbuddy_version()}-windows-installer"
+        work_dir / f"labelbuddy-{_labelbuddy_version()}-windows-installer"
     )
-    installer_dir.mkdir()
     shutil.copytree(
         _repo_dir() / "scripts" / "data" / "windows_installer", installer_dir
     )
@@ -117,6 +119,7 @@ def _build_installer(
         )
         template_file.write_text(text, "UTF-8")
     data_dir = installer_dir / "packages" / "labelbuddy" / "data"
+    shutil.rmtree(data_dir)
     shutil.copytree(package, data_dir)
     shutil.copy(_repo_dir() / "docs" / "documentation.html", data_dir)
     installer_name = (
@@ -156,8 +159,7 @@ def _build(
         _md5sum(pathlib.Path(".") / package_zip.name)
         if build_installer:
             installer = _build_installer(package, work_dir)
-            shutil.copy(installer, ".")
-            _md5sum(pathlib.Path(".") / installer.name)
+            _md5sum(installer)
 
 
 if __name__ == "__main__":
