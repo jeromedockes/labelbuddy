@@ -43,7 +43,6 @@ def _build_package(
             "--dir",
             str(package_dir),
             str(executable),
-            "--release",
         ],
         check=True,
     )
@@ -54,18 +53,19 @@ def _build_package(
 
 def _zip_package(package_dir: pathlib.Path) -> pathlib.Path:
     target = package_dir.with_name(f"{package_dir.name}.zip")
-    subprocess.run(["7z", "a", target, str(package_dir), "-r"], check=True)
-    # note: the following results in directories with permissions 777 in the gh
-    # actions artifact so we use 7z instead.
-
-    # archive = shutil.make_archive(
-    #     str(package_dir),
-    #     "zip",
-    #     root_dir=package_dir.parent,
-    #     base_dir=package_dir.name,
-    # )
-    # return pathlib.Path(archive).resolve()
-    return target.resolve()
+    try:
+        subprocess.run(["7z", "a", target, str(package_dir), "-r"], check=True)
+        return target.resolve()
+    except FileNotFoundError:
+        # note: the following results in directories with permissions 777 in
+        # the gh actions artifact so we prefer to use 7z.
+        archive = shutil.make_archive(
+            str(package_dir),
+            "zip",
+            root_dir=package_dir.parent,
+            base_dir=package_dir.name,
+        )
+        return pathlib.Path(archive).resolve()
 
 
 def _installer_framework() -> pathlib.Path:
