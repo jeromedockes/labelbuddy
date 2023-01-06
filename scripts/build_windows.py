@@ -125,6 +125,7 @@ def _build_installer(
     installer_name = (
         f"labelbuddy-{_labelbuddy_version()}-windows-installer.exe"
     )
+    print("Building installer...")
     subprocess.run(
         [
             _installer_framework(),
