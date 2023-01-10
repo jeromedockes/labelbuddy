@@ -100,7 +100,7 @@ It is easy to {downloads-link}[install] and use, and can efficiently handle many
 
 There exist several tools for annotating documents.
 Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio], are meant to run on a web server and be used online.
-If you are crowdsourcing annotations and want users to annotate documents online you should turn to one of these tools.
+If you are crowdsourcing annotations and want users to annotate documents online this is necessary.
 
 However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install a rather complex program and run a local server and database management system on their own machine.
 In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.

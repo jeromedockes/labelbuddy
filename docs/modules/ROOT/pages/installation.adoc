@@ -14,6 +14,8 @@ endif::[]
 :lbppa: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy
 :lbppapackages: https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages
 :ghreleases: https://github.com/jeromedockes/labelbuddy/releases
+:latestghrelease: https://github.com/jeromedockes/labelbuddy/releases/tag/v{lbversion}
+:latestghreleasedownload: https://github.com/jeromedockes/labelbuddy/releases/download/v{lbversion}
 :ghrepo: https://github.com/jeromedockes/labelbuddy/
 :lb: pass:q[*labelbuddy*]
 
@@ -32,41 +34,81 @@ Packages built for different Ubuntu distributions are published on {lbppa}[this 
 Add it to your system by executing:
 ....
 sudo add-apt-repository -y ppa:jdockes/labelbuddy
-sudo apt-get update
+sudo apt update
 ....
 
 Then the latest release of {lb} (and any future releases) can be installed with:
 ....
-sudo apt-get install labelbuddy
+sudo apt install labelbuddy
 ....
 
-If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt`:
+If you don't want to add the PPA to your sources list you can manually choose and download one of the {lbppapackages}[published packages], then install it with `apt`, for example:
 
+[subs="+attributes"]
 ....
-sudo apt install ./labelbuddy_<version>.deb
+sudo apt install ./labelbuddy_{lbversion}-1~jammy1_amd64.deb
 ....
+
+To use {lb} without installing anything, see <<on-any-linux-distribution,below>>.
 
 === On Debian
 
-Binary packages can be downloaded from {ghreleases}[the releases page on GitHub].
-Once you have downloaded the package, you can install it with `apt`:
+Binary packages can be downloaded from {latestghrelease}[the downloads page].
+Once you have downloaded the package, you can install it with `apt`, for example:
+[subs="+attributes"]
 ....
-sudo apt install ./labelbuddy_<version>.deb
+sudo apt install ./labelbuddy_{lbversion}-1~bullseye1_amd64.deb
 ....
+
+To use {lb} without installing anything, see <<on-any-linux-distribution,below>>.
+
+=== On any Linux distribution
+
+An https://appimage.org/[AppImage] is provided in the {latestghrelease}[downloads page] (file name: `labelbuddy-{lbversion}-x86_64.AppImage`).
+You can download it by clicking {latestghreleasedownload}/labelbuddy-{lbversion}-x86_64.AppImage[this link].
+That is a single self-contained executable that can be run on any of the common Linux distributions.
+Simply download the `.AppImage` file, make it executable and run it.
+This can be done by executing:
+
+[subs="+attributes"]
+----
+wget {latestghreleasedownload}/labelbuddy-{lbversion}-x86_64.AppImage
+
+chmod u+x ./labelbuddy-{lbversion}-x86_64.AppImage
+./labelbuddy-{lbversion}-x86_64.AppImage
+----
+
+You can optionally rename the executable (`.AppImage` file) to `labelbuddy`, and move it to a location in your `$PATH`.
+This will enable using the command `labelbuddy` to start the program.
 
 === On Windows
 
-Select the latest release from {ghreleases}[here], and download and run `labelbuddy_<version>_windows_installer.exe` (ignore Windows’ security warnings).
+An installer for Windows is provided in the {latestghrelease}[downloads page] (file name: `labelbuddy-{lbversion}-windows-installer.exe`).
+You can download it by clicking {latestghreleasedownload}/labelbuddy-{lbversion}-windows-installer.exe[this link].
+Download the installer and execute it.
+Windows will warn that {lb} is an "unrecognized app", displaying a message like "Windows protected your PC ...".
+Click on "more info", then "run anyway".
+
 {lb} can be uninstalled from the Windows applications menu, or by running the `maintenancetool.exe` executable found in the {lb} installation folder.
 
-An alternative to using the installer is to download `labelbuddy_windows.zip`, unzip it anywhere, then execute the file `labelbuddy.exe` that it contains to start {lb}.
+You can also use {lb} without installing it.
+Instead of using the installer, download the file named `labelbuddy-{lbversion}-windows.zip` from the {latestghrelease}[downloads page] (or click {latestghreleasedownload}/labelbuddy-{lbversion}-windows.zip[this download link]).
+Extract the contents of the `.zip` file, then execute the file `labelbuddy.exe` that it contains to start {lb}.
 
 === On MacOS
 
-Select the latest release from {ghreleases}[here], and download `labelbuddy_<version>.dmg`.
-Double-click the downloaded file, and from the window that opens drag `labelbuddy` into the `/Applications` folder in *Finder*.
+An Apple Disk Image is provided in the {latestghrelease}[downloads page] (file name: `labelbuddy-{lbversion}.dmg`).
+You can download it by clicking {latestghreleasedownload}/labelbuddy-{lbversion}.dmg[this link].
+Double-click the downloaded file, and from the window that opens, drag `labelbuddy` into the `/Applications` folder in *Finder*.
 
-In addition, _if_ you want to use {lb}’s command-line interface, you probably need to add a symlink in a location in your `PATH` for your shell to find the `labelbuddy` command:
+The first time you try to open {lb}, MacOS will warn that it "cannot verify the developer".
+To start {lb} anyway you can press kbd:[Ctrl] while you click the {lb} icon, then in the dialog that appears select "Open".
+Another way is to visit menu:System Preferences[Security & Privacy] once the warning appears, and click "Open Anyway".
+
+You can also run {lb} without installing it: instead of dropping it into */Applications*, visit the `.dmg` file in *Finder* and double-click (or kbd:[Ctrl]-click, see above) the `labelbuddy` file it contains.
+
+_If_ you also want to use {lb}’s xref:documentation.adoc#command-line-interface[command-line interface], add a symlink in a location in your `$PATH` for your shell to find the `labelbuddy` command.
+For example:
 
 ....
 ln -s /Applications/labelbuddy.app/Contents/MacOs/labelbuddy /usr/local/bin/labelbuddy
@@ -74,11 +116,11 @@ ln -s /Applications/labelbuddy.app/Contents/MacOs/labelbuddy /usr/local/bin/labe
 
 == Building from source
 
-Download a source distribution from {ghreleases}[GitHub], the {lb} {lbppapackages}[PPA], or get the latest code by cloning or downloading the {lb} {ghrepo}[git repository].
+Download a source distribution from {latestghrelease}[the downloads page], or get the latest code by cloning or downloading the {lb} {ghrepo}[git repository].
 
 {lb} uses https://www.qt.io/[Qt 5]. Qt can probably be installed with your package manager, for example:
 ....
-apt-get install qtbase5-dev
+apt install qtbase5-dev
 ....
 or
 ....
@@ -90,7 +132,7 @@ Otherwise you can get it from the https://www.qt.io/download-qt-installer[Qt dow
 
 {lb} can be built with https://cmake.org/[CMake]. In an empty directory run:
 ....
-cmake /path/to/labelbuddy
+cmake /path/to/labelbuddy/CMakeLists.txt
 cmake --build .
 ....
 
@@ -101,7 +143,7 @@ sudo make install
 
 {lb} can also be built with https://doc.qt.io/qt-5/qmake-manual.html[qmake]:
 ....
-qmake /path/to/labelbuddy
+qmake /path/to/labelbuddy/labelbuddy.pro
 make
 ....
 
