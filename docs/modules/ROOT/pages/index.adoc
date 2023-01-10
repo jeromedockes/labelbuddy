@@ -10,6 +10,7 @@ Jérôme Dockès <jerome@dockes.org>
 :lb: pass:q[*labelbuddy*]
 :downloads-link: link:https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation
 
+image::labelbuddy.svg[256,256,float="left"]
 
 {lb} is a Graphical User Interface tool for annotating documents -- for example for Named Entity Recognition or document classification.
 

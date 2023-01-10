@@ -80,6 +80,8 @@ ifdef::env-github[]
 
 image::https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml/badge.svg[link="https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml",alt="test results"]
 
+image::../data/icons/labelbuddy.png[256,256]
+
 *Useful links:*
 
 - {homepage}[Website]
