@@ -42,6 +42,14 @@ src/char_indices.cpp \
 QT += widgets sql
 RESOURCES = resources.qrc
 
+macx {
+ICON = data/icons/labelbuddy.icns
+}
+
+win32 {
+RC_ICONS = data/icons/labelbuddy.ico
+}
+
 test {
 TEMPLATE = app
 TARGET = labelbuddy_tests

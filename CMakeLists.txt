@@ -189,6 +189,13 @@ install (FILES "${CMAKE_SOURCE_DIR}/data/labelbuddy.desktop"
   DESTINATION "${CMAKE_INSTALL_DATADIR}/applications")
 
 install (FILES "${CMAKE_SOURCE_DIR}/data/icons/labelbuddy.png"
-  DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps")
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/256x256/apps")
+
+install (FILES "${CMAKE_SOURCE_DIR}/data/icons/labelbuddy-small.png"
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/16x16/apps"
+  RENAME "labelbuddy.png")
+
+install (FILES "${CMAKE_SOURCE_DIR}/data/icons/labelbuddy.svg"
+  DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps")
 
 include(CPack)
