@@ -1,0 +1,2 @@
+{"annotations":[{"end_char":8,"label_name":"Word","start_char":4},{"end_char":22,"extra_data":"1","label_name":"Number","start_char":21}],"metadata":{},"text":"the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"872edcd008dee45d894d5d3c9143f96b"}
+{"annotations":[{"end_char":20,"label_name":"Word","start_char":12}],"display_title":"title 2","list_title":"the title of document 2","metadata":{"id":"doc-2","source":"example.org"},"text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}

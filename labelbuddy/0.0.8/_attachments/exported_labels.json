@@ -1,0 +1,11 @@
+[
+    {
+        "color": "#aec7e8",
+        "name": "Word"
+    },
+    {
+        "color": "#ffa500",
+        "name": "Number",
+        "shortcut_key": "n"
+    }
+]
