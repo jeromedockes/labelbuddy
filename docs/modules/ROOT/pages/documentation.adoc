@@ -80,7 +80,7 @@ ifdef::env-github[]
 
 image::https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml/badge.svg[link="https://github.com/jeromedockes/labelbuddy/actions/workflows/test.yml",alt="test results"]
 
-image::../data/icons/labelbuddy.svg[256,256]
+image::./modules/ROOT/images/labelbuddy-animated.svg[256,256]
 
 *Useful links:*
 
@@ -243,7 +243,7 @@ You can also use the extra data for free-form labelling.
 For example, you can enter a number, the normalized name of an entity, a URI, etc. -- anything that an Information Extraction system should find in the labelled region.
 
 Once you have created annotations, you can select any of them by clicking it.
-It becomes [.blue-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+It becomes [.yellow-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
 TIP: You can control whether the selected annotation is displayed in a bold font by checking or unchecking  menu:Preferences[Show selected annotation in bold font].
@@ -256,7 +256,7 @@ If you need free-form labels, use a generic label name and type the free-form an
 ==== Overlapping annotations
 
 When two or more annotations overlap, the whole group is shown in [.annotation-cluster]##white text on a gray background##.
-As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno-bold.blue-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
+As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno-bold.yellow-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
 
 The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
 
