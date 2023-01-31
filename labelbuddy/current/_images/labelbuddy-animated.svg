@@ -42,8 +42,8 @@
   <style
      id="style3">
     @keyframes wave-hand {
-      from {transform: rotate(-4deg); transform-origin: 43% 42%;}
-      to {transform: rotate(8deg); transform-origin: 43% 42%;}
+      from {transform: rotate(-2deg); transform-origin: 43% 42%;}
+      to {transform: rotate(2deg); transform-origin: 43% 42%;}
     }
 
     #hat-hand {
