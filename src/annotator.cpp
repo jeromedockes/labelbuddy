@@ -513,10 +513,7 @@ void Annotator::setLabelForSelectedRegion() {
   }
   auto start = annotations_[activeAnnotation_].startChar;
   auto end = annotations_[activeAnnotation_].endChar;
-  int prevActive = activeAnnotation_;
-  if (addAnnotation(labelId, start, end)) {
-    deleteAnnotation(prevActive);
-  }
+  addAnnotation(labelId, start, end);
 }
 
 bool Annotator::addAnnotation() {

@@ -46,12 +46,16 @@ void TestAnnotator::testAnnotator() {
   QCOMPARE(annotationsModel.getAnnotationsInfo()[2].labelId, 1);
   // delete with button
   del->click();
-  QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 0);
+  QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 1);
 
   // create other annotation and delete with backspace
   text->searchForward();
   QTest::keyClicks(&annotator, "p");
-  QCOMPARE(annotationsModel.getAnnotationsInfo()[1].labelId, 1);
+  QCOMPARE(annotationsModel.getAnnotationsInfo()[2].labelId, 1);
+  QTest::keyClick(&annotator, Qt::Key_Backspace);
+  QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 1);
+  // delete the remaining annotation
+  QTest::keyClick(&annotator, Qt::Key_Space);
   QTest::keyClick(&annotator, Qt::Key_Backspace);
   QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 0);
 
