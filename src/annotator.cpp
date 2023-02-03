@@ -513,6 +513,7 @@ void Annotator::setLabelForSelectedRegion() {
   }
   auto start = annotations_[activeAnnotation_].startChar;
   auto end = annotations_[activeAnnotation_].endChar;
+  deactivateActiveAnnotation();
   addAnnotation(labelId, start, end);
 }
 
