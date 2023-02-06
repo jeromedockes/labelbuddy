@@ -222,6 +222,7 @@ private:
   void clearAnnotations();
   void fetchLabelsInfo();
   void fetchAnnotationsInfo();
+  void clearTextSelection();
   QTextEdit::ExtraSelection
   makePaintedRegion(int startChar, int endChar, const QString& color,
                     const QString& textColor = "black", bool underline = false);

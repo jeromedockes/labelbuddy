@@ -517,6 +517,7 @@ void Annotator::setLabelForSelectedRegion() {
   for (const auto& anno : annotations_) {
     if (anno.labelId == labelId && anno.startChar == start &&
         anno.endChar == end) {
+      clearTextSelection();
       activeAnnotation_ = anno.id;
       emit activeAnnotationChanged();
       return;
@@ -559,9 +560,7 @@ bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
       annotationId, labelId, startChar, endChar, QString(), annotationCursor};
   addAnnotationToClusters(annotations_[annotationId], clusters_);
   sortedAnnotations_.insert({startChar, annotationId});
-  auto newCursor = text_->getTextEdit()->textCursor();
-  newCursor.clearSelection();
-  text_->getTextEdit()->setTextCursor(newCursor);
+  clearTextSelection();
   deactivateActiveAnnotation();
   activeAnnotation_ = annotationId;
   emit activeAnnotationChanged();
@@ -643,6 +642,12 @@ void Annotator::selectNextAnnotation(bool forward) {
   deactivateActiveAnnotation();
   activeAnnotation_ = nextAnno;
   emit activeAnnotationChanged();
+}
+
+void Annotator::clearTextSelection() {
+  auto newCursor = text_->getTextEdit()->textCursor();
+  newCursor.clearSelection();
+  text_->getTextEdit()->setTextCursor(newCursor);
 }
 
 QTextEdit::ExtraSelection
