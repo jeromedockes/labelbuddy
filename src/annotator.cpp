@@ -502,17 +502,26 @@ void Annotator::updateExtraDataForActiveAnnotation(const QString& newData) {
 }
 
 void Annotator::setLabelForSelectedRegion() {
-  if (activeAnnotation_ == -1) {
-    addAnnotation();
-    return;
-  }
   int labelId = labelChoices_->selectedLabelId();
-  auto prevLabel = annotations_[activeAnnotation_].labelId;
-  if (labelId == prevLabel) {
+  if (activeAnnotation_ != -1 &&
+      annotations_[activeAnnotation_].labelId == labelId) {
     return;
   }
-  auto start = annotations_[activeAnnotation_].startChar;
-  auto end = annotations_[activeAnnotation_].endChar;
+  auto selectionBoundaries = text_->currentSelection();
+  auto start = selectionBoundaries[0];
+  auto end = selectionBoundaries[1];
+  if (activeAnnotation_ != -1) {
+    start = annotations_[activeAnnotation_].startChar;
+    end = annotations_[activeAnnotation_].endChar;
+  }
+  for (const auto& anno : annotations_) {
+    if (anno.labelId == labelId && anno.startChar == start &&
+        anno.endChar == end) {
+      activeAnnotation_ = anno.id;
+      emit activeAnnotationChanged();
+      return;
+    }
+  }
   deactivateActiveAnnotation();
   addAnnotation(labelId, start, end);
 }
