@@ -503,6 +503,9 @@ void Annotator::updateExtraDataForActiveAnnotation(const QString& newData) {
 
 void Annotator::setLabelForSelectedRegion() {
   int labelId = labelChoices_->selectedLabelId();
+  if (labelId == -1){
+    return;
+  }
   if (activeAnnotation_ != -1 &&
       annotations_[activeAnnotation_].labelId == labelId) {
     return;
