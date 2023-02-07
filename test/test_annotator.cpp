@@ -116,6 +116,12 @@ void TestAnnotator::testOverlappingAnnotations() {
   QCOMPARE(te->extraSelections().size(), 1);
   QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 2);
 
+  // selecting a label with an annotation that already exists at that position
+  lv->selectionModel()->select(labelsModel.index(0, 0),
+                               QItemSelectionModel::SelectCurrent);
+  QCOMPARE(status.annotationLabel, QString("label: Reinício da sessão"));
+  QCOMPARE(annotationsModel.getAnnotationsInfo().size(), 2);
+
   cursor.setPosition(0);
   te->setTextCursor(cursor);
   cursor.setPosition(1);
