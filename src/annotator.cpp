@@ -530,21 +530,6 @@ void Annotator::setLabelForSelectedRegion() {
   addAnnotation(labelId, start, end);
 }
 
-bool Annotator::addAnnotation() {
-  int labelId = labelChoices_->selectedLabelId();
-  if (labelId == -1) {
-    return false;
-  }
-  QList<int> selectionBoundaries = text_->currentSelection();
-  auto start = selectionBoundaries[0];
-  auto end = selectionBoundaries[1];
-  if (start == end) {
-    assert(false);
-    return false;
-  }
-  return addAnnotation(labelId, start, end);
-}
-
 bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
   auto annotationId =
       annotationsModel_->addAnnotation(labelId, startChar, endChar);
