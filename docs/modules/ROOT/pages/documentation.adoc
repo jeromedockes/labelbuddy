@@ -260,6 +260,10 @@ As you click the gray region or press the kbd:[Space] key, each [.annotation-clu
 
 The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
 
+If we click a new label while an annotation is selected, a new annotation is created on top, at the same position as the previously selected annotation, with the new label.
+It is not possible to have two different annotations with the same label at the exact same (start and end) position.
+If we click a label corresponding to an annotation that already exists at the current position, the existing annotation is selected instead of creating a new one.
+
 
 [#keybindings-summary]
 ==== Summary of key bindings in the "`Annotate`" tab

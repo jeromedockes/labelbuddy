@@ -1,3 +1,12 @@
+labelbuddy (0.0.10) unstable; urgency=medium
+
+  * Selecting a label while an annotation is selected now creates a
+    new annotation on top instead of replacing the selected annotation.
+  * Selecting a label that already exists at the current position
+    activates the corresponding annotation.
+
+ -- jerome dockes <jerome@dockes.org>  Tue, 07 Feb 2023 08:04:32 -0300
+
 labelbuddy (0.0.9) unstable; urgency=medium
 
   * Byte positions can be used instead of Unicode character positions when

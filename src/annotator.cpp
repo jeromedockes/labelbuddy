@@ -502,36 +502,32 @@ void Annotator::updateExtraDataForActiveAnnotation(const QString& newData) {
 }
 
 void Annotator::setLabelForSelectedRegion() {
-  if (activeAnnotation_ == -1) {
-    addAnnotation();
+  int labelId = labelChoices_->selectedLabelId();
+  if (labelId == -1){
     return;
   }
-  int labelId = labelChoices_->selectedLabelId();
-  auto prevLabel = annotations_[activeAnnotation_].labelId;
-  if (labelId == prevLabel) {
+  if (activeAnnotation_ != -1 &&
+      annotations_[activeAnnotation_].labelId == labelId) {
     return;
   }
-  auto start = annotations_[activeAnnotation_].startChar;
-  auto end = annotations_[activeAnnotation_].endChar;
-  int prevActive = activeAnnotation_;
-  if (addAnnotation(labelId, start, end)) {
-    deleteAnnotation(prevActive);
-  }
-}
-
-bool Annotator::addAnnotation() {
-  int labelId = labelChoices_->selectedLabelId();
-  if (labelId == -1) {
-    return false;
-  }
-  QList<int> selectionBoundaries = text_->currentSelection();
+  auto selectionBoundaries = text_->currentSelection();
   auto start = selectionBoundaries[0];
   auto end = selectionBoundaries[1];
-  if (start == end) {
-    assert(false);
-    return false;
+  if (activeAnnotation_ != -1) {
+    start = annotations_[activeAnnotation_].startChar;
+    end = annotations_[activeAnnotation_].endChar;
   }
-  return addAnnotation(labelId, start, end);
+  for (const auto& anno : annotations_) {
+    if (anno.labelId == labelId && anno.startChar == start &&
+        anno.endChar == end) {
+      clearTextSelection();
+      activeAnnotation_ = anno.id;
+      emit activeAnnotationChanged();
+      return;
+    }
+  }
+  deactivateActiveAnnotation();
+  addAnnotation(labelId, start, end);
 }
 
 bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
@@ -552,9 +548,7 @@ bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
       annotationId, labelId, startChar, endChar, QString(), annotationCursor};
   addAnnotationToClusters(annotations_[annotationId], clusters_);
   sortedAnnotations_.insert({startChar, annotationId});
-  auto newCursor = text_->getTextEdit()->textCursor();
-  newCursor.clearSelection();
-  text_->getTextEdit()->setTextCursor(newCursor);
+  clearTextSelection();
   deactivateActiveAnnotation();
   activeAnnotation_ = annotationId;
   emit activeAnnotationChanged();
@@ -636,6 +630,12 @@ void Annotator::selectNextAnnotation(bool forward) {
   deactivateActiveAnnotation();
   activeAnnotation_ = nextAnno;
   emit activeAnnotationChanged();
+}
+
+void Annotator::clearTextSelection() {
+  auto newCursor = text_->getTextEdit()->textCursor();
+  newCursor.clearSelection();
+  text_->getTextEdit()->setTextCursor(newCursor);
 }
 
 QTextEdit::ExtraSelection

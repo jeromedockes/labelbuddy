@@ -222,11 +222,11 @@ private:
   void clearAnnotations();
   void fetchLabelsInfo();
   void fetchAnnotationsInfo();
+  void clearTextSelection();
   QTextEdit::ExtraSelection
   makePaintedRegion(int startChar, int endChar, const QString& color,
                     const QString& textColor = "black", bool underline = false);
   void paintAnnotations();
-  bool addAnnotation();
   bool addAnnotation(int labelId, int startChar, int endChar);
   void deleteAnnotation(int);
   void deactivateActiveAnnotation();
