@@ -5,9 +5,9 @@ if [[ ! -z "$(ls -A $(pwd))" ]]; then
     exit 1
 fi
 
-if [[ -z $1 || ! $(basename $1) =~ ^labelbuddy-[0-9]\.[0-9]\.[0-9]-Source.tar.gz$ ]]; then
+if [[ -z $1 || ! $(basename $1) =~ ^labelbuddy-[0-9]+\.[0-9]+\.[0-9]+-Source.tar.gz$ ]]; then
     cat <<EOF
-Please pecify source tarball path:
+Please specify source tarball path:
 
 $(basename $0) /path/to/labelbuddy-x.x.x-Source.tar.gz
 EOF
