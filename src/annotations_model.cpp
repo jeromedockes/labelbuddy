@@ -49,16 +49,7 @@ QString AnnotationsModel::getTitle() const {
   return QString("");
 }
 
-QString AnnotationsModel::getContent() const {
-  auto query = getQuery();
-  query.prepare("select content from document where id = :docid ;");
-  query.bindValue(":docid", currentDocId_);
-  query.exec();
-  if (query.next()) {
-    return query.value(0).toString();
-  }
-  return QString("");
-}
+QString AnnotationsModel::getContent() const { return text_; }
 
 int AnnotationsModel::qStringIdxToUnicodeIdx(int qStringIndex) const {
   return charIndices_.qStringToUnicode(qStringIndex);
@@ -111,6 +102,7 @@ int AnnotationsModel::addAnnotation(int labelId, int startChar, int endChar) {
     return -1;
   }
   auto newAnnotationId = query.lastInsertId().toInt();
+  emit annotationAdded({newAnnotationId, labelId, startChar, endChar, ""});
   query.prepare("select count(*) from annotation where doc_id = :doc;");
   query.bindValue(":doc", currentDocId_);
   query.exec();
@@ -148,6 +140,7 @@ int AnnotationsModel::deleteAnnotation(int annotationId) {
   if (nDeleted <= 0) {
     return 0;
   }
+  emit annotationDeleted(annotationId);
   query.prepare("select count(*) from annotation where doc_id = :doc;");
   query.bindValue(":doc", currentDocId_);
   query.exec();
@@ -175,7 +168,12 @@ bool AnnotationsModel::updateAnnotationExtraData(int annotationId,
   query.prepare("update annotation set extra_data = :data where rowid = :id;");
   query.bindValue(":data", newData == "" ? QVariant() : newData);
   query.bindValue(":id", annotationId);
-  return query.exec();
+  auto success = query.exec();
+  if (! success){
+    return success;
+  }
+  emit extraDataChanged(annotationId, newData);
+  return success;
 }
 
 void AnnotationsModel::checkCurrentDoc() {
@@ -233,16 +231,30 @@ bool AnnotationsModel::visitQueryResult(const QString& queryText) {
   return true;
 }
 
+void AnnotationsModel::updateText() {
+  auto query = getQuery();
+  query.prepare("select content from document where id = :docid ;");
+  query.bindValue(":docid", currentDocId_);
+  query.exec();
+  if (query.next()) {
+    text_ = query.value(0).toString();
+  } else {
+    text_ = "";
+  }
+  charIndices_.setText(text_);
+}
+
 void AnnotationsModel::visitDoc(int docId) {
   currentDocId_ = docId;
   if (docId == -1) {
+    text_ = "";
     charIndices_.setText("");
   } else {
     auto query = getQuery();
     query.prepare("update app_state set last_visited_doc = :doc;");
     query.bindValue(":doc", docId);
     query.exec();
-    charIndices_.setText(getContent());
+    updateText();
   }
   emit documentChanged();
 }

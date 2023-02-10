@@ -22,6 +22,8 @@
 
 namespace labelbuddy {
 
+constexpr double Annotator::activeAnnotationScaling_;
+
 LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
   auto layout = new QVBoxLayout();
   setLayout(layout);
@@ -178,6 +180,10 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   defaultFormat_ = text_->getTextEdit()->textCursor().charFormat();
   text_->fill("");
   text_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+  annotationsList_ = new AnnotationsList();
+  addWidget(annotationsList_);
+  scaleMargin(*text_, Side::Right);
+  scaleMargin(*annotationsList_, Side::Left);
 
   QSettings settings("labelbuddy", "labelbuddy");
   if (settings.contains("Annotator/state")) {
@@ -202,6 +208,11 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    this, &Annotator::updateLabelChoicesButtonStates);
   QObject::connect(text_->getTextEdit(), &QPlainTextEdit::cursorPositionChanged,
                    this, &Annotator::activateClusterAtCursorPos);
+  QObject::connect(annotationsList_,
+                   &AnnotationsList::selectedAnnotationIdChanged, this,
+                   &Annotator::activateAnnotation);
+  QObject::connect(this, &Annotator::activeAnnotationChanged, annotationsList_,
+                   &AnnotationsList::selectAnnotation);
 
   setFocusProxy(text_);
 }
@@ -255,6 +266,7 @@ void Annotator::setAnnotationsModel(AnnotationsModel* newModel) {
   assert(newModel != nullptr);
   annotationsModel_ = newModel;
   navButtons_->setModel(newModel);
+  annotationsList_->setModel(newModel);
 
   QObject::connect(annotationsModel_, &AnnotationsModel::documentChanged, this,
                    &Annotator::resetDocument);
@@ -294,6 +306,8 @@ void Annotator::updateAnnotations() {
   fetchLabelsInfo();
   fetchAnnotationsInfo();
   updateLabelChoicesButtonStates();
+  annotationsList_->resetAnnotations();
+  annotationsList_->selectAnnotation(activeAnnotation_);
   paintAnnotations();
 }
 
@@ -361,6 +375,10 @@ void Annotator::removeAnnotationFromClusters(const AnnotationCursor& annotation,
   clusters.splice(clusters.cend(), newClusters);
 }
 
+void Annotator::emitActiveAnnotationChanged() {
+  emit activeAnnotationChanged(activeAnnotation_);
+}
+
 void Annotator::updateLabelChoicesButtonStates() {
   labelChoices_->setSelectedLabelId(activeAnnotationLabel());
   labelChoices_->setExtraData(activeAnnotationExtraData());
@@ -420,6 +438,19 @@ void Annotator::deactivateActiveAnnotation() {
   activeAnnotation_ = -1;
 }
 
+void Annotator::activateAnnotation(int annotationId) {
+  if (annotationId == activeAnnotation_) {
+    return;
+  }
+  auto cursor = text_->getTextEdit()->textCursor();
+  cursor.setPosition(annotations_[annotationId].startChar);
+  text_->getTextEdit()->setTextCursor(cursor);
+  text_->getTextEdit()->ensureCursorVisible();
+  deactivateActiveAnnotation();
+  activeAnnotation_ = annotationId;
+  emitActiveAnnotationChanged();
+}
+
 void Annotator::activateClusterAtCursorPos() {
   needUpdateActiveAnno_ = false;
   auto cursor = text_->getTextEdit()->textCursor();
@@ -427,7 +458,7 @@ void Annotator::activateClusterAtCursorPos() {
   if (cursor.anchor() != cursor.position()) {
     if (activeAnnotation_ != -1) {
       deactivateActiveAnnotation();
-      emit activeAnnotationChanged();
+      emitActiveAnnotationChanged();
     }
     return;
   }
@@ -458,7 +489,7 @@ void Annotator::activateClusterAtCursorPos() {
   }
   deactivateActiveAnnotation();
   activeAnnotation_ = annotationId;
-  emit activeAnnotationChanged();
+  emitActiveAnnotationChanged();
 }
 
 void Annotator::deleteAnnotation(int annotationId) {
@@ -471,14 +502,14 @@ void Annotator::deleteAnnotation(int annotationId) {
   auto deleted = annotationsModel_->deleteAnnotation(annotationId);
   if (!deleted) {
     assert(false);
-    emit activeAnnotationChanged();
+    emitActiveAnnotationChanged();
     return;
   }
   auto anno = annotations_[annotationId];
   removeAnnotationFromClusters(anno, clusters_);
   annotations_.remove(annotationId);
   sortedAnnotations_.erase({anno.startChar, anno.id});
-  emit activeAnnotationChanged();
+  emitActiveAnnotationChanged();
 }
 
 void Annotator::deleteActiveAnnotation() {
@@ -503,7 +534,7 @@ void Annotator::updateExtraDataForActiveAnnotation(const QString& newData) {
 
 void Annotator::setLabelForSelectedRegion() {
   int labelId = labelChoices_->selectedLabelId();
-  if (labelId == -1){
+  if (labelId == -1) {
     return;
   }
   if (activeAnnotation_ != -1 &&
@@ -522,7 +553,7 @@ void Annotator::setLabelForSelectedRegion() {
         anno.endChar == end) {
       clearTextSelection();
       activeAnnotation_ = anno.id;
-      emit activeAnnotationChanged();
+      emitActiveAnnotationChanged();
       return;
     }
   }
@@ -538,7 +569,7 @@ bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
     c.clearSelection();
     text_->getTextEdit()->setTextCursor(c);
     activeAnnotation_ = -1;
-    emit activeAnnotationChanged();
+    emitActiveAnnotationChanged();
     return false;
   }
   auto annotationCursor = text_->getTextEdit()->textCursor();
@@ -551,7 +582,7 @@ bool Annotator::addAnnotation(int labelId, int startChar, int endChar) {
   clearTextSelection();
   deactivateActiveAnnotation();
   activeAnnotation_ = annotationId;
-  emit activeAnnotationChanged();
+  emitActiveAnnotationChanged();
   return true;
 }
 
@@ -623,13 +654,7 @@ void Annotator::selectNextAnnotation(bool forward) {
   if (nextAnno == -1) {
     return;
   }
-  auto cursor = text_->getTextEdit()->textCursor();
-  cursor.setPosition(annotations_[nextAnno].startChar);
-  text_->getTextEdit()->setTextCursor(cursor);
-  text_->getTextEdit()->ensureCursorVisible();
-  deactivateActiveAnnotation();
-  activeAnnotation_ = nextAnno;
-  emit activeAnnotationChanged();
+  activateAnnotation(nextAnno);
 }
 
 void Annotator::clearTextSelection() {
@@ -690,6 +715,9 @@ void Annotator::paintAnnotations() {
     if (useBoldFont_) {
       QTextCharFormat fmt(defaultFormat_);
       fmt.setFontWeight(QFont::Bold);
+      fmt.setFontPointSize(
+          text_->getTextEdit()->document()->defaultFont().pointSizeF() *
+          activeAnnotationScaling_);
       anno.cursor.setCharFormat(fmt);
       activeAnnoFormatIsSet_ = true;
     } else if (activeAnnoFormatIsSet_) {
@@ -747,7 +775,7 @@ void Annotator::keyPressEvent(QKeyEvent* event) {
   }
   if (event->key() == Qt::Key_Escape) {
     deactivateActiveAnnotation();
-    emit activeAnnotationChanged();
+    emitActiveAnnotationChanged();
   }
   if (event->key() == Qt::Key_Space) {
     bool backward(event->modifiers() & Qt::ShiftModifier);

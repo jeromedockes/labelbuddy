@@ -1,6 +1,6 @@
 #include <cassert>
 
-#include <qmap.h>
+#include <QMap>
 
 #include "char_indices.h"
 

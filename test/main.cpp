@@ -16,6 +16,8 @@
 #include "test_main_window.h"
 #include "test_searchable_text.h"
 #include "test_utils.h"
+#include "test_annotations_list_model.h"
+#include "test_annotations_list.h"
 
 int main(int argc, char* argv[]) {
   QTemporaryDir tmpDir{};
@@ -38,5 +40,7 @@ int main(int argc, char* argv[]) {
   status |= QTest::qExec(new labelbuddy::TestLabelList, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestImportExportMenu, argc, argv);
   status |= QTest::qExec(new labelbuddy::TestCharIndices, argc, argv);
+  status |= QTest::qExec(new labelbuddy::TestAnnotationsListModel, argc, argv);
+  status |= QTest::qExec(new labelbuddy::TestAnnotationsList, argc, argv);
   return status;
 }

@@ -46,6 +46,8 @@ add_executable(labelbuddy
   src/utils.cpp
   src/compat.cpp
   src/char_indices.cpp
+  src/annotations_list_model.cpp
+  src/annotations_list.cpp
   resources.qrc
   )
 
