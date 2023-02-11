@@ -1,4 +1,6 @@
 #include <QColor>
+#include <QFont>
+#include <QFontMetrics>
 #include <QItemSelectionModel>
 #include <QLabel>
 #include <QListView>
@@ -26,7 +28,28 @@ PainterRestore::~PainterRestore() {
 }
 
 AnnotationDelegate::AnnotationDelegate(QObject* parent)
-    : QStyledItemDelegate(parent) {}
+    : QStyledItemDelegate(parent) {
+  QFontMetrics metrics{QFont{}};
+  em_ = metrics.height();
+}
+
+static const QString annotationItemTemplate = R"(
+<div style='font-size:medium;color:#000'>
+<h3 style='margin:0;margin-bottom:%6;font-size:medium;background-color:%1'>%2</h3>
+<p style='margin:0;'>
+%3<span style='background-color:%1;'>%4</span>%5
+</p>
+</div>
+)";
+
+static const QString selectedAnnotationItemTemplate = R"(
+<div style='font-size:medium;color:#000;'>
+<h3 style='margin:0;margin-bottom:%6;font-size:large;background-color:%1'>%2</h3>
+<p style='margin:0;'>
+%3<span style='background-color:white;font-size:large;font-weight:bold;'>%4</span>%5
+</p>
+</div>
+)";
 
 void AnnotationDelegate::paint(QPainter* painter,
                                const QStyleOptionViewItem& option,
@@ -37,19 +60,22 @@ void AnnotationDelegate::paint(QPainter* painter,
   auto prefix = index.data(Roles::AnnotationPrefixRole).value<QString>();
   auto suffix = index.data(Roles::AnnotationSuffixRole).value<QString>();
   QTextDocument document{};
-  auto textBrush = option.state & QStyle::State_Selected
-                       ? option.palette.highlightedText()
-                       : option.palette.text();
-  document.setHtml(
-      QString("<div style='font-size:medium;line-height:120%;color:%6'><span "
-              "style='background-color:%1;color:#000000;font-size:large;'>%2</"
-              "span><br/> %3<span "
-              "style='font-size:large;font-weight:bold;'>%4</span>%5</div>")
-          .arg(labelColor, labelName.toHtmlEscaped(), prefix.toHtmlEscaped(),
-               selectedText.toHtmlEscaped(), suffix.toHtmlEscaped(),
-               textBrush.color().name()));
-  option.widget->style()->drawControl(QStyle::CE_ItemViewItem, &option,
-                                      painter);
+  auto margin = QString::number(.3 * em_);
+  auto itemTemplate = annotationItemTemplate;
+  if (option.state & QStyle::State_Selected) {
+    margin = "1px";
+    itemTemplate = selectedAnnotationItemTemplate;
+  }
+  document.setHtml(itemTemplate.arg(
+      labelColor, labelName.toHtmlEscaped(), prefix.toHtmlEscaped(),
+      selectedText.toHtmlEscaped(), suffix.toHtmlEscaped(), margin));
+  if (option.state & QStyle::State_Selected) {
+    PainterRestore restore(painter);
+    painter->fillRect(option.rect, labelColor);
+    painter->setPen(QColor(0, 0, 0, 70));
+    painter->drawLine(option.rect.topLeft(), option.rect.topRight());
+    painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
+  }
   {
     PainterRestore restore(painter);
     painter->translate(option.rect.left(), option.rect.top());
@@ -61,7 +87,7 @@ void AnnotationDelegate::paint(QPainter* painter,
 QSize AnnotationDelegate::sizeHint(const QStyleOptionViewItem& option,
                                    const QModelIndex& index) const {
   auto defaultSize = QStyledItemDelegate::sizeHint(option, index);
-  return QSize(defaultSize.width(), int(defaultSize.height() * 3));
+  return QSize(defaultSize.width(), int(3.5 * em_));
 }
 
 AnnotationsList::AnnotationsList(QWidget* parent) : QFrame(parent) {
