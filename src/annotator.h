@@ -275,7 +275,7 @@ private:
 
   /// Only applied when the "show selected annotation in bold font" option is
   /// checked (in the menu).
-  static constexpr double activeAnnotationScaling_ = 1.3;
+  static constexpr double activeAnnotationScaling_ = 1.25;
 };
 
 } // namespace labelbuddy

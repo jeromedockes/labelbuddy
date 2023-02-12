@@ -28,7 +28,7 @@ PainterRestore::~PainterRestore() {
 }
 
 AnnotationDelegate::AnnotationDelegate(QObject* parent)
-    : QStyledItemDelegate(parent) {
+    : QStyledItemDelegate{parent} {
   QFontMetrics metrics{QFont{}};
   em_ = metrics.height();
 }
@@ -59,25 +59,25 @@ void AnnotationDelegate::paint(QPainter* painter,
   auto selectedText = index.data(Roles::SelectedTextRole).value<QString>();
   auto prefix = index.data(Roles::AnnotationPrefixRole).value<QString>();
   auto suffix = index.data(Roles::AnnotationSuffixRole).value<QString>();
-  QTextDocument document{};
   auto margin = QString::number(.3 * em_);
   auto itemTemplate = annotationItemTemplate;
   if (option.state & QStyle::State_Selected) {
     margin = "1px";
     itemTemplate = selectedAnnotationItemTemplate;
   }
+  QTextDocument document{};
   document.setHtml(itemTemplate.arg(
       labelColor, labelName.toHtmlEscaped(), prefix.toHtmlEscaped(),
       selectedText.toHtmlEscaped(), suffix.toHtmlEscaped(), margin));
   if (option.state & QStyle::State_Selected) {
-    PainterRestore restore(painter);
+    PainterRestore restore{painter};
     painter->fillRect(option.rect, labelColor);
-    painter->setPen(QColor(0, 0, 0, 70));
+    painter->setPen(QColor{0, 0, 0, 70});
     painter->drawLine(option.rect.topLeft(), option.rect.topRight());
     painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
   }
   {
-    PainterRestore restore(painter);
+    PainterRestore restore{painter};
     painter->translate(option.rect.left(), option.rect.top());
     QRect clip(0, 0, option.rect.width(), option.rect.height());
     document.drawContents(painter, clip);
@@ -87,26 +87,26 @@ void AnnotationDelegate::paint(QPainter* painter,
 QSize AnnotationDelegate::sizeHint(const QStyleOptionViewItem& option,
                                    const QModelIndex& index) const {
   auto defaultSize = QStyledItemDelegate::sizeHint(option, index);
-  return QSize(defaultSize.width(), int(3.5 * em_));
+  return QSize{defaultSize.width(), int(3.5 * em_)};
 }
 
 AnnotationsList::AnnotationsList(QWidget* parent) : QFrame(parent) {
   auto layout = new QVBoxLayout();
   setLayout(layout);
-  auto title = new QLabel("Annotations in this document:");
+  auto title = new QLabel{"Annotations in this document:"};
   layout->addWidget(title);
-  annotationsView_ = new QListView();
+  annotationsView_ = new QListView{};
   layout->addWidget(annotationsView_);
-  auto delegate = new AnnotationDelegate(this);
+  auto delegate = new AnnotationDelegate{this};
   annotationsView_->setItemDelegate(delegate);
 }
 
 void AnnotationsList::setModel(AnnotationsModel* model) {
   assert(model != nullptr);
   annotationsModel_ = model;
-  annotationsListModel_.reset(new AnnotationsListModel());
+  annotationsListModel_.reset(new AnnotationsListModel{});
   annotationsListModel_->setSourceModel(model);
-  proxyModel_.reset(new QSortFilterProxyModel());
+  proxyModel_.reset(new QSortFilterProxyModel{});
   proxyModel_->setSourceModel(annotationsListModel_.get());
   proxyModel_->setSortRole(Roles::AnnotationStartCharRole);
   proxyModel_->sort(0);

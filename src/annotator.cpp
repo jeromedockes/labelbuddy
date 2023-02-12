@@ -180,7 +180,7 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   defaultFormat_ = text_->getTextEdit()->textCursor().charFormat();
   text_->fill("");
   text_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  annotationsList_ = new AnnotationsList();
+  annotationsList_ = new AnnotationsList{};
   addWidget(annotationsList_);
   scaleMargin(*text_, Side::Right);
   scaleMargin(*annotationsList_, Side::Left);

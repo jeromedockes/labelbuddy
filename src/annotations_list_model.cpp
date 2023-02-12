@@ -13,13 +13,13 @@ constexpr int AnnotationsListModel::prefixSize_;
 constexpr int AnnotationsListModel::annotationSize_;
 
 AnnotationsListModel::AnnotationsListModel(QObject* parent)
-    : QAbstractListModel(parent) {}
+    : QAbstractListModel{parent} {}
 
 QVariant AnnotationsListModel::data(const QModelIndex& index, int role) const {
   switch (role) {
   case Qt::BackgroundRole: {
     auto color = labels_[annotations_[index.row()].labelId].color;
-    return QColor(color);
+    return QColor{color};
   }
   case Roles::AnnotationIdRole: {
     return annotations_[index.row()].id;
@@ -107,7 +107,7 @@ int AnnotationsListModel::findAnnotationById(int annotationId) const {
 QModelIndex AnnotationsListModel::indexForAnnotationId(int annotationId) const {
   auto annotationIndex = findAnnotationById(annotationId);
   if (annotationIndex == -1) {
-    return QModelIndex();
+    return QModelIndex{};
   }
   return index(annotationIndex, 0);
 }
@@ -117,7 +117,7 @@ void AnnotationsListModel::deleteAnnotation(int annotationId) {
   if (annotationIndex == -1) {
     return;
   }
-  beginRemoveRows(QModelIndex(), annotationIndex, annotationIndex);
+  beginRemoveRows(QModelIndex{}, annotationIndex, annotationIndex);
   annotations_.removeAt(annotationIndex);
   endRemoveRows();
 }
