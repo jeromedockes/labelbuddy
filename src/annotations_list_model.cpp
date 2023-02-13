@@ -3,6 +3,7 @@
 
 #include <QColor>
 #include <QAbstractItemModel>
+#include <QVariant>
 
 #include "annotations_list_model.h"
 #include "user_roles.h"
@@ -16,6 +17,9 @@ AnnotationsListModel::AnnotationsListModel(QObject* parent)
     : QAbstractListModel{parent} {}
 
 QVariant AnnotationsListModel::data(const QModelIndex& index, int role) const {
+  if (index.row() > annotations_.size()){
+    return QVariant{};
+  }
   switch (role) {
   case Qt::BackgroundRole: {
     auto color = labels_[annotations_[index.row()].labelId].color;
@@ -77,7 +81,6 @@ int AnnotationsListModel::rowCount(const QModelIndex& parent) const {
 void AnnotationsListModel::setSourceModel(AnnotationsModel* annotationsModel) {
   assert(annotationsModel != nullptr);
   annotationsModel_ = annotationsModel;
-  labels_ = annotationsModel_->getLabelsInfo();
   resetAnnotations();
   QObject::connect(annotationsModel_, &AnnotationsModel::documentChanged, this,
                    &AnnotationsListModel::resetAnnotations);

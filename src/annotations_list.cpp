@@ -120,6 +120,7 @@ void AnnotationsList::selectAnnotation(int annotationId) {
   if (annotationId == -1) {
     annotationsView_->selectionModel()->clearCurrentIndex();
     annotationsView_->selectionModel()->clearSelection();
+    return;
   }
   auto modelIndex = annotationsListModel_->indexForAnnotationId(annotationId);
   auto sortedIndex = proxyModel_->mapFromSource(modelIndex);
