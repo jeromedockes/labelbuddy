@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include <QColor>
 #include <QFont>
 #include <QFontMetrics>

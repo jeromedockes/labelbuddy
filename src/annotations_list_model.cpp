@@ -1,8 +1,8 @@
 #include <algorithm>
 #include <cassert>
 
-#include <QColor>
 #include <QAbstractItemModel>
+#include <QColor>
 #include <QVariant>
 
 #include "annotations_list_model.h"
@@ -16,8 +16,43 @@ constexpr int AnnotationsListModel::annotationSize_;
 AnnotationsListModel::AnnotationsListModel(QObject* parent)
     : QAbstractListModel{parent} {}
 
+AnnotationsListModel::AnnotationBoundaries
+AnnotationsListModel::getBoundaries(int annotationIndex) const {
+  auto anno = annotations_[annotationIndex];
+  auto prefixEnd = anno.startChar;
+  auto prefixStart = std::max(0, prefixEnd - prefixSize_);
+  assert(!text_.isEmpty());
+  if (text_.at(prefixStart).isLowSurrogate()) {
+    --prefixStart;
+    assert(prefixStart >= 0);
+    assert(text_.at(prefixStart).isHighSurrogate());
+  }
+  auto truePrefixSize = prefixEnd - prefixStart;
+  auto selectionStart = anno.startChar;
+  auto selectionEnd = std::min(
+      anno.endChar, selectionStart + (annotationSize_ - truePrefixSize));
+  if (selectionEnd != text_.size() && text_.at(selectionEnd).isLowSurrogate()) {
+    assert(selectionEnd != anno.endChar);
+    ++selectionEnd;
+  }
+  auto selectionSize = selectionEnd - selectionStart;
+  auto suffixStart = anno.endChar;
+  auto suffixEnd = anno.endChar;
+  if (selectionEnd == anno.endChar) {
+    suffixEnd =
+        std::max(suffixStart,
+                 std::min(text_.size(), suffixStart + annotationSize_ -
+                                            truePrefixSize - selectionSize));
+    if (suffixEnd != text_.size() && text_.at(suffixEnd).isLowSurrogate()) {
+      ++suffixEnd;
+    }
+  }
+  return {prefixStart,  prefixEnd,   selectionStart,
+          selectionEnd, suffixStart, suffixEnd};
+}
+
 QVariant AnnotationsListModel::data(const QModelIndex& index, int role) const {
-  if (index.row() < 0 || index.row() >= annotations_.size()){
+  if (index.row() < 0 || index.row() >= annotations_.size()) {
     return QVariant{};
   }
   switch (role) {
@@ -31,37 +66,20 @@ QVariant AnnotationsListModel::data(const QModelIndex& index, int role) const {
   case Roles::LabelNameRole: {
     return labels_[annotations_[index.row()].labelId].name;
   }
-  case Roles::SelectedTextRole: {
-    auto start = annotations_[index.row()].startChar;
-    auto end = annotations_[index.row()].endChar;
-    auto selectionSize = std::min(end - start, annotationSize_ - prefixSize_);
-    auto result = text_.mid(start, selectionSize);
-    if (!result.isValidUtf16()) {
-      result = text_.mid(start, selectionSize + 1);
-    }
-    return result;
-  }
   case Roles::AnnotationPrefixRole: {
-    auto prefixEnd = annotations_[index.row()].startChar;
-    auto prefix = text_.mid(prefixEnd - prefixSize_, prefixSize_);
-    if (!prefix.isValidUtf16()) {
-      prefix = text_.mid(prefixEnd - (prefixSize_ + 1), (prefixSize_ + 1));
-    }
-    return prefix;
+    auto boundaries = getBoundaries(index.row());
+    return text_.mid(boundaries.prefixStart,
+                     boundaries.prefixEnd - boundaries.prefixStart);
+  }
+  case Roles::SelectedTextRole: {
+    auto boundaries = getBoundaries(index.row());
+    return text_.mid(boundaries.selectionStart,
+                     boundaries.selectionEnd - boundaries.selectionStart);
   }
   case Roles::AnnotationSuffixRole: {
-    auto start = annotations_[index.row()].startChar;
-    auto end = annotations_[index.row()].endChar;
-    auto suffixSize = annotationSize_ - prefixSize_ - (end - start);
-    if (suffixSize <= 0) {
-      return "";
-    }
-    auto suffixStart = annotations_[index.row()].endChar;
-    auto suffix = text_.mid(suffixStart, suffixSize);
-    if (!suffix.isValidUtf16()) {
-      suffix = text_.mid(suffixStart, suffixSize + 1);
-    }
-    return suffix;
+    auto boundaries = getBoundaries(index.row());
+    return text_.mid(boundaries.suffixStart,
+                     boundaries.suffixEnd - boundaries.suffixStart);
   }
   case Roles::AnnotationStartCharRole: {
     return annotations_[index.row()].startChar;
@@ -88,8 +106,8 @@ void AnnotationsListModel::setSourceModel(AnnotationsModel* annotationsModel) {
                    &AnnotationsListModel::addAnnotation);
   QObject::connect(annotationsModel_, &AnnotationsModel::annotationDeleted,
                    this, &AnnotationsListModel::deleteAnnotation);
-  QObject::connect(annotationsModel_, &AnnotationsModel::extraDataChanged,
-                   this, &AnnotationsListModel::updateExtradata);
+  QObject::connect(annotationsModel_, &AnnotationsModel::extraDataChanged, this,
+                   &AnnotationsListModel::updateExtradata);
 }
 
 void AnnotationsListModel::addAnnotation(const AnnotationInfo& annotation) {

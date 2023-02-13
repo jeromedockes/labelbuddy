@@ -1,8 +1,8 @@
 #ifndef LABELBUDDY_ANNOTATIONS_LIST_MODEL_H
 #define LABELBUDDY_ANNOTATIONS_LIST_MODEL_H
 
-#include <QAbstractListModel>
 #include <QAbstractItemModel>
+#include <QAbstractListModel>
 
 #include "annotations_model.h"
 
@@ -47,11 +47,17 @@ public slots:
   void resetAnnotations();
 
 private:
+  struct AnnotationBoundaries {
+    int prefixStart, prefixEnd, selectionStart, selectionEnd, suffixStart,
+        suffixEnd;
+  };
 
   /// Find the position of annotation with given ID in the list.
 
   /// Takes linear time wrt to the number of annotations.
   int findAnnotationById(int annotationId) const;
+
+  AnnotationBoundaries getBoundaries(int annotationIndex) const;
 
   AnnotationsModel* annotationsModel_ = nullptr;
   QList<AnnotationInfo> annotations_{};
