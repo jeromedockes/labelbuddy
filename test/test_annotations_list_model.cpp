@@ -2,6 +2,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTemporaryDir>
+#include <QVariant>
 
 #include "annotations_list_model.h"
 #include "annotations_model.h"
@@ -59,6 +60,9 @@ void TestAnnotationsListModel::testRoles() {
   // -- this way the default prefix length would cut the character in half, to
   // check that the length is correctly adjusted.
   model.addAnnotation(2, 14, 15);
+
+  auto badIndex = listModel.data(listModel.index(1000, 0), Qt::BackgroundRole);
+  QCOMPARE(badIndex, QVariant{});
 
   auto prefix =
       listModel.data(listModel.index(0, 0), Roles::AnnotationPrefixRole)
