@@ -19,6 +19,8 @@ src/utils.h \
 src/compat.h \
 src/char_indices.h \
 src/char_indices.tpp \
+src/annotations_list_model.h \
+src/annotations_list.h \
 
 
 SOURCES += \
@@ -38,6 +40,9 @@ src/import_export_menu.cpp \
 src/utils.cpp \
 src/compat.cpp \
 src/char_indices.cpp \
+src/annotations_list_model.cpp \
+src/annotations_list.cpp \
+
 
 QT += widgets sql
 RESOURCES = resources.qrc
@@ -80,6 +85,9 @@ test/test_utils.h \
 test/test_label_list.h \
 test/test_import_export_menu.h \
 test/test_char_indices.h \
+test/test_annotations_list_model.h \
+test/test_annotations_list.h \
+
 
 SOURCES += \
 test/main.cpp \
@@ -97,6 +105,8 @@ test/test_utils.cpp \
 test/test_label_list.cpp \
 test/test_import_export_menu.cpp \
 test/test_char_indices.cpp \
+test/test_annotations_list_model.cpp \
+test/test_annotations_list.cpp \
 
 SOURCES -= src/main.cpp
 }

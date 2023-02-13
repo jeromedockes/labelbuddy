@@ -15,7 +15,7 @@ EOF
 fi
 
 TARBALL_NAME="$(basename $1)"
-LABELBUDDY_VERSION=$(echo "$TARBALL_NAME" | sed 's/labelbuddy-\([0-9]\.[0-9]\.[0-9]\)-Source\.tar\.gz/\1/')
+LABELBUDDY_VERSION=$(echo "$TARBALL_NAME" | sed 's/labelbuddy-\([0-9]\+\.[0-9]\+\.[0-9]\+\)-Source\.tar\.gz/\1/')
 echo "Building deb package for labelbuddy ${LABELBUDDY_VERSION}"
 
 BUILD_DIR="$(pwd)"

@@ -18,6 +18,8 @@
 #include "label_list_model.h"
 #include "no_deselect_all_view.h"
 #include "searchable_text.h"
+#include "annotations_list_model.h"
+#include "annotations_list.h"
 
 /// \file
 /// Implementation of the Annotator tab
@@ -168,7 +170,7 @@ public:
 
 signals:
 
-  void activeAnnotationChanged();
+  void activeAnnotationChanged(int activeAnnotation);
   void currentStatusDisplayChanged();
 
 public slots:
@@ -213,6 +215,7 @@ private slots:
   void setDefaultFocus();
   void deleteActiveAnnotation();
   void updateExtraDataForActiveAnnotation(const QString& newData);
+  void activateAnnotation(int annotationId);
   void activateClusterAtCursorPos();
   void setLabelForSelectedRegion();
   void updateLabelChoicesButtonStates();
@@ -245,6 +248,8 @@ private:
   void removeAnnotationFromClusters(const AnnotationCursor& annotation,
                                     std::list<Cluster>& clusters);
 
+  void emitActiveAnnotationChanged();
+
   int activeAnnotation_ = -1;
   bool needUpdateActiveAnno_{};
   bool activeAnnoFormatIsSet_{};
@@ -262,8 +267,15 @@ private:
   LabelChoices* labelChoices_;
   AnnotationsModel* annotationsModel_ = nullptr;
   AnnotationsNavButtons* navButtons_ = nullptr;
+  AnnotationsList* annotationsList_;
   QTextCharFormat defaultFormat_;
   bool useBoldFont_ = true;
+
+  /// font size scaling for the active annotation
+
+  /// Only applied when the "show selected annotation in bold font" option is
+  /// checked (in the menu).
+  static constexpr double activeAnnotationScaling_ = 1.25;
 };
 
 } // namespace labelbuddy

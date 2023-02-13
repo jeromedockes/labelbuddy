@@ -46,7 +46,7 @@ LabelDelegate::textStyleOption(const QStyleOptionViewItem& option,
   newOption.showDecorationSelected = false;
   auto textPalette = option.palette;
   textPalette.setColor(QPalette::Text, QColor("black"));
-  textPalette.setColor(QPalette::Background, QColor(0, 0, 0, 0));
+  textPalette.setColor(QPalette::Window, QColor(0, 0, 0, 0));
   textPalette.setColor(QPalette::Highlight, QColor(0, 0, 0, 0));
   textPalette.setColor(QPalette::HighlightedText, QColor("black"));
   textPalette.setColor(QPalette::Disabled, QPalette::Text, QColor("#444444"));

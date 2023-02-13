@@ -14,7 +14,7 @@
 #include <QStatusBar>
 #include <QTabWidget>
 #include <QTimer>
-#include <qobject.h>
+#include <QObject>
 
 #include "annotations_model.h"
 #include "database.h"

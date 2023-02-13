@@ -1,7 +1,7 @@
 #ifndef LABELBUDDY_TEST_CHAR_INDICES_H
 #define LABELBUDDY_TEST_CHAR_INDICES_H
 
-#include <qobject.h>
+#include <QObject>
 
 namespace labelbuddy {
 

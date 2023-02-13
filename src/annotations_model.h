@@ -43,8 +43,9 @@ public:
 
   /// Get the `content` (text) of the current document.
 
-  /// Returns the empty string
-  /// if current doc not in database (happens for example if database is empty).
+  /// Returns the empty string if current doc not in database (happens for
+  /// example if database is empty). The text is stored in the model so this is
+  /// cheap to use thanks to the QString's implicit sharing
   QString getContent() const;
 
   /// display_title for current document if it exists else ''
@@ -139,20 +140,25 @@ signals:
   void documentGainedLabel(int labelId, int docId);
   void documentLostLabel(int labelId, int docId);
 
+  void annotationAdded(AnnotationInfo annotation);
+  void annotationDeleted(int annotationId);
+  void extraDataChanged(int annotationId, QString extraData);
+
 private:
   int currentDocId_ = -1;
   QString databaseName_;
 
+  QString text_{};
   CharIndices charIndices_;
 
   QSqlQuery getQuery() const;
+
+  void updateText();
 
   /// query must return the id of a document to visit
   /// if there are no results, returns false
   bool visitQueryResult(const QString& queryText);
   int getQueryResult(const QString& queryText) const;
-
-  void fillIndexConverters(const QString& text);
 
   int lastDocId() const;
   int firstDocId() const;

@@ -253,10 +253,16 @@ If you need to tag some document status such as "approved", "in progress", etc.,
 You can then use it to filter documents in the {annotab}.
 If you need free-form labels, use a generic label name and type the free-form annotation in the {extra-edit} box.
 
+A list of all annotations for the current document is shown on the right.
+The label is displayed first, then the selected text surrounded by its context.
+You can use this list to navigate the annotations in the document: if you click an annotation in the list it becomes active and the text is scrolled so that it appears on the screen.
+Conversely, if you create a new annotation or click on an annotation in the text it also becomes selected in the annotations list on the right.
+
 ==== Overlapping annotations
 
 When two or more annotations overlap, the whole group is shown in [.annotation-cluster]##white text on a gray background##.
 As you click the gray region or press the kbd:[Space] key, each [.annotation-cluster]##annotation is ##[.active-anno-bold.yellow-bg]##selected##[.annotation-cluster]## in turn## and shown in its label's color.
+You can also see and select these annotations from the annotations list on the right of the {annotab}.
 
 The status bar on the bottom of the window shows a caret ("`^`") next to the label name when the selected annotation is the first of its overlapping group (and "`^^`" when it is the first in the document).
 
