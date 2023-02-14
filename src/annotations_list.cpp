@@ -39,12 +39,10 @@ static const QString annotationItemTemplate = R"(
 <div style='font-size:medium;color:#000'>
 <h3 style='margin:0;margin-bottom:%7;font-size:medium;background-color:%2'>%1
 &nbsp;&nbsp;
-<span style='font-size:small;font-style:italic;font-weight:normal;'>%3</span>
+<span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
 </h3>
 <p style='margin:0;'>
-%4
-<span style='background-color:%2;'>%5</span>
-%6
+%4<span style='background-color:%2;'>%5</span>%6
 </p>
 </div>
 )";
@@ -56,9 +54,7 @@ static const QString selectedAnnotationItemTemplate = R"(
 <span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
 </h3>
 <p style='margin:0;'>
-%4
-<span style='background-color:white;font-size:large;font-weight:bold;'>%5</span>
-%6
+%4<span style='background-color:white;font-size:large;font-weight:bold;'>%5</span>%6
 </p>
 </div>
 )";
@@ -75,7 +71,7 @@ void AnnotationDelegate::paint(QPainter* painter,
   auto margin = QString::number(.3 * em_);
   auto itemTemplate = annotationItemTemplate;
   if (option.state & QStyle::State_Selected) {
-    margin = "1px";
+    margin = QString::number(.15 * em_);
     itemTemplate = selectedAnnotationItemTemplate;
   }
   QTextDocument document{};
