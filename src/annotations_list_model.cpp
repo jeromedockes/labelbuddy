@@ -12,6 +12,7 @@ namespace labelbuddy {
 
 constexpr int AnnotationsListModel::prefixSize_;
 constexpr int AnnotationsListModel::annotationSize_;
+constexpr int AnnotationsListModel::extraDataSize_;
 
 AnnotationsListModel::AnnotationsListModel(QObject* parent)
     : QAbstractListModel{parent} {}
@@ -85,7 +86,7 @@ QVariant AnnotationsListModel::data(const QModelIndex& index, int role) const {
     return annotations_[index.row()].startChar;
   }
   case Roles::AnnotationExtraDataRole: {
-    return annotations_[index.row()].extraData;
+    return annotations_[index.row()].extraData.left(extraDataSize_);
   }
   }
   return QVariant{};

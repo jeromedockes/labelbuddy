@@ -37,18 +37,24 @@ AnnotationDelegate::AnnotationDelegate(QObject* parent)
 
 static const QString annotationItemTemplate = R"(
 <div style='font-size:medium;color:#000'>
-<h3 style='margin:0;margin-bottom:%6;font-size:medium;background-color:%1'>%2</h3>
+<h3 style='margin:0;margin-bottom:%7;font-size:medium;background-color:%2'>%1
+&nbsp;&nbsp;
+<span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
+</h3>
 <p style='margin:0;'>
-%3<span style='background-color:%1;'>%4</span>%5
+%4<span style='background-color:%2;'>%5</span>%6
 </p>
 </div>
 )";
 
 static const QString selectedAnnotationItemTemplate = R"(
 <div style='font-size:medium;color:#000;'>
-<h3 style='margin:0;margin-bottom:%6;font-size:large;background-color:%1'>%2</h3>
+<h3 style='margin:0;margin-bottom:%7;font-size:large;background-color:%2'>%1
+&nbsp;&nbsp;
+<span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
+</h3>
 <p style='margin:0;'>
-%3<span style='background-color:white;font-size:large;font-weight:bold;'>%4</span>%5
+%4<span style='background-color:white;font-size:large;font-weight:bold;'>%5</span>%6
 </p>
 </div>
 )";
@@ -61,16 +67,19 @@ void AnnotationDelegate::paint(QPainter* painter,
   auto selectedText = index.data(Roles::SelectedTextRole).value<QString>();
   auto prefix = index.data(Roles::AnnotationPrefixRole).value<QString>();
   auto suffix = index.data(Roles::AnnotationSuffixRole).value<QString>();
+  auto extraData = index.data(Roles::AnnotationExtraDataRole).value<QString>();
   auto margin = QString::number(.3 * em_);
   auto itemTemplate = annotationItemTemplate;
   if (option.state & QStyle::State_Selected) {
-    margin = "1px";
+    margin = QString::number(.15 * em_);
     itemTemplate = selectedAnnotationItemTemplate;
   }
   QTextDocument document{};
   document.setHtml(itemTemplate.arg(
-      labelColor, labelName.toHtmlEscaped(), prefix.toHtmlEscaped(),
-      selectedText.toHtmlEscaped(), suffix.toHtmlEscaped(), margin));
+      /*1*/ labelName.toHtmlEscaped(), /*2*/ labelColor,
+      /*3*/ extraData.toHtmlEscaped(), /*4*/ prefix.toHtmlEscaped(),
+      /*5*/ selectedText.toHtmlEscaped(), /*6*/ suffix.toHtmlEscaped(),
+      /*7*/ margin));
   if (option.state & QStyle::State_Selected) {
     PainterRestore restore{painter};
     painter->fillRect(option.rect, labelColor);

@@ -255,6 +255,7 @@ If you need free-form labels, use a generic label name and type the free-form an
 
 A list of all annotations for the current document is shown on the right.
 The label is displayed first, then the selected text surrounded by its context.
+Any extra text attached to the annotation (from the {extra-edit} box) is shown in an italic font next to the label name.
 You can use this list to navigate the annotations in the document: if you click an annotation in the list it becomes active and the text is scrolled so that it appears on the screen.
 Conversely, if you create a new annotation or click on an annotation in the text it also becomes selected in the annotations list on the right.
 
