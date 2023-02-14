@@ -69,6 +69,9 @@ private:
 
   /// Approx. length of prefix + selected text + suffix.
   static constexpr int annotationSize_ = 200;
+
+  // Length of extra data that is shown.
+  static constexpr int extraDataSize_ = 180;
 };
 } // namespace labelbuddy
 #endif
