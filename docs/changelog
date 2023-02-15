@@ -1,5 +1,10 @@
 labelbuddy (0.0.10) unstable; urgency=medium
 
+  * The extra data input now suggests completions: all the extra
+    data values for the same label as the selected label in the
+    current document. This can be used for example to implicitly link
+    annotations by giving them the same extra data, using the extra
+    data as an id.
   * A list of annotations is now displayed on the right in the
     "Annotate" tab. It provides an overview of annotations in the
     current document and helps navigate them (clicking on an
@@ -9,7 +14,7 @@ labelbuddy (0.0.10) unstable; urgency=medium
   * Selecting a label that already exists at the current position
     activates the corresponding annotation.
 
- -- jerome dockes <jerome@dockes.org>  Tue, 07 Feb 2023 08:04:32 -0300
+ -- jerome dockes <jerome@dockes.org>  Wed, 15 Feb 2023 15:05:12 -0300
 
 labelbuddy (0.0.9) unstable; urgency=medium
 

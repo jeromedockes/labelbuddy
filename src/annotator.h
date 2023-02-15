@@ -2,9 +2,10 @@
 #define LABELBUDDY_ANNOTATOR_H
 
 #include <list>
-#include <memory>
 #include <set>
+#include <memory>
 
+#include <QCompleter>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMap>
@@ -27,45 +28,50 @@
 namespace labelbuddy {
 
 /// Widget use to set the label for the selection
-class LabelChoices : public QWidget {
+class AnnotationEditor : public QWidget {
   Q_OBJECT
 
 public:
-  LabelChoices(QWidget* parent = nullptr);
-  void setModel(LabelListModel*);
-  QModelIndexList selectedIndexes() const;
-  /// The currently selected label's `id` in the database
-  int selectedLabelId() const;
+  AnnotationEditor(QWidget* parent = nullptr);
+  void setLabelsModel(LabelListModel*);
+  void setAnnotationsModel(AnnotationsModel*);
+
   /// Set the currently selected label based on its `id` in the db
   void setSelectedLabelId(int labelId);
-  /// Set the extra data in the line edit
-  void setExtraData(const QString& newData);
   bool isLabelChoiceEnabled() const;
 
 signals:
-  void selectionChanged();
+  void selectedLabelChanged(int labelId);
   void deleteButtonClicked();
-  void extraDataEdited(const QString& newData);
+  void extraDataChanged(const QString& newData);
   void extraDataEditFinished();
 
 public slots:
-  void enableDeleteAndEdit();
-  void disableDeleteAndEdit();
+  void setAnnotation(AnnotationInfo annotation);
   void enableLabelChoice();
   void disableLabelChoice();
 
 private slots:
-  void onSelectionChange();
-  void onDeleteButtonClick();
+  void onLabelSelectionChange();
 
 private:
-  QLabel* instructionLabel_ = nullptr;
-  QPushButton* deleteButton_ = nullptr;
-  NoDeselectAllView* labelsView_ = nullptr;
   LabelListModel* labelListModel_ = nullptr;
-  std::unique_ptr<LabelDelegate> labelDelegate_ = nullptr;
+  AnnotationsModel* annotationsModel_ = nullptr;
+  std::unique_ptr<QCompleter> extraDataCompleter_ = nullptr;
+
+  NoDeselectAllView* labelsView_ = nullptr;
+  QLabel* extraDataTitle_ = nullptr;
   QLineEdit* extraDataEdit_ = nullptr;
-  QLabel* extraDataLabel_ = nullptr;
+  QPushButton* deleteButton_ = nullptr;
+
+  void enableDeleteAndEdit();
+  void disableDeleteAndEdit();
+
+  /// The currently selected label's `id` in the database
+  int selectedLabelId() const;
+
+  /// Set the extra data in the line edit
+  void setExtraData(const QString& newData);
 };
 
 /// Navigation buttons above the text: next, next labelled etc.
@@ -162,15 +168,11 @@ public:
   /// `id`, otherwise return -1 .
   int activeAnnotationLabel() const;
 
-  /// If there is a currently active annotation return its extra data
-  /// "" if there is no active annotation or its data is NULL
-  QString activeAnnotationExtraData() const;
-
   StatusBarInfo currentStatusInfo() const;
 
 signals:
 
-  void activeAnnotationChanged(int activeAnnotation);
+  void activeAnnotationIdChanged(int activeAnnotation);
   void currentStatusDisplayChanged();
 
 public slots:
@@ -217,8 +219,8 @@ private slots:
   void updateExtraDataForActiveAnnotation(const QString& newData);
   void activateAnnotation(int annotationId);
   void activateClusterAtCursorPos();
-  void setLabelForSelectedRegion();
-  void updateLabelChoicesButtonStates();
+  void setLabelForSelectedRegion(int labelId);
+  void updateAnnotationEditor();
   void resetDocument();
 
 private:
@@ -264,7 +266,7 @@ private:
 
   QLabel* titleLabel_;
   SearchableText* text_;
-  LabelChoices* labelChoices_;
+  AnnotationEditor* annotationEditor_;
   AnnotationsModel* annotationsModel_ = nullptr;
   AnnotationsNavButtons* navButtons_ = nullptr;
   AnnotationsList* annotationsList_;

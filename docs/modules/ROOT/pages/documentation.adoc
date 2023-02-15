@@ -241,6 +241,8 @@ You can also attach additional information to the annotation by typing it in the
 You can use this to add a comment to the annotation.
 You can also use the extra data for free-form labelling.
 For example, you can enter a number, the normalized name of an entity, a URI, etc. -- anything that an Information Extraction system should find in the labelled region.
+The {extra-edit} box offers a list of possible completions: all the extra data values for annotations with the same label in the current document.
+This makes it easy to link different annotations, by giving them the same extra data, which thus acts as an identifier.
 
 Once you have created annotations, you can select any of them by clicking it.
 It becomes [.yellow-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].

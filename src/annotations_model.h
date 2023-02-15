@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QSqlQuery>
 #include <QString>
+#include <QStringList>
 
 #include "char_indices.h"
 #include "user_roles.h"
@@ -82,6 +83,9 @@ public:
 
   /// Mapping annotation id -> annotation info
   QMap<int, AnnotationInfo> getAnnotationsInfo() const;
+
+  /// Get all the extra data for annotations with this label in current doc
+  QStringList existingExtraDataForLabel(int labelId) const;
 
   /// false when db is empty
   bool isPositionedOnValidDoc() const;
