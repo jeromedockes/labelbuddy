@@ -59,6 +59,7 @@ private:
   AnnotationsModel* annotationsModel_ = nullptr;
   std::unique_ptr<QCompleter> extraDataCompleter_ = nullptr;
 
+  QLabel* labelsViewTitle_ = nullptr;
   NoDeselectAllView* labelsView_ = nullptr;
   QLabel* extraDataTitle_ = nullptr;
   QLineEdit* extraDataEdit_ = nullptr;

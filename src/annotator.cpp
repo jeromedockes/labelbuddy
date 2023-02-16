@@ -9,11 +9,11 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QSplitter>
 #include <QSqlQueryModel>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QSignalBlocker>
 
 #include "annotator.h"
 #include "label_list.h"
@@ -30,9 +30,9 @@ AnnotationEditor::AnnotationEditor(QWidget* parent) : QWidget(parent) {
   auto layout = new QVBoxLayout();
   setLayout(layout);
 
-  auto instructionLabel = new QLabel{"Set label for selected text:"};
-  layout->addWidget(instructionLabel);
-  instructionLabel->setWordWrap(true);
+  labelsViewTitle_ = new QLabel{"Set label for selected text:"};
+  layout->addWidget(labelsViewTitle_);
+  labelsViewTitle_->setWordWrap(true);
   labelsView_ = new NoDeselectAllView();
   layout->addWidget(labelsView_);
   labelsView_->setFocusPolicy(Qt::NoFocus);
@@ -146,8 +146,16 @@ void AnnotationEditor::disableDeleteAndEdit() {
   extraDataTitle_->setDisabled(true);
 }
 
-void AnnotationEditor::enableLabelChoice() { labelsView_->setEnabled(true); }
-void AnnotationEditor::disableLabelChoice() { labelsView_->setDisabled(true); }
+void AnnotationEditor::enableLabelChoice() {
+  labelsViewTitle_->setEnabled(true);
+  labelsView_->setEnabled(true);
+}
+
+void AnnotationEditor::disableLabelChoice() {
+  labelsViewTitle_->setDisabled(true);
+  labelsView_->setDisabled(true);
+}
+
 bool AnnotationEditor::isLabelChoiceEnabled() const {
   return labelsView_->isEnabled();
 }
