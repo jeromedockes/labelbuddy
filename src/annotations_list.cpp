@@ -125,6 +125,11 @@ void AnnotationsList::setModel(AnnotationsModel* model) {
   QObject::connect(annotationsView_->selectionModel(),
                    &QItemSelectionModel::selectionChanged, this,
                    &AnnotationsList::onSelectionChange);
+  // prevent automatically selecting another annotation when the current one is
+  // deleted
+  QObject::connect(
+      annotationsModel_, &AnnotationsModel::aboutToDeleteAnnotation,
+      annotationsView_->selectionModel(), &QItemSelectionModel::clear);
 }
 
 void AnnotationsList::selectAnnotation(int annotationId) {

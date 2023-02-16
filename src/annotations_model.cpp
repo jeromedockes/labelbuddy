@@ -148,6 +148,7 @@ int AnnotationsModel::deleteAnnotation(int annotationId) {
   auto labelId = query.value(0).toInt();
   query.prepare("delete from annotation where rowid = :id;");
   query.bindValue(":id", annotationId);
+  emit aboutToDeleteAnnotation(annotationId);
   query.exec();
   auto nDeleted = query.numRowsAffected();
   assert(nDeleted == 1);

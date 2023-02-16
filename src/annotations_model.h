@@ -145,6 +145,7 @@ signals:
   void documentLostLabel(int labelId, int docId);
 
   void annotationAdded(AnnotationInfo annotation);
+  void aboutToDeleteAnnotation(int annotationId);
   void annotationDeleted(int annotationId);
   void extraDataChanged(int annotationId, QString extraData);
 
