@@ -154,6 +154,33 @@ void TestLabelListModel::testIsValidShortcut() {
   QCOMPARE(model.isValidShortcut("p", idx1), true);
 }
 
+void TestLabelListModel::testRenameLabel() {
+  QTemporaryDir tmpDir{};
+  auto dbName = prepareDb(tmpDir);
+  LabelListModel model{};
+  model.setDatabase(dbName);
+
+  auto labelIndex = model.index(0, 0);
+  QCOMPARE(model.isValidRename("", labelIndex), false);
+  QCOMPARE(model.isValidRename("label: Επαvάληψη της συvσδoυ", labelIndex),
+           false);
+  QCOMPARE(model.isValidRename("new label", labelIndex), true);
+
+  model.renameLabel(labelIndex, "");
+  labelIndex = model.index(0, 0);
+  QCOMPARE(labelIndex.data(Roles::LabelNameRole).toString(),
+           "label: Reinício da sessão");
+
+  model.renameLabel(labelIndex, "label: Επαvάληψη της συvσδoυ");
+  labelIndex = model.index(0, 0);
+  QCOMPARE(labelIndex.data(Roles::LabelNameRole).toString(),
+           "label: Reinício da sessão");
+
+  model.renameLabel(labelIndex, "new label");
+  labelIndex = model.index(0, 0);
+  QCOMPARE(labelIndex.data(Roles::LabelNameRole).toString(), "new label");
+}
+
 void TestLabelListModel::testAddLabel() {
   DatabaseCatalog catalog{};
   LabelListModel model{};

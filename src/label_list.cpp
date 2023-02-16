@@ -142,20 +142,28 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
   addLabelInstruction->setBuddy(addLabelEdit_);
   addLabelEdit_->installEventFilter(this);
 
-  auto bottomLayout = new QHBoxLayout();
-  outerLayout->addLayout(bottomLayout);
+  auto colorShortcutLayout = new QHBoxLayout();
+  outerLayout->addLayout(colorShortcutLayout);
   setColorButton_ = new QPushButton("Set color");
-  bottomLayout->addWidget(setColorButton_);
-  shortcutLabel_ = new QLabel("Shortcut key: ");
-  bottomLayout->addWidget(shortcutLabel_);
+  colorShortcutLayout->addWidget(setColorButton_);
+  shortcutTitle_ = new QLabel("Shortcut key: ");
+  colorShortcutLayout->addWidget(shortcutTitle_);
   shortcutEdit_ = new QLineEdit();
-  bottomLayout->addWidget(shortcutEdit_);
+  colorShortcutLayout->addWidget(shortcutEdit_);
   shortcutEdit_->setMaxLength(1);
-  shortcutEdit_->setValidator(&validator_);
+  shortcutEdit_->setValidator(&shortcutValidator_);
   shortcutEdit_->setFixedWidth(
       textWidth(shortcutEdit_->fontMetrics(), "[a-z]x"));
   shortcutEdit_->setPlaceholderText("[a-z]");
-  bottomLayout->addStretch(1);
+  colorShortcutLayout->addStretch(1);
+
+  auto renameLayout = new QHBoxLayout{};
+  outerLayout->addLayout(renameLayout);
+  renameTitle_ = new QLabel{"Rename this label:"};
+  renameLayout->addWidget(renameTitle_);
+  renameEdit_ = new QLineEdit{};
+  renameLayout->addWidget(renameEdit_);
+  renameEdit_->setPlaceholderText("New unique name");
 
   QObject::connect(selectAllButton_, &QPushButton::clicked, this,
                    &LabelListButtons::selectAll);
@@ -167,6 +175,12 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
                    &LabelListButtons::setLabelShortcut);
   QObject::connect(addLabelEdit_, &QLineEdit::returnPressed, this,
                    &LabelListButtons::addLabelEditPressed);
+  QObject::connect(renameEdit_, &QLineEdit::returnPressed, this,
+                   &LabelListButtons::onRenameEditFinished);
+}
+
+void LabelListButtons::onRenameEditFinished() {
+  emit renameLabel(renameEdit_->text().trimmed());
 }
 
 void LabelListButtons::updateButtonStates(int nSelected, int total,
@@ -176,7 +190,9 @@ void LabelListButtons::updateButtonStates(int nSelected, int total,
   setColorButton_->setEnabled(nSelected == 1);
   auto shortcutEditHadFocus = shortcutEdit_->hasFocus();
   shortcutEdit_->setEnabled(nSelected == 1);
-  shortcutLabel_->setEnabled(nSelected == 1);
+  shortcutTitle_->setEnabled(nSelected == 1);
+  renameEdit_->setEnabled(nSelected == 1);
+  renameTitle_->setEnabled(nSelected == 1);
   if (nSelected == 1 && firstSelected.isValid()) {
     shortcutEdit_->setText(firstSelected.model()
                                ->data(firstSelected, Roles::ShortcutKeyRole)
@@ -194,17 +210,18 @@ void LabelListButtons::updateButtonStates(int nSelected, int total,
       setFocus();
     }
   }
+  renameEdit_->setText("");
 }
 
 void LabelListButtons::setModel(LabelListModel* newModel) {
   assert(newModel != nullptr);
-  validator_.setModel(newModel);
+  shortcutValidator_.setModel(newModel);
 }
 
 void LabelListButtons::setView(QListView* newView) {
   assert(newView != nullptr);
   labelListView_ = newView;
-  validator_.setView(newView);
+  shortcutValidator_.setView(newView);
 }
 
 bool LabelListButtons::eventFilter(QObject* object, QEvent* event) {
@@ -254,6 +271,8 @@ LabelList::LabelList(QWidget* parent) : QFrame(parent) {
                    &LabelList::setLabelColor);
   QObject::connect(buttonsFrame_, &LabelListButtons::setLabelShortcut, this,
                    &LabelList::setLabelShortcut);
+  QObject::connect(buttonsFrame_, &LabelListButtons::renameLabel, this,
+                   &LabelList::renameLabel);
   QObject::connect(buttonsFrame_, &LabelListButtons::addLabel, this,
                    &LabelList::addLabel);
 }
@@ -345,6 +364,22 @@ void LabelList::setLabelShortcut(const QString& newShortcut) {
     return;
   }
   model_->setLabelShortcut(*selected, newShortcut);
+}
+
+void LabelList::renameLabel(const QString& newName) {
+  auto allSelected = labelsView_->selectionModel()->selectedIndexes();
+  auto selected = findFirstInCol0(allSelected);
+  if (selected == allSelected.constEnd()) {
+    return;
+  }
+  if (!model_->isValidRename(newName, *selected)) {
+    return;
+  }
+  auto labelId = selected->data(Roles::RowIdRole).toInt();
+  model_->renameLabel(*selected, newName);
+  auto modelIndex = model_->labelIdToModelIndex(labelId);
+  assert(modelIndex.isValid());
+  labelsView_->setCurrentIndex(modelIndex);
 }
 
 void LabelList::addLabel(const QString& name) {

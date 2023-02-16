@@ -1,6 +1,7 @@
 #include "test_label_list.h"
 #include "label_list.h"
 #include "testing_utils.h"
+#include "user_roles.h"
 
 namespace labelbuddy {
 void TestLabelList::testLabelList() {
@@ -15,13 +16,19 @@ void TestLabelList::testLabelList() {
   auto lv = labelList.findChild<QListView*>();
   auto colBtn = labelList.findChildren<QPushButton*>()[2];
   auto scEdit = labelList.findChildren<QLineEdit*>()[1];
+  auto renameEdit = labelList.findChildren<QLineEdit*>()[2];
+
   QVERIFY(!colBtn->isEnabled());
   QVERIFY(!scEdit->isEnabled());
+  QVERIFY(!renameEdit->isEnabled());
   lv->selectionModel()->select(labelModel.index(0, 0),
                                QItemSelectionModel::Select);
   QVERIFY(colBtn->isEnabled());
   QVERIFY(scEdit->isEnabled());
   QCOMPARE(scEdit->text(), QString("p"));
+  QVERIFY(renameEdit->isEnabled());
+  QCOMPARE(renameEdit->text(), QString(""));
+
   scEdit->selectAll();
   QTest::keyClicks(scEdit, "5");
   QCOMPARE(scEdit->text(), QString("p"));
@@ -45,6 +52,14 @@ void TestLabelList::testLabelList() {
   QTest::keyClick(nlEdit, Qt::Key_Enter);
   QCOMPARE(labelModel.rowCount(), 4);
   QCOMPARE(scEdit->text(), QString(""));
+
+  QTest::keyClicks(renameEdit, "new label renamed    ");
+  QTest::keyClick(renameEdit, Qt::Key_Enter);
+  QCOMPARE(labelModel.rowCount(), 4);
+  QCOMPARE(
+      labelModel.data(labelModel.index(3, 0), Roles::LabelNameRole).toString(),
+      "new label renamed");
+
   QTest::keyClicks(nlEdit, "label: Resumption of the session");
   QTest::keyClick(nlEdit, Qt::Key_Enter);
   QCOMPARE(labelModel.rowCount(), 4);
