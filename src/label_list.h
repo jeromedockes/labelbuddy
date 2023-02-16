@@ -95,6 +95,7 @@ signals:
   void setLabelColor();
   void setLabelShortcut(const QString& newShortcut);
   void addLabel(const QString& name);
+  void renameLabel(const QString& name);
 
 public slots:
 
@@ -116,12 +117,15 @@ private:
   QLineEdit* addLabelEdit_;
   QPushButton* setColorButton_;
   QLineEdit* shortcutEdit_;
-  QLabel* shortcutLabel_;
-  ShortcutValidator validator_;
+  QLabel* shortcutTitle_;
+  ShortcutValidator shortcutValidator_;
+  QLineEdit* renameEdit_;
+  QLabel* renameTitle_;
   QListView* labelListView_ = nullptr;
 
 private slots:
   void addLabelEditPressed();
+  void onRenameEditFinished();
 };
 
 /// List of labels shown in the Dataset and Annotate tabs
@@ -147,6 +151,11 @@ private slots:
 
   /// shortcut is validated by the model before update
   void setLabelShortcut(const QString& newShortcut);
+
+  /// Tell model to rename the label when changed in line edit.
+
+  /// Validation is done by the model & database
+  void renameLabel(const QString& newName);
 
   void addLabel(const QString& name);
 

@@ -38,6 +38,8 @@ private:
   DocList* docList_;
   LabelListModel* labelListModel_ = nullptr;
   DocListModel* docListModel_ = nullptr;
+
+  void connectLabelsAndDocsModels();
 };
 } // namespace labelbuddy
 #endif

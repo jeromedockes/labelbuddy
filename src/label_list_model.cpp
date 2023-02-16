@@ -324,6 +324,47 @@ int LabelListModel::addLabel(const QString& name) {
   return labelId;
 }
 
+bool LabelListModel::isValidRename(const QString& newName,
+                                   const QModelIndex& index) const {
+  if (newName.isEmpty()) {
+    return false;
+  }
+  auto labelIdVariant = data(index, Roles::RowIdRole);
+  int labelId = labelIdVariant != QVariant() ? labelIdVariant.toInt() : -1;
+  auto query = getQuery();
+  query.prepare("select id from label where name = :name and id != :labelid;");
+  query.bindValue(":name", newName);
+  query.bindValue(":labelid", labelId);
+  query.exec();
+  return !query.next();
+}
+
+void LabelListModel::renameLabel(const QModelIndex& index,
+                                 const QString& newName) {
+  auto labelId = data(index, Roles::RowIdRole);
+  if (labelId == QVariant()) {
+    assert(false);
+    return;
+  }
+  auto currentName = data(index, Roles::LabelNameRole).toString();
+  if (currentName == newName) {
+    return;
+  }
+  auto query = getQuery();
+  query.prepare("update label set name = :name where id = :labelid;");
+  query.bindValue(":name", newName);
+  query.bindValue(":labelid", labelId.toInt());
+  query.exec();
+  // 19 = constraint violation (here, unique name or check name != '')
+  // https://sqlite.org/rescode.html#constraint
+  assert(query.numRowsAffected() == 1 ||
+         query.lastError().nativeErrorCode() == "19");
+  refreshCurrentQuery();
+  emit dataChanged(index, index, {Qt::DisplayRole, Roles::LabelNameRole});
+  emit labelsChanged();
+  emit labelRenamed(labelId.toInt(), newName);
+}
+
 QList<int> getLabelIds(const LabelListModel& model) {
   QList<int> result{};
   for (int i = 0; i != model.rowCount(); ++i) {

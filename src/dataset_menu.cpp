@@ -31,36 +31,34 @@ DatasetMenu::DatasetMenu(QWidget* parent) : QSplitter(parent) {
                    &DatasetMenu::nSelectedDocsChanged);
 }
 
+void DatasetMenu::connectLabelsAndDocsModels() {
+  if (labelListModel_ == nullptr || docListModel_ == nullptr) {
+    return;
+  }
+  QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
+                   docListModel_, &DocListModel::refreshCurrentQuery);
+  QObject::connect(labelListModel_, &LabelListModel::labelRenamed,
+                   docListModel_, &DocListModel::labelsChanged);
+  QObject::connect(labelListModel_, &LabelListModel::labelsAdded, docListModel_,
+                   &DocListModel::labelsChanged);
+  QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
+                   docListModel_, &DocListModel::labelsChanged);
+  QObject::connect(labelListModel_, &LabelListModel::labelsOrderChanged,
+                   docListModel_, &DocListModel::labelsChanged);
+}
+
 void DatasetMenu::setDocListModel(DocListModel* newModel) {
   assert(newModel != nullptr);
   docListModel_ = newModel;
   docList_->setModel(newModel);
-  if (labelListModel_ != nullptr) {
-    QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
-                     docListModel_, &DocListModel::refreshCurrentQuery);
-    QObject::connect(labelListModel_, &LabelListModel::labelsAdded,
-                     docListModel_, &DocListModel::labelsChanged);
-    QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
-                     docListModel_, &DocListModel::labelsChanged);
-    QObject::connect(labelListModel_, &LabelListModel::labelsOrderChanged,
-                     docListModel_, &DocListModel::labelsChanged);
-  }
+  connectLabelsAndDocsModels();
 }
 
 void DatasetMenu::setLabelListModel(LabelListModel* newModel) {
   assert(newModel != nullptr);
   labelListModel_ = newModel;
   labelList_->setModel(newModel);
-  if (docListModel_ != nullptr) {
-    QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
-                     docListModel_, &DocListModel::refreshCurrentQuery);
-    QObject::connect(labelListModel_, &LabelListModel::labelsAdded,
-                     docListModel_, &DocListModel::labelsChanged);
-    QObject::connect(labelListModel_, &LabelListModel::labelsDeleted,
-                     docListModel_, &DocListModel::labelsChanged);
-    QObject::connect(labelListModel_, &LabelListModel::labelsOrderChanged,
-                     docListModel_, &DocListModel::labelsChanged);
-  }
+  connectLabelsAndDocsModels();
 }
 
 int DatasetMenu::nSelectedDocs() const { return docList_->nSelectedDocs(); }

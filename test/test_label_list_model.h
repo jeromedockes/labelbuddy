@@ -13,6 +13,7 @@ private slots:
   void testSetShortcut();
   void testSetColor();
   void testIsValidShortcut();
+  void testRenameLabel();
   void testGetData();
   void testGetData_data();
   void testAddLabel();

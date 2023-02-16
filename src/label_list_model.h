@@ -5,6 +5,7 @@
 
 #include <QSqlQuery>
 #include <QSqlQueryModel>
+#include <QAbstractItemModel>
 
 #include "utils.h"
 
@@ -54,6 +55,9 @@ public:
   /// Valid if it is a single lowercase letter not used by another label.
   bool isValidShortcut(const QString& shortcut, const QModelIndex& index) const;
 
+  /// name is not empty and not already used by another label.
+  bool isValidRename(const QString& newName, const QModelIndex& index) const;
+
   int addLabel(const QString& name);
 
 public slots:
@@ -80,12 +84,19 @@ public slots:
   /// Emits `dataChanged` and `labelsChanged`
   void setLabelShortcut(const QModelIndex& index, const QString& shortcut);
 
+  /// Set a label's name, keep all annotations
+
+  /// Has no effect if new name is already taken or is the empty string.
+  /// Emits dataChanged, labelsChanged, labelRenamed.
+  void renameLabel(const QModelIndex& index, const QString& newName);
+
 signals:
 
   void labelsChanged();
   void labelsDeleted();
   void labelsAdded();
   void labelsOrderChanged();
+  void labelRenamed(int labelId, QString newName);
 
 private:
   QSqlQuery getQuery() const;

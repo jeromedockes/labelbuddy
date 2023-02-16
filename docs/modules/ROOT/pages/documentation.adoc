@@ -211,7 +211,7 @@ The `shortcut_key` is a lower-case letter (a-z) that helps quickly <<annotating-
 
 As for documents, the format is deduced from the filename extension when importing labels, and is described in <<formats-sec>>.
 
-It is also possible to manually enter a new label or to change the labels`' color and shortcut key from within the GUI application, in the {dstab}.
+It is also possible to manually enter a new label or to change the labels`' name, color and shortcut key from within the GUI application, in the {dstab}.
 
 Labels can also be imported using the <<command-line-interface,command line>>, for example:
 
