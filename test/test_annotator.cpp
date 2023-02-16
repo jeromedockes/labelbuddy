@@ -24,7 +24,7 @@ void TestAnnotator::testAnnotator() {
   auto text = annotator.findChild<SearchableText*>();
   QVERIFY(text->getTextEdit()->toPlainText().startsWith(QString("document 1")));
   auto nav = annotator.findChild<AnnotationsNavButtons*>();
-  auto labels = annotator.findChild<LabelChoices*>();
+  auto labels = annotator.findChild<AnnotationEditor*>();
   auto search = text->findChild<QLineEdit*>();
   auto lv = labels->findChild<QListView*>();
   QVERIFY(!lv->isEnabled());
@@ -90,7 +90,7 @@ void TestAnnotator::testOverlappingAnnotations() {
   annotator.setLabelListModel(&labelsModel);
   annotationsModel.visitNext();
 
-  auto lv = annotator.findChild<LabelChoices*>()->findChild<QListView*>();
+  auto lv = annotator.findChild<AnnotationEditor*>()->findChild<QListView*>();
   auto te = annotator.findChild<SearchableText*>()->getTextEdit();
   auto cursor = te->textCursor();
   cursor.setPosition(0);
@@ -151,7 +151,8 @@ void TestAnnotator::testExtraDataAnnotations() {
   annotator.setLabelListModel(&labelsModel);
 
   auto te = annotator.findChild<SearchableText*>()->getTextEdit();
-  auto ed = annotator.findChild<LabelChoices*>()->findChild<QLineEdit*>();
+  auto ed = annotator.findChild<AnnotationEditor*>()->findChild<QLineEdit*>();
+  auto lv = annotator.findChild<AnnotationEditor*>()->findChild<QListView*>();
   QTest::keyClicks(te, " ");
   QCOMPARE(ed->text(), QString("hello extra data"));
   ed->setText("");
@@ -162,5 +163,19 @@ void TestAnnotator::testExtraDataAnnotations() {
   QCOMPARE(query.value(0).toString(), "new extra data");
   QTest::keyClick(te, Qt::Key_Escape);
   QCOMPARE(ed->text(), QString(""));
+
+  auto cursor = te->textCursor();
+  cursor.setPosition(0);
+  cursor.setPosition(5, QTextCursor::KeepAnchor);
+  te->setTextCursor(cursor);
+  QTest::keyClicks(&annotator, "p");
+  QTest::keyClicks(ed, "n");
+  QCOMPARE(ed->completer()->model()->rowCount(), 1);
+  QCOMPARE(ed->completer()->currentIndex().data(), "new extra data");
+
+  lv->selectionModel()->select(labelsModel.index(2, 0),
+                               QItemSelectionModel::SelectCurrent);
+  QTest::keyClicks(ed, "n");
+  QCOMPARE(ed->completer()->model()->rowCount(), 0);
 }
 } // namespace labelbuddy

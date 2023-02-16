@@ -89,6 +89,21 @@ QMap<int, AnnotationInfo> AnnotationsModel::getAnnotationsInfo() const {
   return result;
 }
 
+QStringList AnnotationsModel::existingExtraDataForLabel(int labelId) const {
+  auto query = getQuery();
+  query.prepare(
+      "select distinct extra_data from annotation where doc_id = :doc and "
+      "label_id = :label and extra_data is not null and extra_data != '';");
+  query.bindValue(":doc", currentDocId_);
+  query.bindValue(":label", labelId);
+  query.exec();
+  QStringList result{};
+  while (query.next()) {
+    result << query.value(0).toString();
+  }
+  return result;
+}
+
 int AnnotationsModel::addAnnotation(int labelId, int startChar, int endChar) {
   auto query = getQuery();
   query.prepare("insert into annotation (doc_id, label_id, start_char, "
@@ -169,7 +184,7 @@ bool AnnotationsModel::updateAnnotationExtraData(int annotationId,
   query.bindValue(":data", newData == "" ? QVariant() : newData);
   query.bindValue(":id", annotationId);
   auto success = query.exec();
-  if (! success){
+  if (!success) {
     return success;
   }
   emit extraDataChanged(annotationId, newData);

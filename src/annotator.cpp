@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QSettings>
+#include <QSignalBlocker>
 #include <QSplitter>
 #include <QSqlQueryModel>
 #include <QVBoxLayout>
@@ -24,55 +25,80 @@ namespace labelbuddy {
 
 constexpr double Annotator::activeAnnotationScaling_;
 
-LabelChoices::LabelChoices(QWidget* parent) : QWidget(parent) {
+AnnotationEditor::AnnotationEditor(QWidget* parent) : QWidget(parent) {
+  this->setStyleSheet("QListView::item {background: transparent;}");
   auto layout = new QVBoxLayout();
   setLayout(layout);
-  instructionLabel_ = new QLabel("Set label for selected text:");
-  layout->addWidget(instructionLabel_);
-  instructionLabel_->setWordWrap(true);
-  this->setStyleSheet("QListView::item {background: transparent;}");
+
+  labelsViewTitle_ = new QLabel{"Set label for selected text:"};
+  layout->addWidget(labelsViewTitle_);
+  labelsViewTitle_->setWordWrap(true);
   labelsView_ = new NoDeselectAllView();
   layout->addWidget(labelsView_);
-  // labelsView->setSpacing(3);
   labelsView_->setFocusPolicy(Qt::NoFocus);
-  labelDelegate_.reset(new LabelDelegate);
-  labelsView_->setItemDelegate(labelDelegate_.get());
+  auto labelDelegate = new LabelDelegate{false, this};
+  labelsView_->setItemDelegate(labelDelegate);
 
-  extraDataLabel_ = new QLabel("&Extra annotation data:");
-  layout->addWidget(extraDataLabel_);
-  extraDataLabel_->setWordWrap(true);
+  extraDataTitle_ = new QLabel{"&Extra annotation data:"};
+  layout->addWidget(extraDataTitle_);
+  extraDataTitle_->setWordWrap(true);
   extraDataEdit_ = new QLineEdit();
   layout->addWidget(extraDataEdit_);
-  extraDataLabel_->setBuddy(extraDataEdit_);
+  extraDataTitle_->setBuddy(extraDataEdit_);
 
-  deleteButton_ = new QPushButton("Delete annotation");
+  deleteButton_ = new QPushButton{"Delete annotation"};
   layout->addWidget(deleteButton_);
 
   QObject::connect(deleteButton_, &QPushButton::clicked, this,
-                   &LabelChoices::onDeleteButtonClick);
-  QObject::connect(extraDataEdit_, &QLineEdit::textEdited, this,
-                   &LabelChoices::extraDataEdited);
+                   &AnnotationEditor::deleteButtonClicked);
+  QObject::connect(extraDataEdit_, &QLineEdit::textChanged, this,
+                   &AnnotationEditor::extraDataChanged);
   QObject::connect(extraDataEdit_, &QLineEdit::returnPressed, this,
-                   &LabelChoices::extraDataEditFinished);
+                   &AnnotationEditor::extraDataEditFinished);
 }
 
-void LabelChoices::setModel(LabelListModel* newModel) {
+void AnnotationEditor::setLabelsModel(LabelListModel* newModel) {
   assert(newModel != nullptr);
   labelListModel_ = newModel;
   labelsView_->setModel(newModel);
   QObject::connect(labelsView_->selectionModel(),
                    &QItemSelectionModel::selectionChanged, this,
-                   &LabelChoices::onSelectionChange);
+                   &AnnotationEditor::onLabelSelectionChange);
 }
 
-void LabelChoices::onSelectionChange() { emit selectionChanged(); }
-void LabelChoices::onDeleteButtonClick() { emit deleteButtonClicked(); }
-
-QModelIndexList LabelChoices::selectedIndexes() const {
-  return labelsView_->selectionModel()->selectedIndexes();
+void AnnotationEditor::setAnnotationsModel(AnnotationsModel* newModel) {
+  assert(newModel != nullptr);
+  annotationsModel_ = newModel;
 }
 
-int LabelChoices::selectedLabelId() const {
+void AnnotationEditor::setAnnotation(AnnotationInfo annotation) {
+  {
+    QSignalBlocker blocker{labelsView_->selectionModel()};
+    setSelectedLabelId(annotation.labelId);
+  }
+  setExtraData(annotation.extraData);
+  if (annotation.id == -1) {
+    extraDataCompleter_.reset();
+    extraDataEdit_->setCompleter(extraDataCompleter_.get());
+    disableDeleteAndEdit();
+  } else {
+    enableDeleteAndEdit();
+    enableLabelChoice();
+    assert(annotationsModel_ != nullptr);
+    auto completions =
+        annotationsModel_->existingExtraDataForLabel(annotation.labelId);
+    extraDataCompleter_.reset(new QCompleter{completions});
+    extraDataCompleter_->setCompletionMode(
+        QCompleter::UnfilteredPopupCompletion);
+    extraDataEdit_->setCompleter(extraDataCompleter_.get());
+  }
+}
+
+void AnnotationEditor::onLabelSelectionChange() {
+  emit selectedLabelChanged(selectedLabelId());
+}
+
+int AnnotationEditor::selectedLabelId() const {
   if (labelListModel_ == nullptr) {
     assert(false);
     return -1;
@@ -87,7 +113,7 @@ int LabelChoices::selectedLabelId() const {
   return labelId;
 }
 
-void LabelChoices::setSelectedLabelId(int labelId) {
+void AnnotationEditor::setSelectedLabelId(int labelId) {
   if (labelListModel_ == nullptr) {
     return;
   }
@@ -102,26 +128,35 @@ void LabelChoices::setSelectedLabelId(int labelId) {
   labelsView_->setCurrentIndex(modelIndex);
 }
 
-void LabelChoices::setExtraData(const QString& newData) {
+void AnnotationEditor::setExtraData(const QString& newData) {
+  QSignalBlocker blocker{extraDataEdit_};
   extraDataEdit_->setText(newData);
   extraDataEdit_->setCursorPosition(0);
 }
 
-void LabelChoices::enableDeleteAndEdit() {
+void AnnotationEditor::enableDeleteAndEdit() {
   deleteButton_->setEnabled(true);
   extraDataEdit_->setEnabled(true);
-  extraDataLabel_->setEnabled(true);
+  extraDataTitle_->setEnabled(true);
 }
 
-void LabelChoices::disableDeleteAndEdit() {
+void AnnotationEditor::disableDeleteAndEdit() {
   deleteButton_->setDisabled(true);
   extraDataEdit_->setDisabled(true);
-  extraDataLabel_->setDisabled(true);
+  extraDataTitle_->setDisabled(true);
 }
 
-void LabelChoices::enableLabelChoice() { labelsView_->setEnabled(true); }
-void LabelChoices::disableLabelChoice() { labelsView_->setDisabled(true); }
-bool LabelChoices::isLabelChoiceEnabled() const {
+void AnnotationEditor::enableLabelChoice() {
+  labelsViewTitle_->setEnabled(true);
+  labelsView_->setEnabled(true);
+}
+
+void AnnotationEditor::disableLabelChoice() {
+  labelsViewTitle_->setDisabled(true);
+  labelsView_->setDisabled(true);
+}
+
+bool AnnotationEditor::isLabelChoiceEnabled() const {
   return labelsView_->isEnabled();
 }
 
@@ -156,9 +191,9 @@ bool operator>=(const AnnotationIndex& lhs, const AnnotationIndex& rhs) {
 }
 
 Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
-  labelChoices_ = new LabelChoices();
-  addWidget(labelChoices_);
-  scaleMargin(*labelChoices_, Side::Right);
+  annotationEditor_ = new AnnotationEditor();
+  addWidget(annotationEditor_);
+  scaleMargin(*annotationEditor_, Side::Right);
   auto textFrame = new QFrame();
   addWidget(textFrame);
   auto textLayout = new QVBoxLayout();
@@ -190,29 +225,29 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
     restoreState(settings.value("Annotator/state").toByteArray());
   }
 
-  QObject::connect(labelChoices_, &LabelChoices::selectionChanged, this,
-                   &Annotator::setLabelForSelectedRegion);
-  QObject::connect(labelChoices_, &LabelChoices::deleteButtonClicked, this,
-                   &Annotator::deleteActiveAnnotation);
-  QObject::connect(labelChoices_, &LabelChoices::extraDataEdited, this,
+  QObject::connect(annotationEditor_, &AnnotationEditor::selectedLabelChanged,
+                   this, &Annotator::setLabelForSelectedRegion);
+  QObject::connect(annotationEditor_, &AnnotationEditor::deleteButtonClicked,
+                   this, &Annotator::deleteActiveAnnotation);
+  QObject::connect(annotationEditor_, &AnnotationEditor::extraDataChanged, this,
                    &Annotator::updateExtraDataForActiveAnnotation);
-  QObject::connect(labelChoices_, &LabelChoices::extraDataEditFinished, this,
-                   &Annotator::setDefaultFocus);
-  QObject::connect(this, &Annotator::activeAnnotationChanged, this,
+  QObject::connect(annotationEditor_, &AnnotationEditor::extraDataEditFinished,
+                   this, &Annotator::setDefaultFocus);
+  QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
                    &Annotator::paintAnnotations);
-  QObject::connect(this, &Annotator::activeAnnotationChanged, this,
-                   &Annotator::updateLabelChoicesButtonStates);
-  QObject::connect(this, &Annotator::activeAnnotationChanged, this,
+  QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
+                   &Annotator::updateAnnotationEditor);
+  QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
                    &Annotator::currentStatusDisplayChanged);
   QObject::connect(text_->getTextEdit(), &QPlainTextEdit::selectionChanged,
-                   this, &Annotator::updateLabelChoicesButtonStates);
+                   this, &Annotator::updateAnnotationEditor);
   QObject::connect(text_->getTextEdit(), &QPlainTextEdit::cursorPositionChanged,
                    this, &Annotator::activateClusterAtCursorPos);
   QObject::connect(annotationsList_,
                    &AnnotationsList::selectedAnnotationIdChanged, this,
                    &Annotator::activateAnnotation);
-  QObject::connect(this, &Annotator::activeAnnotationChanged, annotationsList_,
-                   &AnnotationsList::selectAnnotation);
+  QObject::connect(this, &Annotator::activeAnnotationIdChanged,
+                   annotationsList_, &AnnotationsList::selectAnnotation);
 
   setFocusProxy(text_);
 }
@@ -265,6 +300,7 @@ void Annotator::setUseBoldFont(bool useBold) {
 void Annotator::setAnnotationsModel(AnnotationsModel* newModel) {
   assert(newModel != nullptr);
   annotationsModel_ = newModel;
+  annotationEditor_->setAnnotationsModel(newModel);
   navButtons_->setModel(newModel);
   annotationsList_->setModel(newModel);
 
@@ -305,7 +341,7 @@ void Annotator::resetDocument() {
 void Annotator::updateAnnotations() {
   fetchLabelsInfo();
   fetchAnnotationsInfo();
-  updateLabelChoicesButtonStates();
+  updateAnnotationEditor();
   annotationsList_->resetAnnotations();
   annotationsList_->selectAnnotation(activeAnnotation_);
   paintAnnotations();
@@ -313,7 +349,7 @@ void Annotator::updateAnnotations() {
 
 void Annotator::setLabelListModel(LabelListModel* newModel) {
   assert(newModel != nullptr);
-  labelChoices_->setModel(newModel);
+  annotationEditor_->setLabelsModel(newModel);
 }
 
 void Annotator::addAnnotationToClusters(const AnnotationCursor& annotation,
@@ -376,24 +412,24 @@ void Annotator::removeAnnotationFromClusters(const AnnotationCursor& annotation,
 }
 
 void Annotator::emitActiveAnnotationChanged() {
-  emit activeAnnotationChanged(activeAnnotation_);
+  emit activeAnnotationIdChanged(activeAnnotation_);
 }
 
-void Annotator::updateLabelChoicesButtonStates() {
-  labelChoices_->setSelectedLabelId(activeAnnotationLabel());
-  labelChoices_->setExtraData(activeAnnotationExtraData());
-  if (activeAnnotation_ != -1) {
-    labelChoices_->enableDeleteAndEdit();
-    labelChoices_->enableLabelChoice();
-    return;
-  }
-  labelChoices_->disableDeleteAndEdit();
+void Annotator::updateAnnotationEditor() {
   auto selection = text_->currentSelection();
   if (selection[0] != selection[1]) {
-    labelChoices_->enableLabelChoice();
+    annotationEditor_->enableLabelChoice();
   } else {
-    labelChoices_->disableLabelChoice();
+    annotationEditor_->disableLabelChoice();
   }
+
+  AnnotationInfo anno{-1, -1, -1, -1, ""};
+  if (activeAnnotation_ != -1) {
+    auto cursor = annotations_[activeAnnotation_];
+    anno = AnnotationInfo{cursor.id, cursor.labelId, cursor.startChar,
+                          cursor.endChar, cursor.extraData};
+  }
+  annotationEditor_->setAnnotation(anno);
 }
 
 std::list<Cluster>::const_iterator Annotator::clusterAtPos(int pos) const {
@@ -416,13 +452,6 @@ int Annotator::activeAnnotationLabel() const {
     return -1;
   }
   return annotations_[activeAnnotation_].labelId;
-}
-
-QString Annotator::activeAnnotationExtraData() const {
-  if (activeAnnotation_ == -1) {
-    return "";
-  }
-  return annotations_[activeAnnotation_].extraData;
 }
 
 void Annotator::deactivateActiveAnnotation() {
@@ -532,8 +561,7 @@ void Annotator::updateExtraDataForActiveAnnotation(const QString& newData) {
   }
 }
 
-void Annotator::setLabelForSelectedRegion() {
-  int labelId = labelChoices_->selectedLabelId();
+void Annotator::setLabelForSelectedRegion(int labelId) {
   if (labelId == -1) {
     return;
   }
@@ -782,12 +810,12 @@ void Annotator::keyPressEvent(QKeyEvent* event) {
     selectNextAnnotation(!backward);
     return;
   }
-  if (!labelChoices_->isLabelChoiceEnabled()) {
+  if (!annotationEditor_->isLabelChoiceEnabled()) {
     return;
   }
   auto id = annotationsModel_->shortcutToId(event->text());
   if (id != -1) {
-    labelChoices_->setSelectedLabelId(id);
+    annotationEditor_->setSelectedLabelId(id);
     return;
   }
   if (event->key() == Qt::Key_Backspace) {
