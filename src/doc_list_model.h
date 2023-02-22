@@ -5,6 +5,7 @@
 #include <QProgressDialog>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
+#include <QString>
 #include <QWidget>
 
 #include "user_roles.h"
@@ -30,8 +31,12 @@ public:
     notHasGivenLabel
   };
 
+  /// Number of documents matching the current filter params
+  int nDocsCurrentQuery();
+
   /// Number of documents in the database matching the filter params
-  int totalNDocs(DocFilter docFilter = DocFilter::all, int filterLabelId = -1);
+  int totalNDocs(DocFilter docFilter = DocFilter::all, int filterLabelId = -1,
+                 const QString& searchPattern = "");
 
   /// data for a document. `Roles::RowIdRole` can be used to get the doc's `id`
   QVariant data(const QModelIndex& index, int role) const override;
@@ -54,8 +59,10 @@ public slots:
   void setDatabase(const QString& newDatabaseName);
 
   /// Set current query and reset model.
-  void adjustQuery(DocFilter docFilter = DocFilter::all, int filterLabelId = -1,
-                   int limit = 100, int offset = 0);
+  void adjustQuery(DocFilter newDocFilter = DocFilter::all,
+                   int newFilterLabelId = -1,
+                   const QString& newSearchPattern = "", int newLimit = 100,
+                   int newOffset = 0);
 
   /// reset model
   void refreshCurrentQuery();
@@ -76,18 +83,40 @@ signals:
 private:
   static constexpr int defaultNDocsLimit_{100};
 
+  static const QString sqlSourceSelect_;
+  static const QString sqlSourceLike_;
+  static const QString sqlSourceInstr_;
+  static const QString sqlSourceOrder_;
+
+  static QString getQueryText(DocFilter docFilter, bool withOrder,
+                              bool fullTitle, bool useInstr);
+
+  static void prepareQuery(QSqlQuery& query, DocFilter docFilter,
+                           int filterLabelId, const QString& searchPattern,
+                           int limit, int offset);
+
+  static void prepareCountQuery(QSqlQuery& query, DocFilter docFilter,
+                                int filterLabelId,
+                                const QString& searchPattern);
+
   QSqlQuery getQuery() const;
   void refreshNLabelledDocs();
+  void refreshNDocsCurrentQuery();
   int totalNDocsNoFilter();
+  static bool shouldBeCaseSensitive(const QString& searchPattern);
+  static QString transformSearchPattern(const QString& searchPattern);
+  static QString transformLikePattern(const QString& searchPattern);
 
   DocFilter docFilter_ = DocFilter::all;
   int filterLabelId_ = -1;
+  QString searchPattern_{};
   int offset_ = 0;
   int limit_ = 100;
   QString databaseName_;
   bool resultSetOutdated_{};
 
   int nLabelledDocs_{};
+  int nDocsCurrentQuery_{-1};
 };
 } // namespace labelbuddy
 #endif // LABELBUDDY_DOC_LIST_MODEL_H

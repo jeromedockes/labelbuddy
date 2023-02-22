@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QFrame>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListView>
 #include <QPushButton>
 #include <QShowEvent>
@@ -32,8 +33,9 @@ public:
 
 signals:
 
-  void docFilterChanged(DocListModel::DocFilter, int filterLabelId, int limit,
-                        int offset);
+  void docFilterChanged(DocListModel::DocFilter docFilter, int filterLabelId,
+                        QString searchPattern, int limit, int offset);
+
   void selectAll();
   void deleteSelectedRows();
   void deleteAllDocs();
@@ -67,12 +69,16 @@ private slots:
   /// adjust doc filter when combobox selection changes
   void updateFilter();
 
+  void updateSearchPattern();
+
 private:
   int offset_ = 0;
   int pageSize_ = 100;
   DocListModel::DocFilter currentFilter_ = DocListModel::DocFilter::all;
   // label used to either include or exclude docs
   int currentLabelId_ = -1;
+  QString searchPattern_{};
+
   DocListModel* model_ = nullptr;
   QLabel* currentPageLabel_ = nullptr;
 
@@ -87,6 +93,7 @@ private:
   QPushButton* lastPageButton_ = nullptr;
 
   QComboBox* filterChoice_ = nullptr;
+  QLineEdit* searchPatternEdit_ = nullptr;
 
   void addConnections();
 };

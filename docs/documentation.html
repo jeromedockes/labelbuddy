@@ -868,9 +868,21 @@ The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a
 <div class="sect2">
 <h3 id="annotating-documents">2.3. Annotating documents</h3>
 <div class="paragraph">
-<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.
-You can filter which documents are shown by the labels they have been annotated with.
-You can delete labels or documents, add labels and change the color and shortcut associated with each label.
+<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+</div>
+<div class="paragraph">
+<p>You can filter which documents are shown by the labels they have been annotated with.
+In addition there is a search bar to filter documents based on their content (possibly combined with the filter set on their labels).
+The search is performed on the titles, the metadata, and the documents' text.
+At the moment the search is very basic.
+It looks for exact matches.
+By default, search is case-insensitive (although unfortunately that only applies to ASCII characters), and leading and trailing whitespace is stripped from the search term or phrase.
+If the search term contains any upper-case letters, the search becomes case-sensitive.
+If the search term is wrapped in <code>""</code> or <code>''</code>, whitespace is preserved and the search is case-sensitive.
+The surrounding quotes will be removed but can be doubled to search for a term wrapped in literal quotes in the documents.</p>
+</div>
+<div class="paragraph">
+<p>You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
 You then go to the <strong>&#8220;Annotate&#8221;</strong> tab.
 (To jump to annotating a specific document in the list you can double-click it or select it and either press <kbd>Enter</kbd> or click <b class="button">Annotate selected doc</b>.)</p>
@@ -1781,7 +1793,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-02-16 15:45:47 -0300
+Last updated 2023-02-22 18:03:21 -0300
 </div>
 </div>
 </body>

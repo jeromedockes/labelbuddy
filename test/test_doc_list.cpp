@@ -5,6 +5,8 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTimer>
+#include <QLineEdit>
+#include <QTest>
 
 #include "database.h"
 #include "doc_list.h"
@@ -132,6 +134,7 @@ void TestDocList::testNavigation() {
   QCOMPARE(docModel.totalNDocs(), 366);
 
   auto filterBox = docList.findChild<QComboBox*>();
+  auto searchBox = docList.findChild<QLineEdit*>();
   auto buttons = docList.findChildren<QPushButton*>();
   auto first = buttons[4];
   auto prev = buttons[5];
@@ -175,9 +178,18 @@ void TestDocList::testNavigation() {
   filterBox->setCurrentIndex(2);
   filterBox->activated(2);
   QCOMPARE(label->text(), QString("1 - 100 / 365"));
+  searchBox->setText("some text not in docs abcdef");
+  QTest::keyClick(searchBox, Qt::Key_Enter);
+  QCOMPARE(label->text(), QString("0 / 0"));
+  searchBox->setText("of document 35");
+  QTest::keyClick(searchBox, Qt::Key_Enter);
+  // 35 + 350 - 359
+  QCOMPARE(label->text(), QString("1 - 11 / 11"));
 
   filterBox->setCurrentIndex(0);
   filterBox->activated(0);
+  searchBox->clear();
+  QTest::keyClick(searchBox, Qt::Key_Enter);
   QCOMPARE(label->text(), QString("1 - 100 / 366"));
 }
 
