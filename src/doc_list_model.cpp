@@ -1,5 +1,6 @@
 #include <cassert>
 
+#include <QRegExp>
 #include <QSqlDatabase>
 #include <QSqlError>
 
@@ -19,6 +20,7 @@ void DocListModel::setDatabase(const QString& newDatabaseName) {
   databaseName_ = newDatabaseName;
   docFilter_ = DocFilter::all;
   filterLabelId_ = -1;
+  searchPattern_ = "";
   limit_ = defaultNDocsLimit_;
   offset_ = 0;
   emit databaseChanged();
@@ -55,60 +57,160 @@ QList<QPair<QString, int>> DocListModel::getLabelNames() const {
   }
   return result;
 }
+const QString DocListModel::sqlSourceSelect_ =
+    " select replace(substr(coalesce(list_title, content), 1, 160), "
+    "char(10), ' ') as head, id ";
 
-void DocListModel::adjustQuery(DocFilter newDocFilter, int filterLabelId,
-                               int newLimit, int newOffset) {
+const QString DocListModel::sqlSourceLike_ =
+    R"( (list_title like :pat escape '\'
+or display_title like :pat escape '\'
+or cast(metadata as text) like :pat escape '\'
+or content like :pat escape '\') )";
+
+const QString DocListModel::sqlSourceInstr_ =
+    R"( ( instr(list_title, :pat)
+or instr(display_title, :pat)
+or instr(cast(metadata as text), :pat)
+or instr(content, :pat) ) )";
+
+const QString DocListModel::sqlSourceOrder_ =
+    " order by id limit :lim offset :off ";
+
+QString DocListModel::getQueryText(DocFilter docFilter, bool withOrder,
+                                   bool fullTitle, bool useInstr) {
+  auto select = fullTitle ? sqlSourceSelect_ : " select id ";
+  auto compare = useInstr ? sqlSourceInstr_ : sqlSourceLike_;
+  auto order = withOrder ? sqlSourceOrder_ : " ";
+  switch (docFilter) {
+  case DocFilter::all:
+    return select + "from document where" + compare + order;
+  case DocFilter::labelled:
+    return select + "from labelled_document where" + compare + order;
+  case DocFilter::unlabelled:
+    return select + "from unlabelled_document where" + compare + order;
+  case DocFilter::hasGivenLabel:
+    return select + "from document where" + compare +
+           "and ( id in (select distinct doc_id from annotation where "
+           "label_id = :labelid) )" +
+           order;
+  case DocFilter::notHasGivenLabel:
+    return select + "from document where" + compare +
+           "and ( id not in (select distinct doc_id from annotation "
+           "where label_id = :labelid) )" +
+           order;
+  default:
+    assert(false);
+    return "";
+  }
+}
+
+void DocListModel::prepareQuery(QSqlQuery& query, DocFilter docFilter,
+                                int filterLabelId, const QString& searchPattern,
+                                int limit, int offset) {
+  auto caseSensitive = shouldBeCaseSensitive(searchPattern);
+  auto pattern = transformSearchPattern(searchPattern);
+  if (!caseSensitive) {
+    pattern = transformLikePattern(pattern);
+  }
+  auto queryText = getQueryText(docFilter, true, true, caseSensitive) + ";";
+  query.prepare(queryText);
+  if (queryText.contains(":labelid")) {
+    query.bindValue(":labelid", filterLabelId);
+  }
+  query.bindValue(":lim", limit);
+  query.bindValue(":off", offset);
+  query.bindValue(":pat", pattern);
+}
+
+void DocListModel::prepareCountQuery(QSqlQuery& query, DocFilter docFilter,
+                                     int filterLabelId,
+                                     const QString& searchPattern) {
+
+  auto caseSensitive = shouldBeCaseSensitive(searchPattern);
+  auto pattern = transformSearchPattern(searchPattern);
+  if (!caseSensitive) {
+    pattern = transformLikePattern(pattern);
+  }
+  auto queryText = "select count (*) from ( " +
+                   getQueryText(docFilter, false, false, caseSensitive) + " );";
+  query.prepare(queryText);
+  if (queryText.contains(":labelid")) {
+    query.bindValue(":labelid", filterLabelId);
+  }
+  query.bindValue(":pat", pattern);
+}
+
+void DocListModel::adjustQuery(DocFilter newDocFilter, int newFilterLabelId,
+                               const QString& newSearchPattern, int newLimit,
+                               int newOffset) {
+  auto needRefreshNDocs =
+      nDocsCurrentQuery_ == -1 || newDocFilter != docFilter_ ||
+      newFilterLabelId != filterLabelId_ || newSearchPattern != searchPattern_;
   limit_ = newLimit;
   offset_ = newOffset;
   docFilter_ = newDocFilter;
-  filterLabelId_ = filterLabelId;
+  filterLabelId_ = newFilterLabelId;
+  searchPattern_ = newSearchPattern;
   resultSetOutdated_ = false;
 
   auto query = getQuery();
-  switch (newDocFilter) {
-  case DocFilter::all:
-    query.prepare("select replace(substr(coalesce(list_title, content), "
-                  "1, 160), char(10), ' ') as head, id "
-                  "from document order by id limit :lim offset :off;");
-    break;
-  case DocFilter::labelled:
-    query.prepare("select replace(substr(coalesce(list_title, content), "
-                  "1, 160), char(10), ' ') as head, id "
-                  "from labelled_document order by id limit :lim offset :off;");
-    break;
-  case DocFilter::unlabelled:
-    query.prepare(
-        "select replace(substr(coalesce(list_title, content), 1, 160), "
-        "char(10), ' ') as head, id "
-        "from unlabelled_document order by id limit :lim offset :off;");
-    break;
-  case DocFilter::hasGivenLabel:
-    query.prepare(
-        "select replace(substr(coalesce(list_title, content), 1, 160), "
-        "char(10), ' ') as head, id "
-        "from document where id in (select distinct doc_id from annotation "
-        "where label_id = :labelid) order by id limit :lim offset :off;");
-    query.bindValue(":labelid", filterLabelId);
-    break;
-  case DocFilter::notHasGivenLabel:
-    query.prepare(
-        "select replace(substr(coalesce(list_title, content), 1, 160), "
-        "char(10), ' ') as head, id "
-        "from document where id not in (select distinct doc_id from annotation "
-        "where label_id = :labelid) order by id limit :lim offset :off;");
-    query.bindValue(":labelid", filterLabelId);
-    break;
-  }
-
-  query.bindValue(":lim", newLimit);
-  query.bindValue(":off", newOffset);
+  prepareQuery(query, newDocFilter, newFilterLabelId, newSearchPattern,
+               newLimit, newOffset);
   query.exec();
   assert(query.isActive());
+  if (needRefreshNDocs) {
+    refreshNDocsCurrentQuery();
+  }
   setQuery(query);
 }
 
-int DocListModel::totalNDocs(DocFilter docFilter, int filterLabelId) {
+bool DocListModel::shouldBeCaseSensitive(const QString& searchPattern) {
+  if (!(searchPattern.toLower() == searchPattern)) {
+    return true;
+  }
+  if (QRegExp{R"(\s*".*"\s*)"}.exactMatch(searchPattern)) {
+    return true;
+  }
+  if (QRegExp{R"(\s*'.*'\s*)"}.exactMatch(searchPattern)) {
+    return true;
+  }
+  return false;
+}
+
+QString DocListModel::transformSearchPattern(const QString& searchPattern) {
+  auto newPattern = searchPattern.trimmed();
+  newPattern.replace(QRegExp{R"-(^"(.*)"$)-"}, R"(\1)");
+  newPattern.replace(QRegExp{R"(^'(.*)'$)"}, R"(\1)");
+  return newPattern;
+}
+
+QString DocListModel::transformLikePattern(const QString& searchPattern) {
+  if (searchPattern.isEmpty()) {
+    return "%";
+  }
+  QString newPattern{searchPattern};
+  newPattern.replace(R"(\)", R"(\\)");
+  newPattern.replace("%", R"(\%)");
+  newPattern.replace("_", R"(\_)");
+  return QString{"%%1%"}.arg(newPattern);
+}
+
+int DocListModel::nDocsCurrentQuery() {
+  if (nDocsCurrentQuery_ == -1) {
+    refreshNDocsCurrentQuery();
+  }
+  return nDocsCurrentQuery_;
+}
+
+int DocListModel::totalNDocs(DocFilter docFilter, int filterLabelId,
+                             const QString& searchPattern) {
   auto query = getQuery();
+  if (!searchPattern.trimmed().isEmpty()) {
+    prepareCountQuery(query, docFilter, filterLabelId, searchPattern);
+    query.exec();
+    query.next();
+    return query.value(0).toInt();
+  }
   switch (docFilter) {
   case DocFilter::labelled:
     return nLabelledDocs_;
@@ -146,6 +248,10 @@ void DocListModel::refreshNLabelledDocs() {
              "(select distinct doc_id from annotation);");
   query.next();
   nLabelledDocs_ = query.value(0).toInt();
+}
+
+void DocListModel::refreshNDocsCurrentQuery() {
+  nDocsCurrentQuery_ = totalNDocs(docFilter_, filterLabelId_, searchPattern_);
 }
 
 int DocListModel::deleteDocs(const QModelIndexList& indices) {
@@ -218,7 +324,8 @@ int DocListModel::deleteAllDocs(QProgressDialog* progress) {
 
 void DocListModel::refreshCurrentQuery() {
   refreshNLabelledDocs();
-  adjustQuery(docFilter_, filterLabelId_, limit_, offset_);
+  nDocsCurrentQuery_ = -1;
+  adjustQuery(docFilter_, filterLabelId_, searchPattern_, limit_, offset_);
 }
 
 void DocListModel::documentStatusChanged(DocumentStatus newStatus) {

@@ -1,5 +1,5 @@
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 #include <QAbstractItemView>
 #include <QFrame>
@@ -10,6 +10,8 @@
 #include <QPushButton>
 #include <QString>
 #include <QVBoxLayout>
+#include <QLineEdit>
+#include <QObject>
 
 #include "doc_list.h"
 #include "user_roles.h"
@@ -38,6 +40,9 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   filtersLayout->addWidget(new QLabel("Filter by label: "));
   filterChoice_ = new QComboBox();
   filtersLayout->addWidget(filterChoice_);
+  filtersLayout->addWidget(new QLabel{"Search documents: "});
+  searchPatternEdit_ = new QLineEdit{};
+  filtersLayout->addWidget(searchPatternEdit_);
   filtersLayout->addStretch();
 
   firstPageButton_ = new QPushButton(
@@ -90,6 +95,9 @@ void DocListButtons::addConnections() {
                    &DocListButtons::updateFilter);
   // note above could be simplified: QOverload<int>::of(&QComboBox::activated)
   // but QOverload introduced in qt 5.7 and xenial comes with 5.5
+
+  QObject::connect(searchPatternEdit_, &QLineEdit::returnPressed, this,
+                   &DocListButtons::updateSearchPattern);
 }
 
 void DocListButtons::fillFilterChoice() {
@@ -161,6 +169,8 @@ void DocListButtons::afterDatabaseChange() {
   currentFilter_ = DocListModel::DocFilter::all;
   currentLabelId_ = -1;
   offset_ = 0;
+  searchPattern_ = "";
+  searchPatternEdit_->clear();
 }
 
 void DocListButtons::goToNextPage() {
@@ -168,12 +178,13 @@ void DocListButtons::goToNextPage() {
     assert(false);
     return;
   }
-  int total = model_->totalNDocs(currentFilter_, currentLabelId_);
+  int total = model_->nDocsCurrentQuery();
   if (offset_ + pageSize_ >= total) {
     return;
   }
   offset_ += pageSize_;
-  emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+  emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                        pageSize_, offset_);
 }
 
 void DocListButtons::goToPrevPage() {
@@ -185,7 +196,8 @@ void DocListButtons::goToPrevPage() {
     return;
   }
   offset_ = std::max(0, offset_ - pageSize_);
-  emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+  emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                        pageSize_, offset_);
 }
 
 void DocListButtons::goToLastPage() {
@@ -193,9 +205,11 @@ void DocListButtons::goToLastPage() {
     assert(false);
     return;
   }
-  int total = model_->totalNDocs(currentFilter_, currentLabelId_);
-  offset_ = total - total % pageSize_;
-  emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+  int total = model_->nDocsCurrentQuery();
+  offset_ = std::max(0, total -1);
+  offset_ -= offset_ % pageSize_;
+  emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                        pageSize_, offset_);
 }
 
 void DocListButtons::goToFirstPage() {
@@ -204,16 +218,18 @@ void DocListButtons::goToFirstPage() {
     return;
   }
   offset_ = 0;
-  emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+  emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                        pageSize_, offset_);
 }
 
 void DocListButtons::updateAfterDataChange() {
-  int total = model_->totalNDocs(currentFilter_, currentLabelId_);
+  int total = model_->nDocsCurrentQuery();
   int prevOffset = offset_;
   offset_ = std::max(0, std::min(total - 1, offset_));
   offset_ = offset_ - offset_ % pageSize_;
   if (prevOffset != offset_) {
-    emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+    emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                          pageSize_, offset_);
   }
   updateButtonStates();
   assert(offset_ >= 0);
@@ -227,7 +243,7 @@ void DocListButtons::updateButtonStates() {
     return;
   }
 
-  int total = model_->totalNDocs(currentFilter_, currentLabelId_);
+  int total = model_->nDocsCurrentQuery();
   int end = offset_ + model_->rowCount();
   assert(total == 0 || offset_ < total);
   assert(end <= total);
@@ -274,7 +290,18 @@ void DocListButtons::updateFilter() {
   currentFilter_ = static_cast<DocListModel::DocFilter>(data.second);
   if ((currentLabelId_ != prevLabelId) || (currentFilter_ != prevFilter)) {
     offset_ = 0;
-    emit docFilterChanged(currentFilter_, currentLabelId_, pageSize_, offset_);
+    emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                          pageSize_, offset_);
+  }
+}
+
+void DocListButtons::updateSearchPattern() {
+  auto prevPattern = searchPattern_;
+  searchPattern_ = searchPatternEdit_->text();
+  if (searchPattern_ != prevPattern) {
+    offset_ = 0;
+    emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
+                          pageSize_, offset_);
   }
 }
 

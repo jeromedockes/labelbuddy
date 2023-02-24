@@ -225,7 +225,17 @@ In the {dstab}, labels can be reordered by dragging and dropping them.
 === Annotating documents
 
 Once you have imported labels and documents you can see them in the {dstab}.
+
 You can filter which documents are shown by the labels they have been annotated with.
+In addition there is a search bar to filter documents based on their content (possibly combined with the filter set on their labels).
+The search is performed on the titles, the metadata, and the documents' text.
+At the moment the search is very basic.
+It looks for exact matches.
+By default, search is case-insensitive (although unfortunately that only applies to ASCII characters), and leading and trailing whitespace is stripped from the search term or phrase.
+If the search term contains any upper-case letters, the search becomes case-sensitive.
+If the search term is wrapped in `""` or `''`, whitespace is preserved and the search is case-sensitive.
+The surrounding quotes will be removed but can be doubled to search for a term wrapped in literal quotes in the documents.
+
 You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
 You then go to the {annotab}.
