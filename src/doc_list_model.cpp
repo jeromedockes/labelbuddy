@@ -165,7 +165,7 @@ void DocListModel::adjustQuery(DocFilter newDocFilter, int newFilterLabelId,
 }
 
 bool DocListModel::shouldBeCaseSensitive(const QString& searchPattern) {
-  if (!searchPattern.isLower()) {
+  if (!(searchPattern.toLower() == searchPattern)) {
     return true;
   }
   if (QRegExp{R"(\s*".*"\s*)"}.exactMatch(searchPattern)) {
