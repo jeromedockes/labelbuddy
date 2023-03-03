@@ -30,7 +30,7 @@
   </nav>
 </header>
 <div class="body">
-<div class="nav-container" data-component="labelbuddy" data-version="0.0.10">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.9">
   <aside class="nav">
     <div class="panels">
 <div class="nav-panel-menu is-active" data-panel="menu">
@@ -62,17 +62,17 @@
 <div class="nav-panel-explore" data-panel="explore">
   <div class="context">
     <span class="title">labelbuddy</span>
-    <span class="version">0.0.10</span>
+    <span class="version">0.0.9</span>
   </div>
   <ul class="components">
     <li class="component is-current">
-      <a class="title" href="../">labelbuddy</a>
+      <a class="title" href="../../current/">labelbuddy</a>
       <ul class="versions">
-        <li class="version is-current is-latest">
-          <a href="../">0.0.10</a>
+        <li class="version is-latest">
+          <a href="../../current/">0.0.10</a>
         </li>
-        <li class="version">
-          <a href="../../0.0.9/">0.0.9</a>
+        <li class="version is-current">
+          <a href="../">0.0.9</a>
         </li>
         <li class="version">
           <a href="../../0.0.8/">0.0.8</a>
@@ -90,7 +90,7 @@
 <main class="article">
 <div class="toolbar" role="navigation">
 <button class="nav-toggle"></button>
-  <a href="../" class="home-link"></a>
+  <a href="../../current/" class="home-link"></a>
 <nav class="breadcrumbs" aria-label="breadcrumbs">
   <ul>
     <li><a href="../">labelbuddy</a></li>
@@ -98,10 +98,10 @@
   </ul>
 </nav>
 <div class="page-versions">
-  <button class="version-menu-toggle" title="Show other versions of page">0.0.10</button>
+  <button class="version-menu-toggle" title="Show other versions of page">0.0.9</button>
   <div class="version-menu">
-    <a class="version is-current" href="./">0.0.10</a>
-    <a class="version" href="../../0.0.9/documentation/">0.0.9</a>
+    <a class="version" href="../../current/documentation/">0.0.10</a>
+    <a class="version is-current" href="./">0.0.9</a>
     <a class="version" href="../../0.0.8/documentation/">0.0.8</a>
     <a class="version" href="../../0.0.7/documentation/">0.0.7</a>
   </div>
@@ -118,7 +118,7 @@
 <div class="paragraph">
 <p>This document describes
 <strong>labelbuddy</strong>
-version <strong>0.0.10</strong>.</p>
+version <strong>0.0.9</strong>.</p>
 </div>
 </div>
 </div>
@@ -135,12 +135,13 @@ It can be used for example for Named Entity Recognition, sentiment analysis, doc
 <div class="sect2">
 <h3 id="labelbuddy-compared-to-other-annotation-tools"><a class="anchor" href="#labelbuddy-compared-to-other-annotation-tools"></a>1.1. labelbuddy compared to other annotation tools</h3>
 <div class="paragraph">
-<p>There are many tools for annotating documents.
-Most of them, such as <a href="https://doccano.github.io/doccano/">doccano</a> and <a href="https://labelstud.io/">labelstudio</a>, are meant to run on a web server and be used through a web browser.
-If you are crowdsourcing annotations and want many users to annotate documents online this is necessary.</p>
+<p>There exist several tools for annotating documents.
+Most of them, such as <a href="https://doccano.github.io/doccano/">doccano</a> and <a href="https://labelstud.io/">labelstudio</a>, are meant to run on a web server and be used online.
+If you are crowdsourcing annotations and want users to annotate documents online this is necessary.</p>
 </div>
 <div class="paragraph">
-<p>However if you do not plan to host such a tool on a server, <strong>labelbuddy</strong> may be a simpler and more lightweight solution.</p>
+<p>However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install a rather complex program and run a local server and database management system on their own machine.
+In this case, it may be easier to rely on a desktop application such as <strong>labelbuddy</strong>, which is a more lightweight solution.</p>
 </div>
 <div class="paragraph">
 <p>A <a href="#managing-projects">labelbuddy database</a> is just an ordinary file that you can copy, share or delete like any other file.
@@ -154,7 +155,7 @@ But being a dedicated tool, <strong>labelbuddy</strong> provides a convenient in
 <div class="sect2">
 <h3 id="quick-start"><a class="anchor" href="#quick-start"></a>1.2. Quick start</h3>
 <div class="paragraph">
-<p>Start by <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation">downloading</a> <strong>labelbuddy</strong>.
+<p>Start by <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation">installing</a> <strong>labelbuddy</strong>.
 Then to give it a try, start <strong>labelbuddy</strong> and select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> in the menu.
 This will open a temporary demo database pre-loaded with a few example documents and labels.
 You can play around with <strong>labelbuddy</strong>’s features in this temporary database.
@@ -369,7 +370,7 @@ The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a
 <p>As for documents, the format is deduced from the filename extension when importing labels, and is described in <a href="#formats-sec">Appendix A</a>.</p>
 </div>
 <div class="paragraph">
-<p>It is also possible to manually enter a new label or to change the labels&#8217; name, color and shortcut key from within the GUI application, in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+<p>It is also possible to manually enter a new label or to change the labels&#8217; color and shortcut key from within the GUI application, in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
 </div>
 <div class="paragraph">
 <p>Labels can also be imported using the <a href="#command-line-interface">command line</a>, for example:</p>
@@ -386,21 +387,9 @@ The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a
 <div class="sect2">
 <h3 id="annotating-documents"><a class="anchor" href="#annotating-documents"></a>2.3. Annotating documents</h3>
 <div class="paragraph">
-<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
-</div>
-<div class="paragraph">
-<p>You can filter which documents are shown by the labels they have been annotated with.
-In addition there is a search bar to filter documents based on their content (possibly combined with the filter set on their labels).
-The search is performed on the titles, the metadata, and the documents' text.
-At the moment the search is very basic.
-It looks for exact matches.
-By default, search is case-insensitive (although unfortunately that only applies to ASCII characters), and leading and trailing whitespace is stripped from the search term or phrase.
-If the search term contains any upper-case letters, the search becomes case-sensitive.
-If the search term is wrapped in <code>""</code> or <code>''</code>, whitespace is preserved and the search is case-sensitive.
-The surrounding quotes will be removed but can be doubled to search for a term wrapped in literal quotes in the documents.</p>
-</div>
-<div class="paragraph">
-<p>You can delete labels or documents, add labels and change the color and shortcut associated with each label.
+<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.
+You can filter which documents are shown by the labels they have been annotated with.
+You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
 You then go to the <strong>&#8220;Annotate&#8221;</strong> tab.
 (To jump to annotating a specific document in the list you can double-click it or select it and either press <kbd>Enter</kbd> or click <b class="button">Annotate selected doc</b>.)</p>
@@ -416,9 +405,7 @@ Then press the shortcut key associated with the label you want to set.</p>
 <p>You can also attach additional information to the annotation by typing it in the <strong>&#8220;Extra annotation data&#8221;</strong> box.
 You can use this to add a comment to the annotation.
 You can also use the extra data for free-form labelling.
-For example, you can enter a number, the normalized name of an entity, a URI, etc.&#8201;&#8212;&#8201;anything that an Information Extraction system should find in the labelled region.
-The <strong>&#8220;Extra annotation data&#8221;</strong> box offers a list of possible completions: all the extra data values for annotations with the same label in the current document.
-This makes it easy to link different annotations, by giving them the same extra data, which thus acts as an identifier.</p>
+For example, you can enter a number, the normalized name of an entity, a URI, etc.&#8201;&#8212;&#8201;anything that an Information Extraction system should find in the labelled region.</p>
 </div>
 <div class="paragraph">
 <p>Once you have created annotations, you can select any of them by clicking it.
@@ -447,32 +434,19 @@ You can control whether the selected annotation is displayed in a bold font by c
 If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
 If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
 You can then use it to filter documents in the <strong>&#8220;Annotate&#8221;</strong> tab.
-If you need free-form labels, use a generic label name and enter the free-form annotation in the <strong>&#8220;Extra annotation data&#8221;</strong> box.
+If you need free-form labels, use a generic label name and type the free-form annotation in the <strong>&#8220;Extra annotation data&#8221;</strong> box.
 </td>
 </tr>
 </table>
-</div>
-<div class="paragraph">
-<p>A list of all annotations for the current document is shown on the right.
-The label is displayed first, then the selected text surrounded by its context.
-Any extra text attached to the annotation (from the <strong>&#8220;Extra annotation data&#8221;</strong> box) is shown in an italic font next to the label name.
-You can use this list to navigate the annotations in the document: if you click an annotation in the list it becomes active and the text is scrolled so that it appears on the screen.
-Conversely, if you create a new annotation or click on an annotation in the text it also becomes selected in the annotations list on the right.</p>
 </div>
 <div class="sect3">
 <h4 id="overlapping-annotations"><a class="anchor" href="#overlapping-annotations"></a>2.3.1. Overlapping annotations</h4>
 <div class="paragraph">
 <p>When two or more annotations overlap, the whole group is shown in <span class="annotation-cluster">white text on a gray background</span>.
-As you click the gray region or press the <kbd>Space</kbd> key, each <span class="annotation-cluster">annotation is </span><span class="active-anno-bold yellow-bg">selected</span><span class="annotation-cluster"> in turn</span> and shown in its label&#8217;s color.
-You can also see and select these annotations from the annotations list on the right of the <strong>&#8220;Annotate&#8221;</strong> tab.</p>
+As you click the gray region or press the <kbd>Space</kbd> key, each <span class="annotation-cluster">annotation is </span><span class="active-anno-bold yellow-bg">selected</span><span class="annotation-cluster"> in turn</span> and shown in its label&#8217;s color.</p>
 </div>
 <div class="paragraph">
 <p>The status bar on the bottom of the window shows a caret (&#8220;^&#8221;) next to the label name when the selected annotation is the first of its overlapping group (and &#8220;^^&#8221; when it is the first in the document).</p>
-</div>
-<div class="paragraph">
-<p>If we click a new label while an annotation is selected, a new annotation is created on top, at the same position as the previously selected annotation, with the new label.
-It is not possible to have two different annotations with the same label at the exact same (start and end) position.
-If we click a label corresponding to an annotation that already exists at the current position, the existing annotation is selected instead of creating a new one.</p>
 </div>
 </div>
 <div class="sect3">

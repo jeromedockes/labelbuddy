@@ -1,0 +1,10 @@
+[
+  {
+    "name": "Word"
+  },
+  {
+    "name": "Number",
+    "shortcut_key": "n",
+    "color": "orange"
+  }
+]
