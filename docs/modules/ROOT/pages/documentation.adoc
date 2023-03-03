@@ -98,12 +98,11 @@ It is easy to {downloads-link}[install] and use, and can efficiently handle many
 
 === labelbuddy compared to other annotation tools
 
-There exist several tools for annotating documents.
-Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio], are meant to run on a web server and be used online.
-If you are crowdsourcing annotations and want users to annotate documents online this is necessary.
+There are many tools for annotating documents.
+Most of them, such as https://doccano.github.io/doccano/[doccano] and https://labelstud.io/[labelstudio], are meant to run on a web server and be used through a web browser.
+If you are crowdsourcing annotations and want many users to annotate documents online this is necessary.
 
-However if you do not plan to host such a tool on a server, it may not be convenient for each annotator to install a rather complex program and run a local server and database management system on their own machine.
-In this case, it may be easier to rely on a desktop application such as {lb}, which is a more lightweight solution.
+However if you do not plan to host such a tool on a server, {lb} may be a simpler and more lightweight solution.
 
 A <<managing-projects,labelbuddy database>> is just an ordinary file that you can copy, share or delete like any other file.
 Therefore managing annotations created with {lb} is just as simple as if the annotations were stored in plain text formats or {libreoffice-calc} or {excel} spreadsheets.
@@ -113,7 +112,7 @@ But being a dedicated tool, {lb} provides a convenient interface for creating an
 
 === Quick start
 
-Start by {downloads-link}[installing] {lb}.
+Start by {downloads-link}[downloading] {lb}.
 Then to give it a try, start {lb} and select menu:File[Demo] in the menu.
 This will open a temporary demo database pre-loaded with a few example documents and labels.
 You can play around with {lb}’s features in this temporary database.
@@ -263,7 +262,7 @@ TIP: You can control whether the selected annotation is displayed in a bold font
 TIP: If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
 If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
 You can then use it to filter documents in the {annotab}.
-If you need free-form labels, use a generic label name and type the free-form annotation in the {extra-edit} box.
+If you need free-form labels, use a generic label name and enter the free-form annotation in the {extra-edit} box.
 
 A list of all annotations for the current document is shown on the right.
 The label is displayed first, then the selected text surrounded by its context.

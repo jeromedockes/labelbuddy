@@ -108,6 +108,7 @@ AnnotationsList::AnnotationsList(QWidget* parent) : QFrame(parent) {
   layout->addWidget(title);
   annotationsView_ = new QListView{};
   layout->addWidget(annotationsView_);
+  annotationsView_->setFocusPolicy(Qt::NoFocus);
   auto delegate = new AnnotationDelegate{this};
   annotationsView_->setItemDelegate(delegate);
 }
