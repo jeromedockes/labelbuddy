@@ -29,7 +29,7 @@ It should be suitable for a wide variety of text annotation projects.
 - *Open source.* It is completely free and always will be.
 - *Easy to install* on Linux, Windows or MacOS.
 You can also download and run {lb} *without installing* it.
-No docker containers, nothing to configure -- start labelling right away!
+No accounts, configuration, or containers -- start labelling right away!
 - *Sequence labelling* with predefined labels or free-form annotations.
 A simple interface and keyboard shortcuts help annotate documents quickly.
 - *Simple file formats* to import your data from.

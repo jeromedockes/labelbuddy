@@ -102,7 +102,7 @@ You can download it by clicking {latestghreleasedownload}/labelbuddy-{lbversion}
 Double-click the downloaded file, and from the window that opens, drag `labelbuddy` into the `/Applications` folder in *Finder*.
 
 The first time you try to open {lb}, MacOS will warn that it "cannot verify the developer".
-To start {lb} anyway you can press kbd:[Ctrl] while you click the {lb} icon, then in the dialog that appears select "Open".
+To start {lb} anyway you can press kbd:[Ctrl] while you click the {lb} icon, then in the dialog that appears select "Open" (you may have to do the kbd:[Ctrl]-click twice).
 Another way is to visit menu:System Preferences[Security & Privacy] once the warning appears, and click "Open Anyway".
 
 You can also run {lb} without installing it: instead of dropping it into */Applications*, visit the `.dmg` file in *Finder* and double-click (or kbd:[Ctrl]-click, see above) the `labelbuddy` file it contains.
