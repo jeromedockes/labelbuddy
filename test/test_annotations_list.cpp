@@ -1,5 +1,8 @@
+#include <Qt>
+#include <QSignalSpy>
 #include <QTemporaryDir>
 #include <QTest>
+#include <qnamespace.h>
 
 #include "annotations_list.h"
 #include "annotations_model.h"
@@ -50,6 +53,10 @@ namespace labelbuddy {
     model.visitNext();
     QCOMPARE(lv->model()->rowCount(), 0);
     QCOMPARE(lv->selectionModel()->selectedIndexes().size(), 0);
+
+    QSignalSpy spy(&annoList, SIGNAL(clicked()));
+    QTest::mouseClick(lv->viewport(), Qt::LeftButton);
+    QCOMPARE(spy.count(), 1);
 
     annoList.resetAnnotations();
   }

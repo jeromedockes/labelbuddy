@@ -10,6 +10,8 @@
 #include <QPainter>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
+#include <QEvent>
+#include <QObject>
 
 #include "annotations_list_model.h"
 #include "annotations_model.h"
@@ -58,6 +60,10 @@ public slots:
   void selectAnnotation(int annotationId);
   void resetAnnotations();
 
+protected:
+
+  bool eventFilter(QObject* object, QEvent* event) override;
+
 private slots:
 
   void onSelectionChange(const QItemSelection& selected);
@@ -65,6 +71,7 @@ private slots:
 signals:
 
   void selectedAnnotationIdChanged(int annotationId);
+  void clicked();
 
 private:
   QListView* annotationsView_;

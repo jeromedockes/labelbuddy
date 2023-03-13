@@ -10,6 +10,7 @@ private slots:
   void testAnnotator();
   void testOverlappingAnnotations();
   void testExtraDataAnnotations();
+  void testAnnotationEditor();
 };
 } // namespace labelbuddy
 #endif

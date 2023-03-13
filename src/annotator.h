@@ -2,8 +2,8 @@
 #define LABELBUDDY_ANNOTATOR_H
 
 #include <list>
-#include <set>
 #include <memory>
+#include <set>
 
 #include <QCompleter>
 #include <QLabel>
@@ -14,13 +14,13 @@
 #include <QSqlQueryModel>
 #include <QWidget>
 
+#include "annotations_list.h"
+#include "annotations_list_model.h"
 #include "annotations_model.h"
 #include "label_list.h"
 #include "label_list_model.h"
 #include "no_deselect_all_view.h"
 #include "searchable_text.h"
-#include "annotations_list_model.h"
-#include "annotations_list.h"
 
 /// \file
 /// Implementation of the Annotator tab
@@ -45,11 +45,15 @@ signals:
   void deleteButtonClicked();
   void extraDataChanged(const QString& newData);
   void extraDataEditFinished();
+  void clicked();
 
 public slots:
   void setAnnotation(AnnotationInfo annotation);
   void enableLabelChoice();
   void disableLabelChoice();
+
+protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
 
 private slots:
   void onLabelSelectionChange();

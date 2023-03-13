@@ -14,6 +14,8 @@
 #include <QSqlQueryModel>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QEvent>
+#include <QWidget>
 
 #include "annotator.h"
 #include "label_list.h"
@@ -36,6 +38,7 @@ AnnotationEditor::AnnotationEditor(QWidget* parent) : QWidget(parent) {
   labelsView_ = new NoDeselectAllView();
   layout->addWidget(labelsView_);
   labelsView_->setFocusPolicy(Qt::NoFocus);
+  labelsView_->viewport()->installEventFilter(this);
   auto labelDelegate = new LabelDelegate{false, this};
   labelsView_->setItemDelegate(labelDelegate);
 
@@ -92,6 +95,14 @@ void AnnotationEditor::setAnnotation(AnnotationInfo annotation) {
         QCompleter::UnfilteredPopupCompletion);
     extraDataEdit_->setCompleter(extraDataCompleter_.get());
   }
+}
+
+bool AnnotationEditor::eventFilter(QObject* object, QEvent* event) {
+  if (object == labelsView_->viewport() &&
+      event->type() == QEvent::MouseButtonPress) {
+    emit clicked();
+  }
+  return false;
 }
 
 void AnnotationEditor::onLabelSelectionChange() {
@@ -233,6 +244,8 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::updateExtraDataForActiveAnnotation);
   QObject::connect(annotationEditor_, &AnnotationEditor::extraDataEditFinished,
                    this, &Annotator::setDefaultFocus);
+  QObject::connect(annotationEditor_, &AnnotationEditor::clicked,
+                   this, &Annotator::setDefaultFocus);
   QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
                    &Annotator::paintAnnotations);
   QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
@@ -246,6 +259,8 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
   QObject::connect(annotationsList_,
                    &AnnotationsList::selectedAnnotationIdChanged, this,
                    &Annotator::activateAnnotation);
+  QObject::connect(annotationsList_, &AnnotationsList::clicked, this,
+                   &Annotator::setDefaultFocus);
   QObject::connect(this, &Annotator::activeAnnotationIdChanged,
                    annotationsList_, &AnnotationsList::selectAnnotation);
 

@@ -11,6 +11,7 @@
 #include <QStyle>
 #include <QTextDocument>
 #include <QVBoxLayout>
+#include <QWidget>
 
 #include "annotations_list.h"
 #include "user_roles.h"
@@ -111,6 +112,7 @@ AnnotationsList::AnnotationsList(QWidget* parent) : QFrame(parent) {
   annotationsView_->setFocusPolicy(Qt::NoFocus);
   auto delegate = new AnnotationDelegate{this};
   annotationsView_->setItemDelegate(delegate);
+  annotationsView_->viewport()->installEventFilter(this);
 }
 
 void AnnotationsList::setModel(AnnotationsModel* model) {
@@ -148,6 +150,14 @@ void AnnotationsList::selectAnnotation(int annotationId) {
 
 void AnnotationsList::resetAnnotations() {
   annotationsListModel_->resetAnnotations();
+}
+
+bool AnnotationsList::eventFilter(QObject* object, QEvent* event) {
+  if (object == annotationsView_->viewport() &&
+      event->type() == QEvent::MouseButtonPress) {
+    emit clicked();
+  }
+  return false;
 }
 
 void AnnotationsList::onSelectionChange(const QItemSelection& selected) {

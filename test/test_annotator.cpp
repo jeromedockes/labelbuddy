@@ -1,7 +1,11 @@
 #include <QItemSelectionModel>
+#include <QLineEdit>
+#include <QListView>
+#include <QSignalSpy>
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QTemporaryDir>
+#include <Qt>
 
 #include "annotations_model.h"
 #include "annotator.h"
@@ -177,5 +181,15 @@ void TestAnnotator::testExtraDataAnnotations() {
                                QItemSelectionModel::SelectCurrent);
   QTest::keyClicks(ed, "n");
   QCOMPARE(ed->completer()->model()->rowCount(), 0);
+}
+
+void TestAnnotator::testAnnotationEditor() {
+  AnnotationEditor editor{};
+  QSignalSpy spy(&editor, SIGNAL(clicked()));
+  QTest::mouseClick(editor.findChild<QListView*>()->viewport(), Qt::LeftButton);
+  QCOMPARE(spy.count(), 1);
+  // only clicking the label list emits clicked
+  QTest::mouseClick(editor.findChild<QLineEdit*>(), Qt::LeftButton);
+  QCOMPARE(spy.count(), 1);
 }
 } // namespace labelbuddy
