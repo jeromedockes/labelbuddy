@@ -50,7 +50,7 @@ static const QString annotationItemTemplate = R"(
 )";
 
 static const QString selectedAnnotationItemTemplate = R"(
-<div style='font-size:medium;'>
+<div style='font-size:medium;color:black:background-color:%2;'>
 <h3 style='margin:0;margin-bottom:%7;font-size:large;
   color:black;background-color:%2'>%1
 &nbsp;&nbsp;
