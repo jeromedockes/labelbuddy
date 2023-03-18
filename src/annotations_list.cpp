@@ -37,7 +37,7 @@ AnnotationDelegate::AnnotationDelegate(QObject* parent)
 }
 
 static const QString annotationItemTemplate = R"(
-<div style='font-size:medium;color:#000'>
+<div style='font-size:medium;'>
 <h3 style='margin:0;margin-bottom:%7;font-size:medium;background-color:%2'>%1
 &nbsp;&nbsp;
 <span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
@@ -49,20 +49,20 @@ static const QString annotationItemTemplate = R"(
 )";
 
 static const QString selectedAnnotationItemTemplate = R"(
-<div style='font-size:medium;color:#000;'>
+<div style='font-size:medium;'>
 <h3 style='margin:0;margin-bottom:%7;font-size:large;background-color:%2'>%1
 &nbsp;&nbsp;
 <span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
 </h3>
 <p style='margin:0;'>
-%4<span style='background-color:white;font-size:large;font-weight:bold;'>%5</span>%6
+%4<span style='background-color:%8;color:%9;
+  font-size:large;font-weight:bold;'>%5</span>%6
 </p>
 </div>
 )";
 
-void AnnotationDelegate::paint(QPainter* painter,
-                               const QStyleOptionViewItem& option,
-                               const QModelIndex& index) const {
+QString AnnotationDelegate::prepareItemHtml(const QStyleOptionViewItem& option,
+                                            const QModelIndex& index) const {
   auto labelName = index.data(Roles::LabelNameRole).value<QString>();
   auto labelColor = index.data(Qt::BackgroundRole).value<QColor>().name();
   auto selectedText = index.data(Roles::SelectedTextRole).value<QString>();
@@ -70,24 +70,38 @@ void AnnotationDelegate::paint(QPainter* painter,
   auto suffix = index.data(Roles::AnnotationSuffixRole).value<QString>();
   auto extraData = index.data(Roles::AnnotationExtraDataRole).value<QString>();
   auto margin = QString::number(.3 * em_);
+  auto baseColor = option.palette.base().color().name();
+  auto textColor = option.palette.text().color().name();
   auto itemTemplate = annotationItemTemplate;
-  if (option.state & QStyle::State_Selected) {
+  auto isSelected = option.state & QStyle::State_Selected;
+  if (isSelected) {
     margin = QString::number(.15 * em_);
     itemTemplate = selectedAnnotationItemTemplate;
   }
-  QTextDocument document{};
-  document.setHtml(itemTemplate.arg(
+  auto html = itemTemplate.arg(
       /*1*/ labelName.toHtmlEscaped(), /*2*/ labelColor,
       /*3*/ extraData.toHtmlEscaped(), /*4*/ prefix.toHtmlEscaped(),
       /*5*/ selectedText.toHtmlEscaped(), /*6*/ suffix.toHtmlEscaped(),
-      /*7*/ margin));
+      /*7*/ margin);
+  if (isSelected) {
+    html = html.arg(/*8*/ baseColor, /*9*/ textColor);
+  }
+  return html;
+}
+
+void AnnotationDelegate::paint(QPainter* painter,
+                               const QStyleOptionViewItem& option,
+                               const QModelIndex& index) const {
   if (option.state & QStyle::State_Selected) {
+    auto labelColor = index.data(Qt::BackgroundRole).value<QColor>().name();
     PainterRestore restore{painter};
     painter->fillRect(option.rect, labelColor);
     painter->setPen(QColor{0, 0, 0, 70});
     painter->drawLine(option.rect.topLeft(), option.rect.topRight());
     painter->drawLine(option.rect.bottomLeft(), option.rect.bottomRight());
   }
+  QTextDocument document{};
+  document.setHtml(prepareItemHtml(option, index));
   {
     PainterRestore restore{painter};
     painter->translate(option.rect.left(), option.rect.top());
