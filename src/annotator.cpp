@@ -2,6 +2,7 @@
 
 #include <QColor>
 #include <QElapsedTimer>
+#include <QEvent>
 #include <QFont>
 #include <QFontDatabase>
 #include <QIcon>
@@ -13,8 +14,6 @@
 #include <QSplitter>
 #include <QSqlQueryModel>
 #include <QVBoxLayout>
-#include <QWidget>
-#include <QEvent>
 #include <QWidget>
 
 #include "annotator.h"
@@ -244,8 +243,8 @@ Annotator::Annotator(QWidget* parent) : QSplitter(parent) {
                    &Annotator::updateExtraDataForActiveAnnotation);
   QObject::connect(annotationEditor_, &AnnotationEditor::extraDataEditFinished,
                    this, &Annotator::setDefaultFocus);
-  QObject::connect(annotationEditor_, &AnnotationEditor::clicked,
-                   this, &Annotator::setDefaultFocus);
+  QObject::connect(annotationEditor_, &AnnotationEditor::clicked, this,
+                   &Annotator::setDefaultFocus);
   QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
                    &Annotator::paintAnnotations);
   QObject::connect(this, &Annotator::activeAnnotationIdChanged, this,
@@ -843,27 +842,47 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
     : QWidget(parent) {
   auto layout = new QHBoxLayout();
   setLayout(layout);
+  layout->addStretch();
 
-  auto nextIcon = QIcon::fromTheme("go-next", QIcon(":data/icons/go-next.png"));
-  auto prevIcon =
-      QIcon::fromTheme("go-previous", QIcon(":data/icons/go-previous.png"));
-  prevLabelledButton_ = new QPushButton(prevIcon, "labelled");
+  prevLabelledButton_ =
+      new QPushButton(QIcon(":data/icons/go-previous-labelled.png"), "");
   layout->addWidget(prevLabelledButton_);
-  prevUnlabelledButton_ = new QPushButton(prevIcon, "unlabelled");
+  prevLabelledButton_->setToolTip("Previous labelled document");
+  prevLabelledButton_->setIconSize(QSize{24, 24});
+
+  prevUnlabelledButton_ =
+      new QPushButton(QIcon(":data/icons/go-previous-unlabelled.png"), "");
   layout->addWidget(prevUnlabelledButton_);
-  prevButton_ = new QPushButton(prevIcon, "");
+  prevUnlabelledButton_->setToolTip("Previous unlabelled document");
+  prevUnlabelledButton_->setIconSize(QSize{24, 24});
+
+  prevButton_ = new QPushButton(QIcon(":data/icons/go-previous.png"), "");
   layout->addWidget(prevButton_);
+  prevButton_->setToolTip("Previous document");
+  prevButton_->setIconSize(QSize{24, 24});
 
   currentDocLabel_ = new QLabel();
   layout->addWidget(currentDocLabel_);
   currentDocLabel_->setAlignment(Qt::AlignCenter);
 
-  nextButton_ = new QPushButton(nextIcon, "");
+  nextButton_ = new QPushButton(QIcon(":data/icons/go-next.png"), "");
   layout->addWidget(nextButton_);
-  nextUnlabelledButton_ = new QPushButton(nextIcon, "unlabelled");
+  nextButton_->setToolTip("Next document");
+  nextButton_->setIconSize(QSize{24, 24});
+
+  nextUnlabelledButton_ =
+      new QPushButton(QIcon(":data/icons/go-next-unlabelled.png"), "");
   layout->addWidget(nextUnlabelledButton_);
-  nextLabelledButton_ = new QPushButton(nextIcon, "labelled");
+  nextUnlabelledButton_->setToolTip("Next unlabelled document");
+  nextUnlabelledButton_->setIconSize(QSize{24, 24});
+
+  nextLabelledButton_ =
+      new QPushButton(QIcon(":data/icons/go-next-labelled.png"), "");
   layout->addWidget(nextLabelledButton_);
+  nextLabelledButton_->setToolTip("Next labelled document");
+  nextLabelledButton_->setIconSize(QSize{24, 24});
+
+  layout->addStretch();
 
   QObject::connect(nextButton_, &QPushButton::clicked, this,
                    &AnnotationsNavButtons::visitNext);
