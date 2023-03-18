@@ -257,6 +257,9 @@ private:
 
   void emitActiveAnnotationChanged();
 
+  QString clusterForeground() const;
+  QString clusterBackground() const;
+
   int activeAnnotation_ = -1;
   bool needUpdateActiveAnno_{};
   bool activeAnnoFormatIsSet_{};

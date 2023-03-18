@@ -38,19 +38,21 @@ AnnotationDelegate::AnnotationDelegate(QObject* parent)
 
 static const QString annotationItemTemplate = R"(
 <div style='font-size:medium;'>
-<h3 style='margin:0;margin-bottom:%7;font-size:medium;background-color:%2'>%1
+<h3 style='margin:0;margin-bottom:%7;font-size:medium;
+  color:black;background-color:%2'>%1
 &nbsp;&nbsp;
 <span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
 </h3>
 <p style='margin:0;'>
-%4<span style='background-color:%2;'>%5</span>%6
+%4<span style='color:black;background-color:%2;'>%5</span>%6
 </p>
 </div>
 )";
 
 static const QString selectedAnnotationItemTemplate = R"(
 <div style='font-size:medium;'>
-<h3 style='margin:0;margin-bottom:%7;font-size:large;background-color:%2'>%1
+<h3 style='margin:0;margin-bottom:%7;font-size:large;
+  color:black;background-color:%2'>%1
 &nbsp;&nbsp;
 <span style='font-size:medium;font-style:italic;font-weight:normal;'>%3</span>
 </h3>
