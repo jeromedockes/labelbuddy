@@ -123,6 +123,7 @@ AnnotationsList::AnnotationsList(QWidget* parent) : QFrame(parent) {
   setLayout(layout);
   auto title = new QLabel{"Annotations in this document:"};
   layout->addWidget(title);
+  title->setWordWrap(true);
   annotationsView_ = new QListView{};
   layout->addWidget(annotationsView_);
   annotationsView_->setFocusPolicy(Qt::NoFocus);
