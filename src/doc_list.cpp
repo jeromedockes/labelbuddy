@@ -32,9 +32,9 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   buttonsLayout->addWidget(selectAllButton_);
   deleteButton_ = new QPushButton("Delete");
   buttonsLayout->addWidget(deleteButton_);
-  deleteAllButton_ = new QPushButton("Delete all docs");
+  deleteAllButton_ = new QPushButton("Delete all");
   buttonsLayout->addWidget(deleteAllButton_);
-  annotateButton_ = new QPushButton("Annotate selected doc");
+  annotateButton_ = new QPushButton("Annotate");
   buttonsLayout->addWidget(annotateButton_);
 
   filtersLayout->addWidget(new QLabel("Filter by label: "));

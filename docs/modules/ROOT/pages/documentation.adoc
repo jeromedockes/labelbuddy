@@ -238,7 +238,7 @@ The surrounding quotes will be removed but can be doubled to search for a term w
 You can delete labels or documents, add labels and change the color and shortcut associated with each label.
 You can drag and drop labels to change their order.
 You then go to the {annotab}.
-(To jump to annotating a specific document in the list you can double-click it or select it and either press kbd:[Enter] or click btn:[Annotate selected doc].)
+(To jump to annotating a specific document in the list you can double-click it or select it and either press kbd:[Enter] or click btn:[Annotate].)
 
 Once in the {annotab}, use the mouse to select the region you want to annotate and click on the appropriate label.
 It is also possible to do the same thing with the keyboard.
@@ -254,7 +254,7 @@ The {extra-edit} box offers a list of possible completions: all the extra data v
 This makes it easy to link different annotations, by giving them the same extra data, which thus acts as an identifier.
 
 Once you have created annotations, you can select any of them by clicking it.
-It becomes [.yellow-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Remove].
+It becomes [.yellow-bg.active-anno-bold]#bold and underlined# and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking btn:[Delete annotation].
 You can also do this with the keyboard: jump to the next annotation with the kbd:[Space] key and change its label with a label shortcut or remove it with kbd:[Backspace].
 
 TIP: You can control whether the selected annotation is displayed in a bold font by checking or unchecking  menu:Preferences[Show selected annotation in bold font].
