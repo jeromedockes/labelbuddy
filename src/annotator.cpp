@@ -848,18 +848,15 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
       new QPushButton(QIcon(":data/icons/go-previous-labelled.png"), "");
   layout->addWidget(prevLabelledButton_);
   prevLabelledButton_->setToolTip("Previous labelled document");
-  prevLabelledButton_->setIconSize(QSize{24, 24});
 
   prevUnlabelledButton_ =
       new QPushButton(QIcon(":data/icons/go-previous-unlabelled.png"), "");
   layout->addWidget(prevUnlabelledButton_);
   prevUnlabelledButton_->setToolTip("Previous unlabelled document");
-  prevUnlabelledButton_->setIconSize(QSize{24, 24});
 
   prevButton_ = new QPushButton(QIcon(":data/icons/go-previous.png"), "");
   layout->addWidget(prevButton_);
   prevButton_->setToolTip("Previous document");
-  prevButton_->setIconSize(QSize{24, 24});
 
   currentDocLabel_ = new QLabel();
   layout->addWidget(currentDocLabel_);
@@ -868,19 +865,16 @@ AnnotationsNavButtons::AnnotationsNavButtons(QWidget* parent)
   nextButton_ = new QPushButton(QIcon(":data/icons/go-next.png"), "");
   layout->addWidget(nextButton_);
   nextButton_->setToolTip("Next document");
-  nextButton_->setIconSize(QSize{24, 24});
 
   nextUnlabelledButton_ =
       new QPushButton(QIcon(":data/icons/go-next-unlabelled.png"), "");
   layout->addWidget(nextUnlabelledButton_);
   nextUnlabelledButton_->setToolTip("Next unlabelled document");
-  nextUnlabelledButton_->setIconSize(QSize{24, 24});
 
   nextLabelledButton_ =
       new QPushButton(QIcon(":data/icons/go-next-labelled.png"), "");
   layout->addWidget(nextLabelledButton_);
   nextLabelledButton_->setToolTip("Next labelled document");
-  nextLabelledButton_->setIconSize(QSize{24, 24});
 
   layout->addStretch();
 
