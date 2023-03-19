@@ -43,8 +43,9 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   filtersLayout->addWidget(new QLabel{"Search documents: "});
   searchPatternEdit_ = new QLineEdit{};
   filtersLayout->addWidget(searchPatternEdit_);
-  filtersLayout->addStretch();
+  // filtersLayout->addStretch();
 
+  navLayout->addStretch();
   firstPageButton_ = new QPushButton(QIcon(":data/icons/go-first.png"), "");
   navLayout->addWidget(firstPageButton_);
   firstPageButton_->setToolTip("First page of results");
@@ -53,13 +54,14 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   navLayout->addWidget(prevPageButton_);
   currentPageLabel_ = new QLabel();
   navLayout->addWidget(currentPageLabel_);
-  currentPageLabel_->setAlignment(Qt::AlignHCenter);
+  currentPageLabel_->setAlignment(Qt::AlignCenter);
   nextPageButton_ = new QPushButton(QIcon(":data/icons/go-next.png"), "");
   nextPageButton_->setToolTip("Next page of results");
   navLayout->addWidget(nextPageButton_);
   lastPageButton_ = new QPushButton(QIcon(":data/icons/go-last.png"), "");
   lastPageButton_->setToolTip("Last page of results");
   navLayout->addWidget(lastPageButton_);
+  navLayout->addStretch();
 
   addConnections();
 }
