@@ -7,6 +7,10 @@
   <file>data/icons/go-first.png</file>
   <file>data/icons/go-next.png</file>
   <file>data/icons/go-previous.png</file>
+  <file>data/icons/go-next-labelled.png</file>
+  <file>data/icons/go-previous-labelled.png</file>
+  <file>data/icons/go-next-unlabelled.png</file>
+  <file>data/icons/go-previous-unlabelled.png</file>
   <file>data/VERSION.txt</file>
   <file>data/welcome_message.html</file>
   <file>docs/demo_data/example_documents.json</file>

@@ -5,13 +5,13 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMessageBox>
+#include <QObject>
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QString>
 #include <QVBoxLayout>
-#include <QLineEdit>
-#include <QObject>
 
 #include "doc_list.h"
 #include "user_roles.h"
@@ -32,9 +32,9 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   buttonsLayout->addWidget(selectAllButton_);
   deleteButton_ = new QPushButton("Delete");
   buttonsLayout->addWidget(deleteButton_);
-  deleteAllButton_ = new QPushButton("Delete all docs");
+  deleteAllButton_ = new QPushButton("Delete all");
   buttonsLayout->addWidget(deleteAllButton_);
-  annotateButton_ = new QPushButton("Annotate selected doc");
+  annotateButton_ = new QPushButton("Annotate");
   buttonsLayout->addWidget(annotateButton_);
 
   filtersLayout->addWidget(new QLabel("Filter by label: "));
@@ -43,24 +43,24 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   filtersLayout->addWidget(new QLabel{"Search documents: "});
   searchPatternEdit_ = new QLineEdit{};
   filtersLayout->addWidget(searchPatternEdit_);
-  filtersLayout->addStretch();
 
-  firstPageButton_ = new QPushButton(
-      QIcon::fromTheme("go-first", QIcon(":data/icons/go-first.png")), "");
+  navLayout->addStretch();
+  firstPageButton_ = new QPushButton(QIcon(":data/icons/go-first.png"), "");
   navLayout->addWidget(firstPageButton_);
-  prevPageButton_ = new QPushButton(
-      QIcon::fromTheme("go-previous", QIcon(":data/icons/go-previous.png")),
-      "");
+  firstPageButton_->setToolTip("First page of results");
+  prevPageButton_ = new QPushButton(QIcon(":data/icons/go-previous.png"), "");
+  prevPageButton_->setToolTip("Previous page of results");
   navLayout->addWidget(prevPageButton_);
   currentPageLabel_ = new QLabel();
   navLayout->addWidget(currentPageLabel_);
-  currentPageLabel_->setAlignment(Qt::AlignHCenter);
-  nextPageButton_ = new QPushButton(
-      QIcon::fromTheme("go-next", QIcon(":data/icons/go-next.png")), "");
+  currentPageLabel_->setAlignment(Qt::AlignCenter);
+  nextPageButton_ = new QPushButton(QIcon(":data/icons/go-next.png"), "");
+  nextPageButton_->setToolTip("Next page of results");
   navLayout->addWidget(nextPageButton_);
-  lastPageButton_ = new QPushButton(
-      QIcon::fromTheme("go-last", QIcon(":data/icons/go-last.png")), "");
+  lastPageButton_ = new QPushButton(QIcon(":data/icons/go-last.png"), "");
+  lastPageButton_->setToolTip("Last page of results");
   navLayout->addWidget(lastPageButton_);
+  navLayout->addStretch();
 
   addConnections();
 }
@@ -206,7 +206,7 @@ void DocListButtons::goToLastPage() {
     return;
   }
   int total = model_->nDocsCurrentQuery();
-  offset_ = std::max(0, total -1);
+  offset_ = std::max(0, total - 1);
   offset_ -= offset_ % pageSize_;
   emit docFilterChanged(currentFilter_, currentLabelId_, searchPattern_,
                         pageSize_, offset_);

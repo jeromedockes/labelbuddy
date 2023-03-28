@@ -45,10 +45,10 @@ SearchableText::SearchableText(QWidget* parent) : QWidget(parent) {
   searchBarLayout->addWidget(findPrevButton_);
   findNextButton_ = new QPushButton();
   searchBarLayout->addWidget(findNextButton_);
-  findPrevButton_->setIcon(
-      QIcon::fromTheme("go-up", QIcon(":data/icons/go-up.png")));
-  findNextButton_->setIcon(
-      QIcon::fromTheme("go-down", QIcon(":data/icons/go-down.png")));
+  findPrevButton_->setIcon(QIcon(":data/icons/go-up.png"));
+  findPrevButton_->setToolTip("Previous search result");
+  findNextButton_->setIcon(QIcon(":data/icons/go-down.png"));
+  findNextButton_->setToolTip("Next search result");
 
   auto searchAction = new QAction(this);
   searchAction->setShortcuts(
