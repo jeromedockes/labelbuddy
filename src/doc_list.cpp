@@ -43,7 +43,6 @@ DocListButtons::DocListButtons(QWidget* parent) : QFrame(parent) {
   filtersLayout->addWidget(new QLabel{"Search documents: "});
   searchPatternEdit_ = new QLineEdit{};
   filtersLayout->addWidget(searchPatternEdit_);
-  // filtersLayout->addStretch();
 
   navLayout->addStretch();
   firstPageButton_ = new QPushButton(QIcon(":data/icons/go-first.png"), "");
