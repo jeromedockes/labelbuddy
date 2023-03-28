@@ -4,14 +4,14 @@
 #include <memory>
 
 #include <QAbstractItemModel>
+#include <QEvent>
 #include <QFrame>
 #include <QItemSelectionModel>
 #include <QListView>
+#include <QObject>
 #include <QPainter>
 #include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
-#include <QEvent>
-#include <QObject>
 
 #include "annotations_list_model.h"
 #include "annotations_model.h"
@@ -33,6 +33,8 @@ public:
                  const QModelIndex& index) const override;
 
 private:
+  QString prepareItemHtml(const QStyleOptionViewItem& option,
+                          const QModelIndex& index) const;
   int em_;
 };
 
@@ -61,7 +63,6 @@ public slots:
   void resetAnnotations();
 
 protected:
-
   bool eventFilter(QObject* object, QEvent* event) override;
 
 private slots:
