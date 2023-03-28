@@ -1,3 +1,10 @@
+labelbuddy (0.0.11) unstable; urgency=medium
+
+  * The text of the annotations list offers a better contrast on
+    MacOS in Dark mode.
+
+ -- jerome dockes <jerome@dockes.org>  Sat, 18 Mar 2023 11:10:54 -0300
+
 labelbuddy (0.0.10) unstable; urgency=medium
 
   * A search bar has been added to the documents list in the

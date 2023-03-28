@@ -720,8 +720,21 @@ Annotator::makePaintedRegion(int startChar, int endChar, const QString& color,
   return QTextEdit::ExtraSelection{cursor, format};
 }
 
+QString Annotator::clusterForeground() const {
+  return text_->getTextEdit()->palette().base().color().name();
+}
+
+QString Annotator::clusterBackground() const {
+  auto textColor = text_->getTextEdit()->palette().text().color().name();
+  if (textColor == "#000000"){
+    return "#404040";
+  }
+  return textColor;
+}
+
 void Annotator::paintAnnotations() {
-  const QString darkGray{"#606060"};
+  const QString clusterFg = clusterForeground();
+  const QString clusterBg = clusterBackground();
   QList<QTextEdit::ExtraSelection> newSelections{};
   int activeStart{-1};
   int activeEnd{-1};
@@ -734,16 +747,16 @@ void Annotator::paintAnnotations() {
     auto clusterEnd = cluster.endChar;
     if (cluster.lastAnnotation.id != cluster.firstAnnotation.id) {
       if ((clusterStart < activeStart) && (activeStart < clusterEnd)) {
-        newSelections << makePaintedRegion(clusterStart, activeStart, darkGray,
-                                           "white");
+        newSelections << makePaintedRegion(clusterStart, activeStart, clusterBg,
+                                           clusterFg);
       }
       if ((clusterStart < activeEnd) && (clusterEnd > activeEnd)) {
-        newSelections << makePaintedRegion(activeEnd, clusterEnd, darkGray,
-                                           "white");
+        newSelections << makePaintedRegion(activeEnd, clusterEnd, clusterBg,
+                                           clusterFg);
       }
       if ((activeEnd <= clusterStart) || (activeStart >= clusterEnd)) {
-        newSelections << makePaintedRegion(clusterStart, clusterEnd, darkGray,
-                                           "white");
+        newSelections << makePaintedRegion(clusterStart, clusterEnd, clusterBg,
+                                           clusterFg);
       }
     } else if (cluster.firstAnnotation.id != activeAnnotation_) {
       newSelections << makePaintedRegion(
