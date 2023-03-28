@@ -1,5 +1,7 @@
 labelbuddy (0.0.11) unstable; urgency=medium
 
+  * Some buttons have been made smaller by replacing text with icons
+    to help using labelbuddy in a narrow window or on smaller screens.
   * The text of the annotations list offers a better contrast on
     MacOS in Dark mode.
 
