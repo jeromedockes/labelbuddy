@@ -15,7 +15,7 @@ documentation.html: modules/ROOT/pages/documentation.adoc modules/ROOT/pages/doc
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
 keybindings.html: modules/ROOT/pages/keybindings.adoc modules/ROOT/pages/documentation.adoc
-	asciidoctor -b xhtml $< -o $@
+	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
 labelbuddy.1: modules/ROOT/pages/manpage.adoc ../data/VERSION.txt
 	asciidoctor -a lbversion="$$(cat ../data/VERSION.txt)" -b manpage $< -o $@

@@ -6,6 +6,9 @@ Jérôme Dockès <jerome@dockes.org>
 :docinfo: shared
 :annotab: pass:q[*"`Annotate`"* tab]
 :dstab: pass:q[*"`Labels & Documents`"* tab]
+:lb: pass:q[*labelbuddy*]
+
+This document describes {lb} version *{lbversion}*.
 
 The table below summarizes key bindings available in the {annotab}.
 
