@@ -1,0 +1,10 @@
+= labelbuddy keybindings
+Jérôme Dockès <jerome@dockes.org>
+:experimental:
+:lang: en
+:webfonts!:
+:docinfo: shared
+:annotab: pass:q[*"`Annotate`"* tab]
+:dstab: pass:q[*"`Labels & Documents`"* tab]
+
+include::documentation.adoc[tag=keybindings]

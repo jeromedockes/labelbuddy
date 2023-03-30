@@ -6,13 +6,16 @@ gen-attachments += modules/ROOT/attachments/wiki_extracts_documents.json modules
 
 .PHONY: all clean
 
-all: labelbuddy.1 documentation.html antora.yml $(gen-attachments) demo_data/example_documents.json
+all: labelbuddy.1 documentation.html keybindings.html antora.yml $(gen-attachments) demo_data/example_documents.json
 
 antora.yml: antora.yml.template ../data/VERSION.txt
 	sed 's/LABELBUDDY_VERSION/'"$$(cat ../data/VERSION.txt)"'/g' $< > $@
 
 documentation.html: modules/ROOT/pages/documentation.adoc modules/ROOT/pages/docinfo.html ../data/VERSION.txt $(examples)
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
+
+keybindings.html: modules/ROOT/pages/keybindings.adoc modules/ROOT/pages/documentation.adoc
+	asciidoctor -b xhtml $< -o $@
 
 labelbuddy.1: modules/ROOT/pages/manpage.adoc ../data/VERSION.txt
 	asciidoctor -a lbversion="$$(cat ../data/VERSION.txt)" -b manpage $< -o $@
