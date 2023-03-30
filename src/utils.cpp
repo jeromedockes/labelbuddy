@@ -29,15 +29,16 @@ QString getWelcomeMessage() {
 }
 
 QUrl getDocUrl(const QString& pageName) {
-  QFileInfo fileInfo{QDir{"/usr/share/doc/labelbuddy"}, pageName};
-  if (fileInfo.exists()) {
-    return QUrl::fromLocalFile(fileInfo.filePath());
+  QStringList searchDirs{"/usr/share/doc/labelbuddy",
+                         QCoreApplication::applicationDirPath()};
+
+  for (const auto& directory : searchDirs) {
+    QFileInfo fileInfo{directory, pageName};
+    if (fileInfo.exists()) {
+      return QUrl::fromLocalFile(fileInfo.filePath());
+    }
   }
-  QDir appDir{QCoreApplication::applicationDirPath()};
-  fileInfo = QFileInfo{appDir.filePath(pageName)};
-  if (fileInfo.exists()) {
-    return QUrl::fromLocalFile(fileInfo.filePath());
-  }
+
   return QUrl{QString{"https://jeromedockes.github.io/labelbuddy/"} + pageName};
 }
 
