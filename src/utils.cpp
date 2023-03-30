@@ -31,12 +31,12 @@ QString getWelcomeMessage() {
 QUrl getDocUrl() {
   QFileInfo fileInfo("/usr/share/doc/labelbuddy/documentation.html");
   if (fileInfo.exists()) {
-    return QUrl(QString("file:%0").arg(fileInfo.filePath()));
+    return QUrl::fromLocalFile(fileInfo.filePath());
   }
   QDir appDir(QCoreApplication::applicationDirPath());
   fileInfo = QFileInfo(appDir.filePath("documentation.html"));
   if (fileInfo.exists()) {
-    return QUrl(QString("file:%0").arg(fileInfo.filePath()));
+    return QUrl::fromLocalFile(fileInfo.filePath());
   }
   return QUrl("https://jeromedockes.github.io/labelbuddy/documentation.html");
 }
