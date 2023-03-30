@@ -1,3 +1,5 @@
+#include <QUrl>
+
 #include "test_utils.h"
 #include "utils.h"
 
@@ -5,7 +7,9 @@ namespace labelbuddy {
 
 void TestUtils::testGetDocUrl() {
   auto url = getDocUrl();
-  QVERIFY(url.fileName().endsWith("documentation.html"));
+  QVERIFY(url.fileName().endsWith("documentation.html") or
+          url == QUrl{"https://jeromedockes.github.io/labelbuddy/labelbuddy/"
+                      "current/documentation/"});
 }
 
 void TestUtils::testDatabaseNameDisplay() {

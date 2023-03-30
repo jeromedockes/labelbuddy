@@ -33,13 +33,15 @@ QUrl getDocUrl(const QString& pageName) {
                          QCoreApplication::applicationDirPath()};
 
   for (const auto& directory : searchDirs) {
-    QFileInfo fileInfo{directory, pageName};
+    QFileInfo fileInfo{directory, pageName + ".html"};
     if (fileInfo.exists()) {
       return QUrl::fromLocalFile(fileInfo.filePath());
     }
   }
 
-  return QUrl{QString{"https://jeromedockes.github.io/labelbuddy/"} + pageName};
+  return QUrl{QString{
+      "https://jeromedockes.github.io/labelbuddy/labelbuddy/current/%1/"}
+                  .arg(pageName)};
 }
 
 QModelIndexList::const_iterator

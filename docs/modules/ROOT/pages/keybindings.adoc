@@ -1,4 +1,4 @@
-= labelbuddy keybindings
+= labelbuddy key bindings
 Jérôme Dockès <jerome@dockes.org>
 :experimental:
 :lang: en
@@ -6,5 +6,7 @@ Jérôme Dockès <jerome@dockes.org>
 :docinfo: shared
 :annotab: pass:q[*"`Annotate`"* tab]
 :dstab: pass:q[*"`Labels & Documents`"* tab]
+
+The table below summarizes key bindings available in the {annotab}.
 
 include::documentation.adoc[tag=keybindings]
