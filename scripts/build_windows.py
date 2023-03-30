@@ -48,6 +48,7 @@ def _build_package(
     )
     shutil.copy(executable, package_dir)
     shutil.copy(_repo_dir() / "docs" / "documentation.html", package_dir)
+    shutil.copy(_repo_dir() / "docs" / "keybindings.html", package_dir)
     return package_dir.resolve()
 
 
@@ -122,6 +123,7 @@ def _build_installer(
     shutil.rmtree(data_dir)
     shutil.copytree(package, data_dir)
     shutil.copy(_repo_dir() / "docs" / "documentation.html", data_dir)
+    shutil.copy(_repo_dir() / "docs" / "keybindings.html", data_dir)
     installer_name = (
         f"labelbuddy-{_labelbuddy_version()}-windows-installer.exe"
     )

@@ -286,6 +286,7 @@ If we click a label corresponding to an annotation that already exists at the cu
 [#keybindings-summary]
 ==== Summary of key bindings in the "`Annotate`" tab
 
+// tag::keybindings[]
 [cols="1,2"]
 |===
 2+| Searching and navigation
@@ -408,6 +409,8 @@ If we click a label corresponding to an annotation that already exists at the cu
 |===
 
 Underlined letters in the GUI indicate kbd:[Alt]-key shortcuts: for example in the {dstab} "`[.underline]##N##ew label`" indicates you can jump to creating a new label by pressing kbd:[Alt+N].
+(These shortcuts are not available on MacOS.)
+// end::keybindings[]
 
 === Exporting documents and annotations
 

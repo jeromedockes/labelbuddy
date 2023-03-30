@@ -2,4 +2,5 @@
 * xref:documentation.adoc[Documentation]
 * xref:manpage.adoc[man page]
 * xref:screenshots.adoc[Screenshots]
+* xref:keybindings.adoc[Key bindings]
 * xref:examples.adoc[Examples]

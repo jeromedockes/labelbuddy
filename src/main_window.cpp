@@ -486,8 +486,6 @@ void LabelBuddy::openDocumentationUrl() {
 }
 
 void LabelBuddy::openDocumentationUrlAtKeybindingsSection() {
-  auto url = getDocUrl();
-  url.setFragment("keybindings-summary");
-  QDesktopServices::openUrl(url);
+  QDesktopServices::openUrl(getDocUrl("keybindings"));
 }
 } // namespace labelbuddy

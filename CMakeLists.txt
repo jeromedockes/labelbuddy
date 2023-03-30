@@ -177,6 +177,7 @@ execute_process(COMMAND gzip -9 -c -n ${CMAKE_SOURCE_DIR}/docs/changelog
 install(FILES "${CMAKE_BINARY_DIR}/changelog.Debian.gz"
   "${CMAKE_BINARY_DIR}/copyright"
   "${CMAKE_SOURCE_DIR}/docs/documentation.html"
+  "${CMAKE_SOURCE_DIR}/docs/keybindings.html"
   DESTINATION "${CMAKE_INSTALL_DOCDIR}"
   )
 

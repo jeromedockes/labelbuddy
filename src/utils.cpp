@@ -28,17 +28,20 @@ QString getWelcomeMessage() {
   return inStream.readAll();
 }
 
-QUrl getDocUrl() {
-  QFileInfo fileInfo("/usr/share/doc/labelbuddy/documentation.html");
-  if (fileInfo.exists()) {
-    return QUrl::fromLocalFile(fileInfo.filePath());
+QUrl getDocUrl(const QString& pageName) {
+  QStringList searchDirs{"/usr/share/doc/labelbuddy",
+                         QCoreApplication::applicationDirPath()};
+
+  for (const auto& directory : searchDirs) {
+    QFileInfo fileInfo{directory, pageName + ".html"};
+    if (fileInfo.exists()) {
+      return QUrl::fromLocalFile(fileInfo.filePath());
+    }
   }
-  QDir appDir(QCoreApplication::applicationDirPath());
-  fileInfo = QFileInfo(appDir.filePath("documentation.html"));
-  if (fileInfo.exists()) {
-    return QUrl::fromLocalFile(fileInfo.filePath());
-  }
-  return QUrl("https://jeromedockes.github.io/labelbuddy/documentation.html");
+
+  return QUrl{QString{
+      "https://jeromedockes.github.io/labelbuddy/labelbuddy/current/%1/"}
+                  .arg(pageName)};
 }
 
 QModelIndexList::const_iterator

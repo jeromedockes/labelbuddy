@@ -24,7 +24,7 @@ QString getWelcomeMessage();
 
 /// Searched in /usr/share/doc, the parent directory of the running program, and
 /// if not found, return URL to the online doc.
-QUrl getDocUrl();
+QUrl getDocUrl(const QString& pageName = "documentation");
 
 void prepareParser(QCommandLineParser& parser);
 
