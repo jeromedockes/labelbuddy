@@ -8,7 +8,9 @@ Jérôme Dockès <jerome@dockes.org>
 :dstab: pass:q[*"`Labels & Documents`"* tab]
 :lb: pass:q[*labelbuddy*]
 
+ifdef::lbversion[]
 This document describes {lb} version *{lbversion}*.
+endif::[]
 
 The table below summarizes key bindings available in the {annotab}.
 
