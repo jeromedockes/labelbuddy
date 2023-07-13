@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: update
-        run: sudo apt update -y
+        run: apt-get update -y
 
       - name: Install Qt & utils
         run: |
