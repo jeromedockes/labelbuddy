@@ -19,8 +19,8 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      -name: update
-       run: sudo apt update -y
+      - name: update
+        run: sudo apt update -y
 
       - name: Install Qt & utils
         run: |
