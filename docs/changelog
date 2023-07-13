@@ -10,7 +10,7 @@ labelbuddy (0.0.11) unstable; urgency=medium
   * The text of the annotations list offers a better contrast on
     MacOS in Dark mode.
 
- -- jerome dockes <jerome@dockes.org>  Thu, 30 Mar 2023 14:23:38 -0300
+ -- jerome dockes <jerome@dockes.org>  Thu, 13 Jul 2023 20:11:42 +0200
 
 labelbuddy (0.0.10) unstable; urgency=medium
 
