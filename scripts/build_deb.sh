@@ -59,7 +59,7 @@ EOF
 
 DISTRIB_CODENAME="$(lsb_release -cs)"
 
-if [[ $DISTRIB_CODENAME =~ ^(buster|stretch)$ ]]; then
+if [[ $DISTRIB_CODENAME == buster ]]; then
     sed -i 's/qtbase5-dev/qt5-default/' control
 fi
 

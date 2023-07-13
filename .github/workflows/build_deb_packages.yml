@@ -11,7 +11,7 @@ jobs:
     container: debian:${{ matrix.release }}
     strategy:
       matrix:
-        release: ["stretch", "buster", "bullseye"]
+        release: ["buster", "bullseye", "bookworm"]
     defaults:
       run:
         shell: bash
