@@ -57,7 +57,7 @@ Binary packages can be downloaded from {latestghrelease}[the downloads page].
 Once you have downloaded the package, you can install it with `apt`, for example:
 [subs="+attributes"]
 ....
-sudo apt install ./labelbuddy_{lbversion}-1~bullseye1_amd64.deb
+sudo apt install ./labelbuddy_{lbversion}-1~bookworm1_amd64.deb
 ....
 
 To use {lb} without installing anything, see <<on-any-linux-distribution,below>>.

@@ -11,13 +11,16 @@ on:
 jobs:
   build_appimage:
     runs-on: ubuntu-latest
-    container: debian:stretch
+    container: debian:buster
     defaults:
       run:
         shell: bash
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
+
+      - name: update
+        run: apt-get update -y
 
       - name: Install Qt & utils
         run: |
