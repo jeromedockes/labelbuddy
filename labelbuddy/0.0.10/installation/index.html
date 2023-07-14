@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Installing labelbuddy :: labelbuddy</title>
+    <link rel="canonical" href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation/">
+    <meta name="generator" content="Antora 3.0.0-alpha.6">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+<link rel="icon" href="../../../labelbuddy/current/_images/labelbuddy.svg" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="https://jeromedockes.github.io/labelbuddy">labelbuddy</a>
+          <button class="navbar-burger" data-target="topbar-nav">
+              <span></span>
+              <span></span>
+              <span></span>
+          </button>
+      </div>
+      <div id="topbar-nav" class="navbar-menu">
+          <div class="navbar-end">
+              <!-- <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy"><img src="../../../_/img/gh-light.png"></a> -->
+              <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy">labelbuddy on GitHub</a>
+          </div>
+      </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.10">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../">labelbuddy</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="./">Installation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../documentation/">Documentation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../manpage/">man page</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../screenshots/">Screenshots</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../examples/">Examples</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">labelbuddy</span>
+    <span class="version">0.0.10</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../../current/">labelbuddy</a>
+      <ul class="versions">
+        <li class="version is-latest">
+          <a href="../../current/">0.0.11</a>
+        </li>
+        <li class="version is-current">
+          <a href="../">0.0.10</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.9/">0.0.9</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.8/">0.0.8</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.7/">0.0.7</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../../current/" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../">labelbuddy</a></li>
+    <li><a href="./">Installation</a></li>
+  </ul>
+</nav>
+<div class="page-versions">
+  <button class="version-menu-toggle" title="Show other versions of page">0.0.10</button>
+  <div class="version-menu">
+    <a class="version" href="../../current/installation/">0.0.11</a>
+    <a class="version is-current" href="./">0.0.10</a>
+    <a class="version" href="../../0.0.9/installation/">0.0.9</a>
+    <a class="version" href="../../0.0.8/installation/">0.0.8</a>
+    <a class="version" href="../../0.0.7/installation/">0.0.7</a>
+  </div>
+</div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="3">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">Installing labelbuddy</h1>
+<div class="sect1">
+<h2 id="installing-a-binary-copy"><a class="anchor" href="#installing-a-binary-copy"></a>Installing a binary copy</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="on-ubuntu"><a class="anchor" href="#on-ubuntu"></a>On Ubuntu</h3>
+<div class="paragraph">
+<p>Packages built for different Ubuntu distributions are published on <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy">this Personal Package Archive</a>.
+Add it to your system by executing:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo add-apt-repository -y ppa:jdockes/labelbuddy
+sudo apt update</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then the latest release of <strong>labelbuddy</strong> (and any future releases) can be installed with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt install labelbuddy</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you don&#8217;t want to add the PPA to your sources list you can manually choose and download one of the <a href="https://launchpad.net/~jdockes/+archive/ubuntu/labelbuddy/+packages">published packages</a>, then install it with <code>apt</code>, for example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt install ./labelbuddy_0.0.10-1~jammy1_amd64.deb</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To use <strong>labelbuddy</strong> without installing anything, see <a href="#on-any-linux-distribution">below</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-debian"><a class="anchor" href="#on-debian"></a>On Debian</h3>
+<div class="paragraph">
+<p>Binary packages can be downloaded from <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">the downloads page</a>.
+Once you have downloaded the package, you can install it with <code>apt</code>, for example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo apt install ./labelbuddy_0.0.10-1~bullseye1_amd64.deb</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To use <strong>labelbuddy</strong> without installing anything, see <a href="#on-any-linux-distribution">below</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-any-linux-distribution"><a class="anchor" href="#on-any-linux-distribution"></a>On any Linux distribution</h3>
+<div class="paragraph">
+<p>An <a href="https://appimage.org/">AppImage</a> is provided in the <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">downloads page</a> (file name: <code>labelbuddy-0.0.10-x86_64.AppImage</code>).
+You can download it by clicking <a href="https://github.com/jeromedockes/labelbuddy/releases/download/v0.0.10/labelbuddy-0.0.10-x86_64.AppImage">this link</a>.
+That is a single self-contained executable that can be run on any of the common Linux distributions.
+Simply download the <code>.AppImage</code> file, make it executable and run it.
+This can be done by executing:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>wget https://github.com/jeromedockes/labelbuddy/releases/download/v0.0.10/labelbuddy-0.0.10-x86_64.AppImage
+
+chmod u+x ./labelbuddy-0.0.10-x86_64.AppImage
+./labelbuddy-0.0.10-x86_64.AppImage</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>You can optionally rename the executable (<code>.AppImage</code> file) to <code>labelbuddy</code>, and move it to a location in your <code>$PATH</code>.
+This will enable using the command <code>labelbuddy</code> to start the program.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-windows"><a class="anchor" href="#on-windows"></a>On Windows</h3>
+<div class="paragraph">
+<p>An installer for Windows is provided in the <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">downloads page</a> (file name: <code>labelbuddy-0.0.10-windows-installer.exe</code>).
+You can download it by clicking <a href="https://github.com/jeromedockes/labelbuddy/releases/download/v0.0.10/labelbuddy-0.0.10-windows-installer.exe">this link</a>.
+Download the installer and execute it.
+Windows will warn that <strong>labelbuddy</strong> is an "unrecognized app", displaying a message like "Windows protected your PC &#8230;&#8203;".
+Click on "more info", then "run anyway".</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can be uninstalled from the Windows applications menu, or by running the <code>maintenancetool.exe</code> executable found in the <strong>labelbuddy</strong> installation folder.</p>
+</div>
+<div class="paragraph">
+<p>You can also use <strong>labelbuddy</strong> without installing it.
+Instead of using the installer, download the file named <code>labelbuddy-0.0.10-windows.zip</code> from the <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">downloads page</a> (or click <a href="https://github.com/jeromedockes/labelbuddy/releases/download/v0.0.10/labelbuddy-0.0.10-windows.zip">this download link</a>).
+Extract the contents of the <code>.zip</code> file, then execute the file <code>labelbuddy.exe</code> that it contains to start <strong>labelbuddy</strong>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="on-macos"><a class="anchor" href="#on-macos"></a>On MacOS</h3>
+<div class="paragraph">
+<p>An Apple Disk Image is provided in the <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">downloads page</a> (file name: <code>labelbuddy-0.0.10.dmg</code>).
+You can download it by clicking <a href="https://github.com/jeromedockes/labelbuddy/releases/download/v0.0.10/labelbuddy-0.0.10.dmg">this link</a>.
+Double-click the downloaded file, and from the window that opens, drag <code>labelbuddy</code> into the <code>/Applications</code> folder in <strong>Finder</strong>.</p>
+</div>
+<div class="paragraph">
+<p>The first time you try to open <strong>labelbuddy</strong>, MacOS will warn that it "cannot verify the developer".
+To start <strong>labelbuddy</strong> anyway you can press <kbd>Ctrl</kbd> while you click the <strong>labelbuddy</strong> icon, then in the dialog that appears select "Open" (you may have to do the <kbd>Ctrl</kbd>-click twice).
+Another way is to visit <span class="menuseq"><b class="menu">System Preferences</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Security &amp; Privacy</b></span> once the warning appears, and click "Open Anyway".</p>
+</div>
+<div class="paragraph">
+<p>You can also run <strong>labelbuddy</strong> without installing it: instead of dropping it into <strong>/Applications</strong>, visit the <code>.dmg</code> file in <strong>Finder</strong> and double-click (or <kbd>Ctrl</kbd>-click, see above) the <code>labelbuddy</code> file it contains.</p>
+</div>
+<div class="paragraph">
+<p><em>If</em> you also want to use <strong>labelbuddy</strong>’s <a href="../documentation/#command-line-interface" class="page">command-line interface</a>, add a symlink in a location in your <code>$PATH</code> for your shell to find the <code>labelbuddy</code> command.
+For example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>ln -s /Applications/labelbuddy.app/Contents/MacOs/labelbuddy /usr/local/bin/labelbuddy</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="building-from-source"><a class="anchor" href="#building-from-source"></a>Building from source</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Download a source distribution from <a href="https://github.com/jeromedockes/labelbuddy/releases/tag/v0.0.10">the downloads page</a>, or get the latest code by cloning or downloading the <strong>labelbuddy</strong> <a href="https://github.com/jeromedockes/labelbuddy/">git repository</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> uses <a href="https://www.qt.io/">Qt 5</a>. Qt can probably be installed with your package manager, for example:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>apt install qtbase5-dev</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>yum install qt5-qtbase
+yum install qt5-qtbase-devel</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Otherwise you can get it from the <a href="https://www.qt.io/download-qt-installer">Qt downloads page</a>.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can be built with <a href="https://cmake.org/">CMake</a>. In an empty directory run:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>cmake /path/to/labelbuddy/CMakeLists.txt
+cmake --build .</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then <strong>labelbuddy</strong> can (optionally) be installed with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>sudo make install</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can also be built with <a href="https://doc.qt.io/qt-5/qmake-manual.html">qmake</a>:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>qmake /path/to/labelbuddy/labelbuddy.pro
+make</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Building <strong>labelbuddy</strong> should be straightforward, so if you run into any difficulties please open a <a href="https://github.com/jeromedockes/labelbuddy/issues">GitHub issue</a>.</p>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+    <!-- <p>This page was built using <a href="https://asciidoctor.org/">asciidoctor</a> and <a href="https://antora.org/">antora</a>.</p> -->
+</footer>
+<script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>
