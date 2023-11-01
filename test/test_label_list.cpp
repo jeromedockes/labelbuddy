@@ -30,8 +30,18 @@ void TestLabelList::testLabelList() {
   QCOMPARE(renameEdit->text(), QString(""));
 
   scEdit->selectAll();
-  QTest::keyClicks(scEdit, "5");
+  QTest::keyClicks(scEdit, "$");
   QCOMPARE(scEdit->text(), QString("p"));
+
+  scEdit->selectAll();
+  QTest::keyClicks(scEdit, "P");
+  QCOMPARE(scEdit->text(), QString("P"));
+
+  scEdit->selectAll();
+  QTest::keyClicks(scEdit, "8");
+  QCOMPARE(scEdit->text(), QString("8"));
+
+  scEdit->selectAll();
   QTest::keyClicks(scEdit, "x");
   QCOMPARE(scEdit->text(), QString("x"));
   QTest::keyClick(scEdit, Qt::Key_Enter);

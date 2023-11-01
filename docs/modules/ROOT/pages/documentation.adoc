@@ -206,7 +206,7 @@ To import labels, click btn:[Import labels] in the {ietab} and select a file.
 If you want try this before creating your own labels, you can download example labels from the {examples-link}[{lb} examples page].
 
 Labels have three attributes: a mandatory `name`, and an optional `color` and `shortcut_key`.
-The `shortcut_key` is a lower-case letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+The `shortcut_key` is a lower-case letter (a-z), an upper-case letter (A-Z) or a digit (0-9) that helps quickly <<annotating-documents,annotating text>> with that label.
 
 As for documents, the format is deduced from the filename extension when importing labels, and is described in <<formats-sec>>.
 
@@ -330,7 +330,7 @@ If we click a label corresponding to an annotation that already exists at the cu
 |===
 2+| Manipulating annotations
 
-| kbd:[A-Z] (label's `shortcut_key`)
+| kbd:[A-Z], kbd:[0-9], kbd:[Shift+A-Z] (label's `shortcut_key`)
 | set corresponding label for the currently selected region or annotation
 
 | kbd:[Backspace]
@@ -777,7 +777,7 @@ Labels can have the following attributes:
 `color`:: A hexadecimal color string, such as `"#aec7e8"`, or an https://www.w3.org/TR/SVG11/types.html#ColorKeywords[SVG color name], such as `"yellow"`.
 If missing, a default color will be assigned to the label.
 // https://doc.qt.io/qt-5/qcolor.html#setNamedColor
-`shortcut_key`:: A lower-case ASCII letter (a-z) that helps quickly <<annotating-documents,annotating text>> with that label.
+`shortcut_key`:: An ASCII letter (a-z, A-Z) or digit (0-9) that helps quickly <<annotating-documents,annotating text>> with that label.
 If missing or already used by another label, the label will not have any `shortcut_key`.
 
 `color` and `shortcut_key` are optional.

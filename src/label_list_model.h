@@ -52,7 +52,7 @@ public:
 
   /// Check that `shortcut` is a valid `shortcutKey` for the label at `index`
 
-  /// Valid if it is a single lowercase letter not used by another label.
+  /// Valid if it matches the allowed pattern and is not used by another label.
   bool isValidShortcut(const QString& shortcut, const QModelIndex& index) const;
 
   /// name is not empty and not already used by another label.
@@ -77,8 +77,8 @@ public slots:
 
   /// Set `shortcutKey` for the label at index
 
-  /// Nothing is done if not a single lowercase letter or empty string
-  /// `sortcutKey` set to NULL if `shortcut` is the empty string If shortcut
+  /// Nothing is done if not a a valid shortcut or empty string.
+  /// `sortcutKey` set to NULL if `shortcut` is the empty string. If shortcut
   /// used by another label db constraint will prevent inserting it but signals
   /// will still be emited.
   /// Emits `dataChanged` and `labelsChanged`

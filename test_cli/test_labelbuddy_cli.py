@@ -480,6 +480,25 @@ def test_using_relative_path(labelbuddy, ng, tmp_path, cd_to_tempdir):
     assert con.execute("select count(*) from document").fetchone()[0] == 15
 
 
+def test_import_shortcut_key(labelbuddy, tmp_path):
+    in_f = tmp_path.joinpath("labels.json")
+    in_f.write_text(
+        json.dumps(
+            [
+                {"name": "lab1", "shortcut_key": "a"},
+                {"name": "lab2", "shortcut_key": "A"},
+                {"name": "lab3", "shortcut_key": "8"},
+                {"name": "lab4", "shortcut_key": "#"},
+            ]
+        )
+    )
+    out_f = tmp_path.joinpath("labels_out.json")
+    labelbuddy(":memory:", "--import-labels", in_f, "--export-labels", out_f)
+    exported = json.loads(out_f.read_text())
+    shortcuts = [label.get("shortcut_key") for label in exported]
+    assert shortcuts == ["a", "A", "8", None]
+
+
 def test_import_duplicate_shortcut_key(labelbuddy, tmp_path):
     in_f = tmp_path.joinpath("labels.json")
     in_f.write_text(

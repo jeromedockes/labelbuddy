@@ -152,9 +152,8 @@ LabelListButtons::LabelListButtons(QWidget* parent) : QFrame(parent) {
   colorShortcutLayout->addWidget(shortcutEdit_);
   shortcutEdit_->setMaxLength(1);
   shortcutEdit_->setValidator(&shortcutValidator_);
-  shortcutEdit_->setFixedWidth(
-      textWidth(shortcutEdit_->fontMetrics(), "[a-z]x"));
-  shortcutEdit_->setPlaceholderText("[a-z]");
+  shortcutEdit_->setFixedWidth(textWidth(shortcutEdit_->fontMetrics(), "xxxx"));
+  shortcutEdit_->setToolTip(shortcutKeyPatternDescription());
   colorShortcutLayout->addStretch(1);
 
   auto renameLayout = new QHBoxLayout{};

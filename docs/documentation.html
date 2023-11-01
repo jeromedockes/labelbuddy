@@ -844,7 +844,7 @@ If you want try this before creating your own labels, you can download example l
 </div>
 <div class="paragraph">
 <p>Labels have three attributes: a mandatory <code>name</code>, and an optional <code>color</code> and <code>shortcut_key</code>.
-The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.</p>
+The <code>shortcut_key</code> is a lower-case letter (a-z), an upper-case letter (A-Z) or a digit (0-9) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.</p>
 </div>
 <div class="paragraph">
 <p>As for documents, the format is deduced from the filename extension when importing labels, and is described in <a href="#formats-sec">Appendix A</a>.</p>
@@ -1027,7 +1027,7 @@ If we click a label corresponding to an annotation that already exists at the cu
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>A-Z</kbd> (label&#8217;s <code>shortcut_key</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>A-Z</kbd>, <kbd>0-9</kbd>, <span class="keyseq"><kbd>Shift</kbd>+<kbd>A-Z</kbd></span> (label&#8217;s <code>shortcut_key</code>)</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">set corresponding label for the currently selected region or annotation</p></td>
 </tr>
 <tr>
@@ -1687,7 +1687,7 @@ If missing, a default color will be assigned to the label.</p>
 <code>shortcut_key</code>
 </td>
 <td class="hdlist2">
-<p>A lower-case ASCII letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.
+<p>An ASCII letter (a-z, A-Z) or digit (0-9) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.
 If missing or already used by another label, the label will not have any <code>shortcut_key</code>.</p>
 </td>
 </tr>
@@ -1793,7 +1793,7 @@ For example:</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2023-03-31 18:36:06 +0200
+Last updated 2023-11-01 11:08:02 +0100
 </div>
 </div>
 </body>

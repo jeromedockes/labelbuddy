@@ -111,27 +111,42 @@ void TestLabelListModel::testSetShortcut() {
   model.setDatabase(dbName);
   QSqlQuery query(QSqlDatabase::database(dbName));
   QCOMPARE(model.rowCount(), 3);
+
   query.exec("select shortcut_key from label where id = 1;");
   query.next();
   QCOMPARE(query.value(0).toString(), QString("p"));
+
   auto index = model.index(1, 0);
   model.setLabelShortcut(index, "z");
   query.exec("select shortcut_key from label where id = 2;");
   query.next();
   QCOMPARE(query.value(0).toString(), QString("z"));
+
+  model.setLabelShortcut(index, "Z");
+  query.exec("select shortcut_key from label where id = 2;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("Z"));
+
+  model.setLabelShortcut(index, "8");
+  query.exec("select shortcut_key from label where id = 2;");
+  query.next();
+  QCOMPARE(query.value(0).toString(), QString("8"));
+
   model.setLabelShortcut(model.index(1, 0), "");
   query.exec("select shortcut_key from label where id = 2;");
   query.next();
   QVERIFY(query.value(0).isNull());
+
   model.setLabelShortcut(model.index(1, 0), "/");
   query.exec("select shortcut_key from label where id = 2;");
   query.next();
   QVERIFY(query.value(0).isNull());
-  QVERIFY(query.value(0).isNull());
+
   model.setLabelShortcut(model.index(1, 0), "p");
   query.exec("select shortcut_key from label where id = 2;");
   query.next();
   QVERIFY(query.value(0).isNull());
+
   model.setLabelShortcut(model.index(1, 0), "x");
   query.exec("select shortcut_key from label where id = 2;");
   query.next();
@@ -149,7 +164,9 @@ void TestLabelListModel::testIsValidShortcut() {
   QCOMPARE(model.isValidShortcut("p", idx1), false);
   QCOMPARE(model.isValidShortcut("a", idx0), true);
   QCOMPARE(model.isValidShortcut("a", idx1), true);
-  QCOMPARE(model.isValidShortcut("2", idx0), false);
+  QCOMPARE(model.isValidShortcut("2", idx0), true);
+  QCOMPARE(model.isValidShortcut("A", idx0), true);
+  QCOMPARE(model.isValidShortcut("$", idx0), false);
   model.setLabelShortcut(idx0, "a");
   QCOMPARE(model.isValidShortcut("p", idx1), true);
 }
