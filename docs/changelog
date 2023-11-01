@@ -1,3 +1,5 @@
+labelbuddy (0.0.12) unstable; urgency=medium
+
 labelbuddy (0.0.11) unstable; urgency=medium
 
   * Debian stretch is no longer supported, and packages for Debian

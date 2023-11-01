@@ -12,6 +12,7 @@ docs/modules/ROOT/pages/*.html
 *.pyc
 __pycache__/
 test_cli/data/newsgroups/
+test_cli/.pytest_cache/
 
 build/
 cmake_build/
