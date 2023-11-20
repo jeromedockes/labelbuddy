@@ -40,11 +40,14 @@ void prepareParser(QCommandLineParser& parser);
 /// `flags` make the other columns non-selectable.
 QModelIndexList::const_iterator findFirstInCol0(const QModelIndexList& indices);
 
-/// ATM single lower-case letters. If `acceptEmpty` the empty string also
+/// ATM single characters in [0-9A-Za-z]. If `acceptEmpty` the empty string also
 /// allowed.
 
 /// Empty string can be acceptable to clear the label's shortcut in Dataset tab.
 QRegularExpression shortcutKeyPattern(bool acceptEmpty = false);
+
+/// A human-readable of the allowed values for a shortcut key
+QString shortcutKeyPatternDescription();
 
 /// Display string for the database name (path or helpful message if temp db)
 

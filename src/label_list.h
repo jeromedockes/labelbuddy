@@ -59,10 +59,10 @@ private:
 
 /// Validator for shortcut entered in the shortcut QLineEdit
 
-/// shortcut is valid if it is a single lowercase letter and not used by a
-/// different label. This class needs references to the list view to know which
-/// label is currently selected and to the model to know which shortcuts are
-/// currently used. Before setting the model and view always returns invalid.
+/// This class needs references to the list view to know which label is
+/// currently selected and to the model to know which shortcuts are allowed and
+/// which are currently used. Before setting the model and view always returns
+/// invalid.
 class ShortcutValidator : public QValidator {
 public:
   /// validate a shortcut. `pos` is ignored

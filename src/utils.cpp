@@ -80,7 +80,12 @@ void prepareParser(QCommandLineParser& parser) {
 }
 
 QRegularExpression shortcutKeyPattern(bool acceptEmpty) {
-  return QRegularExpression{acceptEmpty ? "^[a-z]?$" : "^[a-z]$"};
+  return QRegularExpression{acceptEmpty ? "^[0-9A-Za-z]?$" : "^[0-9A-Za-z]$"};
+}
+
+QString shortcutKeyPatternDescription() {
+  return "The shortcut key can be single letter or digit. For example: 'A', "
+         "'a', '6'.";
 }
 
 QString databaseNameDisplay(const QString& databaseName, bool fullPath,
