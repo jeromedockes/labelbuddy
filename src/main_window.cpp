@@ -200,7 +200,7 @@ void LabelBuddy::checkTabFocus() {
 
 void LabelBuddy::addMenubar() {
   auto fileMenu = menuBar()->addMenu("File");
-  auto openDbAction = new QAction("Open database...", this);
+  auto openDbAction = new QAction("Open or create database...", this);
   fileMenu->addAction(openDbAction);
   openDbAction->setShortcut(QKeySequence::Open);
   openedDatabasesSubmenu_ = new QMenu("Opened during this session", this);
