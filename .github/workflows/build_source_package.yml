@@ -28,7 +28,7 @@ jobs:
           echo "ARCHIVE=$ARCHIVE" >> $GITHUB_ENV
 
       - name: Upload package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: labelbuddy-source
           path: ${{ env.ARCHIVE }}*

@@ -51,7 +51,7 @@ jobs:
           echo "PACKAGE=$PACKAGE" >> $GITHUB_ENV
 
       - name: Upload package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: labelbuddy-${{ matrix.release }}
           path: ${{ env.PACKAGE }}*
