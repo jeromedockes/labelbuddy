@@ -14,7 +14,7 @@ antora.yml: antora.yml.template ../data/VERSION.txt
 documentation.html: modules/ROOT/pages/documentation.adoc modules/ROOT/pages/docinfo.html ../data/VERSION.txt $(examples)
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
-keybindings.html: modules/ROOT/pages/keybindings.adoc modules/ROOT/pages/documentation.adoc
+keybindings.html: modules/ROOT/pages/keybindings.adoc modules/ROOT/pages/documentation.adoc antora.yml
 	asciidoctor -b xhtml -a lbversion="$$(cat ../data/VERSION.txt)" $< -o $@
 
 labelbuddy.1: modules/ROOT/pages/manpage.adoc ../data/VERSION.txt

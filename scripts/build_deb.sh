@@ -59,10 +59,6 @@ EOF
 
 DISTRIB_CODENAME="$(lsb_release -cs)"
 
-if [[ $DISTRIB_CODENAME == buster ]]; then
-    sed -i 's/qtbase5-dev/qt5-default/' control
-fi
-
 cat <<'EOF' > copyright
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: labelbuddy

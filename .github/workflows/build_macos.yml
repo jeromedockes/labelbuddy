@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_macos:
-    runs-on: macos-11
+    runs-on: macos-13
     defaults:
       run:
         shell: bash
@@ -29,7 +29,7 @@ jobs:
           ${{ github.workspace }}/scripts/build_dmg.sh
 
       - name: Upload dmg
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dmg
           path: ${{ runner.temp }}/labelbuddy-*.dmg*

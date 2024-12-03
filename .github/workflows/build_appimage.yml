@@ -11,7 +11,7 @@ on:
 jobs:
   build_appimage:
     runs-on: ubuntu-latest
-    container: debian:buster
+    container: debian:bullseye
     defaults:
       run:
         shell: bash
@@ -26,8 +26,8 @@ jobs:
         run: |
           apt-get update
           apt-get install -y cmake
-          apt-get install -y qt5-default
-          apt-get install -y build-essential
+          apt-get install -y g++
+          apt-get install -y qtbase5-dev
           apt-get install -y wget
           apt-get install -y file
 
@@ -38,13 +38,13 @@ jobs:
           scripts/build_appimage.sh
 
       - name: Upload AppImage
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AppImage
           path: ./*.AppImage*
 
       - name: Upload AppDir
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: AppDir
           path: ./AppDir
