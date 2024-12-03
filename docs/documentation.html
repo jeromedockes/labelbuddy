@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="generator" content="Asciidoctor 2.0.16"/>
+<meta name="generator" content="Asciidoctor 2.0.20"/>
 <meta name="author" content="Jérôme Dockès"/>
 <title>labelbuddy documentation</title>
 <style>
@@ -84,10 +84,10 @@ code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;
 ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
 ul,ol{margin-left:1.5em}
 ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
-ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
-ul.square{list-style-type:square}
 ul.circle{list-style-type:circle}
 ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
 ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
 dl dt{margin-bottom:.3125em;font-weight:bold}
 dl dd{margin-bottom:1.25em}
@@ -193,7 +193,8 @@ body.toc2.toc-right{padding-left:0;padding-right:20em}}
 #content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
 details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
 details{margin-left:1.25rem}
-details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;-webkit-tap-highlight-color:transparent}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
 details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
 details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
 details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
@@ -207,13 +208,10 @@ table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
 .admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
-.exampleblock>.content>:first-child{margin-top:0}
-.exampleblock>.content>:last-child{margin-bottom:0}
 .sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
-.sidebarblock>:first-child{margin-top:0}
-.sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
-.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
 .literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
@@ -235,9 +233,8 @@ pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
 table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
 table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
 table.linenotable td.code{padding-left:.75em}
-table.linenotable td.linenos{border-right:1px solid;opacity:.35;padding-right:.5em}
-pre.pygments .lineno{border-right:1px solid;opacity:.35;display:inline-block;margin-right:.75em}
-pre.pygments .lineno::before{content:"";margin-right:-.125em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
 .quoteblock{margin:0 1em 1.25em 1.5em;display:table}
 .quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
 .quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
@@ -274,7 +271,7 @@ table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-c
 table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
 table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
 table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
-table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
 th.halign-center,td.halign-center{text-align:center}
@@ -290,10 +287,11 @@ ol{margin-left:1.75em}
 ul li ol{margin-left:1.5em}
 dl dd{margin-left:1.125em}
 dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
-ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
 ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
 ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
 ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
 ul.checklist>li>p:first-child{margin-left:-1em}
 ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
 ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
@@ -336,8 +334,6 @@ sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
 #footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
 #footnotes .footnote:last-of-type{margin-bottom:0}
 #content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
-.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
-.gist .file-data>table td.line-data{width:99%}
 div.unbreakable{page-break-inside:avoid}
 .big{font-size:larger}
 .small{font-size:smaller}
@@ -394,7 +390,7 @@ b.conum *{color:inherit!important}
 dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
 h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
 p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
-p,blockquote,dt,td.content,span.alt,summary{font-size:1.0625rem}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
 p{margin-bottom:1.25rem}
 .sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
 .exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
@@ -437,11 +433,6 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 <style>
-pre { line-height: 125%; }
-td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
-td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
-span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
 pre.pygments .hll { background-color: #ffffcc }
 pre.pygments { background: #f0f0f0; }
 pre.pygments .tok-c { color: #60a0b0; font-style: italic } /* Comment */
@@ -456,6 +447,7 @@ pre.pygments .tok-c1 { color: #60a0b0; font-style: italic } /* Comment.Single */
 pre.pygments .tok-cs { color: #60a0b0; background-color: #fff0f0 } /* Comment.Special */
 pre.pygments .tok-gd { color: #A00000 } /* Generic.Deleted */
 pre.pygments .tok-ge { font-style: italic } /* Generic.Emph */
+pre.pygments .tok-ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 pre.pygments .tok-gr { color: #FF0000 } /* Generic.Error */
 pre.pygments .tok-gh { color: #000080; font-weight: bold } /* Generic.Heading */
 pre.pygments .tok-gi { color: #00A000 } /* Generic.Inserted */
@@ -599,7 +591,7 @@ pre.pygments .tok-il { color: #40a070 } /* Literal.Number.Integer.Long */
 <div class="paragraph">
 <p>This document describes
 <a href="https://jeromedockes.github.io/labelbuddy"><strong>labelbuddy</strong></a>
-version <strong>0.0.12</strong>.</p>
+version <strong>0.1.0</strong>.</p>
 </div>
 </div>
 </div>
@@ -643,7 +635,7 @@ You can also open the demo database by starting labelbuddy with:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy --demo</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>--demo</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -672,7 +664,7 @@ The short version is:</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy -h</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>-h</code></pre>
 </div>
 </div>
 </div>
@@ -832,7 +824,7 @@ The format is deduced from the filename extension.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy mydatabase.labelbuddy --import-docs mydocs.jsonl</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>mydatabase.labelbuddy<span class="tok-w"> </span>--import-docs<span class="tok-w"> </span>mydocs.jsonl</code></pre>
 </div>
 </div>
 </div>
@@ -857,7 +849,7 @@ The <code>shortcut_key</code> is a lower-case letter (a-z), an upper-case letter
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy mydatabase.labelbuddy --import-labels mylabels.json</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>mydatabase.labelbuddy<span class="tok-w"> </span>--import-labels<span class="tok-w"> </span>mylabels.json</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1171,7 +1163,7 @@ See <a href="#formats-sec">Appendix A</a> for details.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy mydatabase.labelbuddy --export-docs my-annotated-docs.jsonl</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>mydatabase.labelbuddy<span class="tok-w"> </span>--export-docs<span class="tok-w"> </span>my-annotated-docs.jsonl</code></pre>
 </div>
 </div>
 </div>
@@ -1187,7 +1179,7 @@ Here also, the <a href="#formats-sec">format</a> is deduced from the filename ex
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy mydatabase.labelbuddy --export-labels mylabels.json</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>mydatabase.labelbuddy<span class="tok-w"> </span>--export-labels<span class="tok-w"> </span>mylabels.json</code></pre>
 </div>
 </div>
 </div>
@@ -1218,7 +1210,7 @@ The database to open can also be specified when invoking <strong>labelbuddy</str
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy /path/to/my_project.labelbuddy</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>/path/to/my_project.labelbuddy</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1277,7 +1269,7 @@ As an example, to strip the annotations from previously exported documents you c
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations<span class="tok-p">;</span> rm tempdb</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>tempdb<span class="tok-w"> </span>--import-docs<span class="tok-w"> </span>docs.jsonl<span class="tok-w"> </span>--export-docs<span class="tok-w"> </span>unlabelled-docs.jsonl<span class="tok-w"> </span>--no-annotations<span class="tok-p">;</span><span class="tok-w"> </span>rm<span class="tok-w"> </span>tempdb</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1285,7 +1277,7 @@ As an example, to strip the annotations from previously exported documents you c
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>:memory:<span class="tok-w"> </span>--import-docs<span class="tok-w"> </span>docs.jsonl<span class="tok-w"> </span>--export-docs<span class="tok-w"> </span>unlabelled-docs.jsonl<span class="tok-w"> </span>--no-annotations</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1295,7 +1287,7 @@ To shrink the database to occupy a minimal amount of disk space after deleting s
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy --vacuum /path/to/db.labelbuddy</code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>labelbuddy<span class="tok-w"> </span>--vacuum<span class="tok-w"> </span>/path/to/db.labelbuddy</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1303,7 +1295,7 @@ To shrink the database to occupy a minimal amount of disk space after deleting s
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>sqlite3 /path/to/db.labelbuddy <span class="tok-s1">&#39;VACUUM;&#39;</span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="sh"><span></span>sqlite3<span class="tok-w"> </span>/path/to/db.labelbuddy<span class="tok-w"> </span><span class="tok-s1">&#39;VACUUM;&#39;</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1582,20 +1574,20 @@ If provided, <code>metadata</code> must be a JSON object (mapping) containing us
 <div class="listingblock">
 <div class="title">Importing 2 documents from a <code>.json</code> file.</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">},</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">      </span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">      </span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">]</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span>
+<span class="tok-w">  </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">},</span>
+<span class="tok-w">  </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">      </span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;example.org&quot;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+<span class="tok-w">  </span><span class="tok-p">}</span>
+<span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1610,10 +1602,10 @@ Moreover, as the documents are always in the same order (the order in which they
 <div class="listingblock">
 <div class="title">Another example of 2 documents in a <code>.json</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">13</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">9</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">6</span><span class="tok-p">},{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">27</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">24</span><span class="tok-p">,</span><span class="tok-nt">&quot;extra_data&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;1&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">26</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">23</span><span class="tok-p">}],</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;baa2e7f8d7efb87cc449f5f1d3ecd6aa&quot;</span><span class="tok-p">},</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">}],</span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;c27b0dbfabf831afaf8bafa0c727cf97&quot;</span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">]</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">13</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">9</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">6</span><span class="tok-p">},{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">27</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">24</span><span class="tok-p">,</span><span class="tok-nt">&quot;extra_data&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;1&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">26</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">23</span><span class="tok-p">}],</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;baa2e7f8d7efb87cc449f5f1d3ecd6aa&quot;</span><span class="tok-p">},</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">}],</span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;c27b0dbfabf831afaf8bafa0c727cf97&quot;</span><span class="tok-p">}</span>
+<span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1635,8 +1627,8 @@ For example:</p>
 <div id="import-docs-jsonl-example" class="listingblock">
 <div class="title">Importing 2 documents from a <code>.jsonl</code> file.</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">}}</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">}</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-p">{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">}}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1648,8 +1640,8 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Another example of 2 documents in a <code>.jsonl</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">13</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">9</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">6</span><span class="tok-p">},{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">27</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">24</span><span class="tok-p">,</span><span class="tok-nt">&quot;extra_data&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;1&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">26</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">23</span><span class="tok-p">}],</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;baa2e7f8d7efb87cc449f5f1d3ecd6aa&quot;</span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">}],</span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;c27b0dbfabf831afaf8bafa0c727cf97&quot;</span><span class="tok-p">}</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">13</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">10</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">9</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">6</span><span class="tok-p">},{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">27</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">24</span><span class="tok-p">,</span><span class="tok-nt">&quot;extra_data&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;1&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">26</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">23</span><span class="tok-p">}],</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;😀 the text of document 1\nsome text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;baa2e7f8d7efb87cc449f5f1d3ecd6aa&quot;</span><span class="tok-p">}</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;annotations&quot;</span><span class="tok-p">:[{</span><span class="tok-nt">&quot;end_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;end_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">20</span><span class="tok-p">,</span><span class="tok-nt">&quot;label_name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_byte&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">,</span><span class="tok-nt">&quot;start_char&quot;</span><span class="tok-p">:</span><span class="tok-mi">12</span><span class="tok-p">}],</span><span class="tok-nt">&quot;display_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;title 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;list_title&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the title of document 2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;metadata&quot;</span><span class="tok-p">:{</span><span class="tok-nt">&quot;id&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;doc-2&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;source&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;example.org&quot;</span><span class="tok-p">},</span><span class="tok-nt">&quot;text&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;the text of document 2\nmore text\nthe end\n&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;utf8_text_md5_checksum&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;c27b0dbfabf831afaf8bafa0c727cf97&quot;</span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1730,16 +1722,16 @@ Each label&#8217;s object must have the key <code>name</code> and optionally <co
 <div class="listingblock">
 <div class="title">Importing 2 labels from a <code>.json</code> file</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">},</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;orange&quot;</span><span class="tok-w"></span>
-<span class="tok-w">  </span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">]</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span>
+<span class="tok-w">  </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">},</span>
+<span class="tok-w">  </span><span class="tok-p">{</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">    </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;orange&quot;</span>
+<span class="tok-w">  </span><span class="tok-p">}</span>
+<span class="tok-p">]</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1749,17 +1741,17 @@ This makes them easier to read and labels files are very short so there is no ne
 <div class="listingblock">
 <div class="title">Another example of 2 labels in a <code>.json</code> file (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;#aec7e8&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-p">},</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-p">{</span><span class="tok-w"></span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;#ffa500&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-w"></span>
-<span class="tok-w">        </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span><span class="tok-w"></span>
-<span class="tok-w">    </span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">]</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">[</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;#aec7e8&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span>
+<span class="tok-w">    </span><span class="tok-p">},</span>
+<span class="tok-w">    </span><span class="tok-p">{</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;#ffa500&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span>
+<span class="tok-w">        </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span>
+<span class="tok-w">    </span><span class="tok-p">}</span>
+<span class="tok-p">]</span></code></pre>
 </div>
 </div>
 </div>
@@ -1772,8 +1764,8 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Importing 2 labels from a <code>.jsonl</code> file.</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;orange&quot;</span><span class="tok-p">}</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">}</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">,</span><span class="tok-w"> </span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-w"> </span><span class="tok-s2">&quot;orange&quot;</span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1782,8 +1774,8 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Another example of 2 labels in a <code>.jsonl</code> file (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;#aec7e8&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">}</span><span class="tok-w"></span>
-<span class="tok-p">{</span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;#ffa500&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">}</span><span class="tok-w"></span></code></pre>
+<pre class="pygments highlight nowrap"><code data-lang="json"><span></span><span class="tok-p">{</span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;#aec7e8&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Word&quot;</span><span class="tok-p">}</span>
+<span class="tok-p">{</span><span class="tok-nt">&quot;color&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;#ffa500&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;name&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;Number&quot;</span><span class="tok-p">,</span><span class="tok-nt">&quot;shortcut_key&quot;</span><span class="tok-p">:</span><span class="tok-s2">&quot;n&quot;</span><span class="tok-p">}</span></code></pre>
 </div>
 </div>
 </div>

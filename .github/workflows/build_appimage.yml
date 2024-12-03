@@ -11,7 +11,7 @@ on:
 jobs:
   build_appimage:
     runs-on: ubuntu-latest
-    container: debian:buster
+    container: debian:bullseye
     defaults:
       run:
         shell: bash
