@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_macos:
-    runs-on: macos-14
+    runs-on: macos-15
     defaults:
       run:
         shell: bash
@@ -22,7 +22,6 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: '5.15.*'
-          setup-python: 'false'
 
       - name: Build dmg
         working-directory: ${{ runner.temp }}
