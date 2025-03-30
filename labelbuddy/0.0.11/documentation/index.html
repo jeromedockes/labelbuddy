@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>labelbuddy documentation :: labelbuddy</title>
+    <link rel="canonical" href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/documentation/">
+    <meta name="generator" content="Antora 3.1.9">
+    <link rel="stylesheet" href="../../../_/css/site.css">
+    <script>var uiRootPath = '../../../_'</script>
+<link rel="icon" href="../../../labelbuddy/current/_images/labelbuddy.svg" type="image/x-icon">
+  </head>
+  <body class="article">
+<header class="header">
+  <nav class="navbar">
+      <div class="navbar-brand">
+          <a class="navbar-item" href="https://jeromedockes.github.io/labelbuddy">labelbuddy</a>
+          <button class="navbar-burger" data-target="topbar-nav">
+              <span></span>
+              <span></span>
+              <span></span>
+          </button>
+      </div>
+      <div id="topbar-nav" class="navbar-menu">
+          <div class="navbar-end">
+              <!-- <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy"><img src="../../../_/img/gh-light.png"></a> -->
+              <a class="navbar-item" href="https://github.com/jeromedockes/labelbuddy">labelbuddy on GitHub</a>
+          </div>
+      </div>
+  </nav>
+</header>
+<div class="body">
+<div class="nav-container" data-component="labelbuddy" data-version="0.0.11">
+  <aside class="nav">
+    <div class="panels">
+<div class="nav-panel-menu is-active" data-panel="menu">
+  <nav class="nav-menu">
+    <h3 class="title"><a href="../">labelbuddy</a></h3>
+<ul class="nav-list">
+  <li class="nav-item" data-depth="0">
+<ul class="nav-list">
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../installation/">Installation</a>
+  </li>
+  <li class="nav-item is-current-page" data-depth="1">
+    <a class="nav-link" href="./">Documentation</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../manpage/">man page</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../screenshots/">Screenshots</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../keybindings/">Key bindings</a>
+  </li>
+  <li class="nav-item" data-depth="1">
+    <a class="nav-link" href="../examples/">Examples</a>
+  </li>
+</ul>
+  </li>
+</ul>
+  </nav>
+</div>
+<div class="nav-panel-explore" data-panel="explore">
+  <div class="context">
+    <span class="title">labelbuddy</span>
+    <span class="version">0.0.11</span>
+  </div>
+  <ul class="components">
+    <li class="component is-current">
+      <a class="title" href="../../current/">labelbuddy</a>
+      <ul class="versions">
+        <li class="version is-latest">
+          <a href="../../current/">0.1.0</a>
+        </li>
+        <li class="version is-current">
+          <a href="../">0.0.11</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.10/">0.0.10</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.9/">0.0.9</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.8/">0.0.8</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.7/">0.0.7</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar" role="navigation">
+<button class="nav-toggle"></button>
+  <a href="../../current/" class="home-link"></a>
+<nav class="breadcrumbs" aria-label="breadcrumbs">
+  <ul>
+    <li><a href="../">labelbuddy</a></li>
+    <li><a href="./">Documentation</a></li>
+  </ul>
+</nav>
+<div class="page-versions">
+  <button class="version-menu-toggle" title="Show other versions of page">0.0.11</button>
+  <div class="version-menu">
+    <a class="version" href="../../current/documentation/">0.1.0</a>
+    <a class="version is-current" href="./">0.0.11</a>
+    <a class="version" href="../../0.0.10/documentation/">0.0.10</a>
+    <a class="version" href="../../0.0.9/documentation/">0.0.9</a>
+    <a class="version" href="../../0.0.8/documentation/">0.0.8</a>
+    <a class="version" href="../../0.0.7/documentation/">0.0.7</a>
+  </div>
+</div>
+</div>
+  <div class="content">
+<aside class="toc sidebar" data-title="Contents" data-levels="3">
+  <div class="toc-menu"></div>
+</aside>
+<article class="doc">
+<h1 class="page">labelbuddy documentation</h1>
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>This document describes
+<strong>labelbuddy</strong>
+version <strong>0.0.11</strong>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="introduction"><a class="anchor" href="#introduction"></a>1. Introduction</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>labelbuddy</strong> is an <a href="https://github.com/jeromedockes/labelbuddy/blob/main/LICENSE.txt">open-source</a> desktop Graphical User Interface (GUI) application for annotating documents.
+It can be used for example for Named Entity Recognition, sentiment analysis, document classification, etc.</p>
+</div>
+<div class="paragraph">
+<p>It is easy to <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation">install</a> and use, and can efficiently handle many documents and annotations.</p>
+</div>
+<div class="sect2">
+<h3 id="labelbuddy-compared-to-other-annotation-tools"><a class="anchor" href="#labelbuddy-compared-to-other-annotation-tools"></a>1.1. labelbuddy compared to other annotation tools</h3>
+<div class="paragraph">
+<p>There are many tools for annotating documents.
+Most of them, such as <a href="https://doccano.github.io/doccano/">doccano</a> and <a href="https://labelstud.io/">labelstudio</a>, are meant to run on a web server and be used through a web browser.
+If you are crowdsourcing annotations and want many users to annotate documents online this is necessary.</p>
+</div>
+<div class="paragraph">
+<p>However if you do not plan to host such a tool on a server, <strong>labelbuddy</strong> may be a simpler and more lightweight solution.</p>
+</div>
+<div class="paragraph">
+<p>A <a href="#managing-projects">labelbuddy database</a> is just an ordinary file that you can copy, share or delete like any other file.
+Therefore managing annotations created with <strong>labelbuddy</strong> is just as simple as if the annotations were stored in plain text formats or <strong>LibreOffice Calc</strong> or <strong>Microsoft Excel</strong> spreadsheets.
+But being a dedicated tool, <strong>labelbuddy</strong> provides a convenient interface for creating and editing the annotations.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> works completely offline, making it suitable to annotate confidential data.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="quick-start"><a class="anchor" href="#quick-start"></a>1.2. Quick start</h3>
+<div class="paragraph">
+<p>Start by <a href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/installation">downloading</a> <strong>labelbuddy</strong>.
+Then to give it a try, start <strong>labelbuddy</strong> and select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> in the menu.
+This will open a temporary demo database pre-loaded with a few example documents and labels.
+You can play around with <strong>labelbuddy</strong>’s features in this temporary database.
+You can also open the demo database by starting labelbuddy with:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy --demo</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If you decide to start creating annotations that you want to keep, read on to the next section.
+It explains how to open a new (persistent) database and import your documents and labels.
+The short version is:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create a file for your documents that looks  <a href="#import-docs-jsonl-example">like this</a>.</p>
+</li>
+<li>
+<p>Create a file for your labels that looks <a href="#import-labels-txt-example">like this</a> (optional&#8201;&#8212;&#8201;labels can be created from within <strong>labelbuddy</strong>).</p>
+</li>
+<li>
+<p>Start <strong>labelbuddy</strong> and open a new database (<span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Open</b></span> or pass a file name on the command-line).</p>
+</li>
+<li>
+<p>Import the labels and documents and start labelling!</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For a short description of the <a href="#command-line-interface">command line</a> interface run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy -h</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="using-labelbuddy"><a class="anchor" href="#using-labelbuddy"></a>2. Using labelbuddy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This section describes how to annotate text with <strong>labelbuddy</strong>.
+We start with a list of terms used in the rest of the documentation:</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+Document
+</td>
+<td class="hdlist2">
+<p>A piece of text that we want to annotate, along with optional attributes such as a <code>display_title</code>.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Label
+</td>
+<td class="hdlist2">
+<p>A term that can be used to annotate (tag) documents or portions of text.
+Labels can be for example types of named entities such as &#8220;City&#8221;, Part-Of-Speech tags such as &#8220;Verb&#8221;, etc.
+Labels can also be given a <code>color</code> and a <code>shortcut_key</code>.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Character
+</td>
+<td class="hdlist2">
+<p>A <a href="https://home.unicode.org">Unicode</a> code point (<strong>labelbuddy</strong> provides annotation positions both as Unicode character indices and as byte indices in the <strong>UTF-8</strong> encoded text, see <a href="#unicode-overview">details</a>).</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Annotation
+</td>
+<td class="hdlist2">
+<p>A label attached to a specific portion of text in a document.
+For example, the first 5 characters of document #2 tagged with the label &#8220;City&#8221; constitute an annotation.
+Additional free-form text can also be attached to annotations.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Database
+</td>
+<td class="hdlist2">
+<p>A binary file, created and modified by <strong>labelbuddy</strong>, containing labels, documents and annotations.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+Importing and exporting data
+</td>
+<td class="hdlist2">
+<p>Reading (writing) labels, documents and annotations from (to) files in non-binary formats that can easily be read by humans or other tools, such as JSON.</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The labelbuddy interface is organized around three tabs: the <strong>&#8220;Import & Export&#8221;</strong> tab for importing and exporting labels, documents and annotations, the <strong>&#8220;Labels & Documents&#8221;</strong> tab to get an overview and manage documents and labels in the database, and the <strong>&#8220;Annotate&#8221;</strong> tab is where annotations are edited.</p>
+</div>
+<div class="paragraph">
+<p>Documents and labels can be imported into a <strong>labelbuddy</strong> database from plain text, JSON or JSONLines, as described in <a href="#formats-sec">Appendix A</a>.
+Once they are imported, you can annotate the documents.
+Finally, you can export your annotations.</p>
+</div>
+<div class="paragraph">
+<p>The import and export formats are the same, meaning that exported labels, documents or annotations can readily be imported back into any <strong>labelbuddy</strong> database.</p>
+</div>
+<div class="paragraph">
+<p>Importing and exporting data can be done from the graphical or the <a href="#command-line-interface">command line</a> interface.
+Labels, documents and annotations that are already in the database are skipped if you try to import them again (but you can import new annotations for an existing document).</p>
+</div>
+<div class="sect2">
+<h3 id="importing-documents-and-annotations"><a class="anchor" href="#importing-documents-and-annotations"></a>2.1. Importing documents (and annotations)</h3>
+<div class="paragraph">
+<p>In the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file containing the documents you plan to annotate.
+If you want try this before creating your own, you can download example documents from the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> website</a>.</p>
+</div>
+<div class="paragraph">
+<p>When importing a new document into <strong>labelbuddy</strong>, several attributes can be specified:</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>text</code>
+</td>
+<td class="hdlist2">
+<p>The text (content) of the document&#8201;&#8212;&#8201;mandatory.</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>All other attributes are optional:</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>metadata</code>
+</td>
+<td class="hdlist2">
+<p>A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author&#8230;&#8203;
+This data is not used by <strong>labelbuddy</strong>.
+It is stored and bundled with the document when you export it.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>display_title</code>
+</td>
+<td class="hdlist2">
+<p>Displayed in the <strong>&#8220;Annotate&#8221;</strong> tab when annotating the document.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>list_title</code>
+</td>
+<td class="hdlist2">
+<p>Displayed in the document list in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can use the <code>display_title</code> to display essential metadata or short instructions specific to a document.
+It can contain links by using an html <code>&lt;a&gt;</code> tag.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This information can be provided in <a href="#formats-sec">several formats</a>.
+The format is deduced from the filename extension.</p>
+</div>
+<div class="paragraph">
+<p>Importing documents and annotations can also be done from the <a href="#command-line-interface">command line</a>, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy mydatabase.labelbuddy --import-docs mydocs.jsonl</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="importing-or-creating-labels"><a class="anchor" href="#importing-or-creating-labels"></a>2.2. Importing or creating labels</h3>
+<div class="paragraph">
+<p>To import labels, click <b class="button">Import labels</b> in the <strong>&#8220;Import & Export&#8221;</strong> tab and select a file.
+If you want try this before creating your own labels, you can download example labels from the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> examples page</a>.</p>
+</div>
+<div class="paragraph">
+<p>Labels have three attributes: a mandatory <code>name</code>, and an optional <code>color</code> and <code>shortcut_key</code>.
+The <code>shortcut_key</code> is a lower-case letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.</p>
+</div>
+<div class="paragraph">
+<p>As for documents, the format is deduced from the filename extension when importing labels, and is described in <a href="#formats-sec">Appendix A</a>.</p>
+</div>
+<div class="paragraph">
+<p>It is also possible to manually enter a new label or to change the labels&#8217; name, color and shortcut key from within the GUI application, in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+</div>
+<div class="paragraph">
+<p>Labels can also be imported using the <a href="#command-line-interface">command line</a>, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy mydatabase.labelbuddy --import-labels mylabels.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>In the <strong>&#8220;Labels & Documents&#8221;</strong> tab, labels can be reordered by dragging and dropping them.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="annotating-documents"><a class="anchor" href="#annotating-documents"></a>2.3. Annotating documents</h3>
+<div class="paragraph">
+<p>Once you have imported labels and documents you can see them in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+</div>
+<div class="paragraph">
+<p>You can filter which documents are shown by the labels they have been annotated with.
+In addition there is a search bar to filter documents based on their content (possibly combined with the filter set on their labels).
+The search is performed on the titles, the metadata, and the documents' text.
+At the moment the search is very basic.
+It looks for exact matches.
+By default, search is case-insensitive (although unfortunately that only applies to ASCII characters), and leading and trailing whitespace is stripped from the search term or phrase.
+If the search term contains any upper-case letters, the search becomes case-sensitive.
+If the search term is wrapped in <code>""</code> or <code>''</code>, whitespace is preserved and the search is case-sensitive.
+The surrounding quotes will be removed but can be doubled to search for a term wrapped in literal quotes in the documents.</p>
+</div>
+<div class="paragraph">
+<p>You can delete labels or documents, add labels and change the color and shortcut associated with each label.
+You can drag and drop labels to change their order.
+You then go to the <strong>&#8220;Annotate&#8221;</strong> tab.
+(To jump to annotating a specific document in the list you can double-click it or select it and either press <kbd>Enter</kbd> or click <b class="button">Annotate</b>.)</p>
+</div>
+<div class="paragraph">
+<p>Once in the <strong>&#8220;Annotate&#8221;</strong> tab, use the mouse to select the region you want to annotate and click on the appropriate label.
+It is also possible to do the same thing with the keyboard.
+Press <kbd>/</kbd> or <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>F</kbd></span> to search for the term you want to annotate and the first match will be selected.
+The selection can be adusted with the keyboard using the bindings described <a href="#keybindings-summary">below</a>.
+Then press the shortcut key associated with the label you want to set.</p>
+</div>
+<div class="paragraph">
+<p>You can also attach additional information to the annotation by typing it in the <strong>&#8220;Extra annotation data&#8221;</strong> box.
+You can use this to add a comment to the annotation.
+You can also use the extra data for free-form labelling.
+For example, you can enter a number, the normalized name of an entity, a URI, etc.&#8201;&#8212;&#8201;anything that an Information Extraction system should find in the labelled region.
+The <strong>&#8220;Extra annotation data&#8221;</strong> box offers a list of possible completions: all the extra data values for annotations with the same label in the current document.
+This makes it easy to link different annotations, by giving them the same extra data, which thus acts as an identifier.</p>
+</div>
+<div class="paragraph">
+<p>Once you have created annotations, you can select any of them by clicking it.
+It becomes <span class="yellow-bg active-anno-bold">bold and underlined</span> and you can edit its additional data, change its label by clicking on a different one or remove the annotation by clicking <b class="button">Delete annotation</b>.
+You can also do this with the keyboard: jump to the next annotation with the <kbd>Space</kbd> key and change its label with a label shortcut or remove it with <kbd>Backspace</kbd>.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+You can control whether the selected annotation is displayed in a bold font by checking or unchecking  <span class="menuseq"><b class="menu">Preferences</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Show selected annotation in bold font</b></span>.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you are doing document classification and need global labels for the documents, just annotate any arbitrary portion of text.
+If you need to tag some document status such as "approved", "in progress", etc., add a label for that!
+You can then use it to filter documents in the <strong>&#8220;Annotate&#8221;</strong> tab.
+If you need free-form labels, use a generic label name and enter the free-form annotation in the <strong>&#8220;Extra annotation data&#8221;</strong> box.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>A list of all annotations for the current document is shown on the right.
+The label is displayed first, then the selected text surrounded by its context.
+Any extra text attached to the annotation (from the <strong>&#8220;Extra annotation data&#8221;</strong> box) is shown in an italic font next to the label name.
+You can use this list to navigate the annotations in the document: if you click an annotation in the list it becomes active and the text is scrolled so that it appears on the screen.
+Conversely, if you create a new annotation or click on an annotation in the text it also becomes selected in the annotations list on the right.</p>
+</div>
+<div class="sect3">
+<h4 id="overlapping-annotations"><a class="anchor" href="#overlapping-annotations"></a>2.3.1. Overlapping annotations</h4>
+<div class="paragraph">
+<p>When two or more annotations overlap, the whole group is shown in <span class="annotation-cluster">white text on a gray background</span>.
+As you click the gray region or press the <kbd>Space</kbd> key, each <span class="annotation-cluster">annotation is </span><span class="active-anno-bold yellow-bg">selected</span><span class="annotation-cluster"> in turn</span> and shown in its label&#8217;s color.
+You can also see and select these annotations from the annotations list on the right of the <strong>&#8220;Annotate&#8221;</strong> tab.</p>
+</div>
+<div class="paragraph">
+<p>The status bar on the bottom of the window shows a caret (&#8220;^&#8221;) next to the label name when the selected annotation is the first of its overlapping group (and &#8220;^^&#8221; when it is the first in the document).</p>
+</div>
+<div class="paragraph">
+<p>If we click a new label while an annotation is selected, a new annotation is created on top, at the same position as the previously selected annotation, with the new label.
+It is not possible to have two different annotations with the same label at the exact same (start and end) position.
+If we click a label corresponding to an annotation that already exists at the current position, the existing annotation is selected instead of creating a new one.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="keybindings-summary"><a class="anchor" href="#keybindings-summary"></a>2.3.2. Summary of key bindings in the &#8220;Annotate&#8221; tab</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Searching and navigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Ctrl</kbd> and scroll the mouse</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">zoom or dezoom the text (for persistent settings, use <span class="menuseq"><b class="menu">Preferences</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Choose font</b></span> )</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>, <kbd>/</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">search</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Enter</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">next search match</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Enter</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">previous search match</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>J</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>N</kbd></span>, <kbd>Down</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll down one line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>K</kbd></span>, <span class="keyseq"><kbd>Ctrl</kbd>+<kbd>P</kbd></span>, <kbd>Up</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll up one line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>D</kbd></span>, <kbd>PageDown</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll down one page</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>U</kbd></span>, <kbd>PageUp</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">scroll up one page</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>L</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">cycle between placing the cursor at the center, top and bottom of the window</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Home</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to start of document</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>End</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to end of document</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Manipulating annotations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>A-Z</kbd> (label&#8217;s <code>shortcut_key</code>)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">set corresponding label for the currently selected region or annotation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Backspace</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">remove selected annotation</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Alt</kbd>+<kbd>E</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">edit the extra annotation data (then press <kbd>Enter</kbd> to return focus to the text)</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Space</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jump to next annotation and select it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Space</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">jump to previous annotation and select it</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>Esc</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">un-select selected annotation</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Manipulating the text selection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>]</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>word</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>[</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>word</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>}</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>word</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>{</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>word</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>]</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>character</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>[</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>end</strong> of the selection by one <strong>character</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>}</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>character</strong> to the <strong>right</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>{</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">move the <strong>beginning</strong> of the selection by one <strong>character</strong> to the <strong>left</strong></p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Right</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select next character</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Left</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select previous character</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Right</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select next word</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Left</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select previous word</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Down</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select next line</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><span class="keyseq"><kbd>Shift</kbd>+<kbd>Up</kbd></span></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">select previous line</p></td>
+</tr>
+</tbody>
+</table>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 66.6667%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top" colspan="2">Navigating documents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>&gt;</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to next document</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><kbd>&lt;</kbd></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">go to previous document</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Underlined letters in the GUI indicate <kbd>Alt</kbd>-key shortcuts: for example in the <strong>&#8220;Labels & Documents&#8221;</strong> tab &#8220;<span class="underline">N</span>ew label&#8221; indicates you can jump to creating a new label by pressing <span class="keyseq"><kbd>Alt</kbd>+<kbd>N</kbd></span>.
+(These shortcuts are not available on MacOS.)</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="exporting-documents-and-annotations"><a class="anchor" href="#exporting-documents-and-annotations"></a>2.4. Exporting documents and annotations</h3>
+<div class="paragraph">
+<p>Once you are satisfied with your annotations you can export them in order to share them or use them in other applications.</p>
+</div>
+<div class="paragraph">
+<p>Back in the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Export docs &amp; annotations</b>.
+You can choose to export all documents or only those that have annotations.
+You can choose to export the text of the documents or not.
+If you do not export the text, the documents can be identified from metadata you may have associated with them, or by the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the text that is always exported.
+You can also choose to only export the documents, without the annotations.</p>
+</div>
+<div class="paragraph">
+<p>When clicking <b class="button">Export docs &amp; annotations</b> you are asked to select a file and the resulting format will depend on the filename extension.
+The export format is the same as the import format.
+Exported documents and annotations can thus be imported back into a <strong>labelbuddy</strong> database.
+See <a href="#formats-sec">Appendix A</a> for details.</p>
+</div>
+<div class="paragraph">
+<p>Exporting documents and annotations can also be done from the <a href="#command-line-interface">command line</a>, for example:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy mydatabase.labelbuddy --export-docs my-annotated-docs.jsonl</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="exporting-labels"><a class="anchor" href="#exporting-labels"></a>2.5. Exporting labels</h3>
+<div class="paragraph">
+<p>You may also want to export labels, especially if you created them or edited their colors or shortcut keys within <strong>labelbuddy</strong>.
+In the <strong>&#8220;Import & Export&#8221;</strong> tab, click <b class="button">Export labels</b>.
+Here also, the <a href="#formats-sec">format</a> is deduced from the filename extension.</p>
+</div>
+<div class="paragraph">
+<p>This can also be done from the <a href="#command-line-interface">command line</a>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy mydatabase.labelbuddy --export-labels mylabels.json</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="managing-projects"><a class="anchor" href="#managing-projects"></a>2.6. Managing projects</h3>
+<div class="paragraph">
+<p>Each <strong>labelbuddy</strong> database (containing labels, documents and annotations) is an <a href="https://www.sqlite.org">SQLite</a> database.
+That is a single regular file on your disk that you can copy, backup, or share, like any other file.
+Therefore managing <strong>labelbuddy</strong> data is as simple as if you were storing annotations in a <strong>LibreOffice Calc</strong> or <strong>Microsoft Excel</strong> spreadsheet, for example.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Using <strong>SQLite</strong> (with the <a href="https://sqlite.org/cli.html">SQLite command-line interface</a> or one of the many programming languages that provide <strong>SQLite</strong> bindings) you can also open a connection directly to the database to query it or even modify it.
+If you do so, set <code>PRAGMA foreign_keys = ON</code>.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>After starting <strong>labelbuddy</strong>, you can create a new database or open an existing one by selecting <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Open</b></span>.
+If you used <strong>labelbuddy</strong> before, by default at startup it opens the last database that you used.
+The database to open can also be specified when invoking <strong>labelbuddy</strong> from the command line:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy /path/to/my_project.labelbuddy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The path to the current database is displayed in the <strong>&#8220;Import & Export&#8221;</strong> tab.</p>
+</div>
+<div class="paragraph">
+<p>If you just want to give <strong>labelbuddy</strong> a try and do not have documents or labels yet, you can also select <span class="menuseq"><b class="menu">File</b>&#160;<i class="fa fa-angle-right caret"></i> <b class="menuitem">Demo</b></span> to open a temporary database pre-loaded with a few examples.</p>
+</div>
+<div class="paragraph">
+<p>As it is easy to create, copy and delete databases (an empty <strong>labelbuddy</strong> database is just 60K), and to copy labels, documents and annotations from one to another, you have some freedom in the organization of annotation work.
+For example, you can break down the annotations into several files to reflect the structure of your project or to limit the number of documents in each <strong>labelbuddy</strong> file.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="command-line-interface"><a class="anchor" href="#command-line-interface"></a>2.7. Command-line interface</h3>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> can also be used from the command line to create databases, import and export labels, documents and annotations without opening the GUI.
+See the <code>labelbuddy(1)</code> <a href="../manpage/" class="xref page"><strong>man</strong> page</a>, or <code>labelbuddy -h</code> for a short list of options reproduced here:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-none hljs">Usage: labelbuddy [options] [database]
+Annotate documents.
+
+Options:
+  -h, --help                              Displays this help.
+  -v, --version                           Displays version information.
+  --demo                                  Open a temporary demo database with
+                                          pre-loaded docs.
+  --import-labels &lt;labels file&gt;           Labels file to import in database.
+  --import-docs &lt;docs file&gt;               Docs &amp; annotations file to import in
+                                          database.
+  --export-labels &lt;exported labels file&gt;  Labels file to export to.
+  --export-docs &lt;exported docs file&gt;      Docs &amp; annotations file to export to.
+  --labelled-only                         Export only labelled documents.
+  --no-text                               Do not include doc text when
+                                          exporting.
+  --no-annotations                        Do not include annotations when
+                                          exporting.
+  --vacuum                                Repack database into minimal amount
+                                          of disk space.
+
+Arguments:
+  database                                Database to open.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>If any of the <code>import</code> or <code>export</code> options are used, <strong>labelbuddy</strong> does not start a GUI but performs the required import or export operations and exits.
+It is possible to specify these options several times.
+To use these options, the database path must be provided explicitly.</p>
+</div>
+<div class="paragraph">
+<p>Labels are imported first, then documents, then export operations are performed.
+Therefore it is possible to import documents and then export them in one execution of <strong>labelbuddy</strong>.
+As an example, to strip the annotations from previously exported documents you could run:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy tempdb --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations; rm tempdb</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Or even (using <strong>SQLite</strong>'s in-memory database):</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy :memory: --import-docs docs.jsonl --export-docs unlabelled-docs.jsonl --no-annotations</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Regarding <code>vacuum</code>: when data is deleted from an <strong>SQLite</strong> database, the file does not shrink.
+The freed up space is not lost; it is kept and reused when new data is added to the database.
+To shrink the database to occupy a minimal amount of disk space after deleting some documents, we can use:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">labelbuddy --vacuum /path/to/db.labelbuddy</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>or equivalently:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-sh hljs" data-lang="sh">sqlite3 /path/to/db.labelbuddy 'VACUUM;'</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>See more details <a href="https://sqlite.org/lang_vacuum.html">here</a>.
+When the <code>vacuum</code> option is used, other options are ignored and <strong>labelbuddy</strong> shrinks the database then exits without starting the GUI.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="conclusion"><a class="anchor" href="#conclusion"></a>3. Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><strong>labelbuddy</strong> was created using C++, <a href="https://www.qt.io/">Qt</a>, <a href="https://www.sqlite.org">SQLite</a>, tools from the <a href="https://www.gnu.org/">GNU project</a>, and more.
+The documentation relies on <a href="https://asciidoctor.org/">asciidoctor</a> and <a href="https://antora.org/">antora</a>.</p>
+</div>
+<div class="paragraph">
+<p>If you find a bug or have suggestions to improve <strong>labelbuddy</strong>, kindly open an issue on the <a href="https://github.com/jeromedockes/labelbuddy">labelbuddy GitHub repository</a>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="formats-sec"><a class="anchor" href="#formats-sec"></a>Appendix A: Documents and labels file formats</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="general-remarks"><a class="anchor" href="#general-remarks"></a>A.1. General remarks</h3>
+<div class="paragraph">
+<p>Documents, annotations and labels can be imported (exported) from (to) several simple formats, described below.
+In all cases, the format is deduced from the filename extension.</p>
+</div>
+<div class="paragraph">
+<p>The examples shown in this section can be found as separate files on the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> examples page</a>.
+Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <a href="#file-formats-for-documents-and-annotations">the next section</a>.
+However note that it is possible to export document metadata and annotations without the documents' text to save storage space.</p>
+</div>
+<div class="paragraph">
+<p><strong>labelbuddy</strong> expects all the files it imports to be encoded with <a href="https://en.wikipedia.org/wiki/UTF-8"><strong>UTF-8</strong></a>.
+Note that <a href="https://en.wikipedia.org/wiki/ASCII">ASCII</a> files are also valid <strong>UTF-8</strong>.</p>
+</div>
+<div class="paragraph">
+<p>All files produced by <strong>labelbuddy</strong> are <strong>UTF-8</strong> encoded.</p>
+</div>
+<div class="paragraph">
+<p>The import and export formats of <strong>labelbuddy</strong> are the same, meaning that once you have exported documents (and annotations) or labels to a file, you can always import that file back into any <strong>labelbuddy</strong> database.</p>
+</div>
+<div class="paragraph">
+<p>Note that the content (text) of the documents must be in plain text.
+Other formats will need to be converted to text, for example using <a href="https://www.xpdfreader.com/pdftotext-man.html">pdftotext</a> if they are in PDF, or <a href="https://pandoc.org/">pandoc</a> (specifying the target format as "plain") for many other formats.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="file-formats-for-documents-and-annotations"><a class="anchor" href="#file-formats-for-documents-and-annotations"></a>A.2. File formats for documents and annotations</h3>
+<div class="paragraph">
+<p>Documents and annotations are kept together in imported or exported files.
+When importing new documents (and possibly their annotations), each document will have a <code>text</code> attribute containing its content.
+For documents that are already in the database, it is possible to import new annotations from a file where the <code>text</code> is omitted, if the documents have the <code>utf8_text_md5_checksum</code> attribute instead.
+The associated value must be the hexadecimal representation of the <a href="https://en.wikipedia.org/wiki/MD5">MD5</a> checksum of the (<strong>UTF-8</strong> encoded) text of the document.
+Typically, you will not add this attribute yourself.
+It is added by <strong>labelbuddy</strong> when exporting documents and annotations.
+It allows you to export annotations without the document&#8217;s text, and then import them into a database that already contains the document.</p>
+</div>
+<div class="paragraph">
+<p>When exporting documents and annotations, the document&#8217;s metadata (<code>metadata</code>, if you provided it), and <code>utf8_text_md5_checksum</code> are always included.
+You can choose not to include the document&#8217;s <code>text</code> (in which case <code>display_title</code> and <code>list_title</code> are not included either).
+This is useful to export annotations while avoiding to store the text several times.
+Exported annotations can be linked to the original text using the MD5 checksum, or information you stored in the documents&#8217; <code>metadata</code>.
+You can also choose not to include the annotations, and export only the documents.</p>
+</div>
+<div class="paragraph">
+<p>Here is a full list of attributes a document can have:</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>text</code>
+</td>
+<td class="hdlist2">
+<p>The text (content) of the document</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>metadata</code>
+</td>
+<td class="hdlist2">
+<p>A mapping of user-defined metadata. You can use it to associate some information with the document, for example an identifier, DOI, author&#8230;&#8203;
+This data is not used by <strong>labelbuddy</strong>.
+It is stored and bundled with the document when you export it.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>display_title</code>
+</td>
+<td class="hdlist2">
+<p>Shown in the <strong>&#8220;Annotate&#8221;</strong> tab when the document is displayed and being annotated.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>list_title</code>
+</td>
+<td class="hdlist2">
+<p>Shown in the document list in the <strong>&#8220;Labels & Documents&#8221;</strong> tab.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>annotations</code>
+</td>
+<td class="hdlist2">
+<p>A list of annotations.</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Each annotation has the following attributes (the last one, <code>extra_data</code>, is optional):</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>label_name</code>
+</td>
+<td class="hdlist2">
+<p>the label name.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>start_char</code>
+</td>
+<td class="hdlist2">
+<p>the position of the first character (Unicode code point), starting from 0 at the beginning of the text.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>end_char</code>
+</td>
+<td class="hdlist2">
+<p>the position of one past the last character.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>start_byte</code>
+</td>
+<td class="hdlist2">
+<p>the position of the first byte, starting from 0 at the beginning of the <strong>UTF-8</strong> encoded text.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>end_byte</code>
+</td>
+<td class="hdlist2">
+<p>the position of one past the last <strong>UTF-8</strong> byte.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>extra_data</code>
+</td>
+<td class="hdlist2">
+<p>additional text associated with the annotation.</p>
+</td>
+</tr>
+</table>
+</div>
+<div id="unicode-overview" class="sidebarblock">
+<div class="content">
+<div class="title">Annotation positions: characters, code points and bytes</div>
+<div class="paragraph">
+<p>To represent text on a computer, all characters such as "a" (LATIN SMALL LETTER A), "α" (GREEK SMALL LETTER ALPHA) and "🤩" (GRINNING FACE WITH STAR EYES) are associated with an integer number, known as a <a href="https://home.unicode.org">Unicode</a> code point.
+Text can be thought of in an abstract way as a sequence of Unicode code points (often called Unicode characters).</p>
+</div>
+<div class="paragraph">
+<p>In practice, data in a file or in a computer&#8217;s memory is stored as a sequence of bytes (groups of 8 bits, which can each represent one of 2⁸ = 256 different values).
+In order to store text in a file, the code points need to be represented as a sequence of bytes.
+As there are far more than 256 characters (close to 150,000), each code point cannot be stored directly in one byte.
+A transformation that maps each code point to a string of bytes is called a <em>character encoding</em>.
+Several encodings exist, but the most widely used (and required for JSON files as specified in  <a href="https://datatracker.ietf.org/doc/html/rfc8259#section-8.1">the JSON standard, rfc8259</a>) is <a href="https://en.wikipedia.org/wiki/UTF-8"><strong>UTF-8</strong></a>, which encodes each Unicode character as a sequence of 1 to 4 bytes depending on the character.
+For example, "a" (LATIN SMALL LETTER A) corresponds to the Unicode code point 97, and is encoded in <strong>UTF-8</strong> as a single byte, <code>0x61</code>.
+"α" (GREEK SMALL LETTER ALPHA) corresponds to the Unicode code point 945, and is encoded in <strong>UTF-8</strong> as the sequence of 2 bytes <code>0xCE 0xB1</code>.</p>
+</div>
+<div class="paragraph">
+<p>In order to specify the portion of text covered by an annotation, <strong>labelbuddy</strong> provides the positions in the text where the annotation starts and ends, in 2 equivalent ways:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>As indices into the sequence of Unicode code points, <code>start_char</code> and <code>end_char</code>.</p>
+</li>
+<li>
+<p>As indices into the sequence of bytes that results from encoding the text with <strong>UTF-8</strong>, <code>start_byte</code> and <code>end_byte</code>.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For example if the text starts with &#8220;hello &#x1F600;&#8221; and you highlighted exactly that phrase, the associated annotation positions will be:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>start_char</code>: 0</p>
+</li>
+<li>
+<p><code>end_char</code>: 7 (because there are 7 code points, "h", "e", "l", "l", "o", " ", and "&#x1F600;")</p>
+</li>
+<li>
+<p><code>start_byte</code>: 0</p>
+</li>
+<li>
+<p><code>end_byte</code>: 10 (because there are 10 bytes in the annotated text once it is encoded as <strong>UTF-8</strong>:  "&#x1F600;" is represented by the 4-byte sequence <code>0xF0 0x9F 0x98 0x80</code> and the other characters are each represented with 1 byte)</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>When importing annotations, either Unicode character positions or <strong>UTF-8</strong> byte positions can be provided.
+When both are present, the <code>char</code> is used and the <code>byte</code> is ignored.
+Annotations at invalid positions (for example starting past the end of the text or in the middle of a multi-byte character) are ignored.</p>
+</div>
+<div class="paragraph">
+<p>Finally, note that Unicode characters do not necessarily correspond to graphemes in the displayed text&#8201;&#8212;&#8201;a single grapheme may be represented by several Unicode characters, for example when combining characters such as diacritical marks are used.</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>Documents and annotations can be imported and exported to several formats.
+Below, two examples are shown for each format (except <code>.txt</code> which has only one).
+The first illustrates a file that you may create from your data to import it into <strong>labelbuddy</strong>.
+The second one is a file exported from <strong>labelbuddy</strong>.
+It is also a valid input file that can be imported into <strong>labelbuddy</strong>, and it additionnally contains annotations.</p>
+</div>
+<div class="paragraph">
+<p>There is no exported example for <code>.txt</code> because this format is only available for importing.</p>
+</div>
+<div class="sect3">
+<h4 id="import-only-plain-text-txt"><a class="anchor" href="#import-only-plain-text-txt"></a>A.2.1. Import only: plain text (<code>.txt</code>)</h4>
+<div class="paragraph">
+<p>The simplest format you can use is <code>.txt</code>.
+In this case, the file must contain the text of one document per line.
+The newlines that separate documents are not considered part of the document and are discarded.</p>
+</div>
+<div class="paragraph">
+<p>While convenient, this format has some limitations: you cannot specify any other document attributes than the text, and the documents cannot contain newlines.
+The other import formats do not have these limitations.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example of a <code>.txt</code> file we can use to import documents into a <strong>labelbuddy</strong> database:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 documents from a <code>.txt</code> file</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">😀 the text of document 1 some text the end
+the text of document 2 more text the end</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Exporting to <code>.txt</code> is not supported.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="json-json"><a class="anchor" href="#json-json"></a>A.2.2. JSON (<code>.json</code>)</h4>
+<div class="paragraph">
+<p>When using this format, the import or export file is a JSON file containing one JSON array.
+Each element of the array is a JSON object representing a document and its attributes.
+If provided, <code>metadata</code> must be a JSON object (mapping) containing user data about the document.</p>
+</div>
+<div class="paragraph">
+<p>Here is an example of a <code>.json</code> file we can use to import documents into a <strong>labelbuddy</strong> database:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 documents from a <code>.json</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
+  {
+    "text": "😀 the text of document 1\nsome text\nthe end\n"
+  },
+  {
+    "text": "the text of document 2\nmore text\nthe end\n",
+    "display_title": "title 2",
+    "list_title": "the title of document 2",
+    "metadata": {
+      "id": "doc-2",
+      "source": "example.org"
+    }
+  }
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that <code>display_title</code>, <code>list_title</code>, <code>metadata</code> are optional&#8201;&#8212;&#8201;and indeed the first document does not provide them.</p>
+</div>
+<div class="paragraph">
+<p>Below are the same documents, exported by <strong>labelbuddy</strong> after being annotated.
+Each document is always on a separate line.
+This makes it easy to parse the file incrementally.
+Moreover, as the documents are always in the same order (the order in which they were imported), this gives line-oriented tools such as <strong>diff</strong> or <strong>git</strong> a better chance of producing useful output.</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 documents in a <code>.json</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
+{"annotations":[{"end_byte":13,"end_char":10,"label_name":"Word","start_byte":9,"start_char":6},{"end_byte":27,"end_char":24,"extra_data":"1","label_name":"Number","start_byte":26,"start_char":23}],"metadata":{},"text":"😀 the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"baa2e7f8d7efb87cc449f5f1d3ecd6aa"},
+{"annotations":[{"end_byte":20,"end_char":20,"label_name":"Word","start_byte":12,"start_char":12}],"display_title":"title 2","list_title":"the title of document 2","metadata":{"id":"doc-2","source":"example.org"},"text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Here, the <code>text</code> and titles are included, but <strong>labelbuddy</strong> provides the option to omit them.
+Note that as the export format is the same as the import format, this file can be imported into a <strong>labelbuddy</strong> database.</p>
+</div>
+<div class="paragraph">
+<p>For large files (containing many documents or large documents), the JSONL format described in the next section is very similar to JSON but more memory-efficient.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="docs-jsonl-format"><a class="anchor" href="#docs-jsonl-format"></a>A.2.3. JSON Lines (<code>.jsonl</code>)</h4>
+<div class="paragraph">
+<p>When importing a JSON file the whole file is read into memory before inserting the documents in the database.
+To read documents one by one and reduce memory usage, you can use <a href="https://jsonlines.org/">JSON Lines</a> format.
+It is very similar to the JSON format, but instead of having one JSON array, the file must contain one JSON document per line.
+For example:</p>
+</div>
+<div id="import-docs-jsonl-example" class="listingblock">
+<div class="title">Importing 2 documents from a <code>.jsonl</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"text": "😀 the text of document 1\nsome text\nthe end\n"}
+{"text": "the text of document 2\nmore text\nthe end\n", "display_title": "title 2", "list_title": "the title of document 2", "metadata": {"id": "doc-2", "source": "example.org"}}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>(We can see that the first document omits the optional <code>display_title</code>, <code>list_title</code> and <code>metadata</code>.)</p>
+</div>
+<div class="paragraph">
+<p>It is also possible to export documents and annotations to a <code>.jsonl</code> file:</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 documents in a <code>.jsonl</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"annotations":[{"end_byte":13,"end_char":10,"label_name":"Word","start_byte":9,"start_char":6},{"end_byte":27,"end_char":24,"extra_data":"1","label_name":"Number","start_byte":26,"start_char":23}],"metadata":{},"text":"😀 the text of document 1\nsome text\nthe end\n","utf8_text_md5_checksum":"baa2e7f8d7efb87cc449f5f1d3ecd6aa"}
+{"annotations":[{"end_byte":20,"end_char":20,"label_name":"Word","start_byte":12,"start_char":12}],"display_title":"title 2","list_title":"the title of document 2","metadata":{"id":"doc-2","source":"example.org"},"text":"the text of document 2\nmore text\nthe end\n","utf8_text_md5_checksum":"c27b0dbfabf831afaf8bafa0c727cf97"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Note that JSON Lines is <em>not</em> valid JSON.
+If you exported your annotations in a JSON Lines file, when parsing it each <em>line</em> must be parsed separately as a JSON document&#8201;&#8212;&#8201;not the whole file.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="file-formats-for-labels"><a class="anchor" href="#file-formats-for-labels"></a>A.3. File formats for labels</h3>
+<div class="paragraph">
+<p>Labels can have the following attributes:</p>
+</div>
+<div class="hdlist">
+<table>
+<tr>
+<td class="hdlist1">
+<code>name</code>
+</td>
+<td class="hdlist2">
+<p>the label&#8217;s name, mandatory.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>color</code>
+</td>
+<td class="hdlist2">
+<p>A hexadecimal color string, such as <code>"#aec7e8"</code>, or an <a href="https://www.w3.org/TR/SVG11/types.html#ColorKeywords">SVG color name</a>, such as <code>"yellow"</code>.
+If missing, a default color will be assigned to the label.</p>
+</td>
+</tr>
+<tr>
+<td class="hdlist1">
+<code>shortcut_key</code>
+</td>
+<td class="hdlist2">
+<p>A lower-case ASCII letter (a-z) that helps quickly <a href="#annotating-documents">annotating text</a> with that label.
+If missing or already used by another label, the label will not have any <code>shortcut_key</code>.</p>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><code>color</code> and <code>shortcut_key</code> are optional.
+Both can be set from within the <strong>labelbuddy</strong> GUI.</p>
+</div>
+<div class="paragraph">
+<p>As for documents, each section below except for <code>.txt</code> shows two examples: a simple manually created labels file that can be imported, and a file containing labels exported by <strong>labelbuddy</strong>.
+Note the exported file is in the same format, thus can also be imported into a <strong>labelbuddy</strong> database.</p>
+</div>
+<div class="sect3">
+<h4 id="import-only-plain-text-txt-2"><a class="anchor" href="#import-only-plain-text-txt-2"></a>A.3.1. Import only: plain text (<code>.txt</code>)</h4>
+<div class="paragraph">
+<p>Labels can be imported from a text file containing one label name per line (end-of-line characters are discarded):</p>
+</div>
+<div id="import-labels-txt-example" class="listingblock">
+<div class="title">Importing 2 labels from a <code>.txt</code> file</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-txt hljs" data-lang="txt">Word
+Number</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This format does not allow specifying <code>color</code> nor <code>shortcut_key</code>.
+Exporting labels to <code>.txt</code> is not possible.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="labels-json-format"><a class="anchor" href="#labels-json-format"></a>A.3.2. JSON (<code>.json</code>)</h4>
+<div class="paragraph">
+<p>When labels are stored in a JSON file, the file must contain a JSON array containing one JSON object per label.
+Each label&#8217;s object must have the key <code>name</code> and optionally <code>color</code> and <code>shortcut_key</code>.</p>
+</div>
+<div class="paragraph">
+<p>For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 labels from a <code>.json</code> file</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
+  {
+    "name": "Word"
+  },
+  {
+    "name": "Number",
+    "shortcut_key": "n",
+    "color": "orange"
+  }
+]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When exporting labels to JSON, unlike documents, each exported label is not on a single line.
+This makes them easier to read and labels files are very short so there is no need to parse them incrementally.</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 labels in a <code>.json</code> file (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">[
+    {
+        "color": "#aec7e8",
+        "name": "Word"
+    },
+    {
+        "color": "#ffa500",
+        "name": "Number",
+        "shortcut_key": "n"
+    }
+]</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="json-lines-jsonl"><a class="anchor" href="#json-lines-jsonl"></a>A.3.3. JSON Lines (<code>.jsonl</code>)</h4>
+<div class="paragraph">
+<p>In the JSON Lines format, each line in the file contains a JSON document: the JSON object representing a label.
+For example:</p>
+</div>
+<div class="listingblock">
+<div class="title">Importing 2 labels from a <code>.jsonl</code> file.</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"name": "Word"}
+{"name": "Number", "shortcut_key": "n", "color": "orange"}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>And here are the same labels exported by <strong>labelbuddy</strong>:</p>
+</div>
+<div class="listingblock">
+<div class="title">Another example of 2 labels in a <code>.jsonl</code> file (exported by <strong>labelbuddy</strong>)</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-json hljs" data-lang="json">{"color":"#aec7e8","name":"Word"}
+{"color":"#ffa500","name":"Number","shortcut_key":"n"}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+  </div>
+</main>
+</div>
+<footer class="footer">
+    <!-- <p>This page was built using <a href="https://asciidoctor.org/">asciidoctor</a> and <a href="https://antora.org/">antora</a>.</p> -->
+</footer>
+<script id="site-script" src="../../../_/js/site.js" data-ui-root-path="../../../_"></script>
+<script async src="../../../_/js/vendor/highlight.js"></script>
+  </body>
+</html>

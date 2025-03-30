@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>labelbuddy documentation :: labelbuddy</title>
     <link rel="canonical" href="https://jeromedockes.github.io/labelbuddy/labelbuddy/current/documentation/">
-    <meta name="generator" content="Antora 3.0.0-alpha.6">
+    <meta name="generator" content="Antora 3.1.9">
     <link rel="stylesheet" href="../../../_/css/site.css">
     <script>var uiRootPath = '../../../_'</script>
 <link rel="icon" href="../../../labelbuddy/current/_images/labelbuddy.svg" type="image/x-icon">
@@ -72,7 +72,10 @@
       <a class="title" href="../../current/">labelbuddy</a>
       <ul class="versions">
         <li class="version is-latest">
-          <a href="../../current/">0.0.11</a>
+          <a href="../../current/">0.1.0</a>
+        </li>
+        <li class="version">
+          <a href="../../0.0.11/">0.0.11</a>
         </li>
         <li class="version">
           <a href="../../0.0.10/">0.0.10</a>
@@ -106,7 +109,8 @@
 <div class="page-versions">
   <button class="version-menu-toggle" title="Show other versions of page">0.0.7</button>
   <div class="version-menu">
-    <a class="version" href="../../current/documentation/">0.0.11</a>
+    <a class="version" href="../../current/documentation/">0.1.0</a>
+    <a class="version" href="../../0.0.11/documentation/">0.0.11</a>
     <a class="version" href="../../0.0.10/documentation/">0.0.10</a>
     <a class="version" href="../../0.0.9/documentation/">0.0.9</a>
     <a class="version" href="../../0.0.8/documentation/">0.0.8</a>
@@ -265,7 +269,7 @@ Documents, labels and annotations that are already in the database are skipped i
 <h3 id="importing-documents-and-annotations"><a class="anchor" href="#importing-documents-and-annotations"></a>2.1. Importing documents (and annotations)</h3>
 <div class="paragraph">
 <p>In the <strong>&#8220;Import / Export&#8221;</strong> tab, click <b class="button">Import docs &amp; annotations</b> and select a file containing the documents you plan to annotate.
-If you want try this before creating your own, you can download example documents from the <a href="../examples/" class="page"><strong>labelbuddy</strong> website</a>.</p>
+If you want try this before creating your own, you can download example documents from the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> website</a>.</p>
 </div>
 <div class="paragraph">
 <p>When importing a new document into <strong>labelbuddy</strong>, several attributes can be specified:</p>
@@ -357,7 +361,7 @@ The format is deduced from the filename extension.</p>
 <h3 id="importing-or-creating-labels"><a class="anchor" href="#importing-or-creating-labels"></a>2.2. Importing or creating labels</h3>
 <div class="paragraph">
 <p>To import labels, click <b class="button">Import labels</b> in the <strong>&#8220;Import / Export&#8221;</strong> tab and select a file.
-If you want try this before creating your own labels, you can download example labels from the <a href="../examples/" class="page"><strong>labelbuddy</strong> examples page</a>.</p>
+If you want try this before creating your own labels, you can download example labels from the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> examples page</a>.</p>
 </div>
 <div class="paragraph">
 <p>Labels have three attributes: a mandatory <code>text</code> (label name), and an optional <code>color</code> and <code>shortcut_key</code>.
@@ -726,7 +730,7 @@ For example, you can break down the annotations into several files to reflect th
 <h3 id="command-line-interface"><a class="anchor" href="#command-line-interface"></a>2.7. Command-line interface</h3>
 <div class="paragraph">
 <p><strong>labelbuddy</strong> can also be used from the command line to create databases, import and export documents, labels and annotations without opening the GUI.
-See the <code>labelbuddy(1)</code> <a href="../manpage/" class="page"><strong>man</strong> page</a>, or <code>labelbuddy -h</code> for a short list of options reproduced here:</p>
+See the <code>labelbuddy(1)</code> <a href="../manpage/" class="xref page"><strong>man</strong> page</a>, or <code>labelbuddy -h</code> for a short list of options reproduced here:</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -833,7 +837,7 @@ Of course, you can import data from several files in any formats into the same d
 If you are not sure which format to choose, use <a href="#docs-jsonl-format">JSONL</a> for documents and <a href="#labels-json-format">JSON</a> for labels.</p>
 </div>
 <div class="paragraph">
-<p>The examples shown in this section can be found as separate files on the <a href="../examples/" class="page"><strong>labelbuddy</strong> examples page</a>.
+<p>The examples shown in this section can be found as separate files on the <a href="../examples/" class="xref page"><strong>labelbuddy</strong> examples page</a>.
 Annotations are imported or exported together with information about the document to which they belong, so they are discussed together in <a href="#file-formats-for-documents-and-annotations">the next section</a>.
 However note that it is possible to export document metadata and annotations without the documents' text to save storage space.</p>
 </div>
@@ -1102,7 +1106,7 @@ If you exported your annotations in a JSON Lines file, when parsing it each <em>
 <h4 id="docs-xml-format"><a class="anchor" href="#docs-xml-format"></a>A.2.4. XML (<code>.xml</code>)</h4>
 <div class="paragraph">
 <p>If your source documents are stored in XML, it may be easier to transform them to <strong>labelbuddy</strong>'s XML format than to JSON.
-A RELAX NG schema is provided on the <a href="../xml_schema/" class="page"><strong>labelbuddy</strong> XML schema page</a>.
+A RELAX NG schema is provided on the <a href="../xml_schema/" class="xref page"><strong>labelbuddy</strong> XML schema page</a>.
 The root element must be <code>document_set</code> and contain any number of <code>document</code> elements.
 Each <code>document</code> contains children that have the names of the attributes described above: <code>text</code>, <code>short_title</code>, etc.
 User metadata is provided in the attributes of an element named <code>meta</code> or by using the <code>id</code> element&#8217;s text.
@@ -1304,7 +1308,7 @@ That is,</p>
 <div class="listingblock">
 <div class="title">Another example of 2 documents in a <code>.csv</code> file, with annotations (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">﻿ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">ignore_this_column,utf8_text_md5_checksum,meta,id,short_title,long_title,text,start_char,end_char,label,extra_data
 ,872edcd008dee45d894d5d3c9143f96b,{},,,,"the text of document 1
 some text
 the end
@@ -1554,7 +1558,7 @@ For example:</p>
 <h4 id="xml-xml"><a class="anchor" href="#xml-xml"></a>A.3.4. XML (<code>.xml</code>)</h4>
 <div class="paragraph">
 <p>Labels can also be stored in XML.
-As for documents, a RELAX NG schema is provided on the <a href="../xml_schema/" class="page"><strong>labelbuddy</strong> XML schema page</a>.
+As for documents, a RELAX NG schema is provided on the <a href="../xml_schema/" class="xref page"><strong>labelbuddy</strong> XML schema page</a>.
 Here is an example:</p>
 </div>
 <div class="listingblock">
@@ -1667,7 +1671,7 @@ For example:</p>
 <div class="listingblock">
 <div class="title">Another example of 2 labels in a <code>.csv</code> file (exported by <strong>labelbuddy</strong>)</div>
 <div class="content">
-<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">﻿ignore_this_column,text,color,shortcut_key
+<pre class="highlightjs highlight"><code class="language-csv hljs" data-lang="csv">ignore_this_column,text,color,shortcut_key
 ,Word,#aec7e8,
 ,Number,#ffa500,n</code></pre>
 </div>
