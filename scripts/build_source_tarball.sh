@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 TARGET_DIR="$(pwd)"
 REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. >/dev/null 2>&1 && pwd )"
 BUILD_DIR="$(mktemp -d)"

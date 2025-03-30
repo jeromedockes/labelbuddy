@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 apt-get update
 apt-get install -y cmake file lsb-release bzr bzr-builddeb dh-make
 

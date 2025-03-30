@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 if [[ ! -z "$(ls -A $(pwd))" ]]; then
     echo "Please run from an empty directory!"
     exit 1

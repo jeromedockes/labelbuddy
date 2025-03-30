@@ -1,5 +1,7 @@
 #! /bin/bash
 
+set -e
+
 TARGET_DIR="$(pwd)"
 REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && cd .. >/dev/null 2>&1 && pwd )"
 BUILD_DIR="$(mktemp -d)"
@@ -12,7 +14,7 @@ trap 'cleanup' EXIT
 cd "$BUILD_DIR"
 echo "Building .dmg in $(pwd)"
 
-qmake "$REPO_DIR/labelbuddy.pro" "CONFIG += app_bundle" -config release
+qmake -spec macx-clang "$REPO_DIR/labelbuddy.pro" "CONFIG += app_bundle" -config release
 make
 macdeployqt labelbuddy.app -dmg
 
