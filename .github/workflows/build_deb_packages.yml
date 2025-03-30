@@ -6,6 +6,9 @@ on:
       - "main"
     tags:
       - "debian*"
+  pull_request:
+    branches:
+      - "*"
 
 jobs:
   build_debian_packages:
