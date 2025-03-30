@@ -14,7 +14,7 @@ trap 'cleanup' EXIT
 cd "$BUILD_DIR"
 echo "Building .dmg in $(pwd)"
 
-qmake -spec macx-clang "$REPO_DIR/labelbuddy.pro" "CONFIG += app_bundle" -config release
+qmake "$REPO_DIR/labelbuddy.pro" "CONFIG += app_bundle" -config release
 make
 macdeployqt labelbuddy.app -dmg
 

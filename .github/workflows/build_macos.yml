@@ -10,7 +10,7 @@ on:
 
 jobs:
   build_macos:
-    runs-on: macos-13
+    runs-on: macos-15
     defaults:
       run:
         shell: bash
